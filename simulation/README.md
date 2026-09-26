@@ -18,39 +18,17 @@ controller/       (todo) the planner that uses the world model
 jepa_model/       (todo) the world model itself
 ```
 
-## Setup
+## Setup and run
 
-Enter the repository
+See the [root README](../README.md) for installation and the separate macOS and
+Linux viewer commands. Run the commands below from `simulation/`.
 
-```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-```
-
-## Run
-
-Everything runs from inside `simulation/`, with the venv active and headless rendering on:
-
-```bash
-cd simulation
-source ../.venv/bin/activate
-export MUJOCO_GL=egl          # osmesa if there is no GPU
-```
-
-Watch it (opens a window, needs a display):
-
-```bash
-python play.py success        # pick, move between the obstacles, place
-python play.py fail           # drops the object mid way
-python play.py collide        # carries straight through the obstacles
-python play.py random         # random actions
-```
-
-A second window plots the reward live while it runs (reward per step and the running return,
-then the bonus terms, then the penalties), and every bonus or penalty that fires is printed
-in the terminal with the time and the stage. Add `--seed 34` to pick a layout, `--speed 2`
-to play faster, `--layout data/smoke/episode_000003/meta.json` to replay a recorded
-episode's layout.
+The viewer opens a window and needs a graphical desktop. On Linux a second
+window plots reward live. On macOS `mjpython` is required for the viewer, so the
+live Matplotlib window is disabled; reward events and the final component
+totals are printed in the terminal. Add `--seed 34` for a repeatable layout,
+`--speed 2` for faster playback, or
+`--layout data/smoke/episode_000003/meta.json` to replay a recorded layout.
 
 An episode ends when the object has sat on the target for a bit (success), or as a failure
 when the object falls off the table, the scripted policy gives up (grasp missed too many
@@ -59,7 +37,7 @@ times, arm stuck), or time runs out. Failures get a one time `fail` penalty in t
 Collect a dataset:
 
 ```bash
-python -m data_collection.collect --episodes 100 --data/test --workers 4
+../.venv/bin/python -m data_collection.collect --episodes 100 --out data/test --workers 4
 ```
 
 
@@ -83,7 +61,6 @@ loads a folder back.
 Reward over time for one episode (total on top, the components below):
 
 ```bash
-python plot_rewards.py data/smoke/episode_000003          # opens a window
-python plot_rewards.py data/smoke/episode_000003 --save   # writes rewards.png into the folder
+../.venv/bin/python plot_rewards.py data/test/episode_000003          # opens a window
+../.venv/bin/python plot_rewards.py data/test/episode_000003 --save   # writes rewards.png into the folder
 ```
-

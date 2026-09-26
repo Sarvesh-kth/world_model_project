@@ -16,7 +16,7 @@ from environment.rewards import COMPONENTS
 from data_collection.scripted_policy import make_policy
 from plot_rewards import LivePlot
 
-# Watch a scenario in the mujoco viewer, with the rewards plotted live next to it
+# Watch a scenario in the mujoco viewer, with live rewards plotted where supported
 # and every bonus / penalty printed as it happens
 #   python play.py success    scripted pick, weave between the obstacles, place
 #   python play.py fail       picks, then drops the object mid transport
@@ -44,7 +44,8 @@ def play(env, policy, speed, plot):
       total += reward
       for k in COMPONENTS:
         sums[k] += cfg.rewards.weights[k] * c[k]
-      plot.add(t, reward, c)
+      if plot is not None:
+        plot.add(t, reward, c)
       for k in EVENTS:
         if c[k] != 0:
           print(f"  t={t:5.1f}s  {k:10s} {cfg.rewards.weights[k] * c[k]:+.2f}   stage={info['stage']}")
@@ -74,21 +75,25 @@ def main():
       d = json.load(f)
     layout = EpisodeLayout.from_dict(d.get("layout", d))
   base_seed = cfg.seed if args.seed is None else args.seed
-  plot = LivePlot()
+  # mjpython runs this script off the macOS UI thread; Matplotlib cannot open a window there.
+  plot = None if sys.platform == "darwin" else LivePlot()
+  if plot is None:
+    print("live reward plot unavailable on macOS; use plot_rewards.py for recorded episodes")
   for ep in range(args.episodes):
     seed = base_seed + ep
     _, info = env.reset(seed=seed, holdout=args.holdout, layout=layout)
     print(f"episode {ep} (seed {seed}): {info['layout']}")
-    plot.reset(f"{args.scenario} seed {seed}")
+    if plot is not None:
+      plot.reset(f"{args.scenario} seed {seed}")
     policy = make_policy(SCENARIOS[args.scenario], env, np.random.default_rng(seed), cfg)
     if play(env, policy, args.speed, plot) is None:
       # window was closed
       break
-  # Keep the plot up until it is closed
-  print("close the plot window to exit")
-  import matplotlib.pyplot as plt
-  plt.ioff()
-  plt.show()
+  if plot is not None:
+    print("close the plot window to exit")
+    import matplotlib.pyplot as plt
+    plt.ioff()
+    plt.show()
   env.close()
   # The viewer thread can hang on exit, so leave the hard way
   sys.stdout.flush()

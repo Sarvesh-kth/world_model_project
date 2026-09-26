@@ -2,3 +2,11 @@
 __pycache__/
 *.pyc
 data/
+
+# Keep local notes and agent instructions out of project commits.
+*.md
+.agents/
+.codex/
+.claude/
+AGENTS.md
+CLAUDE.md
