@@ -1,0 +1,136 @@
+seed: 0
+
+# Simulation configuration
+sim:
+  timestep: 0.002
+  impratio: 10        # elliptic friction cone with stiff friction, without this held objects creep out of the grasp
+
+# Control configuration
+control:
+  hz: 10
+  max_delta: 0.04
+  yaw:
+    enabled: true
+    max_delta: 0.15
+  workspace:
+    low: [-0.12, -0.42, 0.755]
+    high: [0.45, 0.42, 0.97]   # 0.22 m above table, just clears the tallest obstacle (0.19) so the arm can travel above them but not carry objects over
+  # Inverse kinematics configuration
+  ik:
+    hz: 250
+    damping: 0.02       # higher and the posture pull leaks into the task space, the hand stops ~1 cm short near the base
+    pos_gain: 10.0
+    ori_gain: 6.0
+    posture_gain: 2.0
+    max_lin_vel: 0.7
+    max_ang_vel: 2.0
+    max_joint_vel: 2.5
+    max_lead: 0.05
+
+# Camera configuration
+cameras:
+  record_hz: 10
+  width: 256
+  height: 256
+  static:
+    pos: [1.25, 0.0, 1.42]
+    lookat: [0.10, 0.0, 0.82]
+    fovy: 52
+  wrist:
+    fovy: 75                 # wide enough to keep both fingers in frame
+    tilt_deg: 30             # pitch towards the fingertips (0 implies that it is looking straight along the gripper)
+  pointcloud:
+    enabled: false
+    frame: base
+    stride: 2
+    max_depth: 2.5
+
+# Position defined in world coordinates
+robot:
+  base_pos: [-0.40, 0.0, 0.75]
+  # Home position of the robot
+  home_qpos: [0.0, -0.6, 0.0, -2.8, 0.0, 2.2, -0.7853]   # hand starts back near the base, not above the obstacles
+  posture_noise: 0.25
+  grip_scale: 2.0          # multiplier on the menagerie gripper servo gain/force (1.0 = as vendored)
+
+# Table dimensions and properties
+table:
+  center: [0.15, 0.0]
+  half_size: [0.32, 0.46]
+  height: 0.75
+  top_thickness: 0.04
+
+# Task configuration
+task:
+  pick_end: random
+  place_end: opposite
+  # What determines as ends of the table, arm should also be able to cover
+  ends:
+    left:  {x: [-0.02, 0.28], y: [-0.38, -0.18]}
+    right: {x: [-0.02, 0.28], y: [0.18, 0.38]}
+    near:  {x: [-0.08, 0.04], y: [-0.22, 0.22]}
+    far:   {x: [0.20, 0.30], y: [-0.22, 0.22]}
+  reach_range: [0.30, 0.65]      # objects further out cannot be reached from above
+  min_pick_place_dist: 0.35
+  # Object pool and properties
+  object:
+    pool: [cube, cuboid, cylinder, hex_prism, tri_prism, frustum]   # tee and cross dropped, the fingers land on their arms
+    holdout: [bottle]        # pill dropped, it rolls out of the fingers
+    scale: [0.9, 1.1]
+    mass: [0.05, 0.20]
+    friction: [0.8, 1.5]
+    randomize_color: true
+  # Need to improve obstacle spawning
+  # Obstacles configuration
+  obstacles:
+    count: [3, 5]              # the first one is always tall, the others get a height from extra_height
+    extra_height: [0.04, 0.19] # low ones get carried over, tall ones have to be walked around
+    clearance: 0.20            # min distance from the pick and place positions (arm needs room to descend)
+    spacing: 0.10              # min centre distance between obstacles
+    corridor_span: [0.25, 0.75]
+    lateral_offset: 0.16
+    kinds:                     # sampled uniformly every size is a value or a [low, high] range (m)
+      wall:     {length: [0.08, 0.16], thickness: 0.02, height: [0.16, 0.19]}
+      box:      {width: [0.03, 0.06], height: [0.16, 0.19]}
+      cylinder: {radius: [0.015, 0.03], height: [0.16, 0.19]}
+
+# Episode configuration
+episode:
+  max_steps: 300          # routes around the obstacles are long
+  success_radius: 0.07     # radius for success
+  settle_steps: 15         # number of steps the object has to sit on the target before the episode ends
+  fall_margin: 0.05        # object this far below the table top counts as fallen off, episode fails
+  terminate_on_success: true # terminate the episode when the object is successfully placed
+
+# Rewards for the environment, check on this ?
+rewards:
+  lift_height: 0.04
+  safe_distance: 0.06      # proximity penalty starts when any arm link is closer than this to an obstacle
+  weights:
+    reach: 0.5
+    grasp: 0.5
+    lift: 0.5
+    transport: 1.0
+    place: 5.0
+    success: 10.0
+    fail: 10.0
+    collision: 0.5
+    proximity: 0.3
+    table_hit: 0.2
+    drop: 1.0
+    action: 0.01
+
+# Data collection configuration
+data:
+  root: data
+  jpeg_quality: 90
+  workers: 4
+  # Data distribution of the mix while performing data collection
+  mix: {success: 0.5, scripted: 0.1, drop: 0.1, collide: 0.15, random: 0.15}
+  success_attempts: 5
+  scripted:
+    noise: 0.1               # action noise std for "scripted" episodes ("success" episodes are noise-free)
+    noise_correlation: 0.8   # 0 = white noise per step, -> 1 = slowly drifting perturbation
+    speed_range: [0.6, 1.0]  # per-episode speed scale
+    carry_height: 0.10       # object-bottom clearance above the table while carrying, the carry rises above this to pass over low obstacles
+    route_margin: 0.16       # kept between the hand and an obstacle footprint: half the hand along the fingers (0.10) + carried object + slack
