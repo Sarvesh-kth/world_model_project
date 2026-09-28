@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 data/
+artifacts/
 
 # Keep local notes and agent instructions out of project commits.
 *.md
