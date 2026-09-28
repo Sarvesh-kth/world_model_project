@@ -92,8 +92,9 @@ The CUDA check must print `True` before encoding. The notebook driver reports
 CUDA 12.4 support, so the command above uses PyTorch's matching CUDA 12.4 wheel.
 Unqualified `pip install torch` currently selects a CUDA 13 wheel and prints
 `False` with a driver-too-old warning on this notebook. To repair an existing
-virtual environment, run the same pinned PyTorch install command with
-`--force-reinstall`, then repeat the CUDA check. See [PyTorch's published wheel
+virtual environment, run the same pinned PyTorch install command again; pip
+will replace the incompatible torch/torchvision versions. Then repeat the CUDA
+check. See [PyTorch's published wheel
 commands](https://pytorch.org/get-started/previous-versions/).
 The H100 MIG allocation shown for this project has about 20 GiB, so start with
 the small run below. V-JEPA's weights are downloaded from Hugging Face on the
