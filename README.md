@@ -81,14 +81,20 @@ git clone --branch M2_Kuba --single-branch https://github.com/Sarvesh-kth/world_
 cd world_model_project
 python3 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
-.venv/bin/python -m pip install torch torchvision
+.venv/bin/python -m pip install torch==2.6.0 torchvision==0.21.0 \
+  --index-url https://download.pytorch.org/whl/cu124
 .venv/bin/python -m pip install -r requirements.txt -r requirements-model.txt
 .venv/bin/python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else "no GPU")'
 cd simulation
 ```
 
-The CUDA check must print `True` before encoding. If it prints `False`, install
-the CUDA build matching the cluster driver using the [PyTorch selector](https://pytorch.org/get-started/locally/).
+The CUDA check must print `True` before encoding. The notebook driver reports
+CUDA 12.4 support, so the command above uses PyTorch's matching CUDA 12.4 wheel.
+Unqualified `pip install torch` currently selects a CUDA 13 wheel and prints
+`False` with a driver-too-old warning on this notebook. To repair an existing
+virtual environment, run the same pinned PyTorch install command with
+`--force-reinstall`, then repeat the CUDA check. See [PyTorch's published wheel
+commands](https://pytorch.org/get-started/previous-versions/).
 The H100 MIG allocation shown for this project has about 20 GiB, so start with
 the small run below. V-JEPA's weights are downloaded from Hugging Face on the
 first encode; that command needs internet access and enough cache space.
