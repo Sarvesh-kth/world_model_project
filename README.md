@@ -85,6 +85,9 @@ python3 -m venv .venv
   --index-url https://download.pytorch.org/whl/cu124
 .venv/bin/python -m pip install -r requirements.txt -r requirements-model.txt
 .venv/bin/python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else "no GPU")'
+source .venv/bin/activate
+bash setup_mujoco_headless.sh
+deactivate
 cd simulation
 ```
 
@@ -99,10 +102,15 @@ commands](https://pytorch.org/get-started/previous-versions/).
 The H100 MIG allocation shown for this project has about 20 GiB, so start with
 the small run below. V-JEPA's weights are downloaded from Hugging Face on the
 first encode; that command needs internet access and enough cache space.
+The notebook image has neither usable EGL nor OSMesa for MuJoCo. The setup
+script downloads OSMesa with APT into `.mujoco-osmesa/`, without a system-wide
+install, and registers a loader in this project's active `.venv`. Run it once
+in this environment before collecting images. A Linux machine with working
+EGL can instead skip this setup and use `MUJOCO_GL=egl` for collection.
 
 ```bash
 # 1. Collect 10 episodes on one fixed cube/goal layout. No viewer is opened.
-MUJOCO_GL=egl ../.venv/bin/python -m data_collection.collect \
+../.venv/bin/python -m data_collection.collect \
   --config configs/grade_e.yml --layout configs/grade_e_layout.json \
   --episodes 10 --workers 1 --seed 34 --out data/grade_e/episodes
 
@@ -125,8 +133,9 @@ MUJOCO_GL=egl ../.venv/bin/python -m data_collection.collect \
   --out artifacts/grade_e/dynamics
 ```
 
-If MuJoCo reports an EGL initialization error, rerun only the collection command
-with `MUJOCO_GL=osmesa` if the cluster has OSMesa installed. Collection renders
+If MuJoCo still reports an OpenGL loading error, check that the setup script
+completed in the same virtual environment used by `../.venv/bin/python`.
+Collection renders
 both static and wrist JPEGs; the current encoder reads only the static view.
 The saved CSV also contains privileged simulator object coordinates and rewards,
 but `D` receives only the frozen visual vector, 20 proprioception values, and
@@ -154,7 +163,7 @@ For a larger fixed-scene dataset, collect more episodes into the **same**
 directory so the small-run artifacts remain reproducible. For example:
 
 ```bash
-MUJOCO_GL=egl ../.venv/bin/python -m data_collection.collect \
+../.venv/bin/python -m data_collection.collect \
   --config configs/grade_e.yml --layout configs/grade_e_layout.json \
   --episodes 100 --workers 1 --seed 35 --out data/grade_e/episodes
 ../.venv/bin/python -m world_model.prepare \

@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 data/
 artifacts/
+.mujoco-osmesa/
 
 # Keep local notes and agent instructions out of project commits.
 *.md
