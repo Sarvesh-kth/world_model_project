@@ -110,7 +110,7 @@ EGL can instead skip this setup and use `MUJOCO_GL=egl` for collection.
 
 ```bash
 # 1. Collect 10 episodes on one fixed cube/goal layout. No viewer is opened.
-../.venv/bin/python -m data_collection.collect \
+MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa ../.venv/bin/python -m data_collection.collect \
   --config configs/grade_e.yml --layout configs/grade_e_layout.json \
   --episodes 10 --workers 1 --seed 34 --out data/grade_e/episodes
 
@@ -163,7 +163,7 @@ For a larger fixed-scene dataset, collect more episodes into the **same**
 directory so the small-run artifacts remain reproducible. For example:
 
 ```bash
-../.venv/bin/python -m data_collection.collect \
+MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa ../.venv/bin/python -m data_collection.collect \
   --config configs/grade_e.yml --layout configs/grade_e_layout.json \
   --episodes 100 --workers 1 --seed 35 --out data/grade_e/episodes
 ../.venv/bin/python -m world_model.prepare \
