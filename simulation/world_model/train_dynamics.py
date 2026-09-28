@@ -46,7 +46,8 @@ def main():
   index = feature_meta["index"]
   samples = manifest["samples"]
   z = np.stack([latents[index[f"{s['episode']}:{s['source']}"]] for s in samples])
-  next_z = np.stack([latents[index[f"{s['episode']}:{s['target']}"]] for s in samples])
+  next_z = np.stack([latents[index[s.get('target_key', f"{s['episode']}:{s['target']}")]]
+                     for s in samples])
   proprio = np.asarray([s["p"] for s in samples], dtype=np.float32)
   next_p = np.asarray([s["next_p"] for s in samples], dtype=np.float32)
   action = np.asarray([s["action"] for s in samples], dtype=np.float32)

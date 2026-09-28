@@ -1,7 +1,6 @@
 """Compare D with two real actions taken from the same saved validation state."""
 
 import argparse
-import csv
 import hashlib
 import json
 import pathlib
@@ -11,66 +10,9 @@ import numpy as np
 import torch
 from transformers import AutoModel, AutoVideoProcessor
 
-from environment import EpisodeLayout, PickPlaceEnv, load_config
-from .prepare import A_COLUMNS
+from environment import load_config
+from .replay import read_episode, replay_branch
 from .train_dynamics import Dynamics
-
-
-def _read_episode(episodes, sample):
-  folder = episodes / sample["episode"]
-  with (folder / "data.csv").open(newline="") as f:
-    rows = list(csv.DictReader(f))
-  meta = json.loads((folder / "meta.json").read_text())
-  if sample["source"] >= len(rows):
-    raise ValueError(f"source serial {sample['source']} has no next row in {folder}")
-  return folder, rows, meta
-
-
-def _replay_branch(sample, rows, meta, action, camera, replay_mode=None):
-  # Replaying the recorded prefix also restores the controller's targets and reward state.
-  cfg = load_config(overrides=meta["config"])
-  last_error = None
-  for mode in ([replay_mode] if replay_mode else ["fixed", "sampled"]):
-    env = PickPlaceEnv(cfg)
-    try:
-      layout = EpisodeLayout.from_dict(meta["layout"]) if mode == "fixed" else None
-      env.reset(seed=int(meta["seed"]), layout=layout)
-      if mode == "sampled" and env.layout.to_dict() != meta["layout"]:
-        last_error = "sampled layout differs from the recorded layout"
-        continue
-      ended = False
-      for row in rows[:sample["source"]]:
-        recorded_action = [float(row[name]) for name in A_COLUMNS]
-        obs, _, terminated, truncated, _ = env.step(recorded_action)
-        if terminated or truncated:
-          ended = True
-          break
-      if ended:
-        last_error = f"{mode} replay ended before the selected source state"
-        continue
-      p_error = float(np.max(np.abs(obs["proprio"] - sample["p"])))
-      object_pose = [float(rows[sample["source"] - 1][f"object_{axis}"])
-                     for axis in ("x", "y", "z", "qw", "qx", "qy", "qz")]
-      object_error = float(np.max(np.abs(obs["state"][:7] - object_pose)))
-      if p_error > 1e-3 or object_error > 1e-3:
-        last_error = (f"{mode} replay differs from recorded state: "
-                      f"p={p_error:.6g}, object pose={object_error:.6g}")
-        continue
-      source_state = np.concatenate((env.data.qpos, env.data.qvel, env.data.act,
-                                     env.data.ctrl, env.controller.target_pos,
-                                     env.controller.q_des,
-                                     [env.controller.yaw, float(env.controller.gripper_open)]))
-      next_obs, _, _, _, _ = env.step(action)
-      rgb = env.render(camera)
-      ok, jpeg = cv2.imencode(".jpg", rgb[..., ::-1],
-                              [cv2.IMWRITE_JPEG_QUALITY, cfg.data.jpeg_quality])
-      if not ok:
-        raise RuntimeError("could not JPEG-encode branch frame")
-      return (next_obs["proprio"].copy(), jpeg.tobytes(), p_error,
-              object_error, mode, source_state)
-    finally:
-      env.close()
-  raise ValueError(f"could not replay the recorded source state: {last_error}")
 
 
 def _next_clip(folder, camera, source, clip_frames, branch_jpeg):
@@ -144,7 +86,7 @@ def main():
   if not val:
     parser.error("manifest has no validation samples")
   if args.sample_index is None:
-    cfg = load_config(overrides=_read_episode(
+    cfg = load_config(overrides=read_episode(
       (args.manifest.resolve().parent / manifest["episodes_dir"]).resolve(), val[0])[2]["config"])
     low, high = cfg.control.workspace.low[0], cfg.control.workspace.high[0]
     sample_index = max(range(len(val)), key=lambda i: min(val[i]["p"][14] - low,
@@ -155,7 +97,7 @@ def main():
     parser.error(f"--sample-index must be in 0..{len(val) - 1}")
   sample = val[sample_index]
   episodes = (args.manifest.resolve().parent / manifest["episodes_dir"]).resolve()
-  folder, rows, meta = _read_episode(episodes, sample)
+  folder, rows, meta = read_episode(episodes, sample)
   print(f"validation sample {sample_index}/{len(val) - 1}: "
         f"{sample['episode']} after serial {sample['source']}", flush=True)
   p = np.asarray(sample["p"], dtype=np.float32)
@@ -184,7 +126,7 @@ def main():
   replay_mode = None
   source_state = None
   for name, action in actions.items():
-    actual_p, jpeg, p_replay, object_replay, replay_mode, replay_state = _replay_branch(
+    actual_p, jpeg, p_replay, object_replay, replay_mode, replay_state = replay_branch(
       sample, rows, meta, action, manifest["camera"], replay_mode)
     if source_state is None:
       source_state = replay_state

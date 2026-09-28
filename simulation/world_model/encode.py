@@ -23,9 +23,17 @@ def main():
   manifest = json.loads(args.manifest.read_text())
   manifest_sha256 = hashlib.sha256(args.manifest.read_bytes()).hexdigest()
   episodes = (args.manifest.resolve().parent / manifest["episodes_dir"]).resolve()
-  keys = sorted({(s["episode"], s[side]) for s in manifest["samples"]
-                 for side in ("source", "target")})
-  if not keys:
+  endpoints = {}
+  for sample in manifest["samples"]:
+    source_key = f"{sample['episode']}:{sample['source']}"
+    target_key = sample.get("target_key", f"{sample['episode']}:{sample['target']}")
+    endpoints[source_key] = (sample["episode"], sample["source"], None)
+    target = (sample["episode"], sample["target"], sample.get("target_image"))
+    if target_key in endpoints and endpoints[target_key] != target:
+      p.error(f"conflicting clip endpoint {target_key}")
+    endpoints[target_key] = target
+  keys = sorted(endpoints)
+  if not endpoints:
     p.error("manifest has no clip endpoints")
   processor = AutoVideoProcessor.from_pretrained(args.model)
   model = AutoModel.from_pretrained(args.model, attn_implementation="sdpa")
@@ -35,19 +43,23 @@ def main():
   vectors = []
   index = {}
   with torch.inference_mode():
-    for n, (episode, serial) in enumerate(keys, 1):
+    for n, key in enumerate(keys, 1):
+      episode, serial, target_image = endpoints[key]
       frames = []
       for i in range(serial - manifest["clip_frames"] + 1, serial + 1):
-        frame = cv2.imread(str(episodes / episode / "images" / f"{manifest['camera']}_{max(1, i)}.jpg"))
+        path = ((args.manifest.resolve().parent / target_image)
+                if target_image and i == serial else
+                episodes / episode / "images" / f"{manifest['camera']}_{max(1, i)}.jpg")
+        frame = cv2.imread(str(path))
         if frame is None:
-          raise FileNotFoundError(f"missing frame {episode}/{manifest['camera']}_{i}.jpg")
+          raise FileNotFoundError(path)
         frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
       video = torch.from_numpy(np.stack(frames)).permute(0, 3, 1, 2)
       inputs = processor(video, return_tensors="pt").to("cuda")
       with torch.autocast("cuda", dtype=torch.bfloat16):
         tokens = model(**inputs, skip_predictor=True).last_hidden_state
       z = tokens.float().mean(dim=1).squeeze(0).cpu().numpy()
-      index[f"{episode}:{serial}"] = len(vectors)
+      index[key] = len(vectors)
       vectors.append(z)
       if n % 10 == 0 or n == len(keys):
         print(f"encoded {n}/{len(keys)} clips", flush=True)
