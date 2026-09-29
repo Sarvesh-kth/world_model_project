@@ -12,7 +12,7 @@ from transformers import AutoModel, AutoVideoProcessor
 
 from environment import load_config
 from .replay import read_episode, replay_branch
-from .train_dynamics import Dynamics
+from .train_dynamics import model_from_checkpoint
 
 
 def _next_clip(folder, camera, source, clip_frames, branch_jpeg):
@@ -114,9 +114,7 @@ def main():
       or len(actions["plus_x"]) != checkpoint["a_dim"]):
     parser.error("checkpoint tensor dimensions do not match the selected sample")
   device = "cuda"
-  dynamics = Dynamics(checkpoint["z_dim"], checkpoint["p_dim"],
-                      checkpoint["a_dim"], width=checkpoint["width"]).to(device).eval()
-  dynamics.load_state_dict(checkpoint["model"])
+  dynamics = model_from_checkpoint(checkpoint).to(device).eval()
   processor = AutoVideoProcessor.from_pretrained(feature_meta["model"])
   encoder = AutoModel.from_pretrained(feature_meta["model"],
                                       attn_implementation="sdpa")

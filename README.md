@@ -181,3 +181,40 @@ predictor is skipped; `D` is the action-conditioned predictor trained here.
 Mean pooling and one-step loss are provisional baselines. Before using `D` for
 planning, check object-location information, multi-step drift, and whether
 changing an action changes its predicted outcome on held-out episodes.
+
+### Diagnose action prediction without removing V-JEPA
+
+After collecting and encoding the paired-action dataset
+(`data/grade_e/manifest_branches.json` and `data/grade_e/features_branches`),
+train a split dynamics model from `simulation/`:
+
+```bash
+../.venv/bin/python -m world_model.train_dynamics \
+  --manifest data/grade_e/manifest_branches.json \
+  --features data/grade_e/features_branches \
+  --architecture split --epochs 30 \
+  --out artifacts/grade_e/dynamics_split
+
+../.venv/bin/python -m world_model.rescore_contrasts \
+  --source artifacts/grade_e/contrast_before \
+  --checkpoint artifacts/grade_e/dynamics_split/best.pt \
+  --out artifacts/grade_e/contrast_split_best
+
+../.venv/bin/python -m world_model.compare_contrasts \
+  --before artifacts/grade_e/contrast_before \
+  --after artifacts/grade_e/contrast_split_best
+```
+
+The first head learns `next_p` from current proprioception and action. The
+second head learns `next_z` from the current frozen V-JEPA vector, current
+proprioception, action, and predicted `next_p`. Both heads are part of one
+action-conditioned world model. The training log prints the real and predicted
+mean `+x`/`-x` gripper effect on paired **training** states. `best.pt` minimizes
+ordinary held-out episode `z+p` error; `last.pt` also saves the final epoch to
+show whether checkpoint selection hides a learned action effect.
+`rescore_contrasts` uses the previously saved real branch states and visual
+vectors, so it does not replay MuJoCo or rerun V-JEPA. If the old contrast data
+is missing, run `world_model.action_contrast` over the eight validation states
+first. Compare the physical x-effect error and branch x MAE with the old model
+and the action-mean baseline. A better x result alone does not demonstrate
+object or collision prediction; those need varied scenes and visual ablations.
