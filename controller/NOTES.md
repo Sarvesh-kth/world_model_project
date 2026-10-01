@@ -116,3 +116,5 @@ Who wrote what, for the course's AI-use declaration.
 | 2026-10-01 | `dynamics/state_mlp.py`, `experiments/state_mlp.py` | Claude |
 | 2026-10-01 | `adapters/m2_adapter.py`, `experiments/encode_features.py`, `experiments/jepa_pipeline.py` (runs M2's scripts unchanged) | Claude |
 | 2026-10-01 | `tests/test_oracle_and_eval.py`, `tests/test_learned_models.py`, more `tests/test_costs.py` | Claude |
+| 2026-10-01 | `actor_critic.py` + `tests/test_actor_critic.py` (task 8 skeleton) | Claude |
+| 2026-10-01 | `experiments/bench_speed.py`, `experiments/jepa_cem.py`, `experiments/demo.py` | Claude |

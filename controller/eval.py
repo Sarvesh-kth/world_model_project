@@ -58,6 +58,7 @@ def run_episode(adapter, agent, seed, task, max_steps):
         "final_obj_target_xy": round(float(np.linalg.norm(f[F_OBJ][:2] - f[F_TARGET][:2])), 4),
         "min_ee_obj": round(min_reach, 4), "grasped_ever": int(grasped_ever), "max_lift": round(max_lift, 4),
         "collisions": collisions,
+        "final_ee": " ".join(f"{x:.3f}" for x in f[F_EE]), "final_obj": " ".join(f"{x:.3f}" for x in f[F_OBJ]),
         "time_per_step_s": round(float(np.mean(step_times)), 4),
         "max_time_per_step_s": round(float(np.max(step_times)), 4),
     }
@@ -110,7 +111,8 @@ def write_csv(rows, path):
 
 def read_csv(path):
     with Path(path).open(newline="") as f:
-        return [{k: (v if k in ("task", "label") else float(v)) for k, v in row.items()} for row in csv.DictReader(f)]
+        return [{k: (v if k in ("task", "label", "final_ee", "final_obj") else float(v)) for k, v in row.items()}
+                for row in csv.DictReader(f)]
 
 
 def plot_runs(runs, path, title=""):
