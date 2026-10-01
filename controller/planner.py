@@ -38,6 +38,7 @@ class CEMPlanner:
         if seed is not None:
             self.generator.manual_seed(seed)
         self.last_info = None  # info dict of the most recent cem_plan call, for logging
+        self.last_plan = None  # the full [H, A] plan of the most recent cem_plan call
         self.reset()
 
     def reset(self):
@@ -69,6 +70,7 @@ class CEMPlanner:
             min_std=c.min_std,
             generator=self.generator,
         )
+        self.last_plan = mean
         k = min(c.execute_steps, c.horizon)
         self._queue = list(mean[:k])
         # Warm start: the k executed actions drop off the front, and the plan is kept H long by

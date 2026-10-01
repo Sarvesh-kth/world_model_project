@@ -38,3 +38,90 @@ def circle_penalty(trajectory: torch.Tensor, center: torch.Tensor, radius: float
     """
     dist = (trajectory - center).norm(dim=-1)  # [N, H+1]
     return torch.relu(radius + margin - dist).sum(dim=1)
+
+
+# --- State-based pick-and-place costs --------------------------------------------------------
+# For planning models whose state starts with the 12 task features of interfaces.TASK_FEATURES
+# (the oracle, the state MLP). Each scores every imagined state and averages over the plan, so
+# arriving early is rewarded (see mean_goal_distance_cost). z_goal is unused: the target position
+# is part of the features.
+
+LIFT_HEIGHT = 0.10  # how high to carry the object, metres above its resting height
+NEAR = 0.05  # "close enough" radius for object-to-target, metres
+GRASP_TOL = 0.02  # a grasp only counts with the gripper this close to the object centre, metres
+# (M1's `grasped` flag only checks that both fingers touch the object while closed, which a
+# pinch on one edge also satisfies: the oracle planner found that, then couldn't lift the cube.)
+
+
+def _features(trajectory):
+    """Split the features of every imagined state after the start ([N, H, 12] -> named parts)."""
+    from controller.interfaces import F_EE, F_GRASPED, F_GRIPPER_OPEN, F_OBJ, F_REST_Z, F_TARGET
+
+    f = trajectory[:, 1:, :12].float()
+    ee, obj = f[..., F_EE], f[..., F_OBJ]
+    # a grasp counts only when centred on the object
+    grasped = f[..., F_GRASPED].clamp(0, 1) * ((ee - obj).norm(dim=-1) < GRASP_TOL).float()
+    return ee, obj, f[..., F_TARGET], grasped, f[..., F_GRIPPER_OPEN].clamp(0, 1), f[..., F_REST_Z]
+
+
+def reach_cost(trajectory, z_goal=None):
+    """Stage (a): get the gripper to the object."""
+    ee, obj, *_ = _features(trajectory)
+    return (ee - obj).norm(dim=-1).mean(dim=1)
+
+
+def lift_cost(trajectory, z_goal=None):
+    """Stage (b): reach, grasp, lift LIFT_HEIGHT. Levels: lifted < grasped < not grasped, so
+    closing on the object and then lifting each lower the cost. A closed gripper without a
+    centred grasp is penalized, so it doesn't close early or arrive with the fingers shut."""
+    ee, obj, _, grasped, gripper_open, rest_z = _features(trajectory)
+    to_obj = (ee - obj).norm(dim=-1)
+    lifted = ((obj[..., 2] - rest_z) / LIFT_HEIGHT).clamp(0, 1) * grasped
+    closed_empty = (1 - gripper_open) * (1 - grasped)
+    cost = to_obj + 3.0 * (1 - grasped) + 2.0 * (1 - lifted) + 1.0 * closed_empty  # 5 / 2 / 0 + distance
+    return cost.mean(dim=1)
+
+
+def pick_place_cost(trajectory, z_goal=None):
+    """Stage (c): the whole task, as three levels that each beat the one above:
+
+        not holding the object:  3 + distance gripper -> object   (+ penalty: closed while far)
+        holding it:              1 + distance object -> target (xy) + carry-height error
+        placed (released on the target, resting):  0
+
+    While holding it far from the target, the wanted height is LIFT_HEIGHT; above the target, 0
+    (lower it), after which releasing turns it into "placed".
+    """
+    ee, obj, target, grasped, gripper_open, rest_z = _features(trajectory)
+    to_obj = (ee - obj).norm(dim=-1)
+    to_target = (obj[..., :2] - target[..., :2]).norm(dim=-1)
+    height = obj[..., 2] - rest_z
+    want_height = torch.where(to_target > NEAR, torch.full_like(height, LIFT_HEIGHT), torch.zeros_like(height))
+    placed = (1 - grasped) * (to_target < NEAR).float() * (height.abs() < 0.02).float()
+    holding = 1.0 + 2.0 * to_target + 2.0 * (height - want_height).abs()
+    free = 3.0 + to_obj + 1.0 * (1 - gripper_open) + to_target  # closed without a grasp: penalized
+    cost = placed * 0.0 + (1 - placed) * (grasped * holding + (1 - grasped) * free)
+    return cost.mean(dim=1)
+
+
+STAGE_COSTS = {"reach": reach_cost, "lift": lift_cost, "place": pick_place_cost}
+
+
+# --- Latent goal cost (Level E with M2's JEPA model) ------------------------------------------
+
+
+def latent_goal_cost(z_dim, z_weight=1.0, p_weight=1.0):
+    """Cost for planner states s = [normalized z | normalized p] (adapters.m2_adapter.JEPADynamics).
+
+    Per imagined state: z_weight * MSE(z, z_goal) + p_weight * MSE(p, p_goal), the same two terms
+    M2 trains D with; averaged over the plan (rewards arriving early). z_goal passed to the cost
+    is the goal state [z_goal | p_goal] from the encoded goal clip and the goal proprio.
+    """
+
+    def cost(trajectory, s_goal):
+        diff = trajectory[:, 1:] - s_goal
+        z_term = diff[..., :z_dim].square().mean(dim=-1)
+        p_term = diff[..., z_dim:].square().mean(dim=-1)
+        return (z_weight * z_term + p_weight * p_term).mean(dim=1)
+
+    return cost

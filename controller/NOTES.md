@@ -112,3 +112,7 @@ Who wrote what, for the course's AI-use declaration.
 | 2026-09-26 | Throwaway reference CEM used only to calibrate the tests (scratchpad, not in the repo, not shown to Calle) | Claude |
 | 2026-09-26 | Moved the package into the shared repo as `controller/`, adapted config paths and docs | Claude |
 | 2026-10-01 | `adapters/m1_adapter.py`, `tests/test_m1_adapter.py`, task-feature layout in `interfaces.py` | Claude |
+| 2026-10-01 | `dynamics/oracle.py`, `agents.py`, `eval.py`, staged costs in `costs.py`, `experiments/oracle_cem.py` | Claude |
+| 2026-10-01 | `dynamics/state_mlp.py`, `experiments/state_mlp.py` | Claude |
+| 2026-10-01 | `adapters/m2_adapter.py`, `experiments/encode_features.py`, `experiments/jepa_pipeline.py` (runs M2's scripts unchanged) | Claude |
+| 2026-10-01 | `tests/test_oracle_and_eval.py`, `tests/test_learned_models.py`, more `tests/test_costs.py` | Claude |

@@ -64,6 +64,8 @@ def cem_plan(
         info: dict with at least
             "best_cost": list of n_iters floats, the lowest sampled cost in each iteration
             "elite_cost": list of n_iters floats, the mean cost of the elites in each iteration
+            "mean_cost": list of n_iters floats, the mean cost of all samples in each iteration
+                (mean minus best shows whether the model tells good and bad plans apart at all)
             "std": the final std [H, A], after the floor
 
     Every tensor created here lives on z0.device; actions are float32.
@@ -80,7 +82,7 @@ def cem_plan(
         mean = init_mean.to(device=device, dtype=torch.float32).clone()
     std = torch.as_tensor(init_std, dtype=torch.float32, device=device).expand(horizon, action_dim).clone()
 
-    best_cost, elite_cost = [], []
+    best_cost, elite_cost, mean_cost = [], [], []
     for _ in range(n_iters):
         # 2. Sample N sequences around the mean and clip them into the action bounds
         noise = torch.randn(n_samples, horizon, action_dim, generator=generator, device=device)
@@ -105,5 +107,6 @@ def cem_plan(
 
         best_cost.append(cost.min().item())
         elite_cost.append(cost[elite_idx].mean().item())
+        mean_cost.append(cost.mean().item())
 
-    return mean, {"best_cost": best_cost, "elite_cost": elite_cost, "std": std}
+    return mean, {"best_cost": best_cost, "elite_cost": elite_cost, "mean_cost": mean_cost, "std": std}
