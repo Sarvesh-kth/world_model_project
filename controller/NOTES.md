@@ -51,6 +51,15 @@ of each section.
   so a failure means a bug, not a flaky test. Six deliberately broken versions each fail the
   intended test: no clipping, init_mean ignored, highest-cost elites, no std floor, trajectory
   without z0, one dynamics call per sample.
+- **2026-10-01 M1 state save/restore is exact** (`M1Adapter.get_state/set_state`, 188 values on
+  the Grade E scene): MuJoCo's full integration state + M1's controller targets / yaw / gripper +
+  reward stage flags + step counters. Replaying 15 random actions after a restore is bit-identical,
+  in the same env and in a clone. Needed one fix: after `mj_step`, MuJoCo's positions (site_xpos,
+  contacts) still describe the previous substep; `get_state()` refreshes them (`mj_forward`) so the
+  live and restored runs start from identical data.
+- **2026-10-01 V-JEPA 2 ViT-L (64 frames, 256 px, 8192 tokens) encode time on the Mac** (Apple M5):
+  1.0 s per clip on MPS in fp16, 3.9 s in fp32, 12.8 s on CPU. So closed-loop JEPA control is
+  feasible locally if the clip is re-encoded once per plan, not per imagined step.
 
 ## Questions for M1
 
@@ -102,3 +111,4 @@ Who wrote what, for the course's AI-use declaration.
 | 2026-09-26 | `dynamics/toy.py`, `costs.py` | Claude |
 | 2026-09-26 | Throwaway reference CEM used only to calibrate the tests (scratchpad, not in the repo, not shown to Calle) | Claude |
 | 2026-09-26 | Moved the package into the shared repo as `controller/`, adapted config paths and docs | Claude |
+| 2026-10-01 | `adapters/m1_adapter.py`, `tests/test_m1_adapter.py`, task-feature layout in `interfaces.py` | Claude |

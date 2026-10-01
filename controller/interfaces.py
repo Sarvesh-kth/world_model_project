@@ -120,3 +120,18 @@ CostFn = Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
 
 trajectory[:, 0] is the start state z0, trajectory[:, t] the state after t actions. It gets the
 whole trajectory so it can penalize intermediate states (obstacles), not just the last one."""
+
+# Task features: sim-only ground truth that state-based costs read. Planning models that work on
+# sim state (the oracle, the state MLP) put these 12 values first in their state vector, so one
+# cost function works for all of them. Never an input to the learned vision pipeline.
+TASK_FEATURES = (
+    "ee_x", "ee_y", "ee_z",  # gripper (grasp site) position, world frame, metres
+    "obj_x", "obj_y", "obj_z",  # object position
+    "target_x", "target_y", "target_z",  # place position (on the table top)
+    "grasped",  # 1 when both fingers touch the object with the gripper closed
+    "gripper_open",  # 1 open, 0 closed (the last commanded state)
+    "obj_rest_z",  # object height when resting on the table, constant per episode
+)
+F_EE, F_OBJ, F_TARGET = slice(0, 3), slice(3, 6), slice(6, 9)
+F_GRASPED, F_GRIPPER_OPEN, F_REST_Z = 9, 10, 11
+N_FEATURES = len(TASK_FEATURES)
