@@ -1,8 +1,9 @@
 import argparse
+import json
 import multiprocessing as mp
 import time
 import numpy as np
-from environment import PickPlaceEnv, load_config
+from environment import EpisodeLayout, PickPlaceEnv, load_config
 from .scripted_policy import make_policy
 from .writer import EpisodeWriter, append_index, next_episode_id
 
@@ -48,11 +49,11 @@ def allocate_kinds(mix, episodes, rng):
   return out
 
 # Collect one episode, success episodes get retried on fresh layouts until they actually succeed
-def collect_one(env, writer, cfg, episode_id, seed, kind, holdout=False, realtime=False):
+def collect_one(env, writer, cfg, episode_id, seed, kind, holdout=False, realtime=False, layout=None):
   attempts = cfg.data.success_attempts if kind == "success" else 1
   for attempt in range(attempts):
     ep_seed = seed + 10007 * attempt
-    obs, _ = env.reset(seed=ep_seed, holdout=holdout)
+    obs, _ = env.reset(seed=ep_seed, holdout=holdout, layout=layout)
     policy = make_policy(kind, env, np.random.default_rng(ep_seed), cfg)
     meta = policy.describe()
     meta.update(kind=kind, attempt=attempt + 1)
@@ -66,20 +67,21 @@ def collect_one(env, writer, cfg, episode_id, seed, kind, holdout=False, realtim
 # Each worker process owns one env and one writer
 _worker = {}
 
-def _init_worker(cfg, out_dir, holdout, realtime):
+def _init_worker(cfg, out_dir, holdout, realtime, layout):
   _worker["env"] = PickPlaceEnv(cfg)
   _worker["writer"] = EpisodeWriter(out_dir, cfg, write_index=False)
   _worker["cfg"] = cfg
   _worker["holdout"] = holdout
   _worker["realtime"] = realtime
+  _worker["layout"] = layout
 
 def _run_task(task):
   episode_id, seed, kind = task
   return collect_one(_worker["env"], _worker["writer"], _worker["cfg"],
-                     episode_id, seed, kind, _worker["holdout"], _worker["realtime"])
+                     episode_id, seed, kind, _worker["holdout"], _worker["realtime"], _worker["layout"])
 
 # Collect a dataset, appends to out_dir if it already has episodes
-def collect(cfg, episodes, out_dir, seed=None, workers=None, holdout=False, realtime=False):
+def collect(cfg, episodes, out_dir, seed=None, workers=None, holdout=False, realtime=False, layout=None):
   workers = cfg.data.workers if workers is None else workers
   start_id = next_episode_id(out_dir)
   base_seed = (cfg.seed if seed is None else seed) + 977 * start_id
@@ -98,7 +100,7 @@ def collect(cfg, episodes, out_dir, seed=None, workers=None, holdout=False, real
           f"collisions={row['collisions']}", flush=True)
 
   if workers <= 1:
-    _init_worker(cfg, out_dir, holdout, realtime)
+    _init_worker(cfg, out_dir, holdout, realtime, layout)
     try:
       for task in tasks:
         report(_run_task(task))
@@ -107,7 +109,7 @@ def collect(cfg, episodes, out_dir, seed=None, workers=None, holdout=False, real
       _worker.clear()
   else:
     ctx = mp.get_context("spawn")
-    with ctx.Pool(workers, initializer=_init_worker, initargs=(cfg, out_dir, holdout, realtime)) as pool:
+    with ctx.Pool(workers, initializer=_init_worker, initargs=(cfg, out_dir, holdout, realtime, layout)) as pool:
       for row in pool.imap_unordered(_run_task, tasks):
         report(row)
 
@@ -137,14 +139,20 @@ def main():
   p.add_argument("--holdout", action="store_true")
   p.add_argument("--pointcloud", action="store_true")
   p.add_argument("--realtime", action="store_true", help="pace the simulation to wall clock time instead of running as fast as it can")
+  p.add_argument("--layout", default=None, help="fixed layout JSON or an episode's meta.json")
   args = p.parse_args()
 
   cfg = load_config(args.config)
   if args.pointcloud:
     cfg.cameras.pointcloud.enabled = True
   out = args.out or f"{cfg.data.root}/episodes"
+  layout = None
+  if args.layout:
+    with open(args.layout) as f:
+      d = json.load(f)
+    layout = EpisodeLayout.from_dict(d.get("layout", d))
   collect(cfg, args.episodes, out, seed=args.seed, workers=args.workers, holdout=args.holdout,
-          realtime=args.realtime)
+          realtime=args.realtime, layout=layout)
 
 if __name__ == "__main__":
   main()

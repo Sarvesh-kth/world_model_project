@@ -1,0 +1,5 @@
+robot:
+  posture_noise: 0.0
+data:
+  mix: {success: 0.5, scripted: 0.3, drop: 0.1, random: 0.1, collide: 0.0}
+  success_attempts: 1
