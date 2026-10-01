@@ -13,7 +13,7 @@ def fake_episodes(n=6, length=30, seed=0):
     rng = np.random.default_rng(seed)
     eps = {}
     for i in range(n):
-        s = np.cumsum(rng.normal(0, 0.01, (length, 32)), axis=0).astype(np.float32)
+        s = np.cumsum(rng.normal(0, 0.01, (length, state_mlp.STATE_DIM)), axis=0).astype(np.float32)
         s[:, [6, 7, 8, 11]] = [0.1, 0.27, 0.75, 0.772]
         s[:, 9:11] = rng.integers(0, 2, (length, 2))
         eps[f"episode_{i:06d}"] = (s, rng.uniform(-1, 1, (length, 5)).astype(np.float32))
@@ -26,7 +26,7 @@ def test_state_mlp_shapes_constants_and_clamps():
     model = state_mlp.StateMLP(torch.from_numpy(s).mean(0), torch.from_numpy(s).std(0).clamp_min(1e-3))
     x = torch.from_numpy(s[:8])
     out = model(x, torch.from_numpy(a[:8]))
-    assert out.shape == (8, 32)
+    assert out.shape == (8, state_mlp.STATE_DIM)
     assert torch.equal(out[:, [6, 7, 8, 11]], x[:, [6, 7, 8, 11]]), "target and rest height are copied through"
     assert out[:, 9:11].min() >= 0 and out[:, 9:11].max() <= 1
 
@@ -37,7 +37,7 @@ def test_state_mlp_trains_and_keeps_a_checkpoint(tmp_path):
     assert len(history) == 3 and np.isfinite(history[-1]["val_mse"])
     state_mlp.save(model, tmp_path / "m.pt")
     again = state_mlp.load(tmp_path / "m.pt")
-    x, a = torch.zeros(2, 32), torch.zeros(2, 5)
+    x, a = torch.zeros(2, state_mlp.STATE_DIM), torch.zeros(2, 5)
     assert torch.allclose(model(x, a), again(x, a))
 
 

@@ -30,6 +30,14 @@ GRADE_E_LAYOUT = SIM_DIR / "configs" / "grade_e_layout.json"
 _MJ_SPEC = mujoco.mjtState.mjSTATE_INTEGRATION
 
 
+def grasp_yaw_error(object_yaw, finger_yaw):
+    """How far the fingers are from square to the nearest object face, in [-pi/4, pi/4].
+    The same wrap as M1's scripted policy (ScriptedPickPlace._yaw_action): objects fit the opening
+    either way, so only the angle to the nearest face matters."""
+    err = (object_yaw - finger_yaw + np.pi) % (2 * np.pi) - np.pi
+    return float((err + np.pi / 4) % (np.pi / 2) - np.pi / 4)
+
+
 class M1Adapter:
     """One M1 env. `layout=None` samples a new random layout every reset, like M1's collector."""
 
@@ -105,13 +113,16 @@ class M1Adapter:
             "gripper_pos": s["ee_pos"], "object_pos": s["object_pos"], "target_pos": s["place_pos"],
             "grasped": bool(s["grasped"]), "object_rest_z": float(s["object_rest_z"]),
             "gripper_open": bool(self.env.controller.gripper_open),
+            "gripper_width": float(self.env.data.qpos[self.env.finger_qpos_ids].sum()),
+            "grasp_yaw_error": grasp_yaw_error(self.env.object_long_axis_yaw(), self.env.finger_axis_yaw()),
         }
 
     def task_features(self):
-        """task_info() as the 12-value vector laid out in interfaces.TASK_FEATURES."""
+        """task_info() as the vector laid out in interfaces.TASK_FEATURES."""
         t = self.task_info()
         f = np.concatenate([t["gripper_pos"], t["object_pos"], t["target_pos"],
-                            [t["grasped"], t["gripper_open"], t["object_rest_z"]]])
+                            [t["grasped"], t["gripper_open"], t["object_rest_z"], t["gripper_width"],
+                             t["grasp_yaw_error"]]])
         assert len(f) == N_FEATURES
         return f.astype(np.float64)
 

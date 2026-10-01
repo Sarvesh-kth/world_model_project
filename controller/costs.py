@@ -41,44 +41,50 @@ def circle_penalty(trajectory: torch.Tensor, center: torch.Tensor, radius: float
 
 
 # --- State-based pick-and-place costs --------------------------------------------------------
-# For planning models whose state starts with the 12 task features of interfaces.TASK_FEATURES
+# For planning models whose state starts with the task features of interfaces.TASK_FEATURES
 # (the oracle, the state MLP). Each scores every imagined state and averages over the plan, so
 # arriving early is rewarded (see mean_goal_distance_cost). z_goal is unused: the target position
 # is part of the features.
 
 LIFT_HEIGHT = 0.10  # how high to carry the object, metres above its resting height
+YAW_WEIGHT = 0.1  # cost per radian of fingers not square to the object, while not holding it
+# (with yaw pinned, some cube yaws ended in a corner-to-corner grasp that couldn't lift)
 NEAR = 0.05  # "close enough" radius for object-to-target, metres
-GRASP_TOL = 0.02  # a grasp only counts with the gripper this close to the object centre, metres
-# (M1's `grasped` flag only checks that both fingers touch the object while closed, which a
-# pinch on one edge also satisfies: the oracle planner found that, then couldn't lift the cube.)
+HELD_WIDTH = 0.03  # a grasp only counts with the fingers at least this far apart, metres
+# M1's `grasped` flag only checks that both fingers touch the object while closed, which a pinch
+# on one edge or corner also satisfies. The oracle planner found such pinches and then couldn't
+# lift. "Gripper within 2 cm of the centre" didn't separate them either (9 of 20 runs held a
+# pinch and never lifted). Finger opening does: 4.46-4.6 cm around the cube body in M1's expert
+# data, ~0.3 cm closed on nothing or on an edge.
 
 
 def _features(trajectory):
-    """Split the features of every imagined state after the start ([N, H, 12] -> named parts)."""
-    from controller.interfaces import F_EE, F_GRASPED, F_GRIPPER_OPEN, F_OBJ, F_REST_Z, F_TARGET
+    """Split the features of every imagined state after the start ([N, H, 14] -> named parts)."""
+    from controller.interfaces import (F_EE, F_GRASPED, F_GRIPPER_OPEN, F_OBJ, F_REST_Z, F_TARGET, F_WIDTH,
+                                       F_YAW_ERR, N_FEATURES)
 
-    f = trajectory[:, 1:, :12].float()
-    ee, obj = f[..., F_EE], f[..., F_OBJ]
-    # a grasp counts only when centred on the object
-    grasped = f[..., F_GRASPED].clamp(0, 1) * ((ee - obj).norm(dim=-1) < GRASP_TOL).float()
-    return ee, obj, f[..., F_TARGET], grasped, f[..., F_GRIPPER_OPEN].clamp(0, 1), f[..., F_REST_Z]
+    f = trajectory[:, 1:, :N_FEATURES].float()
+    grasped = f[..., F_GRASPED].clamp(0, 1) * (f[..., F_WIDTH] > HELD_WIDTH).float()  # held by its body
+    misaligned = YAW_WEIGHT * f[..., F_YAW_ERR].abs() * (1 - grasped)
+    return (f[..., F_EE], f[..., F_OBJ], f[..., F_TARGET], grasped, f[..., F_GRIPPER_OPEN].clamp(0, 1),
+            f[..., F_REST_Z], misaligned)
 
 
 def reach_cost(trajectory, z_goal=None):
-    """Stage (a): get the gripper to the object."""
-    ee, obj, *_ = _features(trajectory)
-    return (ee - obj).norm(dim=-1).mean(dim=1)
+    """Stage (a): get the gripper to the object, fingers square to it."""
+    ee, obj, *_, misaligned = _features(trajectory)
+    return ((ee - obj).norm(dim=-1) + misaligned).mean(dim=1)
 
 
 def lift_cost(trajectory, z_goal=None):
     """Stage (b): reach, grasp, lift LIFT_HEIGHT. Levels: lifted < grasped < not grasped, so
-    closing on the object and then lifting each lower the cost. A closed gripper without a
-    centred grasp is penalized, so it doesn't close early or arrive with the fingers shut."""
-    ee, obj, _, grasped, gripper_open, rest_z = _features(trajectory)
+    closing on the object and then lifting each lower the cost. A closed gripper without a real
+    grasp is penalized, so it doesn't close early or arrive with the fingers shut."""
+    ee, obj, _, grasped, gripper_open, rest_z, misaligned = _features(trajectory)
     to_obj = (ee - obj).norm(dim=-1)
     lifted = ((obj[..., 2] - rest_z) / LIFT_HEIGHT).clamp(0, 1) * grasped
     closed_empty = (1 - gripper_open) * (1 - grasped)
-    cost = to_obj + 3.0 * (1 - grasped) + 2.0 * (1 - lifted) + 1.0 * closed_empty  # 5 / 2 / 0 + distance
+    cost = to_obj + misaligned + 3.0 * (1 - grasped) + 2.0 * (1 - lifted) + 1.0 * closed_empty  # 5 / 2 / 0 + distance
     return cost.mean(dim=1)
 
 
@@ -92,14 +98,14 @@ def pick_place_cost(trajectory, z_goal=None):
     While holding it far from the target, the wanted height is LIFT_HEIGHT; above the target, 0
     (lower it), after which releasing turns it into "placed".
     """
-    ee, obj, target, grasped, gripper_open, rest_z = _features(trajectory)
+    ee, obj, target, grasped, gripper_open, rest_z, misaligned = _features(trajectory)
     to_obj = (ee - obj).norm(dim=-1)
     to_target = (obj[..., :2] - target[..., :2]).norm(dim=-1)
     height = obj[..., 2] - rest_z
     want_height = torch.where(to_target > NEAR, torch.full_like(height, LIFT_HEIGHT), torch.zeros_like(height))
     placed = (1 - grasped) * (to_target < NEAR).float() * (height.abs() < 0.02).float()
     holding = 1.0 + 2.0 * to_target + 2.0 * (height - want_height).abs()
-    free = 3.0 + to_obj + 1.0 * (1 - gripper_open) + to_target  # closed without a grasp: penalized
+    free = 3.0 + to_obj + misaligned + 1.0 * (1 - gripper_open) + to_target  # closed without a grasp: penalized
     cost = placed * 0.0 + (1 - placed) * (grasped * holding + (1 - grasped) * free)
     return cost.mean(dim=1)
 

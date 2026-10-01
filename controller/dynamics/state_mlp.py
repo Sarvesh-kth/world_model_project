@@ -1,7 +1,7 @@
 """A learned world model on true sim state (task 5): the rehearsal for planning with M2's model.
 
-State s [32] = [12 task features (interfaces.TASK_FEATURES) | joint pos 7 | joint vel 7 |
-ee yaw | gripper width | object quaternion 4]. Features come first, so the oracle's costs work
+State s [33] = [14 task features (interfaces.TASK_FEATURES) | joint pos 7 | joint vel 7 |
+ee yaw | object quaternion 4]. Features come first, so the oracle's costs work
 unchanged. An MLP predicts the change of every dynamic value from (s, action); the target
 position and the object's resting height are constant and copied through.
 
@@ -18,25 +18,35 @@ from torch import nn
 
 ACTION_COLUMNS = ["action_dx", "action_dy", "action_dz", "action_dyaw", "action_gripper"]
 CONSTANT_DIMS = [6, 7, 8, 11]  # target xyz, object resting height
-STATE_DIM = 32
+STATE_DIM = 33
+
+
+def object_yaw(qw, qx, qy, qz):
+    """Yaw of the object's x axis, from its quaternion (upright objects)."""
+    return float(np.arctan2(2 * (qx * qy + qw * qz), 1 - 2 * (qy * qy + qz * qz)))
 
 
 def state_from_row(row, rest_z):
-    """One data.csv row -> s [32]."""
+    """One data.csv row -> s [33]."""
+    from controller.interfaces import TASK_FEATURES  # noqa: F401  (layout documented there)
+
     v = lambda *names: [float(row[n]) for n in names]  # noqa: E731
+    yaw_obj = object_yaw(*v("object_qw", "object_qx", "object_qy", "object_qz"))
+    err = (yaw_obj - float(row["ee_yaw"]) + np.pi) % (2 * np.pi) - np.pi
+    yaw_err = (err + np.pi / 4) % (np.pi / 2) - np.pi / 4  # same wrap as M1Adapter's grasp_yaw_error
     return np.array(
         v("ee_x", "ee_y", "ee_z", "object_x", "object_y", "object_z", "place_x", "place_y", "place_z", "grasped")
-        + [float(float(row["gripper_cmd"]) > 0), rest_z]
+        + [float(float(row["gripper_cmd"]) > 0), rest_z] + v("gripper_width") + [yaw_err]
         + v(*[f"joint_pos_{i}" for i in range(1, 8)], *[f"joint_vel_{i}" for i in range(1, 8)])
-        + v("ee_yaw", "gripper_width", "object_qw", "object_qx", "object_qy", "object_qz"),
+        + v("ee_yaw", "object_qw", "object_qx", "object_qy", "object_qz"),
         dtype=np.float32,
     )
 
 
 def state_from_adapter(adapter, obs):
-    """The same s [32] for the live env (M1Adapter + its latest observation)."""
+    """The same s [33] for the live env (M1Adapter + its latest observation)."""
     p, st = obs["proprio"], obs["state"]
-    return np.concatenate([adapter.task_features(), p[0:14], p[17:19], st[3:7]]).astype(np.float32)
+    return np.concatenate([adapter.task_features(), p[0:14], p[17:18], st[3:7]]).astype(np.float32)
 
 
 def load_episodes(episodes_dir):

@@ -39,9 +39,11 @@ def test_oracle_predicts_exactly_what_the_sim_does(adapter):
         adapter.set_state(state)
 
 
-def test_yaw_is_pinned_for_level_e():
+def test_action_bounds_plan_or_pin_yaw():
     low, high = action_bounds(5)
-    assert low[3] == high[3] == 0 and low[0] == -1 and high[4] == 1
+    assert low[3] == -1 and high[3] == 1 and low[0] == -1 and high[4] == 1
+    low, high = action_bounds(5, plan_yaw=False)
+    assert low[3] == high[3] == 0
 
 
 def test_run_episode_scripted_expert_places_the_cube(adapter):

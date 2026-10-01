@@ -65,6 +65,8 @@ def test_task_features_match_observation(adapter):
     assert np.allclose(f[0:3], obs["proprio"][14:17])  # ee position
     assert np.allclose(f[3:6], obs["state"][0:3])  # object position
     assert np.allclose(f[6:8], [0.1, 0.27])  # the Grade E place position
+    assert np.isclose(f[12], obs["proprio"][18])  # gripper width
+    assert -np.pi / 4 <= f[13] <= np.pi / 4  # grasp yaw error
 
 
 @pytest.mark.slow

@@ -1,6 +1,6 @@
 """The simulator itself as the world model: the upper bound for any learned dynamics.
 
-State z = [12 task features | full M1 sim state from M1Adapter.get_state()], float64 on the CPU
+State z = [13 task features | full M1 sim state from M1Adapter.get_state()], float64 on the CPU
 (sim states need full precision to restore exactly). To imagine one step for a sample, restore
 its sim state in a private copy of the env, apply the action, read the result back. Not batched
 on a GPU like a learned model, so N has to stay small.

@@ -60,6 +60,61 @@ of each section.
 - **2026-10-01 V-JEPA 2 ViT-L (64 frames, 256 px, 8192 tokens) encode time on the Mac** (Apple M5):
   1.0 s per clip on MPS in fp16, 3.9 s in fp32, 12.8 s on CPU. So closed-loop JEPA control is
   feasible locally if the clip is re-encoded once per plan, not per imagined step.
+- **2026-10-01 Oracle CEM (task 4), first full run**, Grade E scene, 20 seeds, CEM H=8 N=64 K=8
+  4 iterations, 2 executed steps per plan, yaw pinned to 0 (`data/runs/oracle/`):
+  - reach: **20/20** in 26 steps on average (scripted expert: 15/20 within the 40-step limit; random: 0/20)
+  - lift (old grasp test "within 2 cm of centre"): **11/20**; all 20 grasped, the 9 failures held the cube and
+    never lifted it (`lift_oracle_cem_v1_centred_only.csv`). Scripted expert 20/20 in 55 steps.
+  - place: stopped early (being rerun with the fixes below). Scripted 20/20 in 104 steps, random 0/20.
+    One trial episode (seed 0) placed the cube in 72 steps; it dropped it from carry height onto the target.
+  - Planning time: 2-6 s per plan (64 x 8 x 4 = 2048 real MuJoCo steps), up to ~35 s with the machine loaded.
+- **2026-10-01 Grasp failures the oracle uncovered, and fixes** (the planner exploits any loophole in the cost):
+  1. M1's `grasped` flag is also true for a pinch on one edge -> require a centred grasp. Too weak:
+  2. fingers nearly shut on an edge within 2 cm of centre still counted -> a grasp now needs the fingers
+     > 3 cm apart (cube body: 4.46-4.6 cm in M1's expert data; closed on nothing ~0.3 cm). New task feature
+     `gripper_width`.
+  3. with yaw pinned, some cube yaws gave a corner-to-corner grasp (fingers 5.8 cm apart) that couldn't lift
+     -> the planner now uses the yaw action, and the costs penalize the angle to the nearest cube face
+     (new task feature `grasp_yaw_error`, M1's own wrap).
+  After 2+3, the failing seeds 1 and 3 lift (73 and 53 steps). The 20-seed lift/place rerun is still to do.
+  Costs that only score the *final* state of M1's flags can't see these failures: every plan scores the
+  same (best 1.93 vs mean 2.05), and CEM's mean then drifts in an arbitrary direction.
+- **2026-10-01 State MLP (task 5)**, 60 Grade E episodes (7919 transitions), 12 held out, run with the
+  layout *before* the two new features (`data/runs/state_mlp/`):
+  - one-step validation error 0.113-0.127 (normalized) vs 0.168 for "nothing changes"
+  - **checkpoint choice matters:** the epoch with the best one-step error (14) predicts 10 steps ahead
+    worse (gripper 5.5 vs 4.1 cm) and planned worse (reach 5/20 vs 11-12/20) than late epochs. Now chosen by
+    held-out 8-step rollout error (epoch 57: 2.7 cm). Kuba's `best.pt` is chosen by one-step error.
+  - error by horizon (epoch 57): gripper 0.5 / 1.8 / 3.4 / 4.1 cm and object 0.4 / 1.2 / 2.0 / 2.4 cm
+    after 1 / 4 / 8 / 10 steps
+  - CEM with the MLP (same CEM settings as the oracle): reach 12/20, lift 2/20, place 4/20
+  - **model exploitation:** 44 of 267 audited plans counted on a grasp that didn't happen in the real
+    sim; contact events are what the MLP predicts worst, and the planner aims for imagined grasps.
+- **2026-10-01 Rough JEPA dynamics model trained locally with M2's own pipeline** (`experiments/jepa_pipeline.py`;
+  M2's scripts unchanged except encoding, which runs on MPS):
+  60 episodes -> 600 transitions + 720 action branches -> 1920 V-JEPA clips (1.2 s/clip on MPS fp16) ->
+  M2's `train_dynamics --architecture split` -> `data/jepa/grade_e/dynamics_split/best.pt`.
+  M2's probe: object position from the pooled latent within **0.3 / 0.7 / 0.35 cm** (x/y/z, held out), vs
+  3.6 / 15.9 / 4.0 cm for a constant guess, so the latent does carry where the cube is.
+  The closed-loop JEPA agent runs end to end (smoke-tested with a random checkpoint; ~1-3 s per replan).
+
+## Status when work stopped (2026-10-02) and how to resume
+
+Stopped at Calle's request in the middle of Level E. Committed and runnable; nothing running in the background.
+
+Done: tasks 1, 2, 3, 7 (runner + plots), 8 (skeleton), the M2 adapter, the local JEPA model, all
+experiment and demo scripts, 47 tests (`.venv/bin/python -m pytest controller/tests`).
+
+Still to run, in this order:
+1. `.venv/bin/python -m controller.experiments.oracle_cem --tasks lift place --workers 6` (~1 h): the
+   lift/place numbers with the width + yaw fixes. Reach was measured before them, so ideally rerun it too
+   (drop `--tasks`).
+2. `.venv/bin/python -m controller.experiments.state_mlp` (~2 min): **must** be rerun, the state layout
+   changed (33 values), so the old `data/checkpoints/state_mlp.pt` doesn't load any more.
+3. `.venv/bin/python -m controller.experiments.jepa_cem --seeds 5` (~25 min): the Level E deliverable,
+   CEM on the JEPA model in the env, plus the offline checks (goal cost, action sensitivity, multi-step error).
+4. `.venv/bin/python -m controller.experiments.bench_speed` (~5 min, on an otherwise idle machine): task 6.
+5. Put the numbers here and in the README, then push `M3_level_E` when Calle says so.
 
 ## Questions for M1
 
@@ -118,3 +173,4 @@ Who wrote what, for the course's AI-use declaration.
 | 2026-10-01 | `tests/test_oracle_and_eval.py`, `tests/test_learned_models.py`, more `tests/test_costs.py` | Claude |
 | 2026-10-01 | `actor_critic.py` + `tests/test_actor_critic.py` (task 8 skeleton) | Claude |
 | 2026-10-01 | `experiments/bench_speed.py`, `experiments/jepa_cem.py`, `experiments/demo.py` | Claude |
+| 2026-10-02 | Grasp fixes (finger width, yaw planning + alignment cost), 13th/14th task features | Claude |

@@ -14,11 +14,12 @@ import torch
 from controller.config import CEMConfig
 from controller.planner import CEMPlanner
 
-FIXED_YAW = 0.0  # Level E plans without turning the hand: the cube fits the fingers at any yaw
+FIXED_YAW = 0.0
 
 
-def action_bounds(action_dim, plan_yaw=False):
-    """[-1, 1] per action dim; with yaw (5-dim M1 actions) pinned to 0 unless plan_yaw."""
+def action_bounds(action_dim, plan_yaw=True):
+    """[-1, 1] per action dim. plan_yaw=False pins yaw (5-dim M1 actions) to FIXED_YAW. Level E
+    plans yaw: with it pinned, some cube yaws gave a corner-to-corner grasp that couldn't lift."""
     low, high = -np.ones(action_dim), np.ones(action_dim)
     if action_dim == 5 and not plan_yaw:
         low[3] = high[3] = FIXED_YAW
@@ -54,7 +55,7 @@ class ScriptedAgent:
 class OracleCEMAgent:
     """CEM planning with the simulator itself as the model (task 4, the upper-bound baseline)."""
 
-    def __init__(self, cost_fn, cfg: CEMConfig, seed=0, plan_yaw=False):
+    def __init__(self, cost_fn, cfg: CEMConfig, seed=0, plan_yaw=True):
         self.cost_fn, self.cfg, self.seed, self.plan_yaw = cost_fn, cfg, seed, plan_yaw
 
     def reset(self, adapter, obs):
@@ -109,7 +110,7 @@ class StateMLPAgent:
             pred.append(self.dynamics(pred[-1], a[None]))
             real.append(self.oracle(real[-1], a[None]))
         pred, real = torch.stack(pred, dim=1), torch.stack(real, dim=1)
-        pf, rf = pred[0, -1, :12].numpy(), real[0, -1, :12].numpy()
+        pf, rf = pred[0, -1, :14].numpy(), real[0, -1, :14].numpy()
         self.audit_log.append({
             "step": self.t,
             "predicted_cost": round(self.cost_fn(pred, None).item(), 4),
