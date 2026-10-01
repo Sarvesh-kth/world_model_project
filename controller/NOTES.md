@@ -96,7 +96,7 @@ Who wrote what, for the course's AI-use declaration.
 | 2026-09-26 | `MERGE.md`, `NOTES.md`, package `README.md` | Claude, from Calle's spec |
 | 2026-09-26 | `interfaces.py`, `config.py`, `tests/conftest.py` | Claude, from Calle's spec |
 | 2026-09-26 | `cem.py`: `cem_plan()` signature and docstring (body raises `NotImplementedError`) | Claude |
-| 2026-09-26 | `cem.py`: `cem_plan()` body | **Calle** (pending) |
+| 2026-10-01 | `cem.py`: `cem_plan()` body (Calle delegated all of M3 Level E to Claude on 2026-10-01) | Claude |
 | 2026-09-26 | `planner.py`: `CEMPlanner` loop (queue, warm start, `execute_steps`) | Claude |
 | 2026-09-26 | `tests/test_cem.py`, `tests/test_planner.py`, `tests/test_costs.py` | Claude |
 | 2026-09-26 | `dynamics/toy.py`, `costs.py` | Claude |

@@ -1,5 +1,7 @@
-# Everything the controller needs: M1's simulation deps, plus PyTorch and pytest.
+# Everything the controller needs: M1's simulation deps, M2's model deps, plus PyTorch and pytest.
 # Install from the repo root:  pip install -r controller/requirements.txt
 -r ../requirements.txt
+-r ../requirements-model.txt
 torch>=2.4
+torchvision  # V-JEPA 2 video processor; M2 installs it next to torch (see root README)
 pytest>=8

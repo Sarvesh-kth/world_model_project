@@ -4,7 +4,7 @@ cem_plan() is one CEM search. It knows nothing about environments, images or wor
 dynamics_fn and cost_fn (interfaces.py §2). The loop that calls it every few steps and executes
 the result is CEMPlanner in planner.py.
 
-Signature and docstring: Claude. Body: Calle.
+Signature, docstring and body: Claude (Calle asked Claude to write the body on 2026-10-01).
 """
 
 import torch
@@ -68,4 +68,42 @@ def cem_plan(
 
     Every tensor created here lives on z0.device; actions are float32.
     """
-    raise NotImplementedError("cem_plan body: Calle writes this. See the docstring and tests/test_cem.py.")
+    device = z0.device
+    low = torch.as_tensor(action_low, dtype=torch.float32, device=device)
+    high = torch.as_tensor(action_high, dtype=torch.float32, device=device)
+    action_dim = low.shape[0]
+
+    # 1. The Gaussian over action sequences [H, A]: start from the warm start, or the middle of the bounds
+    if init_mean is None:
+        mean = ((low + high) / 2).expand(horizon, action_dim).clone()
+    else:
+        mean = init_mean.to(device=device, dtype=torch.float32).clone()
+    std = torch.as_tensor(init_std, dtype=torch.float32, device=device).expand(horizon, action_dim).clone()
+
+    best_cost, elite_cost = [], []
+    for _ in range(n_iters):
+        # 2. Sample N sequences around the mean and clip them into the action bounds
+        noise = torch.randn(n_samples, horizon, action_dim, generator=generator, device=device)
+        actions = torch.clamp(mean + std * noise, low, high)  # [N, H, A]
+
+        # 3. Imagine: roll every sequence through the model, one batched call per step
+        z = z0.expand(n_samples, *z0.shape)  # the same start state for all N samples
+        trajectory = [z]
+        for t in range(horizon):
+            z = dynamics_fn(z, actions[:, t])
+            trajectory.append(z)
+        trajectory = torch.stack(trajectory, dim=1)  # [N, H+1, *L]
+
+        # 4. Score every imagined trajectory and keep the K cheapest (the elites)
+        cost = cost_fn(trajectory, z_goal)  # [N]
+        elite_idx = torch.topk(cost, n_elites, largest=False).indices
+        elites = actions[elite_idx]  # [K, H, A]
+
+        # 5. Refit the Gaussian to the elites; the floor stops the std from collapsing to zero
+        mean = elites.mean(dim=0)
+        std = elites.std(dim=0).clamp_min(min_std)
+
+        best_cost.append(cost.min().item())
+        elite_cost.append(cost[elite_idx].mean().item())
+
+    return mean, {"best_cost": best_cost, "elite_cost": elite_cost, "std": std}
