@@ -1,0 +1,1212 @@
+{
+  "campaign": {
+    "run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+    "profile": "varied",
+    "train_scenes": 60,
+    "val_scenes": 12,
+    "test_scenes": 12,
+    "seed": 42,
+    "training_seeds": [
+      0,
+      1,
+      2
+    ],
+    "epochs": 60,
+    "rollout_steps": 8,
+    "horizon": 30,
+    "export_dir": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/vision_v2"
+  },
+  "provenance": {
+    "python": "3.11.9",
+    "platform": "Linux-5.15.0-1085-nvidia-x86_64-with-glibc2.35",
+    "git_commit": "a768ba8079c1095a16571d507328c2fb9b9de794",
+    "git_dirty": false
+  },
+  "manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+  "collection_settings": {
+    "run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+    "profile": "varied",
+    "config": "configs/grade_e.yml",
+    "layout": "configs/grade_e_layout.json",
+    "train_scenes": 60,
+    "val_scenes": 12,
+    "test_scenes": 12,
+    "seed": 42,
+    "camera": "static",
+    "hold_steps": 8,
+    "lift_steps": 16,
+    "lift_action": 1.0,
+    "offset": 0.1,
+    "pair_tolerance": 0.001,
+    "max_scene_attempts": 8
+  },
+  "collection_config": {
+    "seed": 0,
+    "sim": {
+      "timestep": 0.002,
+      "impratio": 10
+    },
+    "control": {
+      "hz": 10,
+      "max_delta": 0.04,
+      "yaw": {
+        "enabled": true,
+        "max_delta": 0.15
+      },
+      "workspace": {
+        "low": [
+          -0.12,
+          -0.42,
+          0.755
+        ],
+        "high": [
+          0.45,
+          0.42,
+          0.97
+        ]
+      },
+      "ik": {
+        "hz": 250,
+        "damping": 0.02,
+        "pos_gain": 10.0,
+        "ori_gain": 6.0,
+        "posture_gain": 2.0,
+        "max_lin_vel": 0.7,
+        "max_ang_vel": 2.0,
+        "max_joint_vel": 2.5,
+        "max_lead": 0.05
+      }
+    },
+    "cameras": {
+      "record_hz": 10,
+      "width": 256,
+      "height": 256,
+      "static": {
+        "pos": [
+          1.25,
+          0.0,
+          1.42
+        ],
+        "lookat": [
+          0.1,
+          0.0,
+          0.82
+        ],
+        "fovy": 52
+      },
+      "wrist": {
+        "fovy": 75,
+        "tilt_deg": 30
+      },
+      "pointcloud": {
+        "enabled": false,
+        "frame": "base",
+        "stride": 2,
+        "max_depth": 2.5
+      }
+    },
+    "robot": {
+      "base_pos": [
+        -0.4,
+        0.0,
+        0.75
+      ],
+      "home_qpos": [
+        0.0,
+        -0.6,
+        0.0,
+        -2.8,
+        0.0,
+        2.2,
+        -0.7853
+      ],
+      "posture_noise": 0.0,
+      "grip_scale": 2.0
+    },
+    "table": {
+      "center": [
+        0.15,
+        0.0
+      ],
+      "half_size": [
+        0.32,
+        0.46
+      ],
+      "height": 0.75,
+      "top_thickness": 0.04
+    },
+    "task": {
+      "pick_end": "random",
+      "place_end": "opposite",
+      "ends": {
+        "left": {
+          "x": [
+            -0.02,
+            0.28
+          ],
+          "y": [
+            -0.38,
+            -0.18
+          ]
+        },
+        "right": {
+          "x": [
+            -0.02,
+            0.28
+          ],
+          "y": [
+            0.18,
+            0.38
+          ]
+        },
+        "near": {
+          "x": [
+            -0.08,
+            0.04
+          ],
+          "y": [
+            -0.22,
+            0.22
+          ]
+        },
+        "far": {
+          "x": [
+            0.2,
+            0.3
+          ],
+          "y": [
+            -0.22,
+            0.22
+          ]
+        }
+      },
+      "reach_range": [
+        0.3,
+        0.65
+      ],
+      "min_pick_place_dist": 0.35,
+      "object": {
+        "pool": [
+          "cube",
+          "cuboid",
+          "cylinder",
+          "hex_prism",
+          "tri_prism",
+          "frustum"
+        ],
+        "holdout": [
+          "bottle"
+        ],
+        "scale": [
+          0.9,
+          1.1
+        ],
+        "mass": [
+          0.05,
+          0.2
+        ],
+        "friction": [
+          0.8,
+          1.5
+        ],
+        "randomize_color": true
+      },
+      "obstacles": {
+        "count": [
+          3,
+          5
+        ],
+        "extra_height": [
+          0.04,
+          0.19
+        ],
+        "clearance": 0.2,
+        "spacing": 0.1,
+        "corridor_span": [
+          0.25,
+          0.75
+        ],
+        "lateral_offset": 0.16,
+        "kinds": {
+          "wall": {
+            "length": [
+              0.08,
+              0.16
+            ],
+            "thickness": 0.02,
+            "height": [
+              0.16,
+              0.19
+            ]
+          },
+          "box": {
+            "width": [
+              0.03,
+              0.06
+            ],
+            "height": [
+              0.16,
+              0.19
+            ]
+          },
+          "cylinder": {
+            "radius": [
+              0.015,
+              0.03
+            ],
+            "height": [
+              0.16,
+              0.19
+            ]
+          }
+        }
+      }
+    },
+    "episode": {
+      "max_steps": 300,
+      "success_radius": 0.07,
+      "settle_steps": 15,
+      "fall_margin": 0.05,
+      "terminate_on_success": true
+    },
+    "rewards": {
+      "lift_height": 0.04,
+      "safe_distance": 0.06,
+      "weights": {
+        "reach": 0.5,
+        "grasp": 0.5,
+        "lift": 0.5,
+        "transport": 1.0,
+        "place": 5.0,
+        "success": 10.0,
+        "fail": 10.0,
+        "collision": 0.5,
+        "proximity": 0.3,
+        "table_hit": 0.2,
+        "drop": 1.0,
+        "action": 0.01
+      }
+    },
+    "data": {
+      "root": "data",
+      "jpeg_quality": 90,
+      "workers": 4,
+      "mix": {
+        "success": 0.5,
+        "scripted": 0.3,
+        "drop": 0.1,
+        "collide": 0.0,
+        "random": 0.1
+      },
+      "success_attempts": 1,
+      "scripted": {
+        "noise": 0.1,
+        "noise_correlation": 0.8,
+        "speed_range": [
+          0.6,
+          1.0
+        ],
+        "carry_height": 0.1,
+        "route_margin": 0.16
+      }
+    }
+  },
+  "rejected_attempts": [],
+  "features": {
+    "manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+    "latents_sha256": "4e47bb4aac75c67d4b4ff6aae3351ddaa5c5e18e4cfb0694b57076a44e993268",
+    "model": "facebook/vjepa2-vitl-fpc64-256",
+    "model_revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f",
+    "pooling": "mean_all_encoder_tokens",
+    "camera": "static",
+    "clip_frames": 64,
+    "performance": {
+      "session_seconds": 6479.291851459071,
+      "peak_allocated_gib": 0.9215264320373535,
+      "peak_reserved_gib": 1.099609375,
+      "device_capacity_gib": 19.625
+    },
+    "provenance": {
+      "python": "3.11.9",
+      "platform": "Linux-5.15.0-1085-nvidia-x86_64-with-glibc2.35",
+      "git_commit": "a768ba8079c1095a16571d507328c2fb9b9de794",
+      "git_dirty": false,
+      "torch": "2.6.0+cu124",
+      "cuda": "12.4",
+      "gpu": "NVIDIA H100 80GB HBM3 MIG 2g.20gb"
+    }
+  },
+  "pipeline": {
+    "campaign": {
+      "run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+      "profile": "varied",
+      "train_scenes": 60,
+      "val_scenes": 12,
+      "test_scenes": 12,
+      "seed": 42,
+      "training_seeds": [
+        0,
+        1,
+        2
+      ],
+      "epochs": 60,
+      "rollout_steps": 8,
+      "horizon": 30,
+      "export_dir": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/vision_v2"
+    },
+    "provenance": {
+      "python": "3.11.9",
+      "platform": "Linux-5.15.0-1085-nvidia-x86_64-with-glibc2.35",
+      "git_commit": "a768ba8079c1095a16571d507328c2fb9b9de794",
+      "git_dirty": false
+    },
+    "started_utc": "2026-10-02T19:34:47.512855+00:00",
+    "stages": {
+      "collect": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.collect",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "--profile",
+          "varied",
+          "--seed",
+          "42",
+          "--train-scenes",
+          "60",
+          "--val-scenes",
+          "12",
+          "--test-scenes",
+          "12"
+        ],
+        "seconds": 2064.5684866541997,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/manifest.json": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9"
+        }
+      },
+      "audit": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.audit",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2"
+        ],
+        "seconds": 6.263735291082412,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/reports/audit.json": "194aff3933baa6a47dda0d8fab0001843e1d6bd7994d631fc4acb2645379c72b"
+        }
+      },
+      "encode": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.encode",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2"
+        ],
+        "seconds": 6486.034494610969,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/features/meta.json": "88680bba1d75e81fea4bd9fe4b11412382f928508967b216f4260751be9b2ac4",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/features/latents.npy": "4e47bb4aac75c67d4b4ff6aae3351ddaa5c5e18e4cfb0694b57076a44e993268"
+        }
+      },
+      "seed_0_train_readout": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "readout",
+          "--tag",
+          "seed_0",
+          "--seed",
+          "0",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 56.81512418529019,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/models/readout.pt": "9b3b0e9aa6039af97df64b6f129a6648d37b10bf434a605550263fcb03e3daa7",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/models/readout_p.pt": "36710d7bf06c3694e28c41e91eadec770675a3cf5240e1b59844faaca274054d",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/readout_training.json": "7b0eec0fbc15c0f31fbb8cc5c6965c1fadc76213081ffa550a97c8f9a535c4d1",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/readout_p_training.json": "78619a4f510dfc8e8dddab08ca48470b81c1486f9ba477afe5f0954a06fc49d6",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/readout_validation.json": "884d533dfa91ae4b060207d83ca98749981f76112de4adfd0aba0d2ca5e65aeb"
+        }
+      },
+      "seed_0_train_dynamics": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "dynamics",
+          "--tag",
+          "seed_0",
+          "--seed",
+          "0",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 92.29649508930743,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/models/dynamics.pt": "babfefa11ef082623391a98685f9bfcdc0c2661410949b09b859dc622a21471d",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/dynamics_training.json": "94a2f258d4db052056411c64b3118c7bd93e054ee87aabadd6360b7bc32b6ce5"
+        }
+      },
+      "seed_0_train_baseline": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "baseline",
+          "--tag",
+          "seed_0",
+          "--seed",
+          "0",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 44.04962098784745,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/models/no_vision.pt": "06fa1bbc5b08d03ab2ebc60157e9d653d998a7a760e99af709f6fb0234171fbf",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/no_vision_training.json": "c0ac72a2cb7cf12a0708619d403a12d34043a0849afeb0bf49e24fc0146ba960"
+        }
+      },
+      "seed_0_persistence_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "persistence",
+          "--tag",
+          "seed_0",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 99.48793459497392,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/persistence_val_h30.json": "99851c615a5e8b7a89f87dffedd44c5f19d4ca253123be2842d9121e3aafe133",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/persistence_val_h30.csv": "679cf8746080050683c8fb18eacb62ad137013400dc31a0bf25fe468e2e62f47"
+        }
+      },
+      "seed_0_action_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "action",
+          "--tag",
+          "seed_0",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 95.83058675285429,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/action_val_h30.json": "7b1058f55359c2bdb744c01547c58a2a1d45b9462de408fe8f1794f88ecacac8",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/action_val_h30.csv": "679cf8746080050683c8fb18eacb62ad137013400dc31a0bf25fe468e2e62f47"
+        }
+      },
+      "seed_0_no-vision_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "no-vision",
+          "--tag",
+          "seed_0",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 94.79046491067857,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/no-vision_val_h30.json": "e61391cd113ac2d43eeaef82a05e3617aecbf16ef203f668b83231bbb8c2bd15",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/no-vision_val_h30.csv": "679cf8746080050683c8fb18eacb62ad137013400dc31a0bf25fe468e2e62f47"
+        }
+      },
+      "seed_0_positions_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "positions",
+          "--tag",
+          "seed_0",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 92.33704276615754,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/positions_val_h30.json": "1ff85d78865f51ead6b0904654400e733254043cfd76f47252b4589c56bf9950",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/positions_val_h30.csv": "679cf8746080050683c8fb18eacb62ad137013400dc31a0bf25fe468e2e62f47"
+        }
+      },
+      "seed_0_persistence_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "persistence",
+          "--tag",
+          "seed_0",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 88.80327140726149,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/persistence_test_h30.json": "463f4b8a8eb651e1971afb3fc5d3bc808cf0594a0cd32c871d51e6e9d79559c9",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/persistence_test_h30.csv": "cbb2a45d89e89d2a7e8ea8dc6d6db47cdd2ccbbda7e8578c92979c6921b4a285"
+        }
+      },
+      "seed_0_action_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "action",
+          "--tag",
+          "seed_0",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 96.05788230104372,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/action_test_h30.json": "a87a3f9b438f388d3def4de84980d52ff367c840f92e27372b9f40f3626727d3",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/action_test_h30.csv": "cbb2a45d89e89d2a7e8ea8dc6d6db47cdd2ccbbda7e8578c92979c6921b4a285"
+        }
+      },
+      "seed_0_no-vision_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "no-vision",
+          "--tag",
+          "seed_0",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 94.67819807492197,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/no-vision_test_h30.json": "00c522935eecc2aac176b1f1f1f4a72d7a811f137f4e55217d6ed16afd003adc",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/no-vision_test_h30.csv": "cbb2a45d89e89d2a7e8ea8dc6d6db47cdd2ccbbda7e8578c92979c6921b4a285"
+        }
+      },
+      "seed_0_positions_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "positions",
+          "--tag",
+          "seed_0",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 95.22623602114618,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/positions_test_h30.json": "629fa51f936982e661bcbed3b563e741f6eb31c850fd1dd0b23b900bbe4b19eb",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/reports/positions_test_h30.csv": "cbb2a45d89e89d2a7e8ea8dc6d6db47cdd2ccbbda7e8578c92979c6921b4a285"
+        }
+      },
+      "seed_1_train_readout": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "readout",
+          "--tag",
+          "seed_1",
+          "--seed",
+          "1",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 54.48773408262059,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/models/readout.pt": "6cee7bb0dd237a6c51e1e0e11ee22c36b0877d6d50afc68dee9c66ac299b835f",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/models/readout_p.pt": "d1f184b534e05a22625c6e5457c6b35995d1dcb7216aeeb20012d221a93127cf",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/readout_training.json": "7cfc75f06bf07bea87ce6ebd8effd0e8a95ba07b75f555ace3cb7e439eb8770a",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/readout_p_training.json": "d2de1bc8771e2483985f4b59d6e580de8e8ba635a9fe794be9d47e025652a68b",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/readout_validation.json": "76fdf3351e3e9afd6ed989c514d63d1c02f98f0fa53987a4c509ed2e99688dc9"
+        }
+      },
+      "seed_1_train_dynamics": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "dynamics",
+          "--tag",
+          "seed_1",
+          "--seed",
+          "1",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 93.50441920384765,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/models/dynamics.pt": "e507c2d2198c286a93ec8fcc85379b744ec7756fb3bc263c6a2b02b37ba3f581",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/dynamics_training.json": "e6d37959e7a66bcf3a6523ad9a674e0fc76ee99d5b11a4e7107264f24850c4e0"
+        }
+      },
+      "seed_1_train_baseline": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "baseline",
+          "--tag",
+          "seed_1",
+          "--seed",
+          "1",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 29.41027269838378,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/models/no_vision.pt": "3f4fb9c1294cf4cec588f058acb26fe1172d56561c6768b8635b9398178740d9",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/no_vision_training.json": "2436ea6430fd1fe5b3fdfb8fee56ed6bbda2fdd5b5f06e1bd421eb713e8697dd"
+        }
+      },
+      "seed_1_persistence_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "persistence",
+          "--tag",
+          "seed_1",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 89.40579229965806,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/persistence_val_h30.json": "5d6f9d181cebf39a8bf24a88f947592dadbca50f7cf3607a88290828be872999",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/persistence_val_h30.csv": "173dc7c75b85027d55a3d3a212c8ef417150c334b3b4664304046831f61c28db"
+        }
+      },
+      "seed_1_action_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "action",
+          "--tag",
+          "seed_1",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 98.56439607404172,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/action_val_h30.json": "de854e5c1fad5b96398d2cd74b00fa6e38806f3a0e9cfb5c1eb4bac2de357d4e",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/action_val_h30.csv": "173dc7c75b85027d55a3d3a212c8ef417150c334b3b4664304046831f61c28db"
+        }
+      },
+      "seed_1_no-vision_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "no-vision",
+          "--tag",
+          "seed_1",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 97.7887232019566,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/no-vision_val_h30.json": "7399f1bff4b0a14d02c945af0de8713337fdee551aa3b54c930a08b4079c89d8",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/no-vision_val_h30.csv": "173dc7c75b85027d55a3d3a212c8ef417150c334b3b4664304046831f61c28db"
+        }
+      },
+      "seed_1_positions_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "positions",
+          "--tag",
+          "seed_1",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 101.43845302192494,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/positions_val_h30.json": "363510d378d5fbf899ac43a4c09f862ebd035d82278557f4080d749b75058df9",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/positions_val_h30.csv": "173dc7c75b85027d55a3d3a212c8ef417150c334b3b4664304046831f61c28db"
+        }
+      },
+      "seed_1_persistence_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "persistence",
+          "--tag",
+          "seed_1",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 93.27806600788608,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/persistence_test_h30.json": "7d2cc77e88ebd7b35787d0bd3e860de14aa584bb683993db62ece8f84d3d313f",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/persistence_test_h30.csv": "53650d4bad726579054ffdf68116fc41b26b68c03dca039098380fa6fe164e85"
+        }
+      },
+      "seed_1_action_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "action",
+          "--tag",
+          "seed_1",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 96.06138979736716,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/action_test_h30.json": "c1ff91ed84281777882a00814fd9c3f6788efa2ab230a3ae41a4b586f4ec0736",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/action_test_h30.csv": "53650d4bad726579054ffdf68116fc41b26b68c03dca039098380fa6fe164e85"
+        }
+      },
+      "seed_1_no-vision_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "no-vision",
+          "--tag",
+          "seed_1",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 100.33866532379761,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/no-vision_test_h30.json": "ef850b4fe34232e023b8c51033b976a9a057d5c42fce9bda386c7fe7863a178c",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/no-vision_test_h30.csv": "53650d4bad726579054ffdf68116fc41b26b68c03dca039098380fa6fe164e85"
+        }
+      },
+      "seed_1_positions_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "positions",
+          "--tag",
+          "seed_1",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 89.98243264574558,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/positions_test_h30.json": "d4ef32b2ce950a3c558d88133d4927ccffbc2a4355c36b02c0b4bfef4aa3ab7f",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_1/reports/positions_test_h30.csv": "53650d4bad726579054ffdf68116fc41b26b68c03dca039098380fa6fe164e85"
+        }
+      },
+      "seed_2_train_readout": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "readout",
+          "--tag",
+          "seed_2",
+          "--seed",
+          "2",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 55.99989905580878,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/models/readout.pt": "0aefa4503489d537f2195073166a63a5bdcda041810c47d8c54c3d4e6952a600",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/models/readout_p.pt": "ed2e8d2feec86d1e4f120ca7fd600a883acf9a994c802d0e8fff4b214784cc1c",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/readout_training.json": "c79f225afea3261e1e86b14e87ffc7ee95b6c06543f8e5d17ee5e0c77e92625a",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/readout_p_training.json": "adb3c3b888b6202ad59e7830188db6957601bc083c300b283a3206f038199c65",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/readout_validation.json": "39ffc37a8e46b8fbb888d9a869a94a6e22a879ec2757b3d3e16c2b4591230daa"
+        }
+      },
+      "seed_2_train_dynamics": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "dynamics",
+          "--tag",
+          "seed_2",
+          "--seed",
+          "2",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 93.93432909995317,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/models/dynamics.pt": "5a9eecfe0a00da8cebc671e3c8c83dd0d698e0e22a15afd5364eeedb24f0459e",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/dynamics_training.json": "9c960f962bd0b7fd654e7f2468eda71009519455076428f2d9c90ba873377a7b"
+        }
+      },
+      "seed_2_train_baseline": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.train",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "baseline",
+          "--tag",
+          "seed_2",
+          "--seed",
+          "2",
+          "--epochs",
+          "60",
+          "--rollout-steps",
+          "8"
+        ],
+        "seconds": 29.199420417193323,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/models/no_vision.pt": "dc079dd7ed078143d45cb3c426f8d96a13b1321f81cfa5ce3f12c5035a22e067",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/no_vision_training.json": "8217c2349ca2289beab65884f8c39e26ee9080bd051484289a9683b1968e4585"
+        }
+      },
+      "seed_2_persistence_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "persistence",
+          "--tag",
+          "seed_2",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 91.86187647515908,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/persistence_val_h30.json": "e5abf9c7ea250ddfcd0e59eb3e87b6a2724b295beef38437ebb481744bf00200",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/persistence_val_h30.csv": "5aea14094394d72670fe1e5805ac59cdc85204f9506a776afadb06d35fd84f46"
+        }
+      },
+      "seed_2_action_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "action",
+          "--tag",
+          "seed_2",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 92.8437300301157,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/action_val_h30.json": "5b74a2eae06cf77de924ff265dfd57e7c35bb1f2df912f1917a618afec4ce955",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/action_val_h30.csv": "5aea14094394d72670fe1e5805ac59cdc85204f9506a776afadb06d35fd84f46"
+        }
+      },
+      "seed_2_no-vision_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "no-vision",
+          "--tag",
+          "seed_2",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 99.16723125101998,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/no-vision_val_h30.json": "2d6a5ed90a16063ade4397c65078844b6a8896938463352549ebea2f58905e19",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/no-vision_val_h30.csv": "5aea14094394d72670fe1e5805ac59cdc85204f9506a776afadb06d35fd84f46"
+        }
+      },
+      "seed_2_positions_val_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "positions",
+          "--tag",
+          "seed_2",
+          "--split",
+          "val",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 97.9707466182299,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/positions_val_h30.json": "3056c02de0bc04f1dbb2d56824ef5cf2184b4927e94dd910a412db3b8b2d5eef",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/positions_val_h30.csv": "5aea14094394d72670fe1e5805ac59cdc85204f9506a776afadb06d35fd84f46"
+        }
+      },
+      "seed_2_persistence_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "persistence",
+          "--tag",
+          "seed_2",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 87.79410916659981,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/persistence_test_h30.json": "7121f983e183872578ce4031f6c2facae70914c1199e70675444893b24a348db",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/persistence_test_h30.csv": "a2f62273fc4fc9ffe7c81fe37f4913a5524a0fd09e144308166a36864484ff48"
+        }
+      },
+      "seed_2_action_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "action",
+          "--tag",
+          "seed_2",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 90.53428078768775,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/action_test_h30.json": "aa46bb5f54e9efab3002dd9aeae344a588e60cce97c541a5d0af4a19e70bc18b",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/action_test_h30.csv": "a2f62273fc4fc9ffe7c81fe37f4913a5524a0fd09e144308166a36864484ff48"
+        }
+      },
+      "seed_2_no-vision_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "no-vision",
+          "--tag",
+          "seed_2",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 92.47222399385646,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/no-vision_test_h30.json": "0bfc51b599e865972c8b933fb7f477de66a5b322c92e26a908bc9ac38703afa7",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/no-vision_test_h30.csv": "a2f62273fc4fc9ffe7c81fe37f4913a5524a0fd09e144308166a36864484ff48"
+        }
+      },
+      "seed_2_positions_test_h30": {
+        "complete": true,
+        "command": [
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+          "-u",
+          "-m",
+          "world_model.vision.test",
+          "--run",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+          "positions",
+          "--tag",
+          "seed_2",
+          "--split",
+          "test",
+          "--horizon",
+          "30"
+        ],
+        "seconds": 96.8527351343073,
+        "artifacts": {
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/positions_test_h30.json": "33c513f46323ccce74a733c3354c93496cbb0300f550f5caf833eee8c78f4091",
+          "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports/positions_test_h30.csv": "a2f62273fc4fc9ffe7c81fe37f4913a5524a0fd09e144308166a36864484ff48"
+        }
+      }
+    },
+    "complete": true,
+    "finished_utc": "2026-10-02T22:44:30.426072+00:00"
+  },
+  "note": "Observed evaluations; Q failures remain diagnostic. No reward model or learned control."
+}

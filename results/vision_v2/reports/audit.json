@@ -1,0 +1,1044 @@
+{
+  "problems": [],
+  "states": 20328,
+  "rollouts": 672,
+  "scene_groups": 84,
+  "scenes_by_split": {
+    "train": 60,
+    "val": 12,
+    "test": 12
+  },
+  "held_labels_by_split": {
+    "train": {
+      "False": 12474,
+      "True": 2046
+    },
+    "val": {
+      "False": 2465,
+      "True": 439
+    },
+    "test": {
+      "False": 2190,
+      "True": 714
+    }
+  },
+  "distinct_frames": 26982,
+  "max_position_pair_p_error": 0.0,
+  "branches": {
+    "close_lift": 168,
+    "open_lift": 168,
+    "close_side_lift": 168,
+    "close_lift_release": 168
+  },
+  "rejected_attempts": 0,
+  "contrasts": [
+    {
+      "scene": "scene_0000",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.389637231826782
+    },
+    {
+      "scene": "scene_0000",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0001",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0001",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0002",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0002",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0003",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.697876691818237
+    },
+    {
+      "scene": "scene_0003",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 17.687761783599854
+    },
+    {
+      "scene": "scene_0004",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0004",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0005",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.601996660232544
+    },
+    {
+      "scene": "scene_0005",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0006",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.167586088180542
+    },
+    {
+      "scene": "scene_0006",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 17.155927419662476
+    },
+    {
+      "scene": "scene_0007",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0007",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0008",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0008",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0009",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.34800934791565
+    },
+    {
+      "scene": "scene_0009",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 17.34986901283264
+    },
+    {
+      "scene": "scene_0010",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0010",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0011",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0011",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0012",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 18.019694089889526
+    },
+    {
+      "scene": "scene_0012",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0013",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0013",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0014",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.681610584259033
+    },
+    {
+      "scene": "scene_0014",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0015",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0015",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0016",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 18.01081895828247
+    },
+    {
+      "scene": "scene_0016",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0017",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 16.29752516746521
+    },
+    {
+      "scene": "scene_0017",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0018",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0018",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0019",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0019",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0020",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 18.0294930934906
+    },
+    {
+      "scene": "scene_0020",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0021",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 16.31024479866028
+    },
+    {
+      "scene": "scene_0021",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 16.32486581802368
+    },
+    {
+      "scene": "scene_0022",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0022",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0023",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.057007551193237
+    },
+    {
+      "scene": "scene_0023",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0024",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0024",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0025",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 12.498480081558228
+    },
+    {
+      "scene": "scene_0025",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0026",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 16.962826251983643
+    },
+    {
+      "scene": "scene_0026",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0027",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0027",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0028",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0028",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0029",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0029",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0030",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0030",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0031",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0031",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0032",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0032",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0033",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0033",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0034",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.044371366500854
+    },
+    {
+      "scene": "scene_0034",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 17.11379885673523
+    },
+    {
+      "scene": "scene_0035",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 13.826966285705566
+    },
+    {
+      "scene": "scene_0035",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0036",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0036",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0037",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.84912943840027
+    },
+    {
+      "scene": "scene_0037",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0038",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0038",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0039",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 15.088045597076416
+    },
+    {
+      "scene": "scene_0039",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 14.937448501586914
+    },
+    {
+      "scene": "scene_0040",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0040",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0041",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0041",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0042",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.120766639709473
+    },
+    {
+      "scene": "scene_0042",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 17.140161991119385
+    },
+    {
+      "scene": "scene_0043",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0043",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0044",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 18.01081895828247
+    },
+    {
+      "scene": "scene_0044",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0045",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0045",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0046",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0046",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0047",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 15.777385234832764
+    },
+    {
+      "scene": "scene_0047",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0048",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 18.039846420288086
+    },
+    {
+      "scene": "scene_0048",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0049",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0049",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0050",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0050",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0051",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.809128761291504
+    },
+    {
+      "scene": "scene_0051",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 17.88913607597351
+    },
+    {
+      "scene": "scene_0052",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0052",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0053",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 11.726248264312744
+    },
+    {
+      "scene": "scene_0053",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0054",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0054",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 16.878485679626465
+    },
+    {
+      "scene": "scene_0055",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0055",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0056",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 16.905951499938965
+    },
+    {
+      "scene": "scene_0056",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0057",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0057",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0058",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 14.377939701080322
+    },
+    {
+      "scene": "scene_0058",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0059",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 12.365221977233887
+    },
+    {
+      "scene": "scene_0059",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0060",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0060",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0061",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0061",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0062",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 16.921520233154297
+    },
+    {
+      "scene": "scene_0062",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0063",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0063",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0064",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 17.91224479675293
+    },
+    {
+      "scene": "scene_0064",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0065",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 11.372232437133789
+    },
+    {
+      "scene": "scene_0065",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0066",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 17.685335874557495
+    },
+    {
+      "scene": "scene_0066",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 17.66555905342102
+    },
+    {
+      "scene": "scene_0067",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0067",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0068",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0068",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0069",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 15.81718921661377
+    },
+    {
+      "scene": "scene_0069",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 15.802311897277832
+    },
+    {
+      "scene": "scene_0070",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0070",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0071",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0071",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0072",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.659002542495728
+    },
+    {
+      "scene": "scene_0072",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0073",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 16.623306274414062
+    },
+    {
+      "scene": "scene_0073",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0074",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 11.43277883529663
+    },
+    {
+      "scene": "scene_0074",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0075",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.78826117515564
+    },
+    {
+      "scene": "scene_0075",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0076",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.89047122001648
+    },
+    {
+      "scene": "scene_0076",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0077",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 16.909337043762207
+    },
+    {
+      "scene": "scene_0077",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0078",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 16.346687078475952
+    },
+    {
+      "scene": "scene_0078",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 16.29120111465454
+    },
+    {
+      "scene": "scene_0079",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.595988512039185
+    },
+    {
+      "scene": "scene_0079",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0080",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.947828769683838
+    },
+    {
+      "scene": "scene_0080",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0081",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0081",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0082",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.54307746887207
+    },
+    {
+      "scene": "scene_0082",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0083",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.96029806137085
+    },
+    {
+      "scene": "scene_0083",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    }
+  ]
+}

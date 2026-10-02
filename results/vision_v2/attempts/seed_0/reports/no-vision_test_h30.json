@@ -1,0 +1,102 @@
+{
+  "test": "no-vision",
+  "split": "test",
+  "horizon": 30,
+  "scene_groups": 12,
+  "manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+  "dynamics_checkpoint_sha256": "babfefa11ef082623391a98685f9bfcdc0c2661410949b09b859dc622a21471d",
+  "Q_validation_gate_passed": true,
+  "Q_on_all_real_evaluation_states": {
+    "n": 2904,
+    "xyz_mae_cm": [
+      0.8525853157043457,
+      0.7967679500579834,
+      0.5862383842468262
+    ],
+    "height_mae_cm": 0.5862391591072083,
+    "grasp_accuracy": 0.8763774104683195,
+    "grasp_precision": 0.7100591715976331,
+    "grasp_recall": 0.8403361344537815,
+    "grasp_f1": 0.7697241821680565,
+    "grasp_brier": 0.09133990854024887,
+    "height_mae_when_held_cm": 1.2665374279022217,
+    "height_mae_when_not_held_cm": 0.3644433319568634,
+    "positive_labels": 714,
+    "negative_labels": 2190
+  },
+  "Q_object_interpretation_gate_passed": false,
+  "note": "Q-derived imagined object results are diagnostic only when the Q gate fails. No learned robot control, reward model or CEM is run.",
+  "D_Q": {
+    "n": 96,
+    "xyz_mae_cm": [
+      1.1538256406784058,
+      1.0237524509429932,
+      3.4707558155059814
+    ],
+    "height_mae_cm": 3.470755100250244,
+    "grasp_accuracy": 0.8333333333333334,
+    "grasp_precision": 0.8333333333333334,
+    "grasp_recall": 0.4166666666666667,
+    "grasp_f1": 0.5555555555555556,
+    "grasp_brier": 0.1530326008796692,
+    "height_mae_when_held_cm": 10.752949714660645,
+    "height_mae_when_not_held_cm": 1.0433565378189087,
+    "positive_labels": 24,
+    "negative_labels": 72
+  },
+  "no_vision_sequence_baseline": {
+    "n": 96,
+    "xyz_mae_cm": [
+      3.793853521347046,
+      3.7431490421295166,
+      4.0695343017578125
+    ],
+    "height_mae_cm": 4.069533348083496,
+    "grasp_accuracy": 0.75,
+    "grasp_precision": 0.5,
+    "grasp_recall": 0.16666666666666666,
+    "grasp_f1": 0.25,
+    "grasp_brier": 0.14320924878120422,
+    "height_mae_when_held_cm": 10.497554779052734,
+    "height_mae_when_not_held_cm": 1.9268596172332764,
+    "positive_labels": 24,
+    "negative_labels": 72
+  },
+  "Q_on_real_future": {
+    "n": 96,
+    "xyz_mae_cm": [
+      1.1091430187225342,
+      0.841442883014679,
+      1.4032609462738037
+    ],
+    "height_mae_cm": 1.4032607078552246,
+    "grasp_accuracy": 0.9895833333333334,
+    "grasp_precision": 0.96,
+    "grasp_recall": 1.0,
+    "grasp_f1": 0.9795918367346939,
+    "grasp_brier": 0.013030712492763996,
+    "height_mae_when_held_cm": 2.7173712253570557,
+    "height_mae_when_not_held_cm": 0.9652238488197327,
+    "positive_labels": 24,
+    "negative_labels": 72
+  },
+  "Q_p_on_measured_future_p": {
+    "n": 96,
+    "xyz_mae_cm": [
+      2.2893729209899902,
+      2.8092687129974365,
+      1.0866508483886719
+    ],
+    "height_mae_cm": 1.0866508483886719,
+    "grasp_accuracy": 1.0,
+    "grasp_precision": 1.0,
+    "grasp_recall": 1.0,
+    "grasp_f1": 1.0,
+    "grasp_brier": 0.0019808763172477484,
+    "height_mae_when_held_cm": 2.9412741661071777,
+    "height_mae_when_not_held_cm": 0.46844300627708435,
+    "positive_labels": 24,
+    "negative_labels": 72
+  },
+  "baseline_contract": "direct supervised p0+action-prefix -> object xyz/grasp; no real future p. This is not an architecture-matched latent ablation."
+}

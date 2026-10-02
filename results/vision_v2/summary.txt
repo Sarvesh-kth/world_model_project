@@ -1,0 +1,35 @@
+Visual consequence campaign
+profile=varied; collection seed=42
+train/val/test scenes=60/12/12
+epochs=60; recursive training steps=8; evaluation steps=30
+Q gate failures are diagnostic results, not software failures. Lower MAE/MSE is better.
+seed=0 val: latent MSE D=0.2748, unchanged=1.8051; D+Q height MAE=2.093 cm, grasp F1=0.444
+seed=0 val: close/open matched-beats-swapped=1.0; height-effect MAE=12.08780152457101 cm; eligible=7/24
+seed=0 val D_Q: height MAE=2.093 cm, grasp F1=0.444
+seed=0 val no_vision_sequence_baseline: height MAE=3.195 cm, grasp F1=0.462
+seed=0 val: Q gate=True; position-effect MAE D+Q=14.427982012430826 cm; blind=15.40521796544393 cm; eligible=6/48
+seed=0 test: latent MSE D=0.3773, unchanged=1.8506; D+Q height MAE=3.471 cm, grasp F1=0.556
+seed=0 test: close/open matched-beats-swapped=1.0; height-effect MAE=12.10483201344808 cm; eligible=12/24
+seed=0 test D_Q: height MAE=3.471 cm, grasp F1=0.556
+seed=0 test no_vision_sequence_baseline: height MAE=4.070 cm, grasp F1=0.250
+seed=0 test: Q gate=False; position-effect MAE D+Q=14.28311448097229 cm; blind=16.938282775878907 cm; eligible=20/48
+seed=1 val: latent MSE D=0.2965, unchanged=1.8051; D+Q height MAE=2.305 cm, grasp F1=0.125
+seed=1 val: close/open matched-beats-swapped=1.0; height-effect MAE=12.262094906398229 cm; eligible=7/24
+seed=1 val D_Q: height MAE=2.305 cm, grasp F1=0.125
+seed=1 val no_vision_sequence_baseline: height MAE=3.075 cm, grasp F1=0.462
+seed=1 val: Q gate=True; position-effect MAE D+Q=12.638335545857748 cm; blind=15.40521796544393 cm; eligible=6/48
+seed=1 test: latent MSE D=0.3759, unchanged=1.8506; D+Q height MAE=3.449 cm, grasp F1=0.595
+seed=1 test: close/open matched-beats-swapped=1.0; height-effect MAE=11.423008441925049 cm; eligible=12/24
+seed=1 test D_Q: height MAE=3.449 cm, grasp F1=0.595
+seed=1 test no_vision_sequence_baseline: height MAE=4.129 cm, grasp F1=0.500
+seed=1 test: Q gate=True; position-effect MAE D+Q=13.73586015701294 cm; blind=16.938282775878907 cm; eligible=20/48
+seed=2 val: latent MSE D=0.2834, unchanged=1.8051; D+Q height MAE=2.204 cm, grasp F1=0.000
+seed=2 val: close/open matched-beats-swapped=1.0; height-effect MAE=12.789377076285225 cm; eligible=7/24
+seed=2 val D_Q: height MAE=2.204 cm, grasp F1=0.000
+seed=2 val no_vision_sequence_baseline: height MAE=2.948 cm, grasp F1=0.250
+seed=2 val: Q gate=False; position-effect MAE D+Q=13.491306781768799 cm; blind=15.40521796544393 cm; eligible=6/48
+seed=2 test: latent MSE D=0.3450, unchanged=1.8506; D+Q height MAE=3.332 cm, grasp F1=0.595
+seed=2 test: close/open matched-beats-swapped=1.0; height-effect MAE=10.596990982691446 cm; eligible=12/24
+seed=2 test D_Q: height MAE=3.332 cm, grasp F1=0.595
+seed=2 test no_vision_sequence_baseline: height MAE=4.104 cm, grasp F1=0.143
+seed=2 test: Q gate=False; position-effect MAE D+Q=13.59649474620819 cm; blind=16.938282775878907 cm; eligible=20/48

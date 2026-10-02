@@ -1,0 +1,1485 @@
+{
+  "test": "action",
+  "split": "test",
+  "horizon": 30,
+  "scene_groups": 12,
+  "manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+  "dynamics_checkpoint_sha256": "babfefa11ef082623391a98685f9bfcdc0c2661410949b09b859dc622a21471d",
+  "Q_validation_gate_passed": true,
+  "Q_on_all_real_evaluation_states": {
+    "n": 2904,
+    "xyz_mae_cm": [
+      0.8525853157043457,
+      0.7967679500579834,
+      0.5862383842468262
+    ],
+    "height_mae_cm": 0.5862391591072083,
+    "grasp_accuracy": 0.8763774104683195,
+    "grasp_precision": 0.7100591715976331,
+    "grasp_recall": 0.8403361344537815,
+    "grasp_f1": 0.7697241821680565,
+    "grasp_brier": 0.09133990854024887,
+    "height_mae_when_held_cm": 1.2665374279022217,
+    "height_mae_when_not_held_cm": 0.3644433319568634,
+    "positive_labels": 714,
+    "negative_labels": 2190
+  },
+  "Q_object_interpretation_gate_passed": false,
+  "note": "Q-derived imagined object results are diagnostic only when the Q gate fails. No learned robot control, reward model or CEM is run.",
+  "eligibility": "absolute real A/B height effect >= 2.0 cm",
+  "eligible_pairs": 12,
+  "all_pairs": 24,
+  "matched_beats_swapped_fraction": 1.0,
+  "height_effect_mae_cm": 12.10483201344808,
+  "pairs": [
+    {
+      "scene": "scene_0072",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 17.65900230407715,
+      "D_Q_height_effect_cm": 4.056406021118164,
+      "effect_absolute_error_cm": 13.602596282958984,
+      "matched_z_mse": 0.20756934583187103,
+      "swapped_z_mse": 0.24868355691432953,
+      "close_matched_swapped_z_mse": [
+        0.23342177271842957,
+        0.21440991759300232
+      ],
+      "open_matched_swapped_z_mse": [
+        0.1817169189453125,
+        0.28295719623565674
+      ],
+      "real_branch_z_separation_mse": 0.19174951314926147,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0072",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 1.720947027206421,
+      "effect_absolute_error_cm": 1.720947027206421,
+      "matched_z_mse": 0.20140638947486877,
+      "swapped_z_mse": 0.20229821652173996,
+      "close_matched_swapped_z_mse": [
+        0.201557457447052,
+        0.22597108781337738
+      ],
+      "open_matched_swapped_z_mse": [
+        0.20125532150268555,
+        0.17862534523010254
+      ],
+      "real_branch_z_separation_mse": 0.022891046479344368,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0073",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 16.623306274414062,
+      "D_Q_height_effect_cm": 2.6829540729522705,
+      "effect_absolute_error_cm": 13.940352439880371,
+      "matched_z_mse": 0.3921964019536972,
+      "swapped_z_mse": 0.4146103858947754,
+      "close_matched_swapped_z_mse": [
+        0.4670451581478119,
+        0.3287867307662964
+      ],
+      "open_matched_swapped_z_mse": [
+        0.3173476457595825,
+        0.5004340410232544
+      ],
+      "real_branch_z_separation_mse": 0.2020646333694458,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0073",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 0.9183049201965332,
+      "effect_absolute_error_cm": 0.9183049201965332,
+      "matched_z_mse": 0.3106173574924469,
+      "swapped_z_mse": 0.3136957585811615,
+      "close_matched_swapped_z_mse": [
+        0.32645726203918457,
+        0.2944943904876709
+      ],
+      "open_matched_swapped_z_mse": [
+        0.29477745294570923,
+        0.3328971266746521
+      ],
+      "real_branch_z_separation_mse": 0.02368849888443947,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0074",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 11.432779312133789,
+      "D_Q_height_effect_cm": 2.645587921142578,
+      "effect_absolute_error_cm": 8.787191390991211,
+      "matched_z_mse": 0.19934158772230148,
+      "swapped_z_mse": 0.21150349080562592,
+      "close_matched_swapped_z_mse": [
+        0.2015640288591385,
+        0.19008824229240417
+      ],
+      "open_matched_swapped_z_mse": [
+        0.19711914658546448,
+        0.23291873931884766
+      ],
+      "real_branch_z_separation_mse": 0.10431185364723206,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0074",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 0.16829371452331543,
+      "effect_absolute_error_cm": 0.16829371452331543,
+      "matched_z_mse": 0.4483277499675751,
+      "swapped_z_mse": 0.4504777789115906,
+      "close_matched_swapped_z_mse": [
+        0.4375835061073303,
+        0.47179198265075684
+      ],
+      "open_matched_swapped_z_mse": [
+        0.4590719938278198,
+        0.4291635751724243
+      ],
+      "real_branch_z_separation_mse": 0.0135133545845747,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0075",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 17.78826141357422,
+      "D_Q_height_effect_cm": 4.331874847412109,
+      "effect_absolute_error_cm": 13.45638656616211,
+      "matched_z_mse": 0.4587966203689575,
+      "swapped_z_mse": 0.4802364259958267,
+      "close_matched_swapped_z_mse": [
+        0.5366863012313843,
+        0.3539324104785919
+      ],
+      "open_matched_swapped_z_mse": [
+        0.38090693950653076,
+        0.6065404415130615
+      ],
+      "real_branch_z_separation_mse": 0.18155734241008759,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0075",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 1.8013358116149902,
+      "effect_absolute_error_cm": 1.8013358116149902,
+      "matched_z_mse": 0.4074617475271225,
+      "swapped_z_mse": 0.40885086357593536,
+      "close_matched_swapped_z_mse": [
+        0.4049920439720154,
+        0.38082805275917053
+      ],
+      "open_matched_swapped_z_mse": [
+        0.4099314510822296,
+        0.4368736743927002
+      ],
+      "real_branch_z_separation_mse": 0.02665243297815323,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0076",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 17.890470504760742,
+      "D_Q_height_effect_cm": 0.23462772369384766,
+      "effect_absolute_error_cm": 17.655841827392578,
+      "matched_z_mse": 0.2392018511891365,
+      "swapped_z_mse": 0.2568280026316643,
+      "close_matched_swapped_z_mse": [
+        0.2686910629272461,
+        0.20592795312404633
+      ],
+      "open_matched_swapped_z_mse": [
+        0.20971263945102692,
+        0.3077280521392822
+      ],
+      "real_branch_z_separation_mse": 0.14555218815803528,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0076",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 0.08982419967651367,
+      "effect_absolute_error_cm": 0.08982419967651367,
+      "matched_z_mse": 0.21576670557260513,
+      "swapped_z_mse": 0.22487770020961761,
+      "close_matched_swapped_z_mse": [
+        0.20903922617435455,
+        0.236799955368042
+      ],
+      "open_matched_swapped_z_mse": [
+        0.2224941849708557,
+        0.21295544505119324
+      ],
+      "real_branch_z_separation_mse": 0.032950010150671005,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0077",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 16.90933609008789,
+      "D_Q_height_effect_cm": 1.940840482711792,
+      "effect_absolute_error_cm": 14.96849536895752,
+      "matched_z_mse": 0.29342958331108093,
+      "swapped_z_mse": 0.308644637465477,
+      "close_matched_swapped_z_mse": [
+        0.287244975566864,
+        0.3137983977794647
+      ],
+      "open_matched_swapped_z_mse": [
+        0.29961419105529785,
+        0.30349087715148926
+      ],
+      "real_branch_z_separation_mse": 0.13541647791862488,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0077",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 0.38997530937194824,
+      "effect_absolute_error_cm": 0.38997530937194824,
+      "matched_z_mse": 0.4405307322740555,
+      "swapped_z_mse": 0.44130997359752655,
+      "close_matched_swapped_z_mse": [
+        0.412619411945343,
+        0.4587642550468445
+      ],
+      "open_matched_swapped_z_mse": [
+        0.46844205260276794,
+        0.4238556921482086
+      ],
+      "real_branch_z_separation_mse": 0.011691544204950333,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0078",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 16.34668731689453,
+      "D_Q_height_effect_cm": 8.619821548461914,
+      "effect_absolute_error_cm": 7.726865768432617,
+      "matched_z_mse": 0.5780296921730042,
+      "swapped_z_mse": 0.641594409942627,
+      "close_matched_swapped_z_mse": [
+        0.5921634435653687,
+        0.6193504333496094
+      ],
+      "open_matched_swapped_z_mse": [
+        0.5638959407806396,
+        0.6638383865356445
+      ],
+      "real_branch_z_separation_mse": 0.2348138689994812,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0078",
+      "placement": "offset",
+      "eligible": true,
+      "real_height_effect_cm": 16.291200637817383,
+      "D_Q_height_effect_cm": 7.538235187530518,
+      "effect_absolute_error_cm": 8.752965927124023,
+      "matched_z_mse": 0.4748493731021881,
+      "swapped_z_mse": 0.5257697403430939,
+      "close_matched_swapped_z_mse": [
+        0.47308844327926636,
+        0.49870288372039795
+      ],
+      "open_matched_swapped_z_mse": [
+        0.47661030292510986,
+        0.5528365969657898
+      ],
+      "real_branch_z_separation_mse": 0.21356281638145447,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0079",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 17.595989227294922,
+      "D_Q_height_effect_cm": 3.056347370147705,
+      "effect_absolute_error_cm": 14.539642333984375,
+      "matched_z_mse": 0.5695866644382477,
+      "swapped_z_mse": 0.5924378037452698,
+      "close_matched_swapped_z_mse": [
+        0.5772686004638672,
+        0.5418386459350586
+      ],
+      "open_matched_swapped_z_mse": [
+        0.5619047284126282,
+        0.643036961555481
+      ],
+      "real_branch_z_separation_mse": 0.23402182757854462,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0079",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 0.4359006881713867,
+      "effect_absolute_error_cm": 0.4359006881713867,
+      "matched_z_mse": 0.7360016107559204,
+      "swapped_z_mse": 0.7449361681938171,
+      "close_matched_swapped_z_mse": [
+        0.764180064201355,
+        0.6779447793960571
+      ],
+      "open_matched_swapped_z_mse": [
+        0.7078231573104858,
+        0.8119275569915771
+      ],
+      "real_branch_z_separation_mse": 0.12301874905824661,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0080",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 17.94782829284668,
+      "D_Q_height_effect_cm": 6.058263778686523,
+      "effect_absolute_error_cm": 11.889564514160156,
+      "matched_z_mse": 0.3881335109472275,
+      "swapped_z_mse": 0.4404286742210388,
+      "close_matched_swapped_z_mse": [
+        0.470377117395401,
+        0.34034276008605957
+      ],
+      "open_matched_swapped_z_mse": [
+        0.30588990449905396,
+        0.5405145883560181
+      ],
+      "real_branch_z_separation_mse": 0.2881016731262207,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0080",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 2.402561902999878,
+      "effect_absolute_error_cm": 2.402561902999878,
+      "matched_z_mse": 0.37820014357566833,
+      "swapped_z_mse": 0.3837651163339615,
+      "close_matched_swapped_z_mse": [
+        0.3642815947532654,
+        0.4102652072906494
+      ],
+      "open_matched_swapped_z_mse": [
+        0.3921186923980713,
+        0.35726502537727356
+      ],
+      "real_branch_z_separation_mse": 0.03903751075267792,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0081",
+      "placement": "under",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 0.03390312194824219,
+      "effect_absolute_error_cm": 0.03390312194824219,
+      "matched_z_mse": 0.15363264083862305,
+      "swapped_z_mse": 0.156833715736866,
+      "close_matched_swapped_z_mse": [
+        0.1492849737405777,
+        0.1736356019973755
+      ],
+      "open_matched_swapped_z_mse": [
+        0.1579803079366684,
+        0.1400318294763565
+      ],
+      "real_branch_z_separation_mse": 0.01722046732902527,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0081",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 0.1187741756439209,
+      "effect_absolute_error_cm": 0.1187741756439209,
+      "matched_z_mse": 0.13649675250053406,
+      "swapped_z_mse": 0.13883736729621887,
+      "close_matched_swapped_z_mse": [
+        0.1252218782901764,
+        0.15225142240524292
+      ],
+      "open_matched_swapped_z_mse": [
+        0.14777162671089172,
+        0.12542331218719482
+      ],
+      "real_branch_z_separation_mse": 0.01747695542871952,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0082",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 17.54307746887207,
+      "D_Q_height_effect_cm": 8.620929718017578,
+      "effect_absolute_error_cm": 8.922147750854492,
+      "matched_z_mse": 0.2885996997356415,
+      "swapped_z_mse": 0.33732064068317413,
+      "close_matched_swapped_z_mse": [
+        0.2895926833152771,
+        0.3277362883090973
+      ],
+      "open_matched_swapped_z_mse": [
+        0.28760671615600586,
+        0.346904993057251
+      ],
+      "real_branch_z_separation_mse": 0.14087672531604767,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0082",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 8.777772903442383,
+      "effect_absolute_error_cm": 8.777772903442383,
+      "matched_z_mse": 0.39772820472717285,
+      "swapped_z_mse": 0.39886584877967834,
+      "close_matched_swapped_z_mse": [
+        0.44785329699516296,
+        0.43129050731658936
+      ],
+      "open_matched_swapped_z_mse": [
+        0.34760311245918274,
+        0.36644119024276733
+      ],
+      "real_branch_z_separation_mse": 0.028649184852838516,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0083",
+      "placement": "under",
+      "eligible": true,
+      "real_height_effect_cm": 17.960298538208008,
+      "D_Q_height_effect_cm": 6.944364547729492,
+      "effect_absolute_error_cm": 11.015933990478516,
+      "matched_z_mse": 0.45261242985725403,
+      "swapped_z_mse": 0.5631608366966248,
+      "close_matched_swapped_z_mse": [
+        0.5320442914962769,
+        0.3825136423110962
+      ],
+      "open_matched_swapped_z_mse": [
+        0.3731805682182312,
+        0.7438080310821533
+      ],
+      "real_branch_z_separation_mse": 0.5237373113632202,
+      "matched_beats_swapped": true
+    },
+    {
+      "scene": "scene_0083",
+      "placement": "offset",
+      "eligible": false,
+      "real_height_effect_cm": 0.0,
+      "D_Q_height_effect_cm": 0.9833276271820068,
+      "effect_absolute_error_cm": 0.9833276271820068,
+      "matched_z_mse": 0.4223657548427582,
+      "swapped_z_mse": 0.42631734907627106,
+      "close_matched_swapped_z_mse": [
+        0.4381188154220581,
+        0.4293628931045532
+      ],
+      "open_matched_swapped_z_mse": [
+        0.40661269426345825,
+        0.4232718050479889
+      ],
+      "real_branch_z_separation_mse": 0.08568404614925385,
+      "matched_beats_swapped": true
+    }
+  ],
+  "additional_action_comparisons": {
+    "eligibility": "real xyz separation >= 2.0 cm",
+    "eligible_pairs": 19,
+    "all_pairs": 48,
+    "matched_beats_swapped_fraction": 0.8947368421052632,
+    "xyz_effect_l2_mae_cm": 7.891426412682784,
+    "pairs": [
+      {
+        "scene": "scene_0072",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          1.2881428003311157,
+          -1.8950715065002441,
+          0.0025510787963867188
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.17104148864746094,
+          -0.22779256105422974,
+          -1.4977574348449707
+        ],
+        "xyz_effect_l2_error_cm": 2.6758108139038086,
+        "matched_z_mse": 0.24784253537654877,
+        "swapped_z_mse": 0.2603997364640236,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0072",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.1179330050945282,
+          0.03930777311325073,
+          17.65900230407715
+        ],
+        "D_Q_xyz_effect_cm": [
+          -2.7134172916412354,
+          -1.464949607849121,
+          4.290151596069336
+        ],
+        "xyz_effect_l2_error_cm": 13.701294898986816,
+        "matched_z_mse": 0.2501818835735321,
+        "swapped_z_mse": 0.3059365302324295,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0072",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.03909468650817871,
+          -0.3847062587738037,
+          -0.5647778511047363
+        ],
+        "xyz_effect_l2_error_cm": 0.6844715476036072,
+        "matched_z_mse": 0.2141449749469757,
+        "swapped_z_mse": 0.2268664836883545,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0072",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.7944017648696899,
+          -0.9596586227416992,
+          1.996755599975586
+        ],
+        "xyz_effect_l2_error_cm": 2.3535189628601074,
+        "matched_z_mse": 0.2109144851565361,
+        "swapped_z_mse": 0.2498965784907341,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0073",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -2.426809072494507,
+          -1.5039339065551758,
+          -0.02409815788269043
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.05328059196472168,
+          0.06344616413116455,
+          0.7541656494140625
+        ],
+        "xyz_effect_l2_error_cm": 2.9489002227783203,
+        "matched_z_mse": 0.4593908339738846,
+        "swapped_z_mse": 0.46326012909412384,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0073",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.21408051252365112,
+          0.017714500427246094,
+          16.623306274414062
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.12908726930618286,
+          -0.12197345495223999,
+          3.1312882900238037
+        ],
+        "xyz_effect_l2_error_cm": 13.49710464477539,
+        "matched_z_mse": 0.45335519313812256,
+        "swapped_z_mse": 0.6361093819141388,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0073",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.11175870895385742,
+          0.1245647668838501,
+          0.3592550754547119
+        ],
+        "xyz_effect_l2_error_cm": 0.3963213264942169,
+        "matched_z_mse": 0.3265993297100067,
+        "swapped_z_mse": 0.3300371766090393,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0073",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.08715838193893433,
+          0.10717809200286865,
+          0.9360551834106445
+        ],
+        "xyz_effect_l2_error_cm": 0.9461939930915833,
+        "matched_z_mse": 0.3690986931324005,
+        "swapped_z_mse": 0.5226855129003525,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0074",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          0.9096555709838867,
+          1.8508732318878174,
+          -0.0016331672668457031
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.24535655975341797,
+          0.11356174945831299,
+          -0.4327058792114258
+        ],
+        "xyz_effect_l2_error_cm": 1.9092847108840942,
+        "matched_z_mse": 0.22267992049455643,
+        "swapped_z_mse": 0.22567592561244965,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0074",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.21608173847198486,
+          0.13800859451293945,
+          11.432779312133789
+        ],
+        "D_Q_xyz_effect_cm": [
+          -1.071669101715088,
+          -1.5809178352355957,
+          2.4216532707214355
+        ],
+        "xyz_effect_l2_error_cm": 9.213420867919922,
+        "matched_z_mse": 0.2396254613995552,
+        "swapped_z_mse": 0.4039361774921417,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0074",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.061514973640441895,
+          0.03994256258010864,
+          -0.0016510486602783203
+        ],
+        "xyz_effect_l2_error_cm": 0.07336365431547165,
+        "matched_z_mse": 0.46405673027038574,
+        "swapped_z_mse": 0.46622201800346375,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0074",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.14578849077224731,
+          -0.21314620971679688,
+          0.06960034370422363
+        ],
+        "xyz_effect_l2_error_cm": 0.2674505412578583,
+        "matched_z_mse": 0.41437315940856934,
+        "swapped_z_mse": 0.5025999248027802,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0075",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          1.9706263542175293,
+          0.09077638387680054,
+          0.002676248550415039
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.36371946334838867,
+          -0.026237964630126953,
+          -0.7811367511749268
+        ],
+        "xyz_effect_l2_error_cm": 1.7917044162750244,
+        "matched_z_mse": 0.517167866230011,
+        "swapped_z_mse": 0.5187413990497589,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0075",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.14675110578536987,
+          0.041957199573516846,
+          17.78826141357422
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.4419952630996704,
+          -0.4819244146347046,
+          5.490672588348389
+        ],
+        "xyz_effect_l2_error_cm": 12.32281494140625,
+        "matched_z_mse": 0.5436104536056519,
+        "swapped_z_mse": 0.6247143745422363,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0075",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.267106294631958,
+          0.003038346767425537,
+          -0.4146695137023926
+        ],
+        "xyz_effect_l2_error_cm": 0.49326038360595703,
+        "matched_z_mse": 0.40673620998859406,
+        "swapped_z_mse": 0.4091802090406418,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0075",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.8792489767074585,
+          -0.3245219588279724,
+          2.0569145679473877
+        ],
+        "xyz_effect_l2_error_cm": 2.260374069213867,
+        "matched_z_mse": 0.3753824532032013,
+        "swapped_z_mse": 0.44625338912010193,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0076",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.545211136341095,
+          -2.973182439804077,
+          -0.0010311603546142578
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.08893758058547974,
+          -0.3388896584510803,
+          -0.045490264892578125
+        ],
+        "xyz_effect_l2_error_cm": 2.6738851070404053,
+        "matched_z_mse": 0.2866297513246536,
+        "swapped_z_mse": 0.308116152882576,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0076",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.17269104719161987,
+          0.04099011421203613,
+          17.890470504760742
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.024925172328948975,
+          -0.2513393759727478,
+          0.04238486289978027
+        ],
+        "xyz_effect_l2_error_cm": 17.851572036743164,
+        "matched_z_mse": 0.32650619745254517,
+        "swapped_z_mse": 0.3949827402830124,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0076",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.2674892544746399,
+          0.044254958629608154,
+          -0.02219080924987793
+        ],
+        "xyz_effect_l2_error_cm": 0.2720320522785187,
+        "matched_z_mse": 0.2345070168375969,
+        "swapped_z_mse": 0.2514762058854103,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0076",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.38071945309638977,
+          0.704684853553772,
+          -0.019294023513793945
+        ],
+        "xyz_effect_l2_error_cm": 0.8011868000030518,
+        "matched_z_mse": 0.24401507526636124,
+        "swapped_z_mse": 0.32169878482818604,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0077",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -2.2193968296051025,
+          0.870765745639801,
+          -0.05359649658203125
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.31181126832962036,
+          0.27596354484558105,
+          0.6569564342498779
+        ],
+        "xyz_effect_l2_error_cm": 2.1207447052001953,
+        "matched_z_mse": 0.30291828513145447,
+        "swapped_z_mse": 0.30460643768310547,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0077",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.17335861921310425,
+          0.054548680782318115,
+          16.90933609008789
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.388491153717041,
+          0.6301403045654297,
+          2.191030979156494
+        ],
+        "xyz_effect_l2_error_cm": 14.731127738952637,
+        "matched_z_mse": 0.28693923354148865,
+        "swapped_z_mse": 0.372812420129776,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0077",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.12519210577011108,
+          0.10210201144218445,
+          0.10831356048583984
+        ],
+        "xyz_effect_l2_error_cm": 0.19449861347675323,
+        "matched_z_mse": 0.4049609303474426,
+        "swapped_z_mse": 0.4056074023246765,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0077",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.09601414203643799,
+          0.25196000933647156,
+          0.5067110061645508
+        ],
+        "xyz_effect_l2_error_cm": 0.5739848613739014,
+        "matched_z_mse": 0.4162842929363251,
+        "swapped_z_mse": 0.4643242359161377,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0078",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          -0.9844943881034851,
+          1.4181315898895264,
+          -0.014346837997436523
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.13808459043502808,
+          0.09924322366714478,
+          0.11337399482727051
+        ],
+        "xyz_effect_l2_error_cm": 1.5723196268081665,
+        "matched_z_mse": 0.5700069069862366,
+        "swapped_z_mse": 0.5753564834594727,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0078",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.19470155239105225,
+          0.24557113647460938,
+          16.34668731689453
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.3642827272415161,
+          0.2660781145095825,
+          11.40453815460205
+        ],
+        "xyz_effect_l2_error_cm": 4.9451003074646,
+        "matched_z_mse": 0.519244521856308,
+        "swapped_z_mse": 0.745223879814148,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0078",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          -0.9827136993408203,
+          1.420189380645752,
+          -0.01475214958190918
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.08867830038070679,
+          0.07057487964630127,
+          0.04318356513977051
+        ],
+        "xyz_effect_l2_error_cm": 1.6199121475219727,
+        "matched_z_mse": 0.491609126329422,
+        "swapped_z_mse": 0.493791788816452,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0078",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.21030902862548828,
+          0.27793198823928833,
+          16.291200637817383
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.7233500480651855,
+          -0.07321536540985107,
+          10.942363739013672
+        ],
+        "xyz_effect_l2_error_cm": 5.384846210479736,
+        "matched_z_mse": 0.43739479780197144,
+        "swapped_z_mse": 0.6654397547245026,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0079",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.4543229937553406,
+          -1.5961692333221436,
+          0.0024557113647460938
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.29331445693969727,
+          -0.1261398196220398,
+          -0.1967906951904297
+        ],
+        "xyz_effect_l2_error_cm": 1.4921826124191284,
+        "matched_z_mse": 0.5428046584129333,
+        "swapped_z_mse": 0.5461099147796631,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0079",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.18726885318756104,
+          0.0031262636184692383,
+          17.595989227294922
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.8156254887580872,
+          -0.2577453851699829,
+          3.541332483291626
+        ],
+        "xyz_effect_l2_error_cm": 14.09280776977539,
+        "matched_z_mse": 0.5727236568927765,
+        "swapped_z_mse": 0.6696164011955261,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0079",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.1720041036605835,
+          -0.18056929111480713,
+          -0.031113624572753906
+        ],
+        "xyz_effect_l2_error_cm": 0.2513140141963959,
+        "matched_z_mse": 0.7482671141624451,
+        "swapped_z_mse": 0.7511986792087555,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0079",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          1.7753005027770996,
+          -0.15464723110198975,
+          0.48897266387939453
+        ],
+        "xyz_effect_l2_error_cm": 1.8478912115097046,
+        "matched_z_mse": 0.7261698544025421,
+        "swapped_z_mse": 0.8274849057197571,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0080",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          1.6298069953918457,
+          0.5118280649185181,
+          -0.00026226043701171875
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.21202266216278076,
+          0.05721151828765869,
+          -0.9754061698913574
+        ],
+        "xyz_effect_l2_error_cm": 1.7798017263412476,
+        "matched_z_mse": 0.4485567659139633,
+        "swapped_z_mse": 0.4505551606416702,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0080",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.09286552667617798,
+          0.08860379457473755,
+          17.94782829284668
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.7698506116867065,
+          -0.7947951555252075,
+          8.308547973632812
+        ],
+        "xyz_effect_l2_error_cm": 9.703320503234863,
+        "matched_z_mse": 0.4070652574300766,
+        "swapped_z_mse": 0.5071020126342773,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0080",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.07696449756622314,
+          -0.07476955652236938,
+          -0.6613850593566895
+        ],
+        "xyz_effect_l2_error_cm": 0.6700329780578613,
+        "matched_z_mse": 0.3661407232284546,
+        "swapped_z_mse": 0.3679555356502533,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0080",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.43835341930389404,
+          -0.5874037742614746,
+          2.964150905609131
+        ],
+        "xyz_effect_l2_error_cm": 3.053422451019287,
+        "matched_z_mse": 0.3724384903907776,
+        "swapped_z_mse": 0.4271087199449539,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0081",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.16451776027679443,
+          0.11925399303436279,
+          0.033533573150634766
+        ],
+        "xyz_effect_l2_error_cm": 0.20594200491905212,
+        "matched_z_mse": 0.1773461177945137,
+        "swapped_z_mse": 0.17750999331474304,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0081",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.6706446409225464,
+          0.6846442818641663,
+          -0.1501619815826416
+        ],
+        "xyz_effect_l2_error_cm": 0.970077633857727,
+        "matched_z_mse": 0.1647222712635994,
+        "swapped_z_mse": 0.26557160913944244,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0081",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.18736869096755981,
+          0.22126585245132446,
+          0.045943260192871094
+        ],
+        "xyz_effect_l2_error_cm": 0.29355815052986145,
+        "matched_z_mse": 0.1622503697872162,
+        "swapped_z_mse": 0.16566605865955353,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0081",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.27304738759994507,
+          0.2879604697227478,
+          -0.18554925918579102
+        ],
+        "xyz_effect_l2_error_cm": 0.438069224357605,
+        "matched_z_mse": 0.16670233756303787,
+        "swapped_z_mse": 0.2649025022983551,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0082",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          2.1274476051330566,
+          0.3954678773880005,
+          0.01010894775390625
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.31000077724456787,
+          -0.08096694946289062,
+          -0.6464362144470215
+        ],
+        "xyz_effect_l2_error_cm": 1.9902650117874146,
+        "matched_z_mse": 0.28592391312122345,
+        "swapped_z_mse": 0.28461606800556183,
+        "matched_beats_swapped": false
+      },
+      {
+        "scene": "scene_0082",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.1250341534614563,
+          0.22653043270111084,
+          17.54307746887207
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.3212377429008484,
+          0.3512948751449585,
+          10.356813430786133
+        ],
+        "xyz_effect_l2_error_cm": 7.190024375915527,
+        "matched_z_mse": 0.400411456823349,
+        "swapped_z_mse": 0.5916714370250702,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0082",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.2998948097229004,
+          -0.013978779315948486,
+          -0.4947066307067871
+        ],
+        "xyz_effect_l2_error_cm": 0.5786768794059753,
+        "matched_z_mse": 0.4445809870958328,
+        "swapped_z_mse": 0.44497838616371155,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0082",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.9337574243545532,
+          -0.14049261808395386,
+          11.645639419555664
+        ],
+        "xyz_effect_l2_error_cm": 11.683858871459961,
+        "matched_z_mse": 0.4688565582036972,
+        "swapped_z_mse": 0.578174814581871,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0083",
+        "placement": "under",
+        "other_branch": "close_side_lift",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.7403060793876648,
+          2.3438527584075928,
+          -0.0021278858184814453
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.16862154006958008,
+          0.23558735847473145,
+          0.2898275852203369
+        ],
+        "xyz_effect_l2_error_cm": 2.314340114593506,
+        "matched_z_mse": 0.5169497430324554,
+        "swapped_z_mse": 0.5168267339468002,
+        "matched_beats_swapped": false
+      },
+      {
+        "scene": "scene_0083",
+        "placement": "under",
+        "other_branch": "close_lift_release",
+        "eligible": true,
+        "real_xyz_effect_cm": [
+          -0.026160478591918945,
+          0.028705596923828125,
+          17.960298538208008
+        ],
+        "D_Q_xyz_effect_cm": [
+          -0.38249343633651733,
+          0.21418482065200806,
+          7.297426223754883
+        ],
+        "xyz_effect_l2_error_cm": 10.67043685913086,
+        "matched_z_mse": 0.49606887996196747,
+        "swapped_z_mse": 0.5901564955711365,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0083",
+        "placement": "offset",
+        "other_branch": "close_side_lift",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.04489421844482422,
+          0.0379711389541626,
+          0.02632737159729004
+        ],
+        "xyz_effect_l2_error_cm": 0.0644238218665123,
+        "matched_z_mse": 0.42075975239276886,
+        "swapped_z_mse": 0.4225664287805557,
+        "matched_beats_swapped": true
+      },
+      {
+        "scene": "scene_0083",
+        "placement": "offset",
+        "other_branch": "close_lift_release",
+        "eligible": false,
+        "real_xyz_effect_cm": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "D_Q_xyz_effect_cm": [
+          0.08057728409767151,
+          -0.12848526239395142,
+          1.117539405822754
+        ],
+        "xyz_effect_l2_error_cm": 1.1277834177017212,
+        "matched_z_mse": 0.4039798676967621,
+        "swapped_z_mse": 0.47334498167037964,
+        "matched_beats_swapped": true
+      }
+    ]
+  }
+}

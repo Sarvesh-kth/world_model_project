@@ -1,0 +1,65 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.train", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "baseline", "--tag", "seed_0", "--seed", "0", "--epochs", "60", "--rollout-steps", "8"]
+no_vision: 14400 training / 2880 validation examples; device=cuda; parameters=43,012
+no_vision epoch 001 train=0.90715 val=1.08620 xyz_mse=0.68347 grasp_bce=0.40273
+no_vision epoch 002 train=0.76305 val=1.24680 xyz_mse=0.76224 grasp_bce=0.48456
+no_vision epoch 003 train=0.66996 val=1.09443 xyz_mse=0.72511 grasp_bce=0.36931
+no_vision epoch 004 train=0.60882 val=1.15624 xyz_mse=0.73724 grasp_bce=0.41900
+no_vision epoch 005 train=0.56600 val=1.29891 xyz_mse=0.86611 grasp_bce=0.43280
+no_vision epoch 006 train=0.53386 val=1.19830 xyz_mse=0.80561 grasp_bce=0.39269
+no_vision epoch 007 train=0.50967 val=1.20482 xyz_mse=0.81049 grasp_bce=0.39433
+no_vision epoch 008 train=0.50228 val=1.18421 xyz_mse=0.80519 grasp_bce=0.37902
+no_vision epoch 009 train=0.49528 val=1.22797 xyz_mse=0.82127 grasp_bce=0.40670
+no_vision epoch 010 train=0.47782 val=1.17057 xyz_mse=0.78778 grasp_bce=0.38279
+no_vision epoch 011 train=0.47495 val=1.27365 xyz_mse=0.85563 grasp_bce=0.41802
+no_vision epoch 012 train=0.46916 val=1.19562 xyz_mse=0.78375 grasp_bce=0.41187
+no_vision epoch 013 train=0.46711 val=1.29589 xyz_mse=0.87972 grasp_bce=0.41617
+no_vision epoch 014 train=0.45894 val=1.25375 xyz_mse=0.88075 grasp_bce=0.37299
+no_vision epoch 015 train=0.45689 val=1.14493 xyz_mse=0.78806 grasp_bce=0.35687
+no_vision epoch 016 train=0.45364 val=1.16377 xyz_mse=0.77482 grasp_bce=0.38895
+no_vision epoch 017 train=0.45231 val=1.23136 xyz_mse=0.83231 grasp_bce=0.39905
+no_vision epoch 018 train=0.44976 val=1.19611 xyz_mse=0.80130 grasp_bce=0.39480
+no_vision epoch 019 train=0.45129 val=1.37158 xyz_mse=0.85650 grasp_bce=0.51508
+no_vision epoch 020 train=0.45193 val=1.28191 xyz_mse=0.83411 grasp_bce=0.44781
+no_vision epoch 021 train=0.44784 val=1.17868 xyz_mse=0.78297 grasp_bce=0.39570
+no_vision epoch 022 train=0.44744 val=1.20032 xyz_mse=0.82545 grasp_bce=0.37487
+no_vision epoch 023 train=0.44598 val=1.14610 xyz_mse=0.77145 grasp_bce=0.37465
+no_vision epoch 024 train=0.44062 val=1.15658 xyz_mse=0.78284 grasp_bce=0.37374
+no_vision epoch 025 train=0.44274 val=1.05200 xyz_mse=0.75233 grasp_bce=0.29967
+no_vision epoch 026 train=0.43966 val=1.21268 xyz_mse=0.78989 grasp_bce=0.42279
+no_vision epoch 027 train=0.44346 val=1.16170 xyz_mse=0.78223 grasp_bce=0.37947
+no_vision epoch 028 train=0.43893 val=1.19371 xyz_mse=0.80489 grasp_bce=0.38882
+no_vision epoch 029 train=0.44079 val=1.10419 xyz_mse=0.75448 grasp_bce=0.34970
+no_vision epoch 030 train=0.43619 val=1.12076 xyz_mse=0.75382 grasp_bce=0.36694
+no_vision epoch 031 train=0.43751 val=1.15922 xyz_mse=0.76777 grasp_bce=0.39145
+no_vision epoch 032 train=0.43815 val=1.13391 xyz_mse=0.78006 grasp_bce=0.35384
+no_vision epoch 033 train=0.43391 val=1.18359 xyz_mse=0.78908 grasp_bce=0.39451
+no_vision epoch 034 train=0.43422 val=1.13065 xyz_mse=0.75417 grasp_bce=0.37649
+no_vision epoch 035 train=0.43588 val=1.14684 xyz_mse=0.74182 grasp_bce=0.40502
+no_vision epoch 036 train=0.43540 val=1.32090 xyz_mse=0.82718 grasp_bce=0.49372
+no_vision epoch 037 train=0.43915 val=1.25775 xyz_mse=0.82110 grasp_bce=0.43665
+no_vision epoch 038 train=0.43459 val=1.38223 xyz_mse=0.83040 grasp_bce=0.55182
+no_vision epoch 039 train=0.43488 val=1.16085 xyz_mse=0.74860 grasp_bce=0.41225
+no_vision epoch 040 train=0.43230 val=1.28099 xyz_mse=0.78803 grasp_bce=0.49296
+no_vision epoch 041 train=0.43775 val=1.08950 xyz_mse=0.75124 grasp_bce=0.33826
+no_vision epoch 042 train=0.43457 val=1.25471 xyz_mse=0.79870 grasp_bce=0.45601
+no_vision epoch 043 train=0.43258 val=1.09808 xyz_mse=0.71937 grasp_bce=0.37872
+no_vision epoch 044 train=0.43252 val=1.21065 xyz_mse=0.78563 grasp_bce=0.42501
+no_vision epoch 045 train=0.43389 val=1.36347 xyz_mse=0.79887 grasp_bce=0.56460
+no_vision epoch 046 train=0.43084 val=1.26955 xyz_mse=0.81764 grasp_bce=0.45192
+no_vision epoch 047 train=0.43094 val=1.20192 xyz_mse=0.77449 grasp_bce=0.42743
+no_vision epoch 048 train=0.42834 val=1.17375 xyz_mse=0.72408 grasp_bce=0.44967
+no_vision epoch 049 train=0.43256 val=1.10048 xyz_mse=0.75069 grasp_bce=0.34979
+no_vision epoch 050 train=0.42927 val=1.15553 xyz_mse=0.76021 grasp_bce=0.39533
+no_vision epoch 051 train=0.42879 val=1.12702 xyz_mse=0.77794 grasp_bce=0.34908
+no_vision epoch 052 train=0.42912 val=1.41851 xyz_mse=0.81819 grasp_bce=0.60032
+no_vision epoch 053 train=0.43239 val=1.19323 xyz_mse=0.74988 grasp_bce=0.44335
+no_vision epoch 054 train=0.42720 val=1.14872 xyz_mse=0.74895 grasp_bce=0.39977
+no_vision epoch 055 train=0.43053 val=1.26056 xyz_mse=0.76126 grasp_bce=0.49930
+no_vision epoch 056 train=0.42779 val=1.21381 xyz_mse=0.74447 grasp_bce=0.46935
+no_vision epoch 057 train=0.43004 val=1.20816 xyz_mse=0.73039 grasp_bce=0.47777
+no_vision epoch 058 train=0.42817 val=1.21576 xyz_mse=0.74428 grasp_bce=0.47148
+no_vision epoch 059 train=0.42706 val=1.20933 xyz_mse=0.76454 grasp_bce=0.44479
+no_vision epoch 060 train=0.43048 val=1.40414 xyz_mse=0.80773 grasp_bce=0.59642
+no_vision: best checkpoint /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_0/models/no_vision.pt selected using validation only
+No-vision baseline predicts outcomes directly from starting p and action sequence. It never sees z, object coordinates, or measured future p as inputs.
