@@ -66,7 +66,7 @@ def test_task_features_match_observation(adapter):
     assert np.allclose(f[3:6], obs["state"][0:3])  # object position
     assert np.allclose(f[6:8], [0.1, 0.27])  # the Grade E place position
     assert np.isclose(f[12], obs["proprio"][18])  # gripper width
-    assert -np.pi / 4 <= f[13] <= np.pi / 4  # grasp yaw error
+    assert 0 <= f[13] <= 1  # grasp misalignment
 
 
 @pytest.mark.slow
@@ -77,3 +77,13 @@ def test_goal_frames_show_success_and_restore_state(adapter):
     assert frames.shape == (64, 256, 256, 3) and frames.dtype == np.uint8
     assert goal_proprio.shape == (20,)
     assert np.array_equal(adapter.get_state(), before), "goal_frames must leave the env as it was"
+
+
+def test_grasp_misalignment_is_smooth_and_face_symmetric():
+    from controller.adapters.m1_adapter import grasp_misalignment
+
+    assert grasp_misalignment(0.3, 0.3) == pytest.approx(0)  # square
+    assert grasp_misalignment(np.pi / 2, 0) == pytest.approx(0)  # square to the next face
+    assert grasp_misalignment(np.pi / 4, 0) == pytest.approx(1)  # worst case, 45 degrees
+    # no jump between faces: just below and above 45 degrees give the same value
+    assert grasp_misalignment(np.pi / 4 - 1e-3, 0) == pytest.approx(grasp_misalignment(np.pi / 4 + 1e-3, 0), abs=1e-5)

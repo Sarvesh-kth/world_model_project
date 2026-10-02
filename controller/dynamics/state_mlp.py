@@ -32,11 +32,10 @@ def state_from_row(row, rest_z):
 
     v = lambda *names: [float(row[n]) for n in names]  # noqa: E731
     yaw_obj = object_yaw(*v("object_qw", "object_qx", "object_qy", "object_qz"))
-    err = (yaw_obj - float(row["ee_yaw"]) + np.pi) % (2 * np.pi) - np.pi
-    yaw_err = (err + np.pi / 4) % (np.pi / 2) - np.pi / 4  # same wrap as M1Adapter's grasp_yaw_error
+    misalignment = (1 - np.cos(4 * (yaw_obj - float(row["ee_yaw"])))) / 2  # as M1Adapter's grasp_misalignment
     return np.array(
         v("ee_x", "ee_y", "ee_z", "object_x", "object_y", "object_z", "place_x", "place_y", "place_z", "grasped")
-        + [float(float(row["gripper_cmd"]) > 0), rest_z] + v("gripper_width") + [yaw_err]
+        + [float(float(row["gripper_cmd"]) > 0), rest_z] + v("gripper_width") + [misalignment]
         + v(*[f"joint_pos_{i}" for i in range(1, 8)], *[f"joint_vel_{i}" for i in range(1, 8)])
         + v("ee_yaw", "object_qw", "object_qx", "object_qy", "object_qz"),
         dtype=np.float32,

@@ -106,15 +106,16 @@ class StateMLPAgent(ShowsPlans):
     replayed in a simulator clone, logging predicted vs real cost: the planner "exploiting" the
     model shows up as plans that look much better to the model than they are."""
 
-    def __init__(self, model_path, cost_fn, cfg: CEMConfig, seed=0, audit=False):
+    def __init__(self, model_path, cost_fn, cfg: CEMConfig, seed=0, audit=False, plan_yaw=True):
         self.model_path, self.cost_fn, self.cfg, self.seed, self.audit = model_path, cost_fn, cfg, seed, audit
+        self.plan_yaw = plan_yaw
         self.audit_log = []
 
     def reset(self, adapter, obs):
         from controller.dynamics.state_mlp import StateMLPDynamics, load
 
         self.dynamics = StateMLPDynamics(load(self.model_path))
-        low, high = action_bounds(adapter.action_dim)
+        low, high = action_bounds(adapter.action_dim, self.plan_yaw)
         self.planner = CEMPlanner(self.dynamics, self.cost_fn, low, high, cfg=self.cfg, seed=self.seed)
         if self.audit:
             from controller.dynamics.oracle import OracleDynamics

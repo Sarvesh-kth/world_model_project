@@ -102,24 +102,91 @@ of each section.
   and ignores the cube. The goal state includes proprio p, and moving the arm there is the easiest way
   to look like the goal; the latent alone would have to pull it to the cube first. One seed, so
   preliminary: the `jepa_cem` run (both variants, z+p and z-only) is still to do.
+- **2026-10-02 Oracle CEM (task 4), final run with the grasp fixes** (finger width, yaw planned +
+  misalignment cost; Grade E scene, 20 seeds, CEM H=8 N=64 K=8 4 iterations, 2 executed steps per plan):
+  - reach **19/20** in 27 steps (scripted 15/20 within the 40-step limit, random 0/20)
+  - lift **20/20** in 44 steps (was 11/20 before the fixes; scripted 20/20 in 55 steps)
+  - place **18/20** in 75 steps (scripted 20/20 in 104 steps, random 0/20). Failures: seed 2 grasped,
+    lifted and was still carrying the cube 31 cm from the target at the 200-step limit; seed 13 grasped but
+    never lifted (the residual stuck-grasp case, 1 of 20 now).
+  - 3.7 s per step on average (a plan every 2 steps), up to ~30-70 s per plan with the machine fully loaded.
 
-## Status when work stopped (2026-10-02) and how to resume
+- **2026-10-02 Speed benchmark (task 6)** (`data/runs/bench_speed/`, Apple M5 16 GB, random weights,
+  time for one `cem_plan` call):
 
-Stopped at Calle's request in the middle of Level E. Committed and runnable; nothing running in the background.
+  | model / latent | N=300 H=10 3 iters, CPU / MPS | N=1000 H=20 5 iters, CPU / MPS | imagined trajectory |
+  |---|---|---|---|
+  | pooled [1024] | 0.035 / 0.020 s | 0.31 / 0.18 s | 14 MB |
+  | M2's SplitDynamics on [z \| p] (1044) | 0.033 / 0.022 s | 0.32 / 0.16 s | 14 MB |
+  | patch tokens [256, 1024] (per-token MLP) | 15 s / **fails** (out of GPU memory) | skipped (> 4 GB) | 3.5 GB |
 
-Done: tasks 1, 2, 3, 7 (runner + plots), 8 (skeleton), the M2 adapter, the local JEPA model, all
-experiment scripts, the visualizer, 47 tests (`.venv/bin/python -m pytest controller/tests`).
+  With M2's pooled choice planning is nearly free: the JEPA agent's ~0.8 s per step is almost all
+  V-JEPA encoding. Tokens would make planning 60-500x slower and don't fit at N=300, H=10 on a 16 GB Mac,
+  even with a mock model cheaper than a real (attention) token predictor. **For M2:** pooled is the right
+  call for compute; the cost is spatial detail (see the JEPA results).
 
-Still to run, in this order:
-1. `.venv/bin/python -m controller.experiments.oracle_cem --tasks lift place --workers 6` (~1 h): the
-   lift/place numbers with the width + yaw fixes. Reach was measured before them, so ideally rerun it too
-   (drop `--tasks`).
-2. `.venv/bin/python -m controller.experiments.state_mlp` (~2 min): **must** be rerun, the state layout
-   changed (33 values), so the old `data/checkpoints/state_mlp.pt` doesn't load any more.
-3. `.venv/bin/python -m controller.experiments.jepa_cem --seeds 5` (~25 min): the Level E deliverable,
-   CEM on the JEPA model in the env, plus the offline checks (goal cost, action sensitivity, multi-step error).
-4. `.venv/bin/python -m controller.experiments.bench_speed` (~5 min, on an otherwise idle machine): task 6.
-5. Put the numbers here and in the README, then push `M3_level_E` when Calle says so.
+- **2026-10-02 Grasp-angle feature made smooth.** The plain angle to the nearest face wraps from
+  +45 to -45 degrees between faces; it's now `(1 - cos 4*theta) / 2` (0 square, 1 at 45 degrees).
+  The state MLP can't predict a wrap. (It wasn't the main cause of the result below, though.)
+- **2026-10-02 State MLP retrained on the final 33-value state**: 8-step error 2.67 cm (epoch 58),
+  one-step 0.126, about as good as before. **Planning got much worse, though:** reach 2/20 (was 12/20),
+  lift 0/20, place 0/20. 57 of 300 audited plans counted on a grasp that never happened. Pinning
+  yaw didn't change it (10 seeds: reach 0/10 pinned vs 1/10 planned). Cause: the model's **bias**. One
+  step's action changes the gripper's motion by only ~1 cm (the IK controller slides towards each target),
+  and the model gets that difference right (+x vs -x: 1.15 cm predicted, 1.04 cm real). But it is
+  offset by ~0.4 cm per step, ~3 cm over the 8-step horizon, the same size as the 3 cm reach radius. Near
+  the cube the planner believes it has arrived and stops short (min distances 3-5 cm in most seeds).
+  Two models with the same average error planned 12/20 vs 2/20: what matters is *which way* the bias
+  points, which average error doesn't measure. Remedy for Grade C: a multi-step (rollout) training loss.
+- **2026-10-02 JEPA model, offline checks** (`experiments/jepa_cem.py`, local rough D, split architecture):
+  - latent distance to the goal along M1's successful episodes, by fraction of the episode (0-20% ... 80-100%):
+    4.27, 2.40, 2.18, 1.72, 0.67. It falls steadily, so the latent goal cost does measure progress here.
+  - D's predicted gripper move per unit action: 0.44 / 0.50 / 0.35 cm (x/y/z), real ~0.5 cm. D responds
+    to actions with about the right size; its latent changes with the action too (+ vs - differ by
+    40-64% of a one-step change).
+  - gripper error by horizon: 0.34 / 1.36 / 2.92 / 3.75 cm after 1 / 4 / 8 / 10 steps (about the state MLP's).
+- **2026-10-02 Level E deliverable: CEM on the JEPA world model, closed loop in M1's env** (Grade E
+  scene, local rough D, 5 seeds x 150 steps per variant, CEM H=10 N=300 K=30 4 iterations, 2 executed
+  steps per plan; ~0.8 s per step on the Mac, nearly all of it V-JEPA): **the arm attempts the task, 0/5
+  picks in both variants.**
+
+  | goal cost | closest gripper-cube | where the arm ends | latent MSE to goal | joint MSE to goal | cost gap mean-best |
+  |---|---|---|---|---|---|
+  | z + p (M2's loss terms) | 31-33 cm | over the target, every seed | 6.39 -> 3.48 | 1.45 -> 0.96 | 0.27 |
+  | z only (pure visual goal) | 15-25 cm | scattered | 6.39 -> 3.04 | 1.45 -> 2.34 | 0.04 |
+
+  Expert episodes go from 4.27 to 0.67 in latent MSE. Why it fails:
+  1. The goal is reachable only through a grasp, and a 10-step (1 s) imagined horizon can't see one, so
+     the cube never moves in imagination.
+  2. With p in the cost, the shortest way to "look like the goal" is to move the arm to the goal pose.
+  3. Without p, D's predicted latent changes over 1 s are small next to the distance to the goal; plans
+     barely differ in cost (gap 0.04) and CEM's choice is close to random, so the arm wanders.
+
+  Fixes to try at Grade C: intermediate goal clips (above the cube / grasped / lifted / over the target,
+  as V-JEPA 2-AC does for pick-and-place, to check in the paper); M2's reward model R as the cost; a
+  longer horizon or more steps per action; patch tokens instead of the pooled latent (where things are).
+  The offline checks above show D itself is usable (it reacts to actions, and the latent goal distance
+  falls along successful episodes), so the bottleneck is the goal specification and horizon, not D.
+
+## Level E status (2026-10-02)
+
+All M3 Level E tasks are done on branch `M3_level_E`. Tests: `.venv/bin/python -m pytest controller/tests`.
+Reproduce: the commands in `controller/README.md`; outputs go to `data/runs/`.
+
+| Task | Result |
+|---|---|
+| 1 CEM planner | `cem.py` + `planner.py` (warm start, k executed steps, MPC with k = 1) |
+| 2 toy tests | reach / obstacle / token-shaped latents + contract tests; checked against a reference and 6 bug variants |
+| 3 env adapter | M1 env with exact state save/restore, goal clip, task features |
+| 4 oracle | reach 19/20, lift 20/20, place 18/20 (upper bound) |
+| 5 state MLP | 8-step error 2.7 cm; CEM reach 2/20 (12/20 with an earlier model of equal error): model bias + exploited grasps |
+| 6 speed | pooled / M2's model: 0.02-0.03 s per plan; patch tokens: 15 s or out of memory |
+| 7 evaluation | `eval.py`, CSV + plots per experiment, `experiments/visualize.py` |
+| 8 actor-critic | skeleton, stable on the toy problem |
+| Deliverable | CEM on the JEPA world model runs closed loop and attempts the task; 0/5 picks; analysis above |
+
+Next (Grade C): intermediate goal clips or M2's reward model as the JEPA cost, MPC (`execute_steps=1`),
+a multi-step training loss for learned models, the actor-critic, and M2's own `best.pt` when Kuba shares it.
 
 ## Questions for M1
 
@@ -180,3 +247,4 @@ Who wrote what, for the course's AI-use declaration.
 | 2026-10-01 | `experiments/bench_speed.py`, `experiments/jepa_cem.py`, `experiments/demo.py` | Claude |
 | 2026-10-02 | Grasp fixes (finger width, yaw planning + alignment cost), 13th/14th task features | Claude |
 | 2026-10-02 | Visualizer: `visual.py`, `experiments/visualize.py` (replaces `demo.py`), imagined-path replay in `agents.py`, `tests/test_visual.py` | Claude |
+| 2026-10-02 | Final Level E runs (oracle, state MLP, JEPA closed loop, speed benchmark) and their analysis | Claude |

@@ -30,12 +30,12 @@ GRADE_E_LAYOUT = SIM_DIR / "configs" / "grade_e_layout.json"
 _MJ_SPEC = mujoco.mjtState.mjSTATE_INTEGRATION
 
 
-def grasp_yaw_error(object_yaw, finger_yaw):
-    """How far the fingers are from square to the nearest object face, in [-pi/4, pi/4].
-    The same wrap as M1's scripted policy (ScriptedPickPlace._yaw_action): objects fit the opening
-    either way, so only the angle to the nearest face matters."""
-    err = (object_yaw - finger_yaw + np.pi) % (2 * np.pi) - np.pi
-    return float((err + np.pi / 4) % (np.pi / 2) - np.pi / 4)
+def grasp_misalignment(object_yaw, finger_yaw):
+    """How far the fingers are from square to the nearest object face: (1 - cos 4*theta) / 2, so
+    0 when square, 1 at 45 degrees. Only the nearest face matters (objects fit the opening either
+    way, as in M1's scripted policy). The cosine makes it smooth: the plain angle wraps from +45 to
+    -45 degrees between faces, which the state MLP couldn't predict and the planner then chased."""
+    return float((1 - np.cos(4 * (object_yaw - finger_yaw))) / 2)
 
 
 class M1Adapter:
@@ -114,7 +114,7 @@ class M1Adapter:
             "grasped": bool(s["grasped"]), "object_rest_z": float(s["object_rest_z"]),
             "gripper_open": bool(self.env.controller.gripper_open),
             "gripper_width": float(self.env.data.qpos[self.env.finger_qpos_ids].sum()),
-            "grasp_yaw_error": grasp_yaw_error(self.env.object_long_axis_yaw(), self.env.finger_axis_yaw()),
+            "grasp_misalignment": grasp_misalignment(self.env.object_long_axis_yaw(), self.env.finger_axis_yaw()),
         }
 
     def task_features(self):
@@ -122,7 +122,7 @@ class M1Adapter:
         t = self.task_info()
         f = np.concatenate([t["gripper_pos"], t["object_pos"], t["target_pos"],
                             [t["grasped"], t["gripper_open"], t["object_rest_z"], t["gripper_width"],
-                             t["grasp_yaw_error"]]])
+                             t["grasp_misalignment"]]])
         assert len(f) == N_FEATURES
         return f.astype(np.float64)
 

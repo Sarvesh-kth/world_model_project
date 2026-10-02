@@ -47,7 +47,7 @@ def circle_penalty(trajectory: torch.Tensor, center: torch.Tensor, radius: float
 # is part of the features.
 
 LIFT_HEIGHT = 0.10  # how high to carry the object, metres above its resting height
-YAW_WEIGHT = 0.1  # cost per radian of fingers not square to the object, while not holding it
+YAW_WEIGHT = 0.08  # cost at 45 degrees misalignment (feature = 1), while not holding the object
 # (with yaw pinned, some cube yaws ended in a corner-to-corner grasp that couldn't lift)
 NEAR = 0.05  # "close enough" radius for object-to-target, metres
 HELD_WIDTH = 0.03  # a grasp only counts with the fingers at least this far apart, metres
@@ -65,7 +65,7 @@ def _features(trajectory):
 
     f = trajectory[:, 1:, :N_FEATURES].float()
     grasped = f[..., F_GRASPED].clamp(0, 1) * (f[..., F_WIDTH] > HELD_WIDTH).float()  # held by its body
-    misaligned = YAW_WEIGHT * f[..., F_YAW_ERR].abs() * (1 - grasped)
+    misaligned = YAW_WEIGHT * f[..., F_YAW_ERR].clamp(0, 1) * (1 - grasped)
     return (f[..., F_EE], f[..., F_OBJ], f[..., F_TARGET], grasped, f[..., F_GRIPPER_OPEN].clamp(0, 1),
             f[..., F_REST_Z], misaligned)
 

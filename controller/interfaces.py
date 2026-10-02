@@ -132,7 +132,7 @@ TASK_FEATURES = (
     "gripper_open",  # 1 open, 0 closed (the last commanded state)
     "obj_rest_z",  # object height when resting on the table, constant per episode
     "gripper_width",  # finger opening, metres: ~0.045 around the Grade E cube, ~0.003 closed on nothing
-    "grasp_yaw_error",  # radians from the fingers being square to the nearest object face, in [-pi/4, pi/4]
+    "grasp_misalignment",  # 0 = fingers square to an object face .. 1 = at 45 degrees; smooth, no wrap
 )
 F_EE, F_OBJ, F_TARGET = slice(0, 3), slice(3, 6), slice(6, 9)
 F_GRASPED, F_GRIPPER_OPEN, F_REST_Z, F_WIDTH, F_YAW_ERR = 9, 10, 11, 12, 13

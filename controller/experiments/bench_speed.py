@@ -77,11 +77,14 @@ def main():
                 mem_gb = n * (h + 1) * torch.tensor(shape).prod().item() * 4 / 1e9
                 if mem_gb > 4:  # would not fit next to everything else in 16 GB
                     rows.append({"device": dev_name, "model": name, "N": n, "H": h, "iters": iters,
-                                 "seconds": None, "trajectory_GB": round(mem_gb, 2)})
+                                 "seconds": None, "trajectory_GB": round(mem_gb, 2), "note": "skipped: > 4 GB"})
                     continue
-                sec = time_plan(fn, shape, device, n, h, iters)
+                try:
+                    sec, note = round(time_plan(fn, shape, device, n, h, iters), 4), ""
+                except RuntimeError as e:  # e.g. the Mac GPU failing under memory pressure
+                    sec, note = None, f"failed: {type(e).__name__}"
                 rows.append({"device": dev_name, "model": name, "N": n, "H": h, "iters": iters,
-                             "seconds": round(sec, 4), "trajectory_GB": round(mem_gb, 3)})
+                             "seconds": sec, "trajectory_GB": round(mem_gb, 3), "note": note})
                 print(rows[-1], flush=True)
     out = Paths().runs_dir / "bench_speed"
     write_csv(rows, out / "bench_speed.csv")

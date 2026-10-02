@@ -51,18 +51,18 @@ def test_point_dynamics_vector_and_tokens():
 from controller.costs import latent_goal_cost, lift_cost, pick_place_cost, reach_cost  # noqa: E402
 
 
-def features(ee, obj, target=(0.1, 0.27, 0.75), grasped=0, gripper_open=1, rest_z=0.772, width=None, yaw_err=0.0):
+def features(ee, obj, target=(0.1, 0.27, 0.75), grasped=0, gripper_open=1, rest_z=0.772, width=None, misalign=0.0):
     """A [1, 2, 14] trajectory: a dummy start state and one imagined state with these features.
     width defaults to 0.045 (around the cube body) when grasped, else 0.08 open / 0.003 closed."""
     if width is None:
         width = 0.045 if grasped else (0.08 if gripper_open else 0.003)
-    f = torch.tensor([*ee, *obj, *target, grasped, gripper_open, rest_z, width, yaw_err], dtype=torch.float32)
+    f = torch.tensor([*ee, *obj, *target, grasped, gripper_open, rest_z, width, misalign], dtype=torch.float32)
     return torch.stack([torch.zeros(14), f])[None]
 
 
 def test_reach_cost_is_gripper_object_distance_plus_misalignment():
     assert torch.allclose(reach_cost(features((0, 0, 0), (0.3, 0.4, 0))), torch.tensor([0.5]))
-    assert torch.allclose(reach_cost(features((0, 0, 0), (0.3, 0.4, 0), yaw_err=-0.5)), torch.tensor([0.55]))
+    assert torch.allclose(reach_cost(features((0, 0, 0), (0.3, 0.4, 0), misalign=0.5)), torch.tensor([0.54]))
 
 
 def test_lift_cost_levels():

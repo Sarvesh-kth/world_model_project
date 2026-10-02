@@ -4,6 +4,22 @@ The controllers that act on top of the world model: a CEM planner (Level E), wit
 actor-critic policy to follow (Grade C). Owner: Calle (M3). Level E was built on the
 `M3_level_E` branch, which also merges `main` (M1) and `M2_Kuba` (M2).
 
+## Level E results (Grade E scene, details and analysis in `NOTES.md`)
+
+| Planner + world model | Reach | Lift | Pick-and-place | Notes |
+|---|---|---|---|---|
+| M1's scripted expert (reference) | 15/20* | 20/20 | 20/20, 104 steps | reads the true sim state |
+| CEM + the simulator itself (oracle) | 19/20 | 20/20 | **18/20, 75 steps** | upper bound; 2-6 s per plan |
+| CEM + learned state MLP | 2/20 | 0/20 | 0/20 | model bias ~0.4 cm/step; plans aim for imagined grasps |
+| **CEM + JEPA world model (Level E)** | - | - | 0/5 (both goal costs) | attempts the task; z+p cost parks the arm at the goal pose, z-only wanders |
+| random | 0/20 | 0/20 | 0/20 | |
+
+\* within the 40-step reach limit; the expert hovers before descending.
+
+The JEPA model itself checks out (it reacts to actions, the latent goal distance falls along successful
+episodes, the latent locates the cube within ~0.5 cm). What fails is the goal specification over a 1 s
+horizon. Planning with M2's pooled latent costs ~0.02 s per plan; patch tokens would not fit in 16 GB.
+
 ## How it fits together
 
 ```
