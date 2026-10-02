@@ -37,8 +37,9 @@ class SplitDynamics(nn.Module):
 
   def forward(self, z, p, action):
     next_p = p + self.robot(torch.cat((p, action), dim=-1))
-    # Visual loss must not override the robot head's direct proprio target.
-    next_z = z + self.visual(torch.cat((z, p, action, next_p.detach()), dim=-1))
+    # In a rollout, p can itself be a robot-head prediction from the previous step.
+    # Detach both robot contexts so visual loss cannot override the proprio targets.
+    next_z = z + self.visual(torch.cat((z, p.detach(), action, next_p.detach()), dim=-1))
     return next_z, next_p
 
 

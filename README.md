@@ -218,3 +218,224 @@ is missing, run `world_model.action_contrast` over the eight validation states
 first. Compare the physical x-effect error and branch x MAE with the old model
 and the action-mean baseline. A better x result alone does not demonstrate
 object or collision prediction; those need varied scenes and visual ablations.
+
+## Object-consequence experiment: four separate tests
+
+This is the next diagnostic experiment after the split-head gripper-motion test.
+Use the notebook GPU for V-JEPA encoding and training. It collects **new data**;
+the old `data/grade_e` dataset/checkpoints remain usable by the old commands.
+Everything for a run goes under one ignored directory, `simulation/data/vision_v1/`.
+No new dependencies are required beyond the existing simulation, PyTorch and
+`requirements-model.txt` environment.
+
+### 1. Pull on the notebook
+
+From the repository root:
+
+```bash
+git switch M2_Kuba
+git pull --ff-only origin M2_Kuba
+./.venv/bin/python -c 'import torch; assert torch.cuda.is_available(), "CUDA unavailable in this virtualenv"; print(torch.__version__, torch.cuda.get_device_name(0))'
+cd simulation
+```
+
+Keep the working CUDA environment you already installed. If this is a fresh
+clone, first follow the installation and rootless OSMesa setup above; the setup
+script is `setup_mujoco_headless.sh` at the repository root. On the notebook,
+OSMesa renders images on the CPU while V-JEPA/training use the GPU.
+
+### 2. Collect and inspect real data
+
+Run each command from `simulation/`:
+
+```bash
+MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa ../.venv/bin/python -m world_model.vision.collect \
+  --run data/vision_v1 --train-scenes 12 --val-scenes 4 --test-scenes 4 --seed 34
+
+../.venv/bin/python -m world_model.vision.audit --run data/vision_v1
+```
+
+For a first installation check, use a different run name and counts `2`, `1`,
+`1`. Use the 12/4/4 run for the first learning experiment. Larger follow-up runs
+can use 40/10/10 and a new run name/seed. Four held-out scene groups are a small
+diagnostic sample; they do not establish general manipulation performance.
+
+For **each scene group**, we collect two cube placements and two action sequences:
+
+| Placement | A: `close_lift` | B: `open_lift` |
+|---|---|---|
+| Cube under gripper | close for 8 steps, then lift for 16 | remain open for 8 steps, then lift for 16 |
+| Cube displaced 10 cm in x | exactly the same A sequence | exactly the same B sequence |
+
+A/B start from the **same restored integration and controller state**. The
+displaced scene replays the same approach actions; the collector checks that
+starting robot proprioception matches. The approach uses the existing scripted
+controller. Branches are explicit Cartesian actions executed by MuJoCo/IK,
+without a learned planner. Closing action is `[0,0,0,0,-1]`; closed lifting is
+`[0,0,1,0,-1]`. Open versions end in `+1`. One step is 0.1 seconds with the default
+configuration. Normalized `dz=1` is a controller command; actual displacement is
+measured from physics, rather than assumed equal to the target delta.
+
+Training anchors have x in `[0.14,0.22]` m, validation anchors `[0.225,0.245]`,
+test anchors `[0.105,0.125]`; y varies in `[-0.26,-0.21]`. These are disjoint
+**anchor regions**, with entire scene groups and their branches assigned to one
+split. Displaced cube positions may overlap a different region; they are not
+claimed to be a globally disjoint set of object x coordinates. Cube geometry,
+color, mass and obstacle-free setup stay fixed for this controlled experiment.
+It measures grasp/lift consequences, not collision avoidance or task completion.
+
+Each saved state has a camera-history list, 20 robot values, real object xyz and
+quaternion, endpoint bilateral finger contact (`held`), step contact flags,
+the preceding action, time and reward diagnostics. `held` means both fingers
+contact the object while the gripper is commanded closed; it is not a separate
+success label. Object rise is checked independently. Every real future branch
+frame is saved. A future clip uses the shared real approach history followed by
+**that branch's actual frames**, truncated to the last 64; early history is padded
+by repeating its first frame.
+
+The default run has 20 groups, 80 real rollouts and 1,960 states/clip endpoints.
+The audit checks images, times/action alignment, source restoration, split
+leakage, positive/negative contact labels and real A/B height differences.
+It writes `reports/audit.json` and one contact sheet per scene. **Inspect the
+`reports/scene_*.jpg` images before training.** If the audit fails, stop and
+inspect its reported problems; incomplete collection is recorded in the manifest.
+
+### 3. Encode the real clips with frozen V-JEPA
+
+```bash
+../.venv/bin/python -m world_model.vision.encode --run data/vision_v1
+```
+
+This runs the same base `facebook/vjepa2-vitl-fpc64-256` encoder on each real
+64-frame clip, skips its predictor, and mean-pools tokens into a 1,024-value
+vector. It saves `features/latents.npy` and `features/meta.json`, including model
+revision, ordered state keys and file hashes. It prints progress, seconds/clip
+and peak allocated GPU memory; encoding is one clip at a time for the 20 GiB MIG.
+No actions or simulator object coordinates are fed to V-JEPA. No encoder weights
+are trained. An interrupted encoding can resume safely:
+
+```bash
+../.venv/bin/python -m world_model.vision.encode --run data/vision_v1 --resume
+```
+
+### 4. Train and validate Q on real observations first
+
+```bash
+../.venv/bin/python -m world_model.vision.train readout --run data/vision_v1 --epochs 60
+```
+
+`Q(real z, measured p) -> object xyz + grasp probability`. Targets come from the
+saved simulator labels. It minimizes normalized xyz MSE plus grasp binary cross
+entropy. A companion `Q_p(p)` uses only measured proprioception as a diagnostic.
+All normalization and fitting use training scenes; best weights use validation
+loss. The test scenes are not used to train or select checkpoints.
+
+Read `reports/readout_validation.json`. The default **Q gate** requires xyz MAE
+on each axis <= 2 cm, height MAE <= 1 cm, grasp F1 >= 0.80, Brier score <= 0.15,
+and both label classes. These are proposed practical tolerances, not established
+exam thresholds. If the gate fails, inspect Q and the data before trusting an
+object interpretation of D's latent predictions. The four tests still run for
+diagnosis and mark Q-derived results accordingly. A gate pass on real clips is
+necessary; it does not guarantee accuracy on D's imagined vectors.
+
+### 5. Train D, then the baseline without vision
+
+```bash
+../.venv/bin/python -m world_model.vision.train dynamics \
+  --run data/vision_v1 --epochs 60 --rollout-steps 4
+
+../.venv/bin/python -m world_model.vision.train baseline \
+  --run data/vision_v1 --epochs 60
+```
+
+D reuses `SplitDynamics`: `D_p(p,a) -> next_p`, then
+`D_z(z,p,a,predicted_next_p) -> next_z`. It trains on consecutive real branch
+states with normalized z/p MSE averaged over **four recursively predicted
+steps**. Gradients from the visual head do not override the robot head. For
+evaluation, D starts from real `z0,p0`, then repeatedly uses its own predicted
+states and the proposed actions; no real intermediate future state is supplied.
+Q stays frozen and translates imagined `(z,p)` into object outcomes.
+
+The no-vision baseline is a small direct outcome MLP:
+`(starting p, padded action prefix, prefix mask) -> future object xyz/grasp`.
+It gets the same training scene/outcome labels and training epoch budget. It
+receives neither z, true starting object coordinates, nor measured future p.
+This is a direct supervised baseline, **not an architecture-matched latent
+ablation**. Comparison alone cannot assign every difference to the encoder;
+the matched-position test additionally checks whether identical p/actions need
+the visual information to explain different object outcomes.
+
+All models and training curves are saved under `models/` and `reports/`.
+Existing model files are preserved. To retrain on the same cached data, pass
+`--tag retry_1` to all three training stages and all four tests. This saves a
+separate attempt under `attempts/retry_1/` without rerunning simulation/V-JEPA.
+Use validation results to adjust settings; keep the test split for final checks.
+
+### 6. Run each test independently
+
+These commands default to **test** scene groups and a 24-step open-loop horizon.
+They read cached real vectors/labels and saved model weights; they do not replay
+MuJoCo or run V-JEPA again. Each produces its own JSON report and per-rollout CSV.
+
+```bash
+# Test 1: does D beat keeping the visual state unchanged?
+../.venv/bin/python -m world_model.vision.test persistence --run data/vision_v1
+```
+
+```bash
+# Test 2: do close/open predictions match their own real outcomes?
+../.venv/bin/python -m world_model.vision.test action --run data/vision_v1
+```
+
+```bash
+# Test 3: does D + Q beat the predictor without vision on object outcomes?
+../.venv/bin/python -m world_model.vision.test no-vision --run data/vision_v1
+```
+
+```bash
+# Test 4: same starting p/actions, cube under versus displaced, unseen anchors.
+../.venv/bin/python -m world_model.vision.test positions --run data/vision_v1
+```
+
+### Reading results and debugging
+
+| Report field | How to read it |
+|---|---|
+| `Q_object_interpretation_gate_passed` | Checks Q on real validation and real evaluation clips. If false, object errors cannot diagnose D alone. Latent errors still apply. |
+| Persistence `by_horizon` | Compare `D_z_mse` with `persistence_z_mse` at 1/8/16/24 steps. Smaller is better; watch long-horizon drift. p has its own errors. |
+| `Q_constant_z_with_same_predicted_p` | Keep the initial visual vector but use the same imagined future robot state. Compare its object errors with `D_Q_outcomes` to check whether changing z helps Q, rather than only predicting robot motion. |
+| Action `matched_beats_swapped_fraction` | Among real A/B height differences >= 2 cm, matching should beat swapping. Around 0.5 is weak ranking evidence; aim toward 1. Read individual pairs as well. |
+| Action `height_effect_mae_cm` | Error in predicted close-minus-open object-height difference; smaller is better. Small z error alone is insufficient. |
+| No-vision `D_Q` versus `no_vision_sequence_baseline` | Compare **the same** xyz/height MAE, grasp F1 and Brier score. MAE/Brier lower, F1 higher. `Q_on_real_future` shows readout error before D is involved. |
+| `Q_p_on_measured_future_p` | Diagnostic only: it has the actual future robot values, which imagined predictions do not. It checks whether future proprio alone reveals the object outcome. |
+| Positions `D_Q_effect_mae_cm` versus `no_vision_effect_mae_cm` | Can the visual pathway explain under/displaced height differences from matching robot inputs? Source p errors and identical-action checks are included per pair. |
+| `eligible_pairs` | If zero, the real outcomes did not differ enough; the contrast is inconclusive. Open/open-position pairs are normally ineligible. |
+| `height_mae_when_held_cm` | Check actual lifted/contact examples separately, so many stationary examples do not conceal failure to predict a lift. |
+
+`xyz_mae_cm` is an array for x/y/z. Object heights in CSV are absolute world
+heights: a cube on a 75 cm table has center height around 77 cm; **subtract its
+source height** to read the rise. All normalized MSEs in a report use that D's
+train-only statistics; compare physical-unit object errors across differently
+normalized runs. Contact F1/accuracy uses a 0.5 probability threshold. Brier is
+the mean squared probability error, which checks calibration as well as class.
+
+For exploratory validation instead of the final test, add `--split val`.
+To diagnose an earlier point in a collected sequence, use `--horizon 8` or `16`;
+at step 8 there may be grasp contact but little height contrast. A horizon longer
+than the collected sequence is rejected. Reports include dataset/checkpoint
+hashes, scene counts and Q controls; keep these with the checkpoints.
+Feature/model hash mismatches fail instead of silently mixing runs. Collection
+rejects nonempty run directories. CUDA encoding is resumable; training writes
+best weights during the run and epoch curves at completion.
+
+The runnable implementation regression check is:
+
+```bash
+../.venv/bin/python -m world_model.vision.check
+```
+
+It uses temporary **toy features on CPU**, exercises alignment/leakage/cache
+guards, Q/D/baseline training and each test command, and deletes its temporary
+data afterwards. It is a software check, not evidence that V-JEPA predicts
+objects accurately. The learned reward model and CEM controller are later work;
+none of these commands makes learned action choices for the robot.
