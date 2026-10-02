@@ -33,6 +33,9 @@ def audit(root, manifest, images=True):
       problems.append(f"invalid state index {r['id']}")
       continue
     referenced.update(r["states"])
+    source = states[r["states"][0]]
+    if source["scene"] != r["scene"] or source["split"] != r["split"]:
+      problems.append(f"rollout source split/scene mismatch {r['id']}")
     pairs[(r["scene"], r["placement"])][r["branch"]] = r
     if len(r["states"]) != len(r["actions"]) + 1:
       problems.append(f"unaligned rollout {r['id']}")
@@ -55,18 +58,18 @@ def audit(root, manifest, images=True):
     problems.append("orphan or invalid state indices")
   contrasts, p_errors = [], []
   for (scene, placement), pair in pairs.items():
-    if set(pair) != {"close_lift", "open_lift"}:
+    if not {"close_lift", "open_lift"}.issubset(pair):
       problems.append(f"missing action branch {scene}/{placement}")
       continue
     a, b = pair["close_lift"], pair["open_lift"]
-    if a["states"][0] != b["states"][0]:
+    if len({r["states"][0] for r in pair.values()}) != 1:
       problems.append(f"action branches do not share source {scene}/{placement}")
     contrast = states[a["states"][-1]]["object_xyz"][2]-states[b["states"][-1]]["object_xyz"][2]
     contrasts.append({"scene": scene, "placement": placement, "split": a["split"],
                       "height_effect_cm": 100*contrast})
   for scene in scenes:
     near, far = pairs.get((scene, "under"), {}), pairs.get((scene, "offset"), {})
-    if len(near) != 2 or len(far) != 2:
+    if not {"close_lift", "open_lift"}.issubset(near) or set(near) != set(far):
       problems.append(f"missing position pair {scene}")
       continue
     p1 = states[near["close_lift"]["states"][0]]["p"]
@@ -75,6 +78,9 @@ def audit(root, manifest, images=True):
     p_errors.append(error)
     if error > manifest["settings"]["pair_tolerance"]:
       problems.append(f"position pair robot state mismatch {scene}: {error}")
+    for branch in near:
+      if near[branch]["actions"] != far[branch]["actions"]:
+        problems.append(f"position pair actions differ {scene}/{branch}")
   for split in ("train", "val", "test"):
     labels = [s["held"] for s in states if s["split"] == split]
     if not labels or not any(labels) or all(labels):
@@ -95,6 +101,8 @@ def audit(root, manifest, images=True):
           "held_labels_by_split": {split: dict(Counter(str(s['held']) for s in states if s['split'] == split))
                                    for split in ("train", "val", "test")},
           "distinct_frames": len(files), "max_position_pair_p_error": max(p_errors, default=0),
+          "branches": dict(Counter(r["branch"] for r in rollouts)),
+          "rejected_attempts": len(manifest.get("rejected_attempts", [])),
           "contrasts": contrasts}
 
 

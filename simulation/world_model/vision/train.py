@@ -102,7 +102,7 @@ def fit(root, role, model, train, val, loss_fn, meta, args):
         f"device={device}; parameters={sum(p.numel() for p in model.parameters()):,}", flush=True)
   optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
   loader = DataLoader(TensorDataset(*train), batch_size=args.batch_size, shuffle=True)
-  best, history = float("inf"), []
+  best, best_epoch, history = float("inf"), None, []
   for epoch in range(1, args.epochs+1):
     model.train()
     total, count = 0.0, 0
@@ -134,13 +134,16 @@ def fit(root, role, model, train, val, loss_fn, meta, args):
       raise RuntimeError(f"nonfinite {role} validation loss")
     if value < best:
       best = value
+      best_epoch = epoch
       path.parent.mkdir(parents=True, exist_ok=True)
       torch.save({**meta, "role": role, "epoch": epoch, "val_loss": value,
                   "model": {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}}, path)
     print(f"{role} epoch {epoch:03d} train={total/count:.5f} val={value:.5f} "
           + " ".join(f"{k}={v:.5f}" for k, v in parts.items()), flush=True)
   write_json(root / "reports" / f"{role}_training.json", {"device": device, "history": history,
-                         "best_validation_loss": best, "checkpoint": str(path)})
+                         "best_validation_loss": best, "best_epoch": best_epoch, "checkpoint": str(path),
+                         "checkpoint_sha256": digest(path), "seed": args.seed,
+                         "settings": meta["training_settings"], "provenance": meta["provenance"]})
   print(f"{role}: best checkpoint {path} selected using validation only", flush=True)
 
 

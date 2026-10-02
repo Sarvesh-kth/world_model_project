@@ -102,12 +102,34 @@ def action_test(results, z, truth_xyz, dc, horizon, minimum_cm):
       "close_matched_swapped_z_mse": [a_match, a_swap], "open_matched_swapped_z_mse": [b_match, b_swap],
       "real_branch_z_separation_mse": mse(z[ia], z[ib], scale),
       "matched_beats_swapped": matched < swapped})
+  additional = []
+  for (scene, placement), pair in pairs.items():
+    for name in ("close_side_lift", "close_lift_release"):
+      if name not in pair:
+        continue
+      a, b = pair["close_lift"], pair[name]
+      ia, ib = a["rollout"]["states"][horizon], b["rollout"]["states"][horizon]
+      real = 100*(truth_xyz[ia]-truth_xyz[ib])
+      predicted = 100*(a["xyz"][horizon]-b["xyz"][horizon])
+      scale = dc["z_std"].numpy()
+      matched = (mse(a["z"][horizon], z[ia], scale)+mse(b["z"][horizon], z[ib], scale))/2
+      swapped = (mse(a["z"][horizon], z[ib], scale)+mse(b["z"][horizon], z[ia], scale))/2
+      additional.append({"scene": scene, "placement": placement, "other_branch": name,
+        "eligible": bool(np.linalg.norm(real) >= minimum_cm), "real_xyz_effect_cm": real.tolist(),
+        "D_Q_xyz_effect_cm": predicted.tolist(), "xyz_effect_l2_error_cm": float(np.linalg.norm(predicted-real)),
+        "matched_z_mse": matched, "swapped_z_mse": swapped, "matched_beats_swapped": matched < swapped})
+  additional_eligible = [r for r in additional if r["eligible"]]
   eligible = [r for r in rows if r["eligible"]]
   return {"eligibility": f"absolute real A/B height effect >= {minimum_cm} cm",
           "eligible_pairs": len(eligible), "all_pairs": len(rows),
           "matched_beats_swapped_fraction": float(np.mean([r['matched_beats_swapped'] for r in eligible])) if eligible else None,
           "height_effect_mae_cm": float(np.mean([r['effect_absolute_error_cm'] for r in eligible])) if eligible else None,
-          "pairs": rows}
+          "pairs": rows,
+          "additional_action_comparisons": {"eligibility": f"real xyz separation >= {minimum_cm} cm",
+             "eligible_pairs": len(additional_eligible), "all_pairs": len(additional),
+             "matched_beats_swapped_fraction": float(np.mean([r['matched_beats_swapped'] for r in additional_eligible])) if additional_eligible else None,
+             "xyz_effect_l2_mae_cm": float(np.mean([r['xyz_effect_l2_error_cm'] for r in additional_eligible])) if additional_eligible else None,
+             "pairs": additional}}
 
 
 def position_test(results, p, xyz, horizon, minimum_cm, tolerance):
@@ -206,7 +228,10 @@ def main():
                         100*row["real_q_xyz"][args.horizon, 2], row["real_q_grasp"][args.horizon]))))
   print(f"{args.test}: {args.split}, {report['scene_groups']} held-out scene groups, {len(rows)} rollouts")
   print(f"Q interpretation gate: {'PASS' if gate else 'FAIL — object predictions are diagnostic only'}")
-  print(json.dumps({k: v for k, v in report.items() if k not in ("pairs", "note")}, indent=2))
+  display = {k: v for k, v in report.items() if k not in ("pairs", "note")}
+  if "additional_action_comparisons" in display:
+    display["additional_action_comparisons"] = {k: v for k, v in display["additional_action_comparisons"].items() if k != "pairs"}
+  print(json.dumps(display, indent=2))
   if args.test in ("action", "positions") and report["eligible_pairs"] == 0:
     print("INCONCLUSIVE: no real outcomes meet the effect threshold; use a longer collected horizon.")
   print(f"saved report and per-rollout CSV under {output}/reports")

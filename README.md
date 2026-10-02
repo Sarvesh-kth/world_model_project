@@ -221,6 +221,10 @@ object or collision prediction; those need varied scenes and visual ablations.
 
 ## Object-consequence experiment: four separate tests
 
+For an automatic follow-up with more varied examples, see
+[Automatic varied experiment](#automatic-varied-experiment) below. The original
+commands in this section keep their controlled profile and 24-step sequence.
+
 This is the next diagnostic experiment after the split-head gripper-motion test.
 Use the notebook GPU for V-JEPA encoding and training. It collects **new data**;
 the old `data/grade_e` dataset/checkpoints remain usable by the old commands.
@@ -439,3 +443,128 @@ guards, Q/D/baseline training and each test command, and deletes its temporary
 data afterwards. It is a software check, not evidence that V-JEPA predicts
 objects accurately. The learned reward model and CEM controller are later work;
 none of these commands makes learned action choices for the robot.
+
+## Automatic varied experiment
+
+This follow-up changes the **grasp conditions and action consequences**, rather
+than only moving an otherwise identical successful demonstration around the table.
+It keeps the cube and obstacle-free table fixed while varying:
+
+| Variable | Varied profile |
+|---|---|
+| Gripper approach location | x `[0.12,0.24]`, y `[-0.28,-0.16]` metres |
+| Cube relative to that location | near offsets 8–18 mm, edge offsets 25–45 mm, far offsets 80–120 mm, in different directions |
+| Starting robot pose | small open-gripper yaw changes and vertical preparation offsets |
+| Lift command | normalized dz between 0.5 and 1.0, with reference cases at 1.0 |
+| Action sequences | close/lift, open/lift, close/lift sideways, close/lift/release |
+
+The source is above contact, then every branch descends for six open-gripper
+steps, holds its grip command for eight, and performs its lift for sixteen:
+**30 steps total**. Sideways/release variants change the last eight steps.
+All four branches restore the same source; both placements use the same actions
+and must have matching initial robot values. The actual physics determines
+success, failed grasp, contact and object rise. An "under" placement can fail;
+a "near offset" can still grasp. The audit checks that both label classes and
+genuine outcome contrasts exist. Failed source-matching attempts are resampled,
+with reasons saved in the manifest, instead of silently weakening the comparison.
+
+Whole scene groups remain separate across train/validation/test. In this profile
+all splits sample the same wider position distribution with independent scenes;
+this measures generalization to new scenes from that distribution. The original
+controlled profile uses separate anchor regions. These are different experiments;
+compare physical errors and report the differing datasets/horizons explicitly.
+Obstacles and collision-aware scoring are a subsequent campaign.
+
+### One command on the notebook
+
+From the repository root:
+
+```bash
+git switch M2_Kuba
+git pull --ff-only origin M2_Kuba
+cd simulation
+../.venv/bin/python -m world_model.vision.pipeline --run data/vision_v2
+```
+
+The defaults are **60 training, 12 validation, 12 test groups**, seed 42:
+672 real sequences and 20,328 states/clip endpoints. It runs these stages in order:
+
+1. Check the existing CUDA/Python dependencies.
+2. Collect new data, audit it and save contact sheets.
+3. Encode every real clip once with frozen V-JEPA, still one clip at a time.
+4. Train Q, D and the no-vision baseline for 60 epochs, with eight-step D windows.
+5. Run each of the four tests on validation and then test scenes at horizon 30.
+6. Repeat model fitting/evaluation with training seeds **0, 1 and 2**, reusing
+   the same simulator dataset and feature cache. No model is selected by test results.
+7. Export compact reports and logs to `results/vision_v2/` at the repo root.
+
+Models live under `data/vision_v2/attempts/seed_0/`, `seed_1/` and `seed_2/`.
+Every stage prints progress and writes its own text log to `data/vision_v2/logs/`.
+The encoder reports peak tensor allocation, allocator reservation and GPU capacity.
+The larger dataset increases processing time; it does not put all clips into VRAM.
+Based on the earlier 0.32 s/clip, encoding alone would take roughly 1.8 hours for
+this run; actual speed and simulation/training time depend on the notebook.
+Keep the terminal/kernel and teaching GPU session alive for the full run.
+
+To inspect the plan without executing or writing files:
+
+```bash
+../.venv/bin/python -m world_model.vision.pipeline --run data/vision_v2 --plan
+```
+
+For a smaller pilot, use a **different run name**. A pilot is an installation/data
+check, not a strong learning result:
+
+```bash
+../.venv/bin/python -m world_model.vision.pipeline \
+  --run data/vision_v2_pilot --train-scenes 8 --val-scenes 4 --test-scenes 4 \
+  --epochs 10 --training-seeds 0
+```
+
+### Resume and failures
+
+```bash
+../.venv/bin/python -m world_model.vision.pipeline --run data/vision_v2 --resume
+```
+
+Repeat any custom flags from the original command. The runner checks the saved
+configuration and artifact hashes, skips completed stages, resumes collection
+after its last complete scene and resumes an interrupted encoder cache. An
+interrupted training stage preserves its old files under `logs/interrupted/`
+and restarts that stage from scratch; optimizer state is not resumed.
+Executable errors stop the pipeline with the stage log and traceback. **Q
+accuracy gate failures continue into evaluation and remain clearly diagnostic.**
+Completion means all computations ran; it does not mean the models passed.
+Raw data and earlier runs are preserved. For new settings, use a new run name.
+
+### Read and share the results
+
+Start with `results/vision_v2/summary.txt` and `summary.csv`. The folder also
+contains full JSON/CSV reports, training curves with best validation epoch and
+checkpoint hashes, stage logs, scene settings and run provenance. At horizon 30,
+read the same persistence/action/no-vision/position metrics described above.
+The action report additionally compares close/lift with sideways and release
+sequences when their real xyz outcomes differ by at least 2 cm; those additional
+comparisons use xyz separation, while the original close/open test uses height.
+Inspect the contact sheets under `data/vision_v2/reports/scene_*.jpg` for realism.
+
+The exporter copies only reports/logs/settings. Camera datasets, encoded arrays,
+model weights and agent notes remain outside the shareable folder. Each training
+seed has separate reports; variation across those seeds is a diagnostic of
+training stability, not three independent datasets. Do not tune settings on the
+final test results; reserve fresh test scenes for later model changes.
+
+To share the evidence through Git, from the repository root after the run finishes:
+
+```bash
+git add results/vision_v2
+git commit -m "Record varied vision experiment results"
+git push origin M2_Kuba
+```
+
+Share the commit hash so its reports can be reviewed. Avoid force-adding the
+ignored `simulation/data/` directory. All individual stage commands still work;
+for this profile use `--horizon 30` and the corresponding `--tag seed_0` when
+rerunning an evaluation by hand. The existing `world_model.vision.check` also
+exercises runner sequencing, export, resume and artifact guards using toy CPU
+features; it makes no real V-JEPA quality claim.

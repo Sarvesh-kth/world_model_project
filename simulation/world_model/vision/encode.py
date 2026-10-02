@@ -82,7 +82,9 @@ def main():
         write_json(out / "progress.json", {**signature, "encoded": i})
         print(f"encoded {i}/{len(manifest['states'])} clips; "
               f"{(time.monotonic()-start)/max(i-done,1):.2f}s/clip; peak CUDA "
-              f"{torch.cuda.max_memory_allocated()/2**30:.2f} GiB", flush=True)
+              f"allocated={torch.cuda.max_memory_allocated()/2**30:.2f} GiB "
+              f"reserved={torch.cuda.max_memory_reserved()/2**30:.2f} GiB "
+              f"capacity={torch.cuda.get_device_properties(0).total_memory/2**30:.2f} GiB", flush=True)
   vectors.flush()
   del vectors
   if partial != out / "latents.npy":
@@ -91,6 +93,10 @@ def main():
              "latents_sha256": digest(out / "latents.npy"),
              "keys": keys, "model": args.model, "model_revision": getattr(model.config, "_commit_hash", None),
              "pooling": "mean_all_encoder_tokens", "camera": manifest["camera"], "clip_frames": 64,
+             "performance": {"session_seconds": time.monotonic()-start,
+                             "peak_allocated_gib": torch.cuda.max_memory_allocated()/2**30,
+                             "peak_reserved_gib": torch.cuda.max_memory_reserved()/2**30,
+                             "device_capacity_gib": torch.cuda.get_device_properties(0).total_memory/2**30},
              "provenance": {**provenance(), "torch": torch.__version__, "cuda": torch.version.cuda,
                             "gpu": torch.cuda.get_device_name()}})
   (out / "progress.json").unlink()
