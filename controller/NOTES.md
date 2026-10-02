@@ -97,13 +97,18 @@ of each section.
   M2's probe: object position from the pooled latent within **0.3 / 0.7 / 0.35 cm** (x/y/z, held out), vs
   3.6 / 15.9 / 4.0 cm for a constant guess, so the latent does carry where the cube is.
   The closed-loop JEPA agent runs end to end (smoke-tested with a random checkpoint; ~1-3 s per replan).
+- **2026-10-02 First closed-loop look at the JEPA agent** (visualizer, seed 0, 40 steps, cost z + p):
+  the arm heads for the goal *gripper position* (above the target, where the expert's goal clip ends)
+  and ignores the cube. The goal state includes proprio p, and moving the arm there is the easiest way
+  to look like the goal; the latent alone would have to pull it to the cube first. One seed, so
+  preliminary: the `jepa_cem` run (both variants, z+p and z-only) is still to do.
 
 ## Status when work stopped (2026-10-02) and how to resume
 
 Stopped at Calle's request in the middle of Level E. Committed and runnable; nothing running in the background.
 
 Done: tasks 1, 2, 3, 7 (runner + plots), 8 (skeleton), the M2 adapter, the local JEPA model, all
-experiment and demo scripts, 47 tests (`.venv/bin/python -m pytest controller/tests`).
+experiment scripts, the visualizer, 47 tests (`.venv/bin/python -m pytest controller/tests`).
 
 Still to run, in this order:
 1. `.venv/bin/python -m controller.experiments.oracle_cem --tasks lift place --workers 6` (~1 h): the
@@ -174,3 +179,4 @@ Who wrote what, for the course's AI-use declaration.
 | 2026-10-01 | `actor_critic.py` + `tests/test_actor_critic.py` (task 8 skeleton) | Claude |
 | 2026-10-01 | `experiments/bench_speed.py`, `experiments/jepa_cem.py`, `experiments/demo.py` | Claude |
 | 2026-10-02 | Grasp fixes (finger width, yaw planning + alignment cost), 13th/14th task features | Claude |
+| 2026-10-02 | Visualizer: `visual.py`, `experiments/visualize.py` (replaces `demo.py`), imagined-path replay in `agents.py`, `tests/test_visual.py` | Claude |

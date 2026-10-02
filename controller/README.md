@@ -54,7 +54,8 @@ planner state:
 | `experiments/jepa_pipeline.py` | M2's own Grade E recipe run locally → a rough JEPA dynamics model |
 | `experiments/encode_features.py` | V-JEPA features on any device, in M2's file format (M2's script needs CUDA) |
 | `experiments/jepa_cem.py` | the Level E deliverable: offline checks + closed-loop CEM on the JEPA model |
-| `experiments/demo.py` | one episode, any agent, with an MP4 and an optional live viewer |
+| `experiments/visualize.py` | watch any agent in MuJoCo (live viewer or MP4), with the planner's imagined paths drawn |
+| `visual.py` | draws plans, executed path and goal into a MuJoCo scene (viewer and videos) |
 | `tests/` | pytest suite (fast by default; `-m slow` / M1-dependent ones are marked) |
 | `NOTES.md` | decisions, results, questions for M1/M2, AI-use log |
 
@@ -76,7 +77,8 @@ torch, torchvision, pytest. The first JEPA run downloads V-JEPA 2 ViT-L (~1.3 GB
 .venv/bin/python -m pytest controller/tests                  # everything (~15 s)
 .venv/bin/python -m pytest controller/tests -m "not slow"    # skip the slower ones
 
-.venv/bin/python -m controller.experiments.demo --agent oracle --task place      # one episode + MP4
+.venv/bin/mjpython -m controller.experiments.visualize --agent oracle --viewer  # watch it live (macOS: mjpython)
+.venv/bin/python -m controller.experiments.visualize --agent jepa              # or as an MP4
 .venv/bin/python -m controller.experiments.oracle_cem --seeds 20 --workers 6     # task 4, ~1-1.5 h on an M5
 .venv/bin/python -m controller.experiments.state_mlp                             # task 5, ~2 min
 .venv/bin/python -m controller.experiments.bench_speed                           # task 6, ~5 min
@@ -87,19 +89,34 @@ torch, torchvision, pytest. The first JEPA run downloads V-JEPA 2 ViT-L (~1.3 GB
 Results land in `data/runs/<experiment>/` (CSV, `summary.json`, PNG plots); checkpoints in
 `data/checkpoints/` and `data/jepa/grade_e/`. All of `data/` is gitignored.
 
+## Visualizer
+
+```bash
+.venv/bin/mjpython -m controller.experiments.visualize --agent oracle --viewer     # live, like M1's play.py
+.venv/bin/python   -m controller.experiments.visualize --agent jepa --max-steps 120  # MP4 + last frame PNG
+```
+
+On top of M1's scene it draws what the planner imagines (all world models predict the gripper):
+**orange thick** = the plan CEM chose (imagined gripper path over the horizon), **orange faint** =
+runner-up elite plans, **blue dots** = where the gripper actually went, **green ball** = the goal
+gripper position (JEPA agent). A text panel shows step, stage, grasp and the last planning time.
+Options: `--agent scripted|oracle|state_mlp|jepa|random`, `--task reach|lift|place`, `--seed`,
+`--speed` (live pace), `--view overview|static` and `--size` (video), `--no-overlay`. The viewer stays
+open after the episode until you close it. While the oracle plans (2-6 s) the arm pauses: that's
+the planner thinking, not a hang.
+
 ## Manual testing checklist (Level E)
 
 1. **Tests:** `.venv/bin/python -m pytest controller/tests`. All should pass.
-2. **Watch the reference:** `.venv/bin/python -m controller.experiments.demo --agent scripted`.
-   M1's expert places the cube in ~100 steps; open `data/runs/demo/scripted_place_seed0.mp4`.
-3. **Watch the planner with a perfect model:** `--agent oracle --task place` (a few minutes,
-   prints progress every 10 steps). Expect reach → centred grasp → carry → drop on the target.
-   Live: `.venv/bin/mjpython -m controller.experiments.demo --agent oracle --viewer` (macOS needs `mjpython`).
+2. **Watch the reference:** `.venv/bin/mjpython -m controller.experiments.visualize --agent scripted --viewer`.
+   M1's expert places the cube in ~100 steps.
+3. **Watch the planner with a perfect model:** `--agent oracle --viewer` (a few minutes). Expect the
+   short orange plan to lead the gripper to the cube, a grasp, a carry and a drop on the target.
 4. **Learned state model:** `--agent state_mlp` (after `experiments.state_mlp`). Expect a
    noticeably worse arm: it reaches, sometimes grasps, rarely places.
-5. **Level E on the JEPA model:** `--agent jepa --max-steps 100` (after `experiments.jepa_pipeline`;
-   ~1 s per replan for V-JEPA on the Mac). This is the "arm attempts pick-and-place with CEM on
-   the JEPA world model" deliverable.
+5. **Level E on the JEPA model:** `--agent jepa --viewer` (after `experiments.jepa_pipeline`; ~1 s per
+   replan). This is the "arm attempts pick-and-place with CEM on the JEPA world model" deliverable.
+   Watch where the orange plan goes compared to the cube and the green goal ball.
 6. **Compare with M2's own model:** once Kuba shares `best.pt`, run
    `.venv/bin/python -m controller.experiments.jepa_cem --checkpoint path/to/best.pt`.
 

@@ -26,6 +26,32 @@ def action_bounds(action_dim, plan_yaw=True):
     return low, high
 
 
+class ShowsPlans:
+    """For visualizing a planning agent: the gripper paths its world model imagines.
+
+    The agent sets self._plan_start (the planner state z of its latest replan) and implements
+    ee_position(z) -> [..., 3] (where that model's state says the gripper is).
+    """
+
+    _plan_start = None
+
+    @torch.no_grad()
+    def imagined_paths(self, n_elites=8):
+        """(chosen plan [H+1, 3], best elites [k, H+1, 3]) gripper paths, world frame; None before
+        the first plan. Re-rolls the plan through the agent's own dynamics_fn (for the oracle these
+        are extra sim steps in its private copy, never in the real env)."""
+        if self._plan_start is None or self.planner.last_plan is None:
+            return None
+        seqs = torch.cat([self.planner.last_plan[None], self.planner.last_info["elite_actions"][:n_elites]])
+        z = self._plan_start.expand(len(seqs), *self._plan_start.shape)
+        path = [self.ee_position(z)]
+        for t in range(seqs.shape[1]):
+            z = self.dynamics(z, seqs[:, t].to(z.dtype if z.is_floating_point() else torch.float32))
+            path.append(self.ee_position(z))
+        paths = torch.stack(path, dim=1).float().cpu().numpy()
+        return paths[0], paths[1:]
+
+
 class RandomAgent:
     """Uniform random actions: the lower bound."""
 
@@ -52,7 +78,7 @@ class ScriptedAgent:
         return self.policy.act()
 
 
-class OracleCEMAgent:
+class OracleCEMAgent(ShowsPlans):
     """CEM planning with the simulator itself as the model (task 4, the upper-bound baseline)."""
 
     def __init__(self, cost_fn, cfg: CEMConfig, seed=0, plan_yaw=True):
@@ -67,10 +93,15 @@ class OracleCEMAgent:
 
     def act(self, adapter, obs):
         z = self.dynamics.observe(adapter)
+        if not self.planner._queue:
+            self._plan_start = z
         return self.planner.act(z, torch.zeros(1)).numpy().astype(float)
 
+    def ee_position(self, z):
+        return z[..., 0:3]
 
-class StateMLPAgent:
+
+class StateMLPAgent(ShowsPlans):
     """CEM planning with the learned state MLP (task 5). With audit=True, every new plan is also
     replayed in a simulator clone, logging predicted vs real cost: the planner "exploiting" the
     model shows up as plans that look much better to the model than they are."""
@@ -96,12 +127,17 @@ class StateMLPAgent:
 
         s = torch.from_numpy(state_from_adapter(adapter, obs))
         replanning = not self.planner._queue
+        if replanning:
+            self._plan_start = s
         oracle_z = self.oracle.observe(adapter) if self.audit and replanning else None
         action = self.planner.act(s, torch.zeros(1))
         if oracle_z is not None:
             self._audit(s, oracle_z, self.planner.last_plan)
         self.t += 1
         return action.numpy().astype(float)
+
+    def ee_position(self, s):
+        return s[..., 0:3]
 
     def _audit(self, s, oracle_z, plan):
         """Roll the chosen plan through the model and through the real sim; log both outcomes."""
@@ -121,7 +157,7 @@ class StateMLPAgent:
         })
 
 
-class JEPACEMAgent:
+class JEPACEMAgent(ShowsPlans):
     """The Level E deliverable: CEM on the JEPA world model.
 
     Sees only what the real system would: the static camera (a rolling 64-frame clip, encoded by
@@ -163,6 +199,7 @@ class JEPACEMAgent:
         if not self.planner._queue:  # only encode when a new plan is needed (~1 s on the Mac)
             z = self.encoder.encode_clip(self.buffer.clip())
             s = self.dynamics.state(z, obs["proprio"])
+            self._plan_start = s
         action = self.planner.act(s, self.s_goal)
         if s is not None:
             info = self.planner.last_info
@@ -175,3 +212,11 @@ class JEPACEMAgent:
             })
         self.t += 1
         return action.cpu().numpy().astype(float)
+
+    def ee_position(self, s):
+        """D predicts proprio too; its values 14..16 are the gripper position."""
+        return self.dynamics.proprio(s)[..., 14:17]
+
+    def goal_position(self):
+        """Where the goal state puts the gripper (from the expert's final proprio)."""
+        return self.ee_position(self.s_goal).cpu().numpy()

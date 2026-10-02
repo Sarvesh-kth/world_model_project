@@ -67,6 +67,7 @@ def cem_plan(
             "mean_cost": list of n_iters floats, the mean cost of all samples in each iteration
                 (mean minus best shows whether the model tells good and bad plans apart at all)
             "std": the final std [H, A], after the floor
+            "elite_actions": the last iteration's elites [K, H, A], best first (for visualizing)
 
     Every tensor created here lives on z0.device; actions are float32.
     """
@@ -109,4 +110,5 @@ def cem_plan(
         elite_cost.append(cost[elite_idx].mean().item())
         mean_cost.append(cost.mean().item())
 
-    return mean, {"best_cost": best_cost, "elite_cost": elite_cost, "mean_cost": mean_cost, "std": std}
+    return mean, {"best_cost": best_cost, "elite_cost": elite_cost, "mean_cost": mean_cost, "std": std,
+                  "elite_actions": elites}
