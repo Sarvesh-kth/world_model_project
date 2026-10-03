@@ -676,3 +676,77 @@ for seed in 0 1 2; do
     ../results/vision_v2/attempts/seed_${seed}/reports/
 done
 ```
+
+## Diagnose contact states and individual robot values
+
+After the robot-forced diagnostic, reuse the same cache/checkpoints to measure
+which robot coordinates drift and whether visual predictions fail immediately
+or after several imagined steps. From `simulation/`:
+
+```bash
+for seed in 0 1 2; do
+  OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 ../.venv/bin/python -m world_model.vision.contact \
+    --run data/vision_v2 --tag "seed_${seed}" --horizon 30 \
+    --reset-horizons 1 4 8 || break
+done
+```
+
+This command uses **validation only**. It does not collect, encode or train again:
+
+1. Run the original 30-step D rollout and compare all 20 predicted robot values
+   with recorded measurements. Report joint/yaw errors in degrees, velocities
+   in degrees/s, position/finger width in cm, and gripper command in its native
+   -1/+1 units. The command-sign mismatch distinguishes open from close errors.
+2. Restart D from **actual z and p at every eligible recorded state**, including
+   states around grasping and while holding. Use the corresponding recorded
+   action suffix; predict 1, 4 and 8 steps from the same anchors. Starts in the
+   last seven steps are excluded so all three horizons use identical anchors.
+3. Compare ordinary recursion, ordinary predicted z with real endpoint p,
+   robot-forced visual recursion, unchanged starting z with real endpoint p,
+   and Q on actual future z/p. All imagined visual paths remain recursive after
+   their initial reset; actual future p is used only by offline diagnostic controls.
+
+`transition` means an adjacent held-label change or a recorded transient grasp;
+it is a grasp-transition proxy, **not a complete finger-contact measurement**.
+`held`/`unheld` are the other starting-state strata. Labels select report groups
+and never enter D. Q metrics use actual **future** held labels, so their positive
+counts can change with horizon. Many anchors overlap within the same 12 scene
+groups: they are correlated measurements, not thousands of independent trials.
+
+### How to read the contact diagnostic
+
+- **Robot errors:** compare `from_start_same_targets` with `reset_one_step` on
+  identical target states. Large errors in both implicate immediate prediction;
+  much smaller reset errors implicate accumulated drift. Read individual
+  coordinates rather than comparing cm, degrees and command errors numerically.
+  JSON also includes per-coordinate normalized errors and all original targets.
+  Robot CSV `label_step` identifies the actual preceding state used to group
+  that error; `start_step` identifies where the forecast itself began.
+- **Local visual errors:** check whether ordinary `z MSE` beats
+  `unchanged_z_real_p`, especially around transition/held starts. Poor one-step
+  forecasts from actual starts indicate a local dynamics issue; degradation
+  from 1 to 4/8 steps indicates a recursive limitation. Q on real future states
+  reveals readout limitations separately.
+- **Robot influence inside D_z:** compare `pred_z_real_p` with
+  `forced_z_real_p` at each horizon. Q's robot input is identical in both.
+  Corrections can supply future contact information through finger width, so
+  improvement does not prove that generic motor drift is the only cause.
+- **Empty/failed groups:** `n/a` means no held-positive targets for that row.
+  Failed Q gates keep object predictions diagnostic. The JSON retains unheld
+  controls even though the terminal omits their separate visual table rows.
+
+Each seed saves `contact_val_h30_reset1-4-8.json` with grouped metrics, contracts,
+source/code/checkpoint hashes and anchor counts; `_robot.csv` with all measured
+and predicted robot values in native units; and `_forecasts.csv` with each
+anchor/horizon/combination, latent error, height and grasp probability. Existing
+reports and weights remain unchanged. Progress prints every 200 anchors; the
+small D/Q models run on CPU and no V-JEPA download or GPU pass is needed.
+
+To share only these reports from `simulation/`:
+
+```bash
+for seed in 0 1 2; do
+  cp data/vision_v2/attempts/seed_${seed}/reports/contact_val_h30_reset1-4-8* \
+    ../results/vision_v2/attempts/seed_${seed}/reports/
+done
+```
