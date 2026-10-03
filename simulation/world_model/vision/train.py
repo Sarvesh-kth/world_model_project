@@ -65,11 +65,25 @@ def readout(model, ck, z, p):
 
 
 @torch.inference_mode()
-def imagine(model, ck, z, p, actions):
+def imagine(model, ck, z, p, actions, robot_states=None):
+  """Roll out z recursively; optional recorded p is an offline diagnostic only."""
+  if robot_states is not None:
+    robot_states = np.asarray(robot_states)
+    if robot_states.shape != (len(actions)+1, len(p)) or not np.isfinite(robot_states).all():
+      raise ValueError("recorded robot trajectory must contain one finite p per state")
+    if not np.allclose(robot_states[0], p, rtol=0, atol=1e-6):
+      raise ValueError("recorded robot trajectory does not start at the source p")
+    robot_states = normalized(robot_states, ck, "p")
   z, p = normalized(z, ck, "z"), normalized(p, ck, "p")
   zs, ps = [z], [p]
-  for action in actions:
-    z, p = model(z, p, torch.as_tensor(action, dtype=torch.float32))
+  for t, action in enumerate(actions):
+    action = torch.as_tensor(action, dtype=torch.float32)
+    if robot_states is None:
+      z, p = model(z, p, action)
+    else:
+      # D_z consumes BOTH current and next robot state: override both inputs.
+      current_p, p = robot_states[t], robot_states[t+1]
+      z = z + model.visual(torch.cat((z, current_p, action, p), dim=-1))
     zs.append(z)
     ps.append(p)
   return (torch.stack(zs).numpy()*ck["z_std"].numpy()+ck["z_mean"].numpy(),

@@ -625,3 +625,54 @@ done
 
 Commit those six new report files when ready. They are additional diagnostics;
 the original campaign's `files.json` does not list them until a new export.
+
+## Diagnose robot context inside D_z
+
+The hybrid test changes inputs only at Q. The next diagnostic also supplies
+**recorded current and next robot values to D_z at every step**, while starting
+from one real visual vector and predicting all future visual vectors recursively.
+It reuses the same cached clips and trained models; it does not collect, encode
+or train again. From `simulation/`:
+
+```bash
+for seed in 0 1 2; do
+  OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 ../.venv/bin/python -m world_model.vision.test robot-forced \
+    --run data/vision_v2 --tag "seed_${seed}" --split val --horizon 30 || break
+done
+```
+
+The table reports steps 1, 8, 16 and 30. Its four rows per step are:
+
+| Combination | Visual rollout | Robot input to Q |
+|---|---|---|
+| `pred_z_pred_p` | Ordinary D, predicted robot context | Predicted endpoint p |
+| `pred_z_real_p` | Ordinary D, predicted robot context | Recorded endpoint p |
+| `forced_z_real_p` | D_z with recorded p at every step; z stays predicted | Recorded endpoint p |
+| `real_z_real_p` | Actual encoded future clip, readout reference | Recorded endpoint p |
+
+Compare **`pred_z_real_p` versus `forced_z_real_p`**: Q gets identical robot
+values, so any change comes from using accurate robot context inside the visual
+rollout. Lower latent `z MSE` and held-only height MAE, plus more real held
+objects detected without extra false detections, would support robot-context
+errors as a contributor. Little improvement would mean visual forecasting still
+fails even with correct robot context. Neither outcome alone identifies the
+training/representation cause or proves online control works. The real-z
+reference has zero latent error by construction; it is not a learned forecast.
+Early horizons without held objects cannot test positive grasp detection.
+
+Recorded **future** robot values are available only for this offline diagnostic;
+a planner would have to predict them. No intermediate real visual vectors are
+fed back to D_z. Normalization uses the original dynamics checkpoint's training
+statistics, and existing Q interpretation gates still apply. JSON/CSV reports
+include artifact hashes, per-rollout probabilities, height errors and actual,
+predicted and Q-input gripper values. They are saved separately as
+`robot-forced_val_h30.json` and `.csv` in each seed's `reports/` directory.
+
+To share just these new reports from `simulation/`:
+
+```bash
+for seed in 0 1 2; do
+  cp data/vision_v2/attempts/seed_${seed}/reports/robot-forced_val_h30.* \
+    ../results/vision_v2/attempts/seed_${seed}/reports/
+done
+```

@@ -14,7 +14,7 @@ def mse(a, b, scale):
   return float(np.square((a-b)/scale).mean())
 
 
-def predictions(root, manifest, z, p, split, horizon, tag, baseline=False):
+def predictions(root, manifest, z, p, split, horizon, tag, baseline=False, robot_forced=False):
   d, dc = load_model(root, "dynamics", tag)
   q, qc = load_model(root, "readout", tag)
   b, bc = load_model(root, "no_vision", tag) if baseline else (None, None)
@@ -33,6 +33,11 @@ def predictions(root, manifest, z, p, split, horizon, tag, baseline=False):
     row = {"rollout": r, "z": zz, "p": pp, "xyz": xyz, "grasp": grasp,
            "persistent_q_xyz": keep_xyz, "persistent_q_grasp": keep_grasp,
            "real_q_xyz": real_xyz, "real_q_grasp": real_grasp}
+    if robot_forced:
+      row["forced_z"], _ = imagine(d, dc, z[source], p[source], r["actions"][:horizon],
+                                   robot_states=p[actual_ids])
+      if not np.isfinite(row["forced_z"]).all():
+        raise RuntimeError(f"nonfinite robot-forced visual rollout {r['id']}")
     if baseline:
       row["no_vision_xyz"], row["no_vision_grasp"] = baseline_predict(
         b, bc, p[source], r["actions"][:horizon])
@@ -78,8 +83,8 @@ def persistence(results, z, p, xyz, grasp, dc, horizons):
   return {"by_horizon": by_horizon}
 
 
-def hybrid_test(results, z, p, xyz, grasp, q, qc, horizons):
-  """Replace only Q's endpoint inputs; D's rollout remains fully predicted."""
+def hybrid_test(results, z, p, xyz, grasp, q, qc, horizons, forced_dc=None):
+  """Compare Q endpoint inputs, optionally including robot-forced visual rollouts."""
   rows = list(results.values())
   summaries, details = [], []
   for h in horizons:
@@ -90,6 +95,11 @@ def hybrid_test(results, z, p, xyz, grasp, q, qc, horizons):
                     "real_z_pred_p": (z[ids], predicted_p),
                     "pred_z_real_p": (predicted_z, p[ids]),
                     "real_z_real_p": (z[ids], p[ids])}
+    if forced_dc is not None:
+      combinations = {"pred_z_pred_p": (predicted_z, predicted_p),
+                      "pred_z_real_p": (predicted_z, p[ids]),
+                      "forced_z_real_p": (np.stack([row["forced_z"][h] for row in rows]), p[ids]),
+                      "real_z_real_p": (z[ids], p[ids])}
     metrics = {}
     for name, (zz, pp) in combinations.items():
       position, probability = readout(q, qc, zz, pp)
@@ -100,7 +110,9 @@ def hybrid_test(results, z, p, xyz, grasp, q, qc, horizons):
           "true_held_detected": int((held & guessed).sum()),
           "false_held_predictions": int((~held & guessed).sum()),
           "missed_held": int((held & ~guessed).sum())}
-      for row, end, pos, prob in zip(rows, ids, position, probability):
+      if forced_dc is not None:
+        metrics[name]["z_mse"] = mse(zz, z[ids], forced_dc["z_std"].numpy())
+      for row, end, pos, prob, visual, robot in zip(rows, ids, position, probability, zz, pp):
         r = row["rollout"]
         details.append({"rollout": r["id"], "horizon": h, "combination": name,
           "source_height_cm": float(100*xyz[r["states"][0], 2]),
@@ -111,11 +123,21 @@ def hybrid_test(results, z, p, xyz, grasp, q, qc, horizons):
           "D_gripper_width_cm": float(100*row["p"][h, 18]),
           "real_gripper_command": float(p[end, 19]),
           "D_gripper_command": float(row["p"][h, 19])})
+        if forced_dc is not None:
+          details[-1].update({"z_mse": mse(visual, z[end], forced_dc["z_std"].numpy()),
+                             "Q_gripper_width_cm": float(100*robot[18]),
+                             "Q_gripper_command": float(robot[19])})
     summaries.append({"horizon": h, "combinations": metrics})
-  return {"by_horizon": summaries, "rows": details,
-      "diagnostic_contract": "D receives only starting z/p and actions throughout its rollout. "
+  contract = ("D receives only starting z/p and actions throughout its rollout. "
         "Real future z/p replace Q inputs only, and are not available to a runtime planner. "
-        "Correcting p at Q does not undo predicted-p errors already consumed by D_z."}
+        "Correcting p at Q does not undo predicted-p errors already consumed by D_z.")
+  if forced_dc is not None:
+    contract = ("forced_z starts from real z0 and stays recursively predicted. D_z receives "
+      "recorded current AND next p at every step, then Q receives the real endpoint p. "
+      "Compare pred_z_real_p with forced_z_real_p to isolate robot context inside D_z. "
+      "No intermediate real z is supplied. Real future p is an offline control, unavailable "
+      "to a runtime planner. real_z_real_p is a readout reference, not a forecast.")
+  return {"by_horizon": summaries, "rows": details, "diagnostic_contract": contract}
 
 
 def action_test(results, z, truth_xyz, dc, horizon, minimum_cm):
@@ -205,15 +227,15 @@ def position_test(results, p, xyz, horizon, minimum_cm, tolerance):
 
 def main():
   parser = argparse.ArgumentParser(description=__doc__)
-  parser.add_argument("test", choices=("persistence", "action", "no-vision", "positions", "hybrid"))
+  parser.add_argument("test", choices=("persistence", "action", "no-vision", "positions", "hybrid", "robot-forced"))
   parser.add_argument("--run", required=True, type=pathlib.Path)
   parser.add_argument("--split", choices=("val", "test"),
-                      help="default: val for hybrid, test for the original four comparisons")
+                      help="default: val for hybrid/robot-forced, test for the original four comparisons")
   parser.add_argument("--horizon", type=int, default=24)
   parser.add_argument("--minimum-effect-cm", type=float, default=2.0)
   parser.add_argument("--tag", default="")
   args = parser.parse_args()
-  args.split = args.split or ("val" if args.test == "hybrid" else "test")
+  args.split = args.split or ("val" if args.test in ("hybrid", "robot-forced") else "test")
   if args.horizon < 1 or args.minimum_effect_cm <= 0:
     parser.error("horizon and minimum-effect-cm must be positive")
   if args.tag and (pathlib.Path(args.tag).name != args.tag or args.tag in (".", "..")):
@@ -222,7 +244,8 @@ def main():
   z, _ = load_features(args.run, manifest)
   p, xyz, grasp = state_arrays(manifest)
   results, dc, qc = predictions(args.run, manifest, z, p, args.split, args.horizon, args.tag,
-                               baseline=args.test in ("no-vision", "positions"))
+                               baseline=args.test in ("no-vision", "positions"),
+                               robot_forced=args.test == "robot-forced")
   rows = list(results.values())
   ids = np.flatnonzero(np.asarray([s["split"] for s in manifest["states"]]) == args.split)
   q, _ = load_model(args.run, "readout", args.tag)
@@ -233,9 +256,10 @@ def main():
   gate = validation["q_gate_passed"] and q_gate(real_q, qc["q_limits"])
   if args.test == "persistence":
     report = persistence(results, z, p, xyz, grasp, dc, sorted({1, min(8, args.horizon), min(16, args.horizon), args.horizon}))
-  elif args.test == "hybrid":
+  elif args.test in ("hybrid", "robot-forced"):
     report = hybrid_test(results, z, p, xyz, grasp, q, qc,
-                        sorted({1, min(8, args.horizon), min(16, args.horizon), args.horizon}))
+                        sorted({1, min(8, args.horizon), min(16, args.horizon), args.horizon}),
+                        forced_dc=dc if args.test == "robot-forced" else None)
     report["readout_checkpoint_sha256"] = digest(output / "models/readout.pt")
     report["features_metadata_sha256"] = digest(args.run / "features/meta.json")
   elif args.test == "action":
@@ -283,16 +307,20 @@ def main():
   display = {k: v for k, v in report.items() if k not in ("pairs", "note")}
   if "additional_action_comparisons" in display:
     display["additional_action_comparisons"] = {k: v for k, v in display["additional_action_comparisons"].items() if k != "pairs"}
-  if args.test == "hybrid":
-    print("Offline Q-input substitutions; D is not refreshed with real future observations.")
-    print("step  Q inputs          height MAE cm  held-only cm  held detected  false held  grasp F1")
+  if args.test in ("hybrid", "robot-forced"):
+    forced = args.test == "robot-forced"
+    print("Offline recorded-p context inside D_z; visual predictions stay recursive." if forced else
+          "Offline Q-input substitutions; D is not refreshed with real future observations.")
+    print("step  Q inputs          height MAE cm  held-only cm  held detected  false held  grasp F1" +
+          ("     z MSE" if forced else ""))
     for horizon in report["by_horizon"]:
       for name, m in horizon["combinations"].items():
         held_error = "n/a" if m["height_mae_when_held_cm"] is None else f"{m['height_mae_when_held_cm']:.3f}"
         f1 = "n/a" if m["positive_labels"] == 0 else f"{m['grasp_f1']:.3f}"
         print(f"{horizon['horizon']:>4}  {name:<16}  {m['height_mae_cm']:>13.3f}  {held_error:>12}  "
               f"{m['true_held_detected']:>3}/{m['positive_labels']:<10}  "
-              f"{m['false_held_predictions']:>10}  {f1:>8}")
+              f"{m['false_held_predictions']:>10}  {f1:>8}" +
+              (f"  {m['z_mse']:>8.4f}" if forced else ""))
     print(report["diagnostic_contract"])
   else:
     print(json.dumps(display, indent=2))
