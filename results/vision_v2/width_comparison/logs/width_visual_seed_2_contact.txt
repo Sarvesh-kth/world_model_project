@@ -1,0 +1,130 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-m", "world_model.vision.contact", "--horizon", "30", "--reset-horizons", "1", "4", "8", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--tag", "width_visual_seed_2"]
+contact diagnostic: val, 96 original rollouts; no new collection/encoding/training
+reset 200 anchors; visual horizons=[1, 4, 8]
+reset 400 anchors; visual horizons=[1, 4, 8]
+reset 600 anchors; visual horizons=[1, 4, 8]
+reset 800 anchors; visual horizons=[1, 4, 8]
+reset 1000 anchors; visual horizons=[1, 4, 8]
+reset 1200 anchors; visual horizons=[1, 4, 8]
+reset 1400 anchors; visual horizons=[1, 4, 8]
+reset 1600 anchors; visual horizons=[1, 4, 8]
+reset 1800 anchors; visual horizons=[1, 4, 8]
+reset 2000 anchors; visual horizons=[1, 4, 8]
+reset 2200 anchors; visual horizons=[1, 4, 8]
+Q gate: FAIL — object metrics are diagnostic only; anchors={'transition': 61, 'held': 293, 'unheld': 1854}
+Robot errors on identical targets: original rollout versus reset one-step
+transition: 61 anchors
+  joint_pos_1      0.2919 -> 0.0750 degrees
+  joint_pos_2      0.4426 -> 0.1129 degrees
+  joint_pos_3      0.1554 -> 0.0741 degrees
+  joint_pos_4      0.2878 -> 0.0674 degrees
+  joint_pos_5      0.1101 -> 0.0741 degrees
+  joint_pos_6      0.2686 -> 0.0693 degrees
+  joint_pos_7      0.7401 -> 0.3530 degrees
+  joint_vel_1      0.1336 -> 0.1901 degrees/s
+  joint_vel_2      0.3187 -> 0.4086 degrees/s
+  joint_vel_3      0.1629 -> 0.0986 degrees/s
+  joint_vel_4      0.2125 -> 0.2569 degrees/s
+  joint_vel_5      0.1148 -> 0.1386 degrees/s
+  joint_vel_6      0.4909 -> 0.4522 degrees/s
+  joint_vel_7      0.1022 -> 0.1142 degrees/s
+  ee_x             0.0923 -> 0.0280 cm
+  ee_y             0.0659 -> 0.0407 cm
+  ee_z             0.2335 -> 0.0754 cm
+  ee_yaw           0.6836 -> 0.3395 degrees
+  gripper_width    1.0738 -> 0.6060 cm
+  gripper_cmd      0.0409 -> 0.0470 command
+  command sign mismatch: 0.0 -> 0.0
+held: 293 anchors
+  joint_pos_1      0.2537 -> 0.0878 degrees
+  joint_pos_2      0.4015 -> 0.0555 degrees
+  joint_pos_3      0.2195 -> 0.0769 degrees
+  joint_pos_4      0.2287 -> 0.0636 degrees
+  joint_pos_5      0.2022 -> 0.0463 degrees
+  joint_pos_6      0.3609 -> 0.0661 degrees
+  joint_pos_7      0.5650 -> 0.2518 degrees
+  joint_vel_1      0.1247 -> 0.0647 degrees/s
+  joint_vel_2      0.4383 -> 0.2537 degrees/s
+  joint_vel_3      0.1364 -> 0.0778 degrees/s
+  joint_vel_4      0.2443 -> 0.1179 degrees/s
+  joint_vel_5      0.1193 -> 0.0934 degrees/s
+  joint_vel_6      0.4063 -> 0.2845 degrees/s
+  joint_vel_7      0.1059 -> 0.0812 degrees/s
+  ee_x             0.0700 -> 0.0212 cm
+  ee_y             0.1036 -> 0.0285 cm
+  ee_z             0.2949 -> 0.0471 cm
+  ee_yaw           1.2975 -> 0.5603 degrees
+  gripper_width    1.8406 -> 0.2125 cm
+  gripper_cmd      0.0341 -> 0.0311 command
+  command sign mismatch: 0.0 -> 0.0
+all: 2208 anchors
+  joint_pos_1      0.2354 -> 0.0738 degrees
+  joint_pos_2      0.3545 -> 0.0581 degrees
+  joint_pos_3      0.1613 -> 0.0627 degrees
+  joint_pos_4      0.2073 -> 0.0529 degrees
+  joint_pos_5      0.2186 -> 0.0508 degrees
+  joint_pos_6      0.2649 -> 0.0666 degrees
+  joint_pos_7      0.9232 -> 0.2995 degrees
+  joint_vel_1      0.1561 -> 0.0957 degrees/s
+  joint_vel_2      0.4080 -> 0.2852 degrees/s
+  joint_vel_3      0.1692 -> 0.1004 degrees/s
+  joint_vel_4      0.1907 -> 0.1255 degrees/s
+  joint_vel_5      0.1890 -> 0.1174 degrees/s
+  joint_vel_6      0.3552 -> 0.2706 degrees/s
+  joint_vel_7      0.1849 -> 0.1499 degrees/s
+  ee_x             0.0928 -> 0.0229 cm
+  ee_y             0.0854 -> 0.0239 cm
+  ee_z             0.2441 -> 0.0483 cm
+  ee_yaw           1.0457 -> 0.4465 degrees
+  gripper_width    0.8413 -> 0.1956 cm
+  gripper_cmd      0.0335 -> 0.0278 command
+  command sign mismatch: 0.0 -> 0.0
+step  source phase  Q inputs              z MSE  held-height cm  held detected  false held
+   1  all           pred_z_pred_p         0.0763           0.792   199/341        59
+   1  transition    pred_z_pred_p         0.0841           0.383     6/48         3
+   1  held          pred_z_pred_p         0.0927           0.859   193/293        0
+   1  all           pred_z_real_p         0.0763           0.792   199/341        57
+   1  transition    pred_z_real_p         0.0841           0.381     6/48         4
+   1  held          pred_z_real_p         0.0927           0.859   193/293        0
+   1  all           forced_z_real_p       0.0763           0.789   199/341        57
+   1  transition    forced_z_real_p       0.0842           0.382     6/48         4
+   1  held          forced_z_real_p       0.0926           0.856   193/293        0
+   1  all           unchanged_z_real_p    0.0953           0.820   194/341        52
+   1  transition    unchanged_z_real_p    0.1017           0.440     3/48         8
+   1  held          unchanged_z_real_p    0.1060           0.882   191/293        0
+   1  all           real_z_real_p         0.0000           0.797   212/341        49
+   1  transition    real_z_real_p         0.0000           0.426     9/48         5
+   1  held          real_z_real_p         0.0000           0.858   203/293        0
+   4  all           pred_z_pred_p         0.1070           1.141   195/383        112
+   4  transition    pred_z_pred_p         0.1333           0.281    18/48         0
+   4  held          pred_z_pred_p         0.1392           1.542   165/263        11
+   4  all           pred_z_real_p         0.1070           1.146   191/383        109
+   4  transition    pred_z_real_p         0.1333           0.278    18/48         0
+   4  held          pred_z_real_p         0.1392           1.551   161/263        11
+   4  all           forced_z_real_p       0.1069           1.098   204/383        93
+   4  transition    forced_z_real_p       0.1331           0.280    18/48         0
+   4  held          forced_z_real_p       0.1388           1.478   171/263        10
+   4  all           unchanged_z_real_p    0.2094           2.093   170/383        74
+   4  transition    unchanged_z_real_p    0.2181           0.444     3/48         5
+   4  held          unchanged_z_real_p    0.2347           2.876   167/263        14
+   4  all           real_z_real_p         0.0000           0.807   254/383        49
+   4  transition    real_z_real_p         0.0000           0.398    21/48         0
+   4  held          real_z_real_p         0.0000           0.997   221/263        5
+   8  all           pred_z_pred_p         0.1388           1.785   204/436        131
+   8  transition    pred_z_pred_p         0.1478           0.906    21/45         3
+   8  held          pred_z_pred_p         0.1838           3.038   129/226        4
+   8  all           pred_z_real_p         0.1388           1.797   198/436        134
+   8  transition    pred_z_real_p         0.1478           0.904    18/45         3
+   8  held          pred_z_real_p         0.1838           3.064   129/226        7
+   8  all           forced_z_real_p       0.1377           1.662   213/436        109
+   8  transition    forced_z_real_p       0.1469           1.012    21/45         3
+   8  held          forced_z_real_p       0.1822           2.763   132/226        2
+   8  all           unchanged_z_real_p    0.4007           3.814   149/436        78
+   8  transition    unchanged_z_real_p    0.4192           1.208     9/45         5
+   8  held          unchanged_z_real_p    0.4483           6.874   140/226        21
+   8  all           real_z_real_p         0.0000           0.884   310/436        49
+   8  transition    real_z_real_p         0.0000           0.960    33/45         3
+   8  held          real_z_real_p         0.0000           1.192   223/226        2
+Every reset begins with actual z/p; its actions start at the same recorded index. Forecast z remains recurrent; forced forecasts use recorded current/next p only. Transition strata use adjacent held changes or transient grasp flags, not exact finger contact. Labels group results and never enter D. Overlapping anchors are correlated, not independent trials. Real future p is offline-only. Failed Q gates make object interpretations diagnostic.
+saved contact_val_h30_reset1-4-8.json and robot/forecast CSVs under /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/width_visual_seed_2/reports

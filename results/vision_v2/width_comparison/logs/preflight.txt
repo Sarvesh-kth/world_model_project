@@ -1,0 +1,3 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-c", "import torch, transformers, cv2, mujoco; assert torch.cuda.is_available(), 'CUDA unavailable; run on the notebook'; print('GPU:', torch.cuda.get_device_name(0), 'torch:', torch.__version__)"]
+GPU: NVIDIA H100 80GB HBM3 MIG 2g.20gb torch: 2.6.0+cu124

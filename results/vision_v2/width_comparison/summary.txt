@@ -1,0 +1,11 @@
+seed variant  width-held cm  width-transition cm  h8 held height cm  held detected  FP  h30 held height cm
+   0 baseline         3.425                0.597              2.380   186/226      15              10.553
+   0 robot            2.640                0.459              2.051   195/226      14               8.559
+   0 visual           1.927                0.646              2.359   184/226      14               7.622
+   1 baseline         3.275                0.636              2.899   141/226       1              11.067
+   1 robot            2.852                0.506              2.687   161/226       2              10.449
+   1 visual           1.987                0.653              2.780   160/226       1               8.126
+   2 baseline         2.690                0.637              3.394   122/226       4              12.473  Q gate FAIL
+   2 robot            2.332                0.435              2.819   140/226       4              10.887  Q gate FAIL
+   2 visual           1.841                0.606              3.038   129/226       4               9.394  Q gate FAIL
+saved /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/reports/width_comparison.json and /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/reports/width_comparison.csv

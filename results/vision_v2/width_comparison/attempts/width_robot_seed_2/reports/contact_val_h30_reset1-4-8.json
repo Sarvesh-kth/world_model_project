@@ -1,0 +1,2772 @@
+{
+  "anchor_count": 2208,
+  "anchor_counts": {
+    "transition": 61,
+    "held": 293,
+    "unheld": 1854
+  },
+  "robot_errors": {
+    "all": {
+      "from_start": {
+        "n": 2880,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.28764525268459473,
+            "unit": "degrees",
+            "normalized_mae": 0.0382101945579052
+          },
+          "joint_pos_2": {
+            "mae": 0.40852895550366874,
+            "unit": "degrees",
+            "normalized_mae": 0.05217166617512703
+          },
+          "joint_pos_3": {
+            "mae": 0.22026460942919912,
+            "unit": "degrees",
+            "normalized_mae": 0.030847612768411636
+          },
+          "joint_pos_4": {
+            "mae": 0.24803236997391573,
+            "unit": "degrees",
+            "normalized_mae": 0.03337022289633751
+          },
+          "joint_pos_5": {
+            "mae": 0.25612208871556114,
+            "unit": "degrees",
+            "normalized_mae": 0.03996984660625458
+          },
+          "joint_pos_6": {
+            "mae": 0.35076884713764767,
+            "unit": "degrees",
+            "normalized_mae": 0.05527658015489578
+          },
+          "joint_pos_7": {
+            "mae": 1.2278504072102043,
+            "unit": "degrees",
+            "normalized_mae": 0.03134971112012863
+          },
+          "joint_vel_1": {
+            "mae": 0.18922049251699202,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08284986019134521
+          },
+          "joint_vel_2": {
+            "mae": 0.6274269934903364,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07646939158439636
+          },
+          "joint_vel_3": {
+            "mae": 0.20259752472816778,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08599451929330826
+          },
+          "joint_vel_4": {
+            "mae": 0.26467762102251613,
+            "unit": "degrees/s",
+            "normalized_mae": 0.11214453727006912
+          },
+          "joint_vel_5": {
+            "mae": 0.23907414999062088,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08178524672985077
+          },
+          "joint_vel_6": {
+            "mae": 0.63961797402431,
+            "unit": "degrees/s",
+            "normalized_mae": 0.0827496349811554
+          },
+          "joint_vel_7": {
+            "mae": 0.21447817188194218,
+            "unit": "degrees/s",
+            "normalized_mae": 0.0845077857375145
+          },
+          "ee_x": {
+            "mae": 0.12831240892410278,
+            "unit": "cm",
+            "normalized_mae": 0.0429166778922081
+          },
+          "ee_y": {
+            "mae": 0.09444252355024219,
+            "unit": "cm",
+            "normalized_mae": 0.030585777014493942
+          },
+          "ee_z": {
+            "mae": 0.296616624109447,
+            "unit": "cm",
+            "normalized_mae": 0.054082076996564865
+          },
+          "ee_yaw": {
+            "mae": 1.7383080099256922,
+            "unit": "degrees",
+            "normalized_mae": 0.040337126702070236
+          },
+          "gripper_width": {
+            "mae": 0.8398613892495632,
+            "unit": "cm",
+            "normalized_mae": 0.24318484961986542
+          },
+          "gripper_cmd": {
+            "mae": 0.03990277647972107,
+            "unit": "command",
+            "normalized_mae": 0.03996849060058594
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      },
+      "reset_one_step": {
+        "n": 2208,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.07378133759059752,
+            "unit": "degrees",
+            "normalized_mae": 0.009800959378480911
+          },
+          "joint_pos_2": {
+            "mae": 0.058117405966870754,
+            "unit": "degrees",
+            "normalized_mae": 0.007421951275318861
+          },
+          "joint_pos_3": {
+            "mae": 0.06272132699342958,
+            "unit": "degrees",
+            "normalized_mae": 0.008783996105194092
+          },
+          "joint_pos_4": {
+            "mae": 0.05291186800439545,
+            "unit": "degrees",
+            "normalized_mae": 0.007118751760572195
+          },
+          "joint_pos_5": {
+            "mae": 0.05082977421534565,
+            "unit": "degrees",
+            "normalized_mae": 0.007932381704449654
+          },
+          "joint_pos_6": {
+            "mae": 0.06656624991857736,
+            "unit": "degrees",
+            "normalized_mae": 0.010489970445632935
+          },
+          "joint_pos_7": {
+            "mae": 0.2995186561025892,
+            "unit": "degrees",
+            "normalized_mae": 0.007647368125617504
+          },
+          "joint_vel_1": {
+            "mae": 0.09565412461327744,
+            "unit": "degrees/s",
+            "normalized_mae": 0.041881997138261795
+          },
+          "joint_vel_2": {
+            "mae": 0.28521949499260885,
+            "unit": "degrees/s",
+            "normalized_mae": 0.03476191312074661
+          },
+          "joint_vel_3": {
+            "mae": 0.10041718771347623,
+            "unit": "degrees/s",
+            "normalized_mae": 0.042623065412044525
+          },
+          "joint_vel_4": {
+            "mae": 0.12551509134465832,
+            "unit": "degrees/s",
+            "normalized_mae": 0.053181055933237076
+          },
+          "joint_vel_5": {
+            "mae": 0.11740600261341358,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04016360267996788
+          },
+          "joint_vel_6": {
+            "mae": 0.27062012572426525,
+            "unit": "degrees/s",
+            "normalized_mae": 0.03501107543706894
+          },
+          "joint_vel_7": {
+            "mae": 0.14985077521293608,
+            "unit": "degrees/s",
+            "normalized_mae": 0.05904356762766838
+          },
+          "ee_x": {
+            "mae": 0.022854558483231813,
+            "unit": "cm",
+            "normalized_mae": 0.007644168566912413
+          },
+          "ee_y": {
+            "mae": 0.023917935322970152,
+            "unit": "cm",
+            "normalized_mae": 0.007745965849608183
+          },
+          "ee_z": {
+            "mae": 0.04833507991861552,
+            "unit": "cm",
+            "normalized_mae": 0.008812930434942245
+          },
+          "ee_yaw": {
+            "mae": 0.44645670248005864,
+            "unit": "degrees",
+            "normalized_mae": 0.010359948500990868
+          },
+          "gripper_width": {
+            "mae": 0.17659683944657445,
+            "unit": "cm",
+            "normalized_mae": 0.05113423988223076
+          },
+          "gripper_cmd": {
+            "mae": 0.02776331827044487,
+            "unit": "command",
+            "normalized_mae": 0.027809038758277893
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      },
+      "from_start_same_targets": {
+        "n": 2208,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.2354207191561781,
+            "unit": "degrees",
+            "normalized_mae": 0.03127279877662659
+          },
+          "joint_pos_2": {
+            "mae": 0.35686244309435683,
+            "unit": "degrees",
+            "normalized_mae": 0.045573532581329346
+          },
+          "joint_pos_3": {
+            "mae": 0.1548381206479412,
+            "unit": "degrees",
+            "normalized_mae": 0.021684767678380013
+          },
+          "joint_pos_4": {
+            "mae": 0.21148542844756588,
+            "unit": "degrees",
+            "normalized_mae": 0.028453204780817032
+          },
+          "joint_pos_5": {
+            "mae": 0.22071904379262977,
+            "unit": "degrees",
+            "normalized_mae": 0.03444492816925049
+          },
+          "joint_pos_6": {
+            "mae": 0.2690644167386626,
+            "unit": "degrees",
+            "normalized_mae": 0.0424010306596756
+          },
+          "joint_pos_7": {
+            "mae": 0.8935687295944682,
+            "unit": "degrees",
+            "normalized_mae": 0.02281476929783821
+          },
+          "joint_vel_1": {
+            "mae": 0.15621487067316156,
+            "unit": "degrees/s",
+            "normalized_mae": 0.06839840859174728
+          },
+          "joint_vel_2": {
+            "mae": 0.39919435474450915,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04865290969610214
+          },
+          "joint_vel_3": {
+            "mae": 0.1672903425774546,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07100803405046463
+          },
+          "joint_vel_4": {
+            "mae": 0.19481797928416295,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08254485577344894
+          },
+          "joint_vel_5": {
+            "mae": 0.18926224738437902,
+            "unit": "degrees/s",
+            "normalized_mae": 0.06474501639604568
+          },
+          "joint_vel_6": {
+            "mae": 0.3618111552718691,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04680878669023514
+          },
+          "joint_vel_7": {
+            "mae": 0.18254514320185494,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07192566245794296
+          },
+          "ee_x": {
+            "mae": 0.0935074407607317,
+            "unit": "cm",
+            "normalized_mae": 0.03127545118331909
+          },
+          "ee_y": {
+            "mae": 0.07621242548339069,
+            "unit": "cm",
+            "normalized_mae": 0.024681847542524338
+          },
+          "ee_z": {
+            "mae": 0.24733699392527342,
+            "unit": "cm",
+            "normalized_mae": 0.045096930116415024
+          },
+          "ee_yaw": {
+            "mae": 1.0664701125957279,
+            "unit": "degrees",
+            "normalized_mae": 0.024747246876358986
+          },
+          "gripper_width": {
+            "mae": 0.8774601854383945,
+            "unit": "cm",
+            "normalized_mae": 0.2540717124938965
+          },
+          "gripper_cmd": {
+            "mae": 0.03394124656915665,
+            "unit": "command",
+            "normalized_mae": 0.03399714455008507
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      }
+    },
+    "transition": {
+      "from_start": {
+        "n": 68,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.3189181542535708,
+            "unit": "degrees",
+            "normalized_mae": 0.04236442968249321
+          },
+          "joint_pos_2": {
+            "mae": 0.40800657943429497,
+            "unit": "degrees",
+            "normalized_mae": 0.052104949951171875
+          },
+          "joint_pos_3": {
+            "mae": 0.16116312928342424,
+            "unit": "degrees",
+            "normalized_mae": 0.022570574656128883
+          },
+          "joint_pos_4": {
+            "mae": 0.3102621434606226,
+            "unit": "degrees",
+            "normalized_mae": 0.04174260422587395
+          },
+          "joint_pos_5": {
+            "mae": 0.14031629803906107,
+            "unit": "degrees",
+            "normalized_mae": 0.0218974482268095
+          },
+          "joint_pos_6": {
+            "mae": 0.27801481935700895,
+            "unit": "degrees",
+            "normalized_mae": 0.04381149634718895
+          },
+          "joint_pos_7": {
+            "mae": 0.7326599848369874,
+            "unit": "degrees",
+            "normalized_mae": 0.018706414848566055
+          },
+          "joint_vel_1": {
+            "mae": 0.16039427943454823,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07022834569215775
+          },
+          "joint_vel_2": {
+            "mae": 0.3669375857699339,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04472152143716812
+          },
+          "joint_vel_3": {
+            "mae": 0.16741393965296272,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07106048613786697
+          },
+          "joint_vel_4": {
+            "mae": 0.19924973151886985,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08442258834838867
+          },
+          "joint_vel_5": {
+            "mae": 0.1580853686701798,
+            "unit": "degrees/s",
+            "normalized_mae": 0.05407967045903206
+          },
+          "joint_vel_6": {
+            "mae": 0.5552087353531471,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07182931154966354
+          },
+          "joint_vel_7": {
+            "mae": 0.14123881380404915,
+            "unit": "degrees/s",
+            "normalized_mae": 0.05565032735466957
+          },
+          "ee_x": {
+            "mae": 0.09343865094706416,
+            "unit": "cm",
+            "normalized_mae": 0.03125244006514549
+          },
+          "ee_y": {
+            "mae": 0.07652123458683491,
+            "unit": "cm",
+            "normalized_mae": 0.024781858548521996
+          },
+          "ee_z": {
+            "mae": 0.26390859857201576,
+            "unit": "cm",
+            "normalized_mae": 0.04811842739582062
+          },
+          "ee_yaw": {
+            "mae": 0.8361147791219077,
+            "unit": "degrees",
+            "normalized_mae": 0.01940189301967621
+          },
+          "gripper_width": {
+            "mae": 1.1948409490287304,
+            "unit": "cm",
+            "normalized_mae": 0.34597042202949524
+          },
+          "gripper_cmd": {
+            "mae": 0.04476786404848099,
+            "unit": "command",
+            "normalized_mae": 0.04484159126877785
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      },
+      "reset_one_step": {
+        "n": 61,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.07499787832512009,
+            "unit": "degrees",
+            "normalized_mae": 0.009962564334273338
+          },
+          "joint_pos_2": {
+            "mae": 0.11289132761331448,
+            "unit": "degrees",
+            "normalized_mae": 0.014416917227208614
+          },
+          "joint_pos_3": {
+            "mae": 0.0741078793298623,
+            "unit": "degrees",
+            "normalized_mae": 0.010378661565482616
+          },
+          "joint_pos_4": {
+            "mae": 0.06744677736244703,
+            "unit": "degrees",
+            "normalized_mae": 0.009074275381863117
+          },
+          "joint_pos_5": {
+            "mae": 0.07411936525344703,
+            "unit": "degrees",
+            "normalized_mae": 0.011566903442144394
+          },
+          "joint_pos_6": {
+            "mae": 0.06928163030973428,
+            "unit": "degrees",
+            "normalized_mae": 0.010917877778410912
+          },
+          "joint_pos_7": {
+            "mae": 0.35300610761679707,
+            "unit": "degrees",
+            "normalized_mae": 0.009013019502162933
+          },
+          "joint_vel_1": {
+            "mae": 0.1901477040370345,
+            "unit": "degrees/s",
+            "normalized_mae": 0.083255834877491
+          },
+          "joint_vel_2": {
+            "mae": 0.40858471759493953,
+            "unit": "degrees/s",
+            "normalized_mae": 0.049797385931015015
+          },
+          "joint_vel_3": {
+            "mae": 0.09860771452184515,
+            "unit": "degrees/s",
+            "normalized_mae": 0.041855018585920334
+          },
+          "joint_vel_4": {
+            "mae": 0.2568552668342797,
+            "unit": "degrees/s",
+            "normalized_mae": 0.10883016884326935
+          },
+          "joint_vel_5": {
+            "mae": 0.13863026851048607,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04742424562573433
+          },
+          "joint_vel_6": {
+            "mae": 0.4521630587273398,
+            "unit": "degrees/s",
+            "normalized_mae": 0.05849792808294296
+          },
+          "joint_vel_7": {
+            "mae": 0.11420749973029065,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04499955102801323
+          },
+          "ee_x": {
+            "mae": 0.027998670702800155,
+            "unit": "cm",
+            "normalized_mae": 0.009364720433950424
+          },
+          "ee_y": {
+            "mae": 0.040708555025048554,
+            "unit": "cm",
+            "normalized_mae": 0.013183710165321827
+          },
+          "ee_z": {
+            "mae": 0.07538297213613987,
+            "unit": "cm",
+            "normalized_mae": 0.013744569383561611
+          },
+          "ee_yaw": {
+            "mae": 0.3395213131632085,
+            "unit": "degrees",
+            "normalized_mae": 0.007878530770540237
+          },
+          "gripper_width": {
+            "mae": 0.43475045822560787,
+            "unit": "cm",
+            "normalized_mae": 0.1258835345506668
+          },
+          "gripper_cmd": {
+            "mae": 0.0470237210392952,
+            "unit": "command",
+            "normalized_mae": 0.04710116237401962
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      },
+      "from_start_same_targets": {
+        "n": 61,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.31169819073361776,
+            "unit": "degrees",
+            "normalized_mae": 0.041405342519283295
+          },
+          "joint_pos_2": {
+            "mae": 0.4343396534077651,
+            "unit": "degrees",
+            "normalized_mae": 0.05546784773468971
+          },
+          "joint_pos_3": {
+            "mae": 0.13034818389416958,
+            "unit": "degrees",
+            "normalized_mae": 0.018254999071359634
+          },
+          "joint_pos_4": {
+            "mae": 0.3125878495534384,
+            "unit": "degrees",
+            "normalized_mae": 0.04205550625920296
+          },
+          "joint_pos_5": {
+            "mae": 0.11417972540636102,
+            "unit": "degrees",
+            "normalized_mae": 0.017818633466959
+          },
+          "joint_pos_6": {
+            "mae": 0.27479262425520257,
+            "unit": "degrees",
+            "normalized_mae": 0.0433037206530571
+          },
+          "joint_pos_7": {
+            "mae": 0.7341772473280822,
+            "unit": "degrees",
+            "normalized_mae": 0.01874515600502491
+          },
+          "joint_vel_1": {
+            "mae": 0.16982643717300527,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07435819506645203
+          },
+          "joint_vel_2": {
+            "mae": 0.3510108652859335,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04278041049838066
+          },
+          "joint_vel_3": {
+            "mae": 0.14944611318503928,
+            "unit": "degrees/s",
+            "normalized_mae": 0.06343387067317963
+          },
+          "joint_vel_4": {
+            "mae": 0.20960882063289166,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08881177753210068
+          },
+          "joint_vel_5": {
+            "mae": 0.13788659164396125,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04716983437538147
+          },
+          "joint_vel_6": {
+            "mae": 0.5380377465014408,
+            "unit": "degrees/s",
+            "normalized_mae": 0.06960785388946533
+          },
+          "joint_vel_7": {
+            "mae": 0.1141091289979866,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04496080055832863
+          },
+          "ee_x": {
+            "mae": 0.09461755980737507,
+            "unit": "cm",
+            "normalized_mae": 0.03164675459265709
+          },
+          "ee_y": {
+            "mae": 0.07083848468028009,
+            "unit": "cm",
+            "normalized_mae": 0.02294146828353405
+          },
+          "ee_z": {
+            "mae": 0.24798023514449596,
+            "unit": "cm",
+            "normalized_mae": 0.0452142059803009
+          },
+          "ee_yaw": {
+            "mae": 0.7099077175771756,
+            "unit": "degrees",
+            "normalized_mae": 0.016473280265927315
+          },
+          "gripper_width": {
+            "mae": 1.2854130938649178,
+            "unit": "cm",
+            "normalized_mae": 0.37219589948654175
+          },
+          "gripper_cmd": {
+            "mae": 0.03716665133833885,
+            "unit": "command",
+            "normalized_mae": 0.03722785785794258
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      }
+    },
+    "held": {
+      "from_start": {
+        "n": 391,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.31424494415953336,
+            "unit": "degrees",
+            "normalized_mae": 0.041743647307157516
+          },
+          "joint_pos_2": {
+            "mae": 0.39810149779688064,
+            "unit": "degrees",
+            "normalized_mae": 0.05084001645445824
+          },
+          "joint_pos_3": {
+            "mae": 0.2888909617953287,
+            "unit": "degrees",
+            "normalized_mae": 0.040458597242832184
+          },
+          "joint_pos_4": {
+            "mae": 0.2424593891784349,
+            "unit": "degrees",
+            "normalized_mae": 0.03262043744325638
+          },
+          "joint_pos_5": {
+            "mae": 0.24259703349846654,
+            "unit": "degrees",
+            "normalized_mae": 0.037859153002500534
+          },
+          "joint_pos_6": {
+            "mae": 0.43320493487104383,
+            "unit": "degrees",
+            "normalized_mae": 0.06826743483543396
+          },
+          "joint_pos_7": {
+            "mae": 0.8773744577940737,
+            "unit": "degrees",
+            "normalized_mae": 0.022401291877031326
+          },
+          "joint_vel_1": {
+            "mae": 0.19136575888575783,
+            "unit": "degrees/s",
+            "normalized_mae": 0.0837891697883606
+          },
+          "joint_vel_2": {
+            "mae": 0.7580221314116843,
+            "unit": "degrees/s",
+            "normalized_mae": 0.09238602966070175
+          },
+          "joint_vel_3": {
+            "mae": 0.19594594767299353,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08317118883132935
+          },
+          "joint_vel_4": {
+            "mae": 0.3338857134068604,
+            "unit": "degrees/s",
+            "normalized_mae": 0.14146818220615387
+          },
+          "joint_vel_5": {
+            "mae": 0.22549250558903564,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07713908702135086
+          },
+          "joint_vel_6": {
+            "mae": 0.7772118146890995,
+            "unit": "degrees/s",
+            "normalized_mae": 0.10055062919855118
+          },
+          "joint_vel_7": {
+            "mae": 0.16644822827755962,
+            "unit": "degrees/s",
+            "normalized_mae": 0.0655832290649414
+          },
+          "ee_x": {
+            "mae": 0.13451724080368876,
+            "unit": "cm",
+            "normalized_mae": 0.044992007315158844
+          },
+          "ee_y": {
+            "mae": 0.1199921709485352,
+            "unit": "cm",
+            "normalized_mae": 0.03886018320918083
+          },
+          "ee_z": {
+            "mae": 0.3591157030314207,
+            "unit": "cm",
+            "normalized_mae": 0.06547753512859344
+          },
+          "ee_yaw": {
+            "mae": 2.24424861644398,
+            "unit": "degrees",
+            "normalized_mae": 0.052077390253543854
+          },
+          "gripper_width": {
+            "mae": 2.557994984090328,
+            "unit": "cm",
+            "normalized_mae": 0.7406765222549438
+          },
+          "gripper_cmd": {
+            "mae": 0.0346345379948616,
+            "unit": "command",
+            "normalized_mae": 0.034691572189331055
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      },
+      "reset_one_step": {
+        "n": 293,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.08782966934145842,
+            "unit": "degrees",
+            "normalized_mae": 0.01166711188852787
+          },
+          "joint_pos_2": {
+            "mae": 0.05552739356452729,
+            "unit": "degrees",
+            "normalized_mae": 0.007091190200299025
+          },
+          "joint_pos_3": {
+            "mae": 0.07687257848930347,
+            "unit": "degrees",
+            "normalized_mae": 0.01076585054397583
+          },
+          "joint_pos_4": {
+            "mae": 0.063568290460831,
+            "unit": "degrees",
+            "normalized_mae": 0.00855246465653181
+          },
+          "joint_pos_5": {
+            "mae": 0.04631516591631268,
+            "unit": "degrees",
+            "normalized_mae": 0.0072278412990272045
+          },
+          "joint_pos_6": {
+            "mae": 0.06610746664563613,
+            "unit": "degrees",
+            "normalized_mae": 0.01041767094284296
+          },
+          "joint_pos_7": {
+            "mae": 0.251802767797895,
+            "unit": "degrees",
+            "normalized_mae": 0.006429076660424471
+          },
+          "joint_vel_1": {
+            "mae": 0.06468241170833644,
+            "unit": "degrees/s",
+            "normalized_mae": 0.02832108363509178
+          },
+          "joint_vel_2": {
+            "mae": 0.2536680764519696,
+            "unit": "degrees/s",
+            "normalized_mae": 0.030916493386030197
+          },
+          "joint_vel_3": {
+            "mae": 0.07780505272346228,
+            "unit": "degrees/s",
+            "normalized_mae": 0.033025115728378296
+          },
+          "joint_vel_4": {
+            "mae": 0.11788154119416248,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04994669556617737
+          },
+          "joint_vel_5": {
+            "mae": 0.0934247281898228,
+            "unit": "degrees/s",
+            "normalized_mae": 0.031959813088178635
+          },
+          "joint_vel_6": {
+            "mae": 0.2844597965300036,
+            "unit": "degrees/s",
+            "normalized_mae": 0.036801569163799286
+          },
+          "joint_vel_7": {
+            "mae": 0.08120642689916913,
+            "unit": "degrees/s",
+            "normalized_mae": 0.03199661150574684
+          },
+          "ee_x": {
+            "mae": 0.02117862895829603,
+            "unit": "cm",
+            "normalized_mae": 0.00708362041041255
+          },
+          "ee_y": {
+            "mae": 0.028459742316044867,
+            "unit": "cm",
+            "normalized_mae": 0.009216858074069023
+          },
+          "ee_z": {
+            "mae": 0.04710068751592189,
+            "unit": "cm",
+            "normalized_mae": 0.008587864227592945
+          },
+          "ee_yaw": {
+            "mae": 0.5602710261060372,
+            "unit": "degrees",
+            "normalized_mae": 0.013000989332795143
+          },
+          "gripper_width": {
+            "mae": 0.16001303447410464,
+            "unit": "cm",
+            "normalized_mae": 0.04633234441280365
+          },
+          "gripper_cmd": {
+            "mae": 0.031059255823493004,
+            "unit": "command",
+            "normalized_mae": 0.031110405921936035
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      },
+      "from_start_same_targets": {
+        "n": 293,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.2668026102671835,
+            "unit": "degrees",
+            "normalized_mae": 0.035441502928733826
+          },
+          "joint_pos_2": {
+            "mae": 0.3785535497531571,
+            "unit": "degrees",
+            "normalized_mae": 0.04834362119436264
+          },
+          "joint_pos_3": {
+            "mae": 0.20899414362823018,
+            "unit": "degrees",
+            "normalized_mae": 0.02926921285688877
+          },
+          "joint_pos_4": {
+            "mae": 0.23550446901479008,
+            "unit": "degrees",
+            "normalized_mae": 0.03168472647666931
+          },
+          "joint_pos_5": {
+            "mae": 0.21328107450819167,
+            "unit": "degrees",
+            "normalized_mae": 0.03328416496515274
+          },
+          "joint_pos_6": {
+            "mae": 0.3509809832083147,
+            "unit": "degrees",
+            "normalized_mae": 0.05531001091003418
+          },
+          "joint_pos_7": {
+            "mae": 0.6110409427846527,
+            "unit": "degrees",
+            "normalized_mae": 0.015601216815412045
+          },
+          "joint_vel_1": {
+            "mae": 0.1406610358291616,
+            "unit": "degrees/s",
+            "normalized_mae": 0.06158819794654846
+          },
+          "joint_vel_2": {
+            "mae": 0.4348878828103644,
+            "unit": "degrees/s",
+            "normalized_mae": 0.05300315469503403
+          },
+          "joint_vel_3": {
+            "mae": 0.11831369740151125,
+            "unit": "degrees/s",
+            "normalized_mae": 0.050219420343637466
+          },
+          "joint_vel_4": {
+            "mae": 0.2608973514407521,
+            "unit": "degrees/s",
+            "normalized_mae": 0.11054284125566483
+          },
+          "joint_vel_5": {
+            "mae": 0.13228798429887967,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04525460675358772
+          },
+          "joint_vel_6": {
+            "mae": 0.41086837533567744,
+            "unit": "degrees/s",
+            "normalized_mae": 0.05315549299120903
+          },
+          "joint_vel_7": {
+            "mae": 0.11375539990417399,
+            "unit": "degrees/s",
+            "normalized_mae": 0.044821418821811676
+          },
+          "ee_x": {
+            "mae": 0.07916236063465476,
+            "unit": "cm",
+            "normalized_mae": 0.026477450504899025
+          },
+          "ee_y": {
+            "mae": 0.09489175281487405,
+            "unit": "cm",
+            "normalized_mae": 0.030731258913874626
+          },
+          "ee_z": {
+            "mae": 0.3214178839698434,
+            "unit": "cm",
+            "normalized_mae": 0.05860408768057823
+          },
+          "ee_yaw": {
+            "mae": 1.4585909526810428,
+            "unit": "degrees",
+            "normalized_mae": 0.03384633734822273
+          },
+          "gripper_width": {
+            "mae": 2.3318687453866005,
+            "unit": "cm",
+            "normalized_mae": 0.675200879573822
+          },
+          "gripper_cmd": {
+            "mae": 0.03277627006173134,
+            "unit": "command",
+            "normalized_mae": 0.03283024951815605
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      }
+    },
+    "unheld": {
+      "from_start": {
+        "n": 2421,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.2824709308210605,
+            "unit": "degrees",
+            "normalized_mae": 0.037522852420806885
+          },
+          "joint_pos_2": {
+            "mae": 0.4102277249358714,
+            "unit": "degrees",
+            "normalized_mae": 0.05238860845565796
+          },
+          "joint_pos_3": {
+            "mae": 0.21084121621082938,
+            "unit": "degrees",
+            "normalized_mae": 0.02952788956463337
+          },
+          "joint_pos_4": {
+            "mae": 0.2471845727431879,
+            "unit": "degrees",
+            "normalized_mae": 0.0332561619579792
+          },
+          "joint_pos_5": {
+            "mae": 0.2615591594187293,
+            "unit": "degrees",
+            "normalized_mae": 0.040818337351083755
+          },
+          "joint_pos_6": {
+            "mae": 0.33949860812030347,
+            "unit": "degrees",
+            "normalized_mae": 0.05350053682923317
+          },
+          "joint_pos_7": {
+            "mae": 1.2983621852719482,
+            "unit": "degrees",
+            "normalized_mae": 0.03315003588795662
+          },
+          "joint_vel_1": {
+            "mae": 0.18968366472008352,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08305266499519348
+          },
+          "joint_vel_2": {
+            "mae": 0.6136518893165959,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07479051500558853
+          },
+          "joint_vel_3": {
+            "mae": 0.20466002841410008,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08686995506286621
+          },
+          "joint_vel_4": {
+            "mae": 0.255337950982332,
+            "unit": "degrees/s",
+            "normalized_mae": 0.10818731039762497
+          },
+          "joint_vel_5": {
+            "mae": 0.24354240104870506,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08331380039453506
+          },
+          "joint_vel_6": {
+            "mae": 0.6197669896970199,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08018144220113754
+          },
+          "joint_vel_7": {
+            "mae": 0.22429228660539102,
+            "unit": "degrees/s",
+            "normalized_mae": 0.08837469667196274
+          },
+          "ee_x": {
+            "mae": 0.12828982435166836,
+            "unit": "cm",
+            "normalized_mae": 0.04290911927819252
+          },
+          "ee_y": {
+            "mae": 0.09081953321583569,
+            "unit": "cm",
+            "normalized_mae": 0.029412446543574333
+          },
+          "ee_z": {
+            "mae": 0.28744146693497896,
+            "unit": "cm",
+            "normalized_mae": 0.05240917205810547
+          },
+          "ee_yaw": {
+            "mae": 1.6819373914885192,
+            "unit": "degrees",
+            "normalized_mae": 0.03902905061841011
+          },
+          "gripper_width": {
+            "mae": 0.5524063482880592,
+            "unit": "cm",
+            "normalized_mae": 0.15995121002197266
+          },
+          "gripper_cmd": {
+            "mae": 0.0406169667840004,
+            "unit": "command",
+            "normalized_mae": 0.04068385437130928
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      },
+      "reset_one_step": {
+        "n": 1854,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.07152115862513153,
+            "unit": "degrees",
+            "normalized_mae": 0.009500721469521523
+          },
+          "joint_pos_2": {
+            "mae": 0.05672456097439722,
+            "unit": "degrees",
+            "normalized_mae": 0.007244075182825327
+          },
+          "joint_pos_3": {
+            "mae": 0.06011028040988726,
+            "unit": "degrees",
+            "normalized_mae": 0.008418322540819645
+          },
+          "joint_pos_4": {
+            "mae": 0.05074953616786453,
+            "unit": "degrees",
+            "normalized_mae": 0.006827831733971834
+          },
+          "joint_pos_5": {
+            "mae": 0.05077697365141028,
+            "unit": "degrees",
+            "normalized_mae": 0.007924141362309456
+          },
+          "joint_pos_6": {
+            "mae": 0.06654941456949033,
+            "unit": "degrees",
+            "normalized_mae": 0.010487317107617855
+          },
+          "joint_pos_7": {
+            "mae": 0.30529969086349096,
+            "unit": "degrees",
+            "normalized_mae": 0.0077949706465005875
+          },
+          "joint_vel_1": {
+            "mae": 0.0974397721840928,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04266383871436119
+          },
+          "joint_vel_2": {
+            "mae": 0.2861468799354232,
+            "unit": "degrees/s",
+            "normalized_mae": 0.03487493470311165
+          },
+          "joint_vel_3": {
+            "mae": 0.10405027472275444,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04416516423225403
+          },
+          "joint_vel_4": {
+            "mae": 0.12240013821694905,
+            "unit": "degrees/s",
+            "normalized_mae": 0.0518612414598465
+          },
+          "joint_vel_5": {
+            "mae": 0.12049761036798315,
+            "unit": "degrees/s",
+            "normalized_mae": 0.041221216320991516
+          },
+          "joint_vel_6": {
+            "mae": 0.2624598639350983,
+            "unit": "degrees/s",
+            "normalized_mae": 0.03395535424351692
+          },
+          "joint_vel_7": {
+            "mae": 0.1618718281108792,
+            "unit": "degrees/s",
+            "normalized_mae": 0.0637800544500351
+          },
+          "ee_x": {
+            "mae": 0.02295016747666523,
+            "unit": "cm",
+            "normalized_mae": 0.007676147390156984
+          },
+          "ee_y": {
+            "mae": 0.022647720470558852,
+            "unit": "cm",
+            "normalized_mae": 0.007334599271416664
+          },
+          "ee_z": {
+            "mae": 0.04764023469761014,
+            "unit": "cm",
+            "normalized_mae": 0.008686238899827003
+          },
+          "ee_yaw": {
+            "mae": 0.4319882007034295,
+            "unit": "degrees",
+            "normalized_mae": 0.010024209506809711
+          },
+          "gripper_width": {
+            "mae": 0.1707239542156458,
+            "unit": "cm",
+            "normalized_mae": 0.04943372681736946
+          },
+          "gripper_cmd": {
+            "mae": 0.02660873718559742,
+            "unit": "command",
+            "normalized_mae": 0.026652555912733078
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      },
+      "from_start_same_targets": {
+        "n": 1854,
+        "coordinates": {
+          "joint_pos_1": {
+            "mae": 0.22795153377279892,
+            "unit": "degrees",
+            "normalized_mae": 0.03028061054646969
+          },
+          "joint_pos_2": {
+            "mae": 0.3508852805186552,
+            "unit": "degrees",
+            "normalized_mae": 0.0448102131485939
+          },
+          "joint_pos_3": {
+            "mae": 0.1470852422901685,
+            "unit": "degrees",
+            "normalized_mae": 0.020598992705345154
+          },
+          "joint_pos_4": {
+            "mae": 0.2043630752677632,
+            "unit": "degrees",
+            "normalized_mae": 0.027494965121150017
+          },
+          "joint_pos_5": {
+            "mae": 0.22539987114841736,
+            "unit": "degrees",
+            "normalized_mae": 0.03517540171742439
+          },
+          "joint_pos_6": {
+            "mae": 0.2559301230472868,
+            "unit": "degrees",
+            "normalized_mae": 0.04033123329281807
+          },
+          "joint_pos_7": {
+            "mae": 0.9434627812337354,
+            "unit": "degrees",
+            "normalized_mae": 0.024088673293590546
+          },
+          "joint_vel_1": {
+            "mae": 0.15822508072326094,
+            "unit": "degrees/s",
+            "normalized_mae": 0.06927857547998428
+          },
+          "joint_vel_2": {
+            "mae": 0.3951388765639612,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04815863072872162
+          },
+          "joint_vel_3": {
+            "mae": 0.17561754379489017,
+            "unit": "degrees/s",
+            "normalized_mae": 0.0745425894856453
+          },
+          "joint_vel_4": {
+            "mae": 0.18388838261145993,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07791396230459213
+          },
+          "joint_vel_5": {
+            "mae": 0.19995664275775293,
+            "unit": "degrees/s",
+            "normalized_mae": 0.06840347498655319
+          },
+          "joint_vel_6": {
+            "mae": 0.3482601399998431,
+            "unit": "degrees/s",
+            "normalized_mae": 0.04505563899874687
+          },
+          "joint_vel_7": {
+            "mae": 0.19566811105220475,
+            "unit": "degrees/s",
+            "normalized_mae": 0.07709632068872452
+          },
+          "ee_x": {
+            "mae": 0.09573796414770186,
+            "unit": "cm",
+            "normalized_mae": 0.03202149644494057
+          },
+          "ee_y": {
+            "mae": 0.07343721808865666,
+            "unit": "cm",
+            "normalized_mae": 0.023783082142472267
+          },
+          "ee_z": {
+            "mae": 0.23560833651572466,
+            "unit": "cm",
+            "normalized_mae": 0.042958442121744156
+          },
+          "ee_yaw": {
+            "mae": 1.0162321502595801,
+            "unit": "degrees",
+            "normalized_mae": 0.023581482470035553
+          },
+          "gripper_width": {
+            "mae": 0.6341879721730947,
+            "unit": "cm",
+            "normalized_mae": 0.18363137543201447
+          },
+          "gripper_cmd": {
+            "mae": 0.034019239246845245,
+            "unit": "command",
+            "normalized_mae": 0.034075260162353516
+          }
+        },
+        "command_sign_mismatch_fraction": 0.0
+      }
+    }
+  },
+  "local_forecasts": [
+    {
+      "horizon": 1,
+      "source_phase": "all",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.07627715170383453,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.723639190196991,
+        0.7458694577217102,
+        0.30063432455062866
+      ],
+      "height_mae_cm": 0.30063435435295105,
+      "grasp_accuracy": 0.9089673913043478,
+      "grasp_precision": 0.7713178294573644,
+      "grasp_recall": 0.5835777126099707,
+      "grasp_f1": 0.6644407345575961,
+      "grasp_brier": 0.06389390677213669,
+      "height_mae_when_held_cm": 0.7912715673446655,
+      "height_mae_when_not_held_cm": 0.21102139353752136,
+      "positive_labels": 341,
+      "negative_labels": 1867,
+      "true_held_detected": 199,
+      "false_held_predictions": 59
+    },
+    {
+      "horizon": 1,
+      "source_phase": "transition",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.08408445119857788,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.6812465786933899,
+        0.5197222828865051,
+        0.4850125014781952
+      ],
+      "height_mae_cm": 0.4850125014781952,
+      "grasp_accuracy": 0.26229508196721313,
+      "grasp_precision": 0.6666666666666666,
+      "grasp_recall": 0.125,
+      "grasp_f1": 0.21052631578947367,
+      "grasp_brier": 0.5653359889984131,
+      "height_mae_when_held_cm": 0.3832545280456543,
+      "height_mae_when_not_held_cm": 0.8607341647148132,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 6,
+      "false_held_predictions": 3
+    },
+    {
+      "horizon": 1,
+      "source_phase": "held",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.09268607199192047,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9415851831436157,
+        0.6225529909133911,
+        0.858113706111908
+      ],
+      "height_mae_cm": 0.8581140041351318,
+      "grasp_accuracy": 0.658703071672355,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.658703071672355,
+      "grasp_f1": 0.7942386831275721,
+      "grasp_brier": 0.24477553367614746,
+      "height_mae_when_held_cm": 0.8581140041351318,
+      "height_mae_when_not_held_cm": null,
+      "positive_labels": 293,
+      "negative_labels": 0,
+      "true_held_detected": 193,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 1,
+      "source_phase": "unheld",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.07342707365751266,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.690589964389801,
+        0.7727983593940735,
+        0.20646539330482483
+      ],
+      "height_mae_cm": 0.2064657211303711,
+      "grasp_accuracy": 0.9697950377562028,
+      "grasp_precision": 0.0,
+      "grasp_recall": 0.0,
+      "grasp_f1": 0.0,
+      "grasp_brier": 0.0188096072524786,
+      "height_mae_when_held_cm": null,
+      "height_mae_when_not_held_cm": 0.2064657211303711,
+      "positive_labels": 0,
+      "negative_labels": 1854,
+      "true_held_detected": 0,
+      "false_held_predictions": 56
+    },
+    {
+      "horizon": 1,
+      "source_phase": "all",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.07627715170383453,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7229568958282471,
+        0.7449901700019836,
+        0.3005114495754242
+      ],
+      "height_mae_cm": 0.30051207542419434,
+      "grasp_accuracy": 0.9112318840579711,
+      "grasp_precision": 0.7865612648221344,
+      "grasp_recall": 0.5835777126099707,
+      "grasp_f1": 0.6700336700336701,
+      "grasp_brier": 0.06407314538955688,
+      "height_mae_when_held_cm": 0.7909054756164551,
+      "height_mae_when_not_held_cm": 0.21094374358654022,
+      "positive_labels": 341,
+      "negative_labels": 1867,
+      "true_held_detected": 199,
+      "false_held_predictions": 54
+    },
+    {
+      "horizon": 1,
+      "source_phase": "transition",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.08408445119857788,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.6783320307731628,
+        0.5181626677513123,
+        0.482912540435791
+      ],
+      "height_mae_cm": 0.482912540435791,
+      "grasp_accuracy": 0.2459016393442623,
+      "grasp_precision": 0.6,
+      "grasp_recall": 0.125,
+      "grasp_f1": 0.20689655172413793,
+      "grasp_brier": 0.5712506771087646,
+      "height_mae_when_held_cm": 0.3825914263725281,
+      "height_mae_when_not_held_cm": 0.8533289432525635,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 6,
+      "false_held_predictions": 4
+    },
+    {
+      "horizon": 1,
+      "source_phase": "held",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.09268607199192047,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9377381801605225,
+        0.6203916668891907,
+        0.8577967286109924
+      ],
+      "height_mae_cm": 0.8577964305877686,
+      "grasp_accuracy": 0.658703071672355,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.658703071672355,
+      "grasp_f1": 0.7942386831275721,
+      "grasp_brier": 0.24581316113471985,
+      "height_mae_when_held_cm": 0.8577964305877686,
+      "height_mae_when_not_held_cm": null,
+      "positive_labels": 293,
+      "negative_labels": 0,
+      "true_held_detected": 193,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 1,
+      "source_phase": "unheld",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.07342707365751266,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6904813647270203,
+        0.7721434235572815,
+        0.20643964409828186
+      ],
+      "height_mae_cm": 0.20643943548202515,
+      "grasp_accuracy": 0.9730312837108953,
+      "grasp_precision": 0.0,
+      "grasp_recall": 0.0,
+      "grasp_f1": 0.0,
+      "grasp_brier": 0.018664494156837463,
+      "height_mae_when_held_cm": null,
+      "height_mae_when_not_held_cm": 0.20643943548202515,
+      "positive_labels": 0,
+      "negative_labels": 1854,
+      "true_held_detected": 0,
+      "false_held_predictions": 50
+    },
+    {
+      "horizon": 1,
+      "source_phase": "all",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.07626672834157944,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7229832410812378,
+        0.7446810603141785,
+        0.3004802465438843
+      ],
+      "height_mae_cm": 0.3004802167415619,
+      "grasp_accuracy": 0.9098731884057971,
+      "grasp_precision": 0.77734375,
+      "grasp_recall": 0.5835777126099707,
+      "grasp_f1": 0.6666666666666667,
+      "grasp_brier": 0.06408550590276718,
+      "height_mae_when_held_cm": 0.7889520525932312,
+      "height_mae_when_not_held_cm": 0.21126282215118408,
+      "positive_labels": 341,
+      "negative_labels": 1867,
+      "true_held_detected": 199,
+      "false_held_predictions": 57
+    },
+    {
+      "horizon": 1,
+      "source_phase": "transition",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.08417243510484695,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.6794306039810181,
+        0.51688551902771,
+        0.4837283492088318
+      ],
+      "height_mae_cm": 0.4837283492088318,
+      "grasp_accuracy": 0.2459016393442623,
+      "grasp_precision": 0.6,
+      "grasp_recall": 0.125,
+      "grasp_f1": 0.20689655172413793,
+      "grasp_brier": 0.5699557065963745,
+      "height_mae_when_held_cm": 0.38215070962905884,
+      "height_mae_when_not_held_cm": 0.8587841987609863,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 6,
+      "false_held_predictions": 4
+    },
+    {
+      "horizon": 1,
+      "source_phase": "held",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.09255798161029816,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9386168718338013,
+        0.620608389377594,
+        0.8555957078933716
+      ],
+      "height_mae_cm": 0.8555952310562134,
+      "grasp_accuracy": 0.658703071672355,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.658703071672355,
+      "grasp_f1": 0.7942386831275721,
+      "grasp_brier": 0.24557922780513763,
+      "height_mae_when_held_cm": 0.8555952310562134,
+      "height_mae_when_not_held_cm": null,
+      "positive_labels": 293,
+      "negative_labels": 0,
+      "true_held_detected": 193,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 1,
+      "source_phase": "unheld",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.07343200594186783,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.690338134765625,
+        0.7717840075492859,
+        0.20672257244586945
+      ],
+      "height_mae_cm": 0.20672248303890228,
+      "grasp_accuracy": 0.9714131607335491,
+      "grasp_precision": 0.0,
+      "grasp_recall": 0.0,
+      "grasp_f1": 0.0,
+      "grasp_brier": 0.018758775666356087,
+      "height_mae_when_held_cm": null,
+      "height_mae_when_not_held_cm": 0.20672248303890228,
+      "positive_labels": 0,
+      "negative_labels": 1854,
+      "true_held_detected": 0,
+      "false_held_predictions": 53
+    },
+    {
+      "horizon": 1,
+      "source_phase": "all",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.0953398272395134,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7258889079093933,
+        0.7638242840766907,
+        0.29833897948265076
+      ],
+      "height_mae_cm": 0.29833903908729553,
+      "grasp_accuracy": 0.9098731884057971,
+      "grasp_precision": 0.7886178861788617,
+      "grasp_recall": 0.5689149560117303,
+      "grasp_f1": 0.6609880749574106,
+      "grasp_brier": 0.0667596086859703,
+      "height_mae_when_held_cm": 0.8201563954353333,
+      "height_mae_when_not_held_cm": 0.20303118228912354,
+      "positive_labels": 341,
+      "negative_labels": 1867,
+      "true_held_detected": 194,
+      "false_held_predictions": 52
+    },
+    {
+      "horizon": 1,
+      "source_phase": "transition",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.1016889289021492,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.6918238997459412,
+        0.5357596278190613,
+        0.6231685876846313
+      ],
+      "height_mae_cm": 0.6231685876846313,
+      "grasp_accuracy": 0.13114754098360656,
+      "grasp_precision": 0.2727272727272727,
+      "grasp_recall": 0.0625,
+      "grasp_f1": 0.10169491525423728,
+      "grasp_brier": 0.6804099678993225,
+      "height_mae_when_held_cm": 0.43962523341178894,
+      "height_mae_when_not_held_cm": 1.3008673191070557,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 3,
+      "false_held_predictions": 8
+    },
+    {
+      "horizon": 1,
+      "source_phase": "held",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.10604853928089142,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.891197681427002,
+        0.6725435853004456,
+        0.8824958205223083
+      ],
+      "height_mae_cm": 0.8824960589408875,
+      "grasp_accuracy": 0.6518771331058021,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.6518771331058021,
+      "grasp_f1": 0.7892561983471074,
+      "grasp_brier": 0.25521108508110046,
+      "height_mae_when_held_cm": 0.8824960589408875,
+      "height_mae_when_not_held_cm": null,
+      "positive_labels": 293,
+      "negative_labels": 0,
+      "true_held_detected": 191,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 1,
+      "source_phase": "unheld",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.09343856573104858,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.7008841633796692,
+        0.7857542634010315,
+        0.195333331823349
+      ],
+      "height_mae_cm": 0.19533328711986542,
+      "grasp_accuracy": 0.9762675296655879,
+      "grasp_precision": 0.0,
+      "grasp_recall": 0.0,
+      "grasp_f1": 0.0,
+      "grasp_brier": 0.016787143424153328,
+      "height_mae_when_held_cm": null,
+      "height_mae_when_not_held_cm": 0.19533328711986542,
+      "positive_labels": 0,
+      "negative_labels": 1854,
+      "true_held_detected": 0,
+      "false_held_predictions": 44
+    },
+    {
+      "horizon": 1,
+      "source_phase": "all",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7246250510215759,
+        0.7660292983055115,
+        0.29656508564949036
+      ],
+      "height_mae_cm": 0.296565443277359,
+      "grasp_accuracy": 0.9193840579710145,
+      "grasp_precision": 0.8122605363984674,
+      "grasp_recall": 0.6217008797653959,
+      "grasp_f1": 0.7043189368770763,
+      "grasp_brier": 0.05785297602415085,
+      "height_mae_when_held_cm": 0.7970856428146362,
+      "height_mae_when_not_held_cm": 0.20514747500419617,
+      "positive_labels": 341,
+      "negative_labels": 1867,
+      "true_held_detected": 212,
+      "false_held_predictions": 49
+    },
+    {
+      "horizon": 1,
+      "source_phase": "transition",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.6049447655677795,
+        0.5347402095794678,
+        0.5615556836128235
+      ],
+      "height_mae_cm": 0.5615556836128235,
+      "grasp_accuracy": 0.2786885245901639,
+      "grasp_precision": 0.6428571428571429,
+      "grasp_recall": 0.1875,
+      "grasp_f1": 0.2903225806451613,
+      "grasp_brier": 0.5808230042457581,
+      "height_mae_when_held_cm": 0.42638033628463745,
+      "height_mae_when_not_held_cm": 1.0606646537780762,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 9,
+      "false_held_predictions": 5
+    },
+    {
+      "horizon": 1,
+      "source_phase": "held",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9071738719940186,
+        0.6741615533828735,
+        0.8578150272369385
+      ],
+      "height_mae_cm": 0.8578155040740967,
+      "grasp_accuracy": 0.6928327645051194,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.6928327645051194,
+      "grasp_f1": 0.8185483870967742,
+      "grasp_brier": 0.2164086550474167,
+      "height_mae_when_held_cm": 0.8578155040740967,
+      "height_mae_when_not_held_cm": null,
+      "positive_labels": 293,
+      "negative_labels": 0,
+      "true_held_detected": 203,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 1,
+      "source_phase": "unheld",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6997127532958984,
+        0.7881590127944946,
+        0.19914859533309937
+      ],
+      "height_mae_cm": 0.19914871454238892,
+      "grasp_accuracy": 0.9762675296655879,
+      "grasp_precision": 0.0,
+      "grasp_recall": 0.0,
+      "grasp_f1": 0.0,
+      "grasp_brier": 0.015588688664138317,
+      "height_mae_when_held_cm": null,
+      "height_mae_when_not_held_cm": 0.19914871454238892,
+      "positive_labels": 0,
+      "negative_labels": 1854,
+      "true_held_detected": 0,
+      "false_held_predictions": 44
+    },
+    {
+      "horizon": 4,
+      "source_phase": "all",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.1069205105304718,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7187192440032959,
+        0.735627293586731,
+        0.4288901686668396
+      ],
+      "height_mae_cm": 0.4288898706436157,
+      "grasp_accuracy": 0.8704710144927537,
+      "grasp_precision": 0.6632996632996633,
+      "grasp_recall": 0.5143603133159269,
+      "grasp_f1": 0.5794117647058824,
+      "grasp_brier": 0.09066297113895416,
+      "height_mae_when_held_cm": 1.1182433366775513,
+      "height_mae_when_not_held_cm": 0.2842201292514801,
+      "positive_labels": 383,
+      "negative_labels": 1825,
+      "true_held_detected": 197,
+      "false_held_predictions": 100
+    },
+    {
+      "horizon": 4,
+      "source_phase": "transition",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.1327650249004364,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.8224474191665649,
+        0.5013218522071838,
+        0.530160665512085
+      ],
+      "height_mae_cm": 0.530160665512085,
+      "grasp_accuracy": 0.5081967213114754,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.375,
+      "grasp_f1": 0.5454545454545454,
+      "grasp_brier": 0.36980631947517395,
+      "height_mae_when_held_cm": 0.2900451421737671,
+      "height_mae_when_not_held_cm": 1.416740894317627,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 18,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 4,
+      "source_phase": "held",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.13890868425369263,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9889848232269287,
+        0.651993453502655,
+        1.5388818979263306
+      ],
+      "height_mae_cm": 1.5388820171356201,
+      "grasp_accuracy": 0.6348122866894198,
+      "grasp_precision": 0.9382022471910112,
+      "grasp_recall": 0.6349809885931559,
+      "grasp_f1": 0.7573696145124716,
+      "grasp_brier": 0.25166845321655273,
+      "height_mae_when_held_cm": 1.5079641342163086,
+      "height_mae_when_not_held_cm": 1.8099288940429688,
+      "positive_labels": 263,
+      "negative_labels": 30,
+      "true_held_detected": 167,
+      "false_held_predictions": 11
+    },
+    {
+      "horizon": 4,
+      "source_phase": "unheld",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.10101485997438431,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6725940108299255,
+        0.7565541863441467,
+        0.2501384913921356
+      ],
+      "height_mae_cm": 0.25013843178749084,
+      "grasp_accuracy": 0.9196332254584682,
+      "grasp_precision": 0.1188118811881188,
+      "grasp_recall": 0.16666666666666666,
+      "grasp_f1": 0.13872832369942195,
+      "grasp_brier": 0.05603386461734772,
+      "height_mae_when_held_cm": 0.24681240320205688,
+      "height_mae_when_not_held_cm": 0.25027281045913696,
+      "positive_labels": 72,
+      "negative_labels": 1782,
+      "true_held_detected": 12,
+      "false_held_predictions": 89
+    },
+    {
+      "horizon": 4,
+      "source_phase": "all",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.1069205105304718,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7176956534385681,
+        0.7353379130363464,
+        0.42986488342285156
+      ],
+      "height_mae_cm": 0.4298645853996277,
+      "grasp_accuracy": 0.8709239130434783,
+      "grasp_precision": 0.6678082191780822,
+      "grasp_recall": 0.5091383812010444,
+      "grasp_f1": 0.5777777777777778,
+      "grasp_brier": 0.09196693450212479,
+      "height_mae_when_held_cm": 1.1235532760620117,
+      "height_mae_when_not_held_cm": 0.28428494930267334,
+      "positive_labels": 383,
+      "negative_labels": 1825,
+      "true_held_detected": 195,
+      "false_held_predictions": 97
+    },
+    {
+      "horizon": 4,
+      "source_phase": "transition",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.1327650249004364,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.8185319900512695,
+        0.49934759736061096,
+        0.5314655900001526
+      ],
+      "height_mae_cm": 0.5314655900001526,
+      "grasp_accuracy": 0.5081967213114754,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.375,
+      "grasp_f1": 0.5454545454545454,
+      "grasp_brier": 0.3805103600025177,
+      "height_mae_when_held_cm": 0.285918265581131,
+      "height_mae_when_not_held_cm": 1.438101887702942,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 18,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 4,
+      "source_phase": "held",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.13890868425369263,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9836243391036987,
+        0.6504501700401306,
+        1.547684907913208
+      ],
+      "height_mae_cm": 1.5476841926574707,
+      "grasp_accuracy": 0.6279863481228669,
+      "grasp_precision": 0.9375,
+      "grasp_recall": 0.6273764258555133,
+      "grasp_f1": 0.7517084282460137,
+      "grasp_brier": 0.25687095522880554,
+      "height_mae_when_held_cm": 1.5171436071395874,
+      "height_mae_when_not_held_cm": 1.8154253959655762,
+      "positive_labels": 263,
+      "negative_labels": 30,
+      "true_held_detected": 165,
+      "false_held_predictions": 11
+    },
+    {
+      "horizon": 4,
+      "source_phase": "unheld",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.10101485997438431,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6723526120185852,
+        0.7565179467201233,
+        0.24986514449119568
+      ],
+      "height_mae_cm": 0.24986515939235687,
+      "grasp_accuracy": 0.9212513484358145,
+      "grasp_precision": 0.12244897959183673,
+      "grasp_recall": 0.16666666666666666,
+      "grasp_f1": 0.1411764705882353,
+      "grasp_brier": 0.05641245096921921,
+      "height_mae_when_held_cm": 0.2442787140607834,
+      "height_mae_when_not_held_cm": 0.25009089708328247,
+      "positive_labels": 72,
+      "negative_labels": 1782,
+      "true_held_detected": 12,
+      "false_held_predictions": 86
+    },
+    {
+      "horizon": 4,
+      "source_phase": "all",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.10687614232301712,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7172623872756958,
+        0.7364572882652283,
+        0.4150503873825073
+      ],
+      "height_mae_cm": 0.41505083441734314,
+      "grasp_accuracy": 0.8768115942028986,
+      "grasp_precision": 0.6868686868686869,
+      "grasp_recall": 0.5326370757180157,
+      "grasp_f1": 0.6,
+      "grasp_brier": 0.0888078510761261,
+      "height_mae_when_held_cm": 1.098078727722168,
+      "height_mae_when_not_held_cm": 0.27170857787132263,
+      "positive_labels": 383,
+      "negative_labels": 1825,
+      "true_held_detected": 204,
+      "false_held_predictions": 93
+    },
+    {
+      "horizon": 4,
+      "source_phase": "transition",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.13312406837940216,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.8079843521118164,
+        0.49506980180740356,
+        0.47073686122894287
+      ],
+      "height_mae_cm": 0.47073686122894287,
+      "grasp_accuracy": 0.5081967213114754,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.375,
+      "grasp_f1": 0.5454545454545454,
+      "grasp_brier": 0.3674042820930481,
+      "height_mae_when_held_cm": 0.2799909710884094,
+      "height_mae_when_not_held_cm": 1.1750295162200928,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 18,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 4,
+      "source_phase": "held",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.13883721828460693,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9901397824287415,
+        0.6559509038925171,
+        1.5044188499450684
+      ],
+      "height_mae_cm": 1.504418969154358,
+      "grasp_accuracy": 0.6518771331058021,
+      "grasp_precision": 0.9447513812154696,
+      "grasp_recall": 0.6501901140684411,
+      "grasp_f1": 0.7702702702702703,
+      "grasp_brier": 0.24379977583885193,
+      "height_mae_when_held_cm": 1.477658987045288,
+      "height_mae_when_not_held_cm": 1.7390154600143433,
+      "positive_labels": 263,
+      "negative_labels": 30,
+      "true_held_detected": 171,
+      "false_held_predictions": 10
+    },
+    {
+      "horizon": 4,
+      "source_phase": "unheld",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.10096151381731033,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6711538434028625,
+        0.7571225762367249,
+        0.24105806648731232
+      ],
+      "height_mae_cm": 0.24105852842330933,
+      "grasp_accuracy": 0.924487594390507,
+      "grasp_precision": 0.15306122448979592,
+      "grasp_recall": 0.20833333333333334,
+      "grasp_f1": 0.17647058823529413,
+      "grasp_brier": 0.05514711141586304,
+      "height_mae_when_held_cm": 0.25694864988327026,
+      "height_mae_when_not_held_cm": 0.2404164969921112,
+      "positive_labels": 72,
+      "negative_labels": 1782,
+      "true_held_detected": 15,
+      "false_held_predictions": 83
+    },
+    {
+      "horizon": 4,
+      "source_phase": "all",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.20941272377967834,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.715143620967865,
+        0.7631970643997192,
+        0.5870850086212158
+      ],
+      "height_mae_cm": 0.5870846509933472,
+      "grasp_accuracy": 0.8700181159420289,
+      "grasp_precision": 0.6967213114754098,
+      "grasp_recall": 0.44386422976501305,
+      "grasp_f1": 0.5422647527910686,
+      "grasp_brier": 0.10090601444244385,
+      "height_mae_when_held_cm": 2.0925986766815186,
+      "height_mae_when_not_held_cm": 0.27113306522369385,
+      "positive_labels": 383,
+      "negative_labels": 1825,
+      "true_held_detected": 170,
+      "false_held_predictions": 74
+    },
+    {
+      "horizon": 4,
+      "source_phase": "transition",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.21806149184703827,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.6834192872047424,
+        0.5467956066131592,
+        1.163562536239624
+      ],
+      "height_mae_cm": 1.163562536239624,
+      "grasp_accuracy": 0.18032786885245902,
+      "grasp_precision": 0.375,
+      "grasp_recall": 0.0625,
+      "grasp_f1": 0.10714285714285714,
+      "grasp_brier": 0.6746270656585693,
+      "height_mae_when_held_cm": 0.4436574876308441,
+      "height_mae_when_not_held_cm": 3.8216731548309326,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 3,
+      "false_held_predictions": 5
+    },
+    {
+      "horizon": 4,
+      "source_phase": "held",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.2347395420074463,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9054372310638428,
+        0.6680021286010742,
+        2.92168927192688
+      ],
+      "height_mae_cm": 2.9216902256011963,
+      "grasp_accuracy": 0.6245733788395904,
+      "grasp_precision": 0.9226519337016574,
+      "grasp_recall": 0.6349809885931559,
+      "grasp_f1": 0.7522522522522522,
+      "grasp_brier": 0.2564639151096344,
+      "height_mae_when_held_cm": 2.8763859272003174,
+      "height_mae_when_not_held_cm": 3.3188581466674805,
+      "positive_labels": 263,
+      "negative_labels": 30,
+      "true_held_detected": 167,
+      "false_held_predictions": 14
+    },
+    {
+      "horizon": 4,
+      "source_phase": "unheld",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.2051256000995636,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6861135363578796,
+        0.7853615283966064,
+        0.19916416704654694
+      ],
+      "height_mae_cm": 0.1991642415523529,
+      "grasp_accuracy": 0.9314994606256742,
+      "grasp_precision": 0.0,
+      "grasp_recall": 0.0,
+      "grasp_f1": 0.0,
+      "grasp_brier": 0.05744567885994911,
+      "height_mae_when_held_cm": 0.32889071106910706,
+      "height_mae_when_not_held_cm": 0.19392277300357819,
+      "positive_labels": 72,
+      "negative_labels": 1782,
+      "true_held_detected": 0,
+      "false_held_predictions": 55
+    },
+    {
+      "horizon": 4,
+      "source_phase": "all",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7067927718162537,
+        0.7857931852340698,
+        0.3311445415019989
+      ],
+      "height_mae_cm": 0.33114463090896606,
+      "grasp_accuracy": 0.9193840579710145,
+      "grasp_precision": 0.8382838283828383,
+      "grasp_recall": 0.6631853785900783,
+      "grasp_f1": 0.7405247813411078,
+      "grasp_brier": 0.05791804939508438,
+      "height_mae_when_held_cm": 0.8066842555999756,
+      "height_mae_when_not_held_cm": 0.23134644329547882,
+      "positive_labels": 383,
+      "negative_labels": 1825,
+      "true_held_detected": 254,
+      "false_held_predictions": 49
+    },
+    {
+      "horizon": 4,
+      "source_phase": "transition",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.8173896670341492,
+        0.5743487477302551,
+        0.5090785026550293
+      ],
+      "height_mae_cm": 0.5090785026550293,
+      "grasp_accuracy": 0.5573770491803278,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.4375,
+      "grasp_f1": 0.6086956521739131,
+      "grasp_brier": 0.3377533555030823,
+      "height_mae_when_held_cm": 0.39780810475349426,
+      "height_mae_when_not_held_cm": 0.9199230074882507,
+      "positive_labels": 48,
+      "negative_labels": 13,
+      "true_held_detected": 21,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 4,
+      "source_phase": "held",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9887301325798035,
+        0.7031413912773132,
+        1.0378074645996094
+      ],
+      "height_mae_cm": 1.0378080606460571,
+      "grasp_accuracy": 0.8395904436860068,
+      "grasp_precision": 0.9778761061946902,
+      "grasp_recall": 0.8403041825095057,
+      "grasp_f1": 0.903885480572597,
+      "grasp_brier": 0.10620801895856857,
+      "height_mae_when_held_cm": 0.9968649744987488,
+      "height_mae_when_not_held_cm": 1.396742820739746,
+      "positive_labels": 263,
+      "negative_labels": 30,
+      "true_held_detected": 221,
+      "false_held_predictions": 5
+    },
+    {
+      "horizon": 4,
+      "source_phase": "unheld",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6585973501205444,
+        0.8058134317398071,
+        0.21361133456230164
+      ],
+      "height_mae_cm": 0.21361152827739716,
+      "grasp_accuracy": 0.9439050701186623,
+      "grasp_precision": 0.21428571428571427,
+      "grasp_recall": 0.16666666666666666,
+      "grasp_f1": 0.1875,
+      "grasp_brier": 0.041079360991716385,
+      "height_mae_when_held_cm": 0.3845803439617157,
+      "height_mae_when_not_held_cm": 0.20670369267463684,
+      "positive_labels": 72,
+      "negative_labels": 1782,
+      "true_held_detected": 12,
+      "false_held_predictions": 44
+    },
+    {
+      "horizon": 8,
+      "source_phase": "all",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.1383560597896576,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7468410134315491,
+        0.7389718890190125,
+        0.6289410591125488
+      ],
+      "height_mae_cm": 0.6289419531822205,
+      "grasp_accuracy": 0.8473731884057971,
+      "grasp_precision": 0.6523076923076923,
+      "grasp_recall": 0.48623853211009177,
+      "grasp_f1": 0.5571616294349541,
+      "grasp_brier": 0.11486144363880157,
+      "height_mae_when_held_cm": 1.681321144104004,
+      "height_mae_when_not_held_cm": 0.370004266500473,
+      "positive_labels": 436,
+      "negative_labels": 1772,
+      "true_held_detected": 212,
+      "false_held_predictions": 113
+    },
+    {
+      "horizon": 8,
+      "source_phase": "transition",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.14705826342105865,
+      "n": 61,
+      "xyz_mae_cm": [
+        1.0675151348114014,
+        0.6018393635749817,
+        1.0228298902511597
+      ],
+      "height_mae_cm": 1.0228298902511597,
+      "grasp_accuracy": 0.5573770491803278,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.4,
+      "grasp_f1": 0.5714285714285715,
+      "grasp_brier": 0.3075338900089264,
+      "height_mae_when_held_cm": 1.002957820892334,
+      "height_mae_when_not_held_cm": 1.078719973564148,
+      "positive_labels": 45,
+      "negative_labels": 16,
+      "true_held_detected": 18,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 8,
+      "source_phase": "held",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.1825084686279297,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9843591451644897,
+        0.6883893609046936,
+        2.5315589904785156
+      ],
+      "height_mae_cm": 2.5315585136413574,
+      "grasp_accuracy": 0.6928327645051194,
+      "grasp_precision": 0.9722222222222222,
+      "grasp_recall": 0.6194690265486725,
+      "grasp_f1": 0.7567567567567567,
+      "grasp_brier": 0.2355615645647049,
+      "height_mae_when_held_cm": 2.8191442489624023,
+      "height_mae_when_not_held_cm": 1.561492919921875,
+      "positive_labels": 226,
+      "negative_labels": 67,
+      "true_held_detected": 140,
+      "false_held_predictions": 4
+    },
+    {
+      "horizon": 8,
+      "source_phase": "unheld",
+      "combination": "pred_z_pred_p",
+      "z_mse": 0.13109204173088074,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6987531185150146,
+        0.7514780163764954,
+        0.3152991533279419
+      ],
+      "height_mae_cm": 0.31529900431632996,
+      "grasp_accuracy": 0.8813376483279396,
+      "grasp_precision": 0.3312883435582822,
+      "grasp_recall": 0.32727272727272727,
+      "grasp_f1": 0.3292682926829268,
+      "grasp_brier": 0.08944711834192276,
+      "height_mae_when_held_cm": 0.30785635113716125,
+      "height_mae_when_not_held_cm": 0.31602612137794495,
+      "positive_labels": 165,
+      "negative_labels": 1689,
+      "true_held_detected": 54,
+      "false_held_predictions": 109
+    },
+    {
+      "horizon": 8,
+      "source_phase": "all",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.1383560597896576,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7467359900474548,
+        0.7404502034187317,
+        0.6323843598365784
+      ],
+      "height_mae_cm": 0.6323850750923157,
+      "grasp_accuracy": 0.8473731884057971,
+      "grasp_precision": 0.6591639871382636,
+      "grasp_recall": 0.4701834862385321,
+      "grasp_f1": 0.5488621151271754,
+      "grasp_brier": 0.11602169275283813,
+      "height_mae_when_held_cm": 1.693705677986145,
+      "height_mae_when_not_held_cm": 0.3712475597858429,
+      "positive_labels": 436,
+      "negative_labels": 1772,
+      "true_held_detected": 205,
+      "false_held_predictions": 106
+    },
+    {
+      "horizon": 8,
+      "source_phase": "transition",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.14705826342105865,
+      "n": 61,
+      "xyz_mae_cm": [
+        1.0675235986709595,
+        0.6044480204582214,
+        1.0285797119140625
+      ],
+      "height_mae_cm": 1.0285797119140625,
+      "grasp_accuracy": 0.5573770491803278,
+      "grasp_precision": 1.0,
+      "grasp_recall": 0.4,
+      "grasp_f1": 0.5714285714285715,
+      "grasp_brier": 0.31157997250556946,
+      "height_mae_when_held_cm": 1.0022040605545044,
+      "height_mae_when_not_held_cm": 1.102761149406433,
+      "positive_labels": 45,
+      "negative_labels": 16,
+      "true_held_detected": 18,
+      "false_held_predictions": 0
+    },
+    {
+      "horizon": 8,
+      "source_phase": "held",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.1825084686279297,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9824214577674866,
+        0.6897456049919128,
+        2.5547900199890137
+      ],
+      "height_mae_cm": 2.5547890663146973,
+      "grasp_accuracy": 0.6757679180887372,
+      "grasp_precision": 0.9645390070921985,
+      "grasp_recall": 0.6017699115044248,
+      "grasp_f1": 0.7411444141689373,
+      "grasp_brier": 0.24042747914791107,
+      "height_mae_when_held_cm": 2.8452558517456055,
+      "height_mae_when_not_held_cm": 1.5750067234039307,
+      "positive_labels": 226,
+      "negative_labels": 67,
+      "true_held_detected": 136,
+      "false_held_predictions": 5
+    },
+    {
+      "horizon": 8,
+      "source_phase": "unheld",
+      "combination": "pred_z_real_p",
+      "z_mse": 0.13109204173088074,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6989341974258423,
+        0.7529381513595581,
+        0.3155393898487091
+      ],
+      "height_mae_cm": 0.31553915143013,
+      "grasp_accuracy": 0.88403451995685,
+      "grasp_precision": 0.3355263157894737,
+      "grasp_recall": 0.3090909090909091,
+      "grasp_f1": 0.3217665615141956,
+      "grasp_brier": 0.08992677927017212,
+      "height_mae_when_held_cm": 0.30502191185951233,
+      "height_mae_when_not_held_cm": 0.3165665864944458,
+      "positive_labels": 165,
+      "negative_labels": 1689,
+      "true_held_detected": 51,
+      "false_held_predictions": 101
+    },
+    {
+      "horizon": 8,
+      "source_phase": "all",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.13770434260368347,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.747634768486023,
+        0.7388547658920288,
+        0.5912939310073853
+      ],
+      "height_mae_cm": 0.5912933349609375,
+      "grasp_accuracy": 0.8496376811594203,
+      "grasp_precision": 0.6614906832298136,
+      "grasp_recall": 0.48853211009174313,
+      "grasp_f1": 0.5620052770448549,
+      "grasp_brier": 0.11314623057842255,
+      "height_mae_when_held_cm": 1.6615656614303589,
+      "height_mae_when_not_held_cm": 0.3279532492160797,
+      "positive_labels": 436,
+      "negative_labels": 1772,
+      "true_held_detected": 213,
+      "false_held_predictions": 109
+    },
+    {
+      "horizon": 8,
+      "source_phase": "transition",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.14692366123199463,
+      "n": 61,
+      "xyz_mae_cm": [
+        1.0308421850204468,
+        0.6031390428543091,
+        0.9515078067779541
+      ],
+      "height_mae_cm": 0.9515078067779541,
+      "grasp_accuracy": 0.5573770491803278,
+      "grasp_precision": 0.875,
+      "grasp_recall": 0.4666666666666667,
+      "grasp_f1": 0.608695652173913,
+      "grasp_brier": 0.3251284956932068,
+      "height_mae_when_held_cm": 1.0115631818771362,
+      "height_mae_when_not_held_cm": 0.7826018929481506,
+      "positive_labels": 45,
+      "negative_labels": 16,
+      "true_held_detected": 21,
+      "false_held_predictions": 3
+    },
+    {
+      "horizon": 8,
+      "source_phase": "held",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.18215814232826233,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9983233213424683,
+        0.6772913336753845,
+        2.4546542167663574
+      ],
+      "height_mae_cm": 2.4546549320220947,
+      "grasp_accuracy": 0.6723549488054608,
+      "grasp_precision": 0.9850746268656716,
+      "grasp_recall": 0.584070796460177,
+      "grasp_f1": 0.7333333333333334,
+      "grasp_brier": 0.23138383030891418,
+      "height_mae_when_held_cm": 2.7627861499786377,
+      "height_mae_when_not_held_cm": 1.4152873754501343,
+      "positive_labels": 226,
+      "negative_labels": 67,
+      "true_held_detected": 132,
+      "false_held_predictions": 2
+    },
+    {
+      "horizon": 8,
+      "source_phase": "unheld",
+      "combination": "forced_z_real_p",
+      "z_mse": 0.1303756833076477,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6986991763114929,
+        0.7530494332313538,
+        0.2849618196487427
+      ],
+      "height_mae_cm": 0.2849622070789337,
+      "grasp_accuracy": 0.8872707659115426,
+      "grasp_precision": 0.36585365853658536,
+      "grasp_recall": 0.36363636363636365,
+      "grasp_f1": 0.364741641337386,
+      "grasp_brier": 0.08748573809862137,
+      "height_mae_when_held_cm": 0.33050060272216797,
+      "height_mae_when_not_held_cm": 0.2805134952068329,
+      "positive_labels": 165,
+      "negative_labels": 1689,
+      "true_held_detected": 60,
+      "false_held_predictions": 104
+    },
+    {
+      "horizon": 8,
+      "source_phase": "all",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.4007260799407959,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7044992446899414,
+        0.7734289765357971,
+        1.012793779373169
+      ],
+      "height_mae_cm": 1.0127934217453003,
+      "grasp_accuracy": 0.8346920289855072,
+      "grasp_precision": 0.6563876651982379,
+      "grasp_recall": 0.34174311926605505,
+      "grasp_f1": 0.4494720965309201,
+      "grasp_brier": 0.13697054982185364,
+      "height_mae_when_held_cm": 3.813778877258301,
+      "height_mae_when_not_held_cm": 0.3236119747161865,
+      "positive_labels": 436,
+      "negative_labels": 1772,
+      "true_held_detected": 149,
+      "false_held_predictions": 78
+    },
+    {
+      "horizon": 8,
+      "source_phase": "transition",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.41917380690574646,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.8165328502655029,
+        0.6043049693107605,
+        1.732466697692871
+      ],
+      "height_mae_cm": 1.732466697692871,
+      "grasp_accuracy": 0.32786885245901637,
+      "grasp_precision": 0.6428571428571429,
+      "grasp_recall": 0.2,
+      "grasp_f1": 0.3050847457627119,
+      "grasp_brier": 0.5230264663696289,
+      "height_mae_when_held_cm": 1.2078273296356201,
+      "height_mae_when_not_held_cm": 3.208014488220215,
+      "positive_labels": 45,
+      "negative_labels": 16,
+      "true_held_detected": 9,
+      "false_held_predictions": 5
+    },
+    {
+      "horizon": 8,
+      "source_phase": "held",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.44830504059791565,
+      "n": 293,
+      "xyz_mae_cm": [
+        0.9141726493835449,
+        0.7139113545417786,
+        5.976810455322266
+      ],
+      "height_mae_cm": 5.976810932159424,
+      "grasp_accuracy": 0.6348122866894198,
+      "grasp_precision": 0.8695652173913043,
+      "grasp_recall": 0.6194690265486725,
+      "grasp_f1": 0.7235142118863048,
+      "grasp_brier": 0.2586075961589813,
+      "height_mae_when_held_cm": 6.874287128448486,
+      "height_mae_when_not_held_cm": 2.949505567550659,
+      "positive_labels": 226,
+      "negative_labels": 67,
+      "true_held_detected": 140,
+      "false_held_predictions": 21
+    },
+    {
+      "horizon": 8,
+      "source_phase": "unheld",
+      "combination": "unchanged_z_real_p",
+      "z_mse": 0.392599880695343,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6676768660545349,
+        0.7883992791175842,
+        0.20461824536323547
+      ],
+      "height_mae_cm": 0.2046181559562683,
+      "grasp_accuracy": 0.8829557713052859,
+      "grasp_precision": 0.0,
+      "grasp_recall": 0.0,
+      "grasp_f1": 0.0,
+      "grasp_brier": 0.10504550486803055,
+      "height_mae_when_held_cm": 0.3325253129005432,
+      "height_mae_when_not_held_cm": 0.19212278723716736,
+      "positive_labels": 165,
+      "negative_labels": 1689,
+      "true_held_detected": 0,
+      "false_held_predictions": 52
+    },
+    {
+      "horizon": 8,
+      "source_phase": "all",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 2208,
+      "xyz_mae_cm": [
+        0.7067858576774597,
+        0.809603214263916,
+        0.3835470974445343
+      ],
+      "height_mae_cm": 0.38354751467704773,
+      "grasp_accuracy": 0.9207427536231884,
+      "grasp_precision": 0.8635097493036211,
+      "grasp_recall": 0.7110091743119266,
+      "grasp_f1": 0.7798742138364779,
+      "grasp_brier": 0.05653832107782364,
+      "height_mae_when_held_cm": 0.8839070796966553,
+      "height_mae_when_not_held_cm": 0.26043418049812317,
+      "positive_labels": 436,
+      "negative_labels": 1772,
+      "true_held_detected": 310,
+      "false_held_predictions": 49
+    },
+    {
+      "horizon": 8,
+      "source_phase": "transition",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 61,
+      "xyz_mae_cm": [
+        0.8894256353378296,
+        0.7107309103012085,
+        0.8985750675201416
+      ],
+      "height_mae_cm": 0.8985750675201416,
+      "grasp_accuracy": 0.7540983606557377,
+      "grasp_precision": 0.9166666666666666,
+      "grasp_recall": 0.7333333333333333,
+      "grasp_f1": 0.8148148148148148,
+      "grasp_brier": 0.13345326483249664,
+      "height_mae_when_held_cm": 0.959924042224884,
+      "height_mae_when_not_held_cm": 0.7260307669639587,
+      "positive_labels": 45,
+      "negative_labels": 16,
+      "true_held_detected": 33,
+      "false_held_predictions": 3
+    },
+    {
+      "horizon": 8,
+      "source_phase": "held",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 293,
+      "xyz_mae_cm": [
+        1.0363826751708984,
+        0.7354509830474854,
+        1.1977766752243042
+      ],
+      "height_mae_cm": 1.197777271270752,
+      "grasp_accuracy": 0.9829351535836177,
+      "grasp_precision": 0.9911111111111112,
+      "grasp_recall": 0.9867256637168141,
+      "grasp_f1": 0.9889135254988914,
+      "grasp_brier": 0.02074962668120861,
+      "height_mae_when_held_cm": 1.1915396451950073,
+      "height_mae_when_not_held_cm": 1.218817114830017,
+      "positive_labels": 226,
+      "negative_labels": 67,
+      "true_held_detected": 223,
+      "false_held_predictions": 2
+    },
+    {
+      "horizon": 8,
+      "source_phase": "unheld",
+      "combination": "real_z_real_p",
+      "z_mse": 0.0,
+      "n": 1854,
+      "xyz_mae_cm": [
+        0.6486886143684387,
+        0.8245756030082703,
+        0.23792389035224915
+      ],
+      "height_mae_cm": 0.2379239946603775,
+      "grasp_accuracy": 0.9163969795037756,
+      "grasp_precision": 0.5510204081632653,
+      "grasp_recall": 0.32727272727272727,
+      "grasp_f1": 0.41064638783269963,
+      "grasp_brier": 0.05966360494494438,
+      "height_mae_when_held_cm": 0.44181162118911743,
+      "height_mae_when_not_held_cm": 0.21800601482391357,
+      "positive_labels": 165,
+      "negative_labels": 1689,
+      "true_held_detected": 54,
+      "false_held_predictions": 44
+    }
+  ],
+  "test": "contact",
+  "split": "val",
+  "original_horizon": 30,
+  "reset_horizons": [
+    1,
+    4,
+    8
+  ],
+  "scene_groups": 12,
+  "Q_object_interpretation_gate_passed": false,
+  "Q_on_all_real_validation_states": {
+    "n": 2904,
+    "xyz_mae_cm": [
+      0.7281515598297119,
+      0.7782139182090759,
+      0.337227463722229
+    ],
+    "height_mae_cm": 0.3372272551059723,
+    "grasp_accuracy": 0.9387052341597796,
+    "grasp_precision": 0.8635097493036211,
+    "grasp_recall": 0.7061503416856492,
+    "grasp_f1": 0.7769423558897244,
+    "grasp_brier": 0.044061318039894104,
+    "height_mae_when_held_cm": 0.8781739473342896,
+    "height_mae_when_not_held_cm": 0.24088826775550842,
+    "positive_labels": 439,
+    "negative_labels": 2465
+  },
+  "manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+  "features_metadata_sha256": "88680bba1d75e81fea4bd9fe4b11412382f928508967b216f4260751be9b2ac4",
+  "dynamics_checkpoint_sha256": "074be834af331cfe9cbd2dfddd174d68874ae57722343d053b142919e68b2144",
+  "readout_checkpoint_sha256": "0aefa4503489d537f2195073166a63a5bdcda041810c47d8c54c3d4e6952a600",
+  "provenance": {
+    "python": "3.11.9",
+    "platform": "Linux-5.15.0-1085-nvidia-x86_64-with-glibc2.35",
+    "git_commit": "ec4d120a658b5de4d83f9f7bf17bb34130b9f8a1",
+    "git_dirty": false
+  },
+  "diagnostic_source_sha256": "3a019daee9f3f03e8c8e9e66851f3a757143b31013dc55387c9cc8740b4f1910",
+  "contract": "Every reset begins with actual z/p; its actions start at the same recorded index. Forecast z remains recurrent; forced forecasts use recorded current/next p only. Transition strata use adjacent held changes or transient grasp flags, not exact finger contact. Labels group results and never enter D. Overlapping anchors are correlated, not independent trials. Real future p is offline-only. Failed Q gates make object interpretations diagnostic."
+}

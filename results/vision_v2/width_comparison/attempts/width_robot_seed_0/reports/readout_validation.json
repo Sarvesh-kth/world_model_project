@@ -1,0 +1,45 @@
+{
+  "readout": {
+    "n": 2904,
+    "xyz_mae_cm": [
+      0.6387849450111389,
+      0.6621030569076538,
+      0.33817267417907715
+    ],
+    "height_mae_cm": 0.33817291259765625,
+    "grasp_accuracy": 0.9528236914600551,
+    "grasp_precision": 0.8700980392156863,
+    "grasp_recall": 0.8086560364464692,
+    "grasp_f1": 0.8382526564344747,
+    "grasp_brier": 0.03660337254405022,
+    "height_mae_when_held_cm": 0.9654691219329834,
+    "height_mae_when_not_held_cm": 0.2264556884765625,
+    "positive_labels": 439,
+    "negative_labels": 2465
+  },
+  "readout_p": {
+    "n": 2904,
+    "xyz_mae_cm": [
+      1.8219316005706787,
+      2.663828134536743,
+      0.37247374653816223
+    ],
+    "height_mae_cm": 0.3724738359451294,
+    "grasp_accuracy": 0.9369834710743802,
+    "grasp_precision": 0.8018867924528302,
+    "grasp_recall": 0.7744874715261959,
+    "grasp_f1": 0.7879490150637312,
+    "grasp_brier": 0.04207290709018707,
+    "height_mae_when_held_cm": 1.017699122428894,
+    "height_mae_when_not_held_cm": 0.2575635612010956,
+    "positive_labels": 439,
+    "negative_labels": 2465
+  },
+  "q_gate_passed": true,
+  "limits": {
+    "xyz_cm": 2.0,
+    "height_cm": 1.0,
+    "f1": 0.8,
+    "brier": 0.15
+  }
+}

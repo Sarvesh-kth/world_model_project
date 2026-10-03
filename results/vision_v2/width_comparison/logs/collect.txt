@@ -1,0 +1,759 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.collect", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--profile", "varied", "--seed", "42", "--train-scenes", "60", "--val-scenes", "12", "--test-scenes", "12"]
+  under  close_lift rise=+17.39 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.39 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0000 train anchor=[0.213, -0.227] elapsed=23.9s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0001 train anchor=[0.211, -0.186] elapsed=23.5s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0002 train anchor=[0.147, -0.213] elapsed=25.0s
+  under  close_lift rise=+17.70 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.70 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+17.69 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+17.69 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0003 train anchor=[0.227, -0.187] elapsed=26.4s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0004 train anchor=[0.159, -0.236] elapsed=22.8s
+  under  close_lift rise=+17.60 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.60 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0005 train anchor=[0.147, -0.2] elapsed=25.6s
+  under  close_lift rise=+17.17 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.17 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+17.16 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+17.16 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0006 train anchor=[0.166, -0.245] elapsed=23.3s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0007 train anchor=[0.214, -0.225] elapsed=23.0s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0008 train anchor=[0.212, -0.204] elapsed=24.3s
+  under  close_lift rise=+17.35 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.35 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+17.35 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+17.35 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0009 train anchor=[0.172, -0.254] elapsed=22.6s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0010 train anchor=[0.187, -0.186] elapsed=23.2s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0011 train anchor=[0.207, -0.225] elapsed=23.9s
+  under  close_lift rise=+18.02 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+18.01 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0012 train anchor=[0.196, -0.237] elapsed=23.8s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0013 train anchor=[0.204, -0.248] elapsed=22.8s
+  under  close_lift rise=+17.68 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.69 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0014 train anchor=[0.228, -0.225] elapsed=26.5s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0015 train anchor=[0.172, -0.205] elapsed=22.6s
+  under  close_lift rise=+18.01 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+18.01 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0016 train anchor=[0.16, -0.263] elapsed=22.6s
+  under  close_lift rise=+16.30 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+16.26 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0017 train anchor=[0.19, -0.238] elapsed=22.7s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0018 train anchor=[0.179, -0.167] elapsed=22.7s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0019 train anchor=[0.123, -0.181] elapsed=23.5s
+  under  close_lift rise=+18.03 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+18.03 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0020 train anchor=[0.207, -0.188] elapsed=26.8s
+  under  close_lift rise=+16.31 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+16.32 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+16.32 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+16.34 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0021 train anchor=[0.187, -0.235] elapsed=23.7s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0022 train anchor=[0.151, -0.168] elapsed=23.7s
+  under  close_lift rise=+17.06 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.06 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0023 train anchor=[0.227, -0.218] elapsed=23.9s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0024 train anchor=[0.151, -0.168] elapsed=22.8s
+  under  close_lift rise=+12.50 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+12.51 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0025 train anchor=[0.142, -0.208] elapsed=25.8s
+  under  close_lift rise=+16.96 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+16.96 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0026 train anchor=[0.122, -0.252] elapsed=22.9s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0027 train anchor=[0.144, -0.184] elapsed=23.1s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0028 train anchor=[0.179, -0.2] elapsed=23.1s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0029 train anchor=[0.187, -0.204] elapsed=23.6s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0030 train anchor=[0.217, -0.224] elapsed=24.2s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0031 train anchor=[0.193, -0.176] elapsed=23.4s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0032 train anchor=[0.174, -0.25] elapsed=22.7s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0033 train anchor=[0.128, -0.209] elapsed=23.4s
+  under  close_lift rise=+17.04 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.04 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+17.11 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+17.11 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0034 train anchor=[0.138, -0.266] elapsed=22.5s
+  under  close_lift rise=+13.83 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+13.81 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0035 train anchor=[0.167, -0.242] elapsed=25.0s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0036 train anchor=[0.189, -0.23] elapsed=24.9s
+  under  close_lift rise=+17.85 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.84 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0037 train anchor=[0.22, -0.274] elapsed=23.4s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0038 train anchor=[0.214, -0.203] elapsed=23.6s
+  under  close_lift rise=+15.09 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+15.11 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+14.94 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+14.95 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0039 train anchor=[0.197, -0.248] elapsed=25.8s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0040 train anchor=[0.159, -0.234] elapsed=23.9s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0041 train anchor=[0.178, -0.241] elapsed=22.8s
+  under  close_lift rise=+17.12 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.12 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+17.14 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+17.14 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0042 train anchor=[0.208, -0.256] elapsed=22.7s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0043 train anchor=[0.13, -0.168] elapsed=23.4s
+  under  close_lift rise=+18.01 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+18.01 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0044 train anchor=[0.15, -0.209] elapsed=23.9s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0045 train anchor=[0.189, -0.224] elapsed=22.9s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0046 train anchor=[0.134, -0.266] elapsed=23.6s
+  under  close_lift rise=+15.78 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+15.77 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0047 train anchor=[0.212, -0.248] elapsed=23.1s
+  under  close_lift rise=+18.04 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+18.04 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0048 train anchor=[0.166, -0.192] elapsed=25.6s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0049 train anchor=[0.165, -0.162] elapsed=23.6s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0050 train anchor=[0.202, -0.279] elapsed=22.0s
+  under  close_lift rise=+17.81 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.79 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+17.89 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+17.90 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0051 train anchor=[0.23, -0.186] elapsed=24.1s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0052 train anchor=[0.2, -0.202] elapsed=23.6s
+  under  close_lift rise=+11.73 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+11.73 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0053 train anchor=[0.137, -0.187] elapsed=23.2s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+16.88 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+16.87 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0054 train anchor=[0.193, -0.184] elapsed=23.5s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0055 train anchor=[0.221, -0.275] elapsed=22.4s
+  under  close_lift rise=+16.91 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+16.91 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0056 train anchor=[0.139, -0.192] elapsed=23.1s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0057 train anchor=[0.193, -0.273] elapsed=23.0s
+  under  close_lift rise=+14.38 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+14.39 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0058 train anchor=[0.238, -0.225] elapsed=23.8s
+  under  close_lift rise=+12.37 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+12.36 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0059 train anchor=[0.189, -0.196] elapsed=26.7s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0060 val anchor=[0.136, -0.247] elapsed=23.9s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0061 val anchor=[0.169, -0.231] elapsed=23.5s
+  under  close_lift rise=+16.92 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+16.93 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0062 val anchor=[0.147, -0.211] elapsed=23.8s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0063 val anchor=[0.172, -0.205] elapsed=24.1s
+  under  close_lift rise=+17.91 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.91 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0064 val anchor=[0.182, -0.184] elapsed=23.5s
+  under  close_lift rise=+11.37 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+11.38 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0065 val anchor=[0.129, -0.179] elapsed=23.1s
+  under  close_lift rise=+17.69 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.68 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+17.67 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+17.67 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0066 val anchor=[0.219, -0.177] elapsed=24.0s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0067 val anchor=[0.239, -0.187] elapsed=23.3s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0068 val anchor=[0.183, -0.26] elapsed=22.8s
+  under  close_lift rise=+15.82 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+15.83 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+15.80 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+15.82 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0069 val anchor=[0.221, -0.161] elapsed=23.5s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0070 val anchor=[0.176, -0.262] elapsed=22.4s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0071 val anchor=[0.179, -0.27] elapsed=22.2s
+  under  close_lift rise=+17.66 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.66 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0072 test anchor=[0.127, -0.236] elapsed=22.4s
+  under  close_lift rise=+16.62 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+16.65 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0073 test anchor=[0.212, -0.178] elapsed=24.1s
+  under  close_lift rise=+11.43 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+11.43 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0074 test anchor=[0.133, -0.232] elapsed=23.9s
+  under  close_lift rise=+17.79 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.79 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0075 test anchor=[0.231, -0.226] elapsed=23.8s
+  under  close_lift rise=+17.89 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.89 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0076 test anchor=[0.194, -0.223] elapsed=23.6s
+  under  close_lift rise=+16.91 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+16.96 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0077 test anchor=[0.214, -0.176] elapsed=23.3s
+  under  close_lift rise=+16.35 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+16.36 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+16.29 cm held=True restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+16.31 cm held=True restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0078 test anchor=[0.238, -0.245] elapsed=27.0s
+  under  close_lift rise=+17.60 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.59 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0079 test anchor=[0.238, -0.224] elapsed=25.4s
+  under  close_lift rise=+17.95 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.95 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0080 test anchor=[0.231, -0.181] elapsed=25.3s
+  under  close_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0081 test anchor=[0.201, -0.194] elapsed=23.8s
+  under  close_lift rise=+17.54 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.53 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0082 test anchor=[0.223, -0.279] elapsed=24.5s
+  under  close_lift rise=+17.96 cm held=True restore=0.0e+00
+  under  open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  under  close_side_lift rise=+17.96 cm held=True restore=0.0e+00
+  under  close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset open_lift  rise=+0.00 cm held=False restore=0.0e+00
+  offset close_side_lift rise=+0.00 cm held=False restore=0.0e+00
+  offset close_lift_release rise=+0.00 cm held=False restore=0.0e+00
+scene_0083 test anchor=[0.149, -0.178] elapsed=26.0s
+saved 84 scene groups, 672 rollouts, 20328 states to /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2; next: world_model.vision.audit

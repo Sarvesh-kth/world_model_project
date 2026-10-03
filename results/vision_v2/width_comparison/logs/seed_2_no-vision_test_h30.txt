@@ -1,0 +1,106 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.test", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "no-vision", "--tag", "seed_2", "--split", "test", "--horizon", "30"]
+no-vision: test, 12 held-out scene groups, 96 rollouts
+Q interpretation gate: FAIL — object predictions are diagnostic only
+{
+  "test": "no-vision",
+  "split": "test",
+  "horizon": 30,
+  "scene_groups": 12,
+  "manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+  "dynamics_checkpoint_sha256": "5a9eecfe0a00da8cebc671e3c8c83dd0d698e0e22a15afd5364eeedb24f0459e",
+  "Q_validation_gate_passed": false,
+  "Q_on_all_real_evaluation_states": {
+    "n": 2904,
+    "xyz_mae_cm": [
+      0.9291524887084961,
+      0.8317636251449585,
+      0.6407138109207153
+    ],
+    "height_mae_cm": 0.6407120227813721,
+    "grasp_accuracy": 0.9331955922865014,
+    "grasp_precision": 0.9024767801857585,
+    "grasp_recall": 0.8165266106442577,
+    "grasp_f1": 0.8573529411764707,
+    "grasp_brier": 0.0475715771317482,
+    "height_mae_when_held_cm": 1.4338653087615967,
+    "height_mae_when_not_held_cm": 0.38212233781814575,
+    "positive_labels": 714,
+    "negative_labels": 2190
+  },
+  "Q_object_interpretation_gate_passed": false,
+  "D_Q": {
+    "n": 96,
+    "xyz_mae_cm": [
+      1.0912948846817017,
+      1.2555800676345825,
+      3.332303524017334
+    ],
+    "height_mae_cm": 3.332303524017334,
+    "grasp_accuracy": 0.84375,
+    "grasp_precision": 0.8461538461538461,
+    "grasp_recall": 0.4583333333333333,
+    "grasp_f1": 0.5945945945945945,
+    "grasp_brier": 0.11643996089696884,
+    "height_mae_when_held_cm": 8.69273567199707,
+    "height_mae_when_not_held_cm": 1.5454926490783691,
+    "positive_labels": 24,
+    "negative_labels": 72
+  },
+  "no_vision_sequence_baseline": {
+    "n": 96,
+    "xyz_mae_cm": [
+      3.067106008529663,
+      3.152686834335327,
+      4.104123115539551
+    ],
+    "height_mae_cm": 4.104123592376709,
+    "grasp_accuracy": 0.75,
+    "grasp_precision": 0.5,
+    "grasp_recall": 0.08333333333333333,
+    "grasp_f1": 0.14285714285714285,
+    "grasp_brier": 0.1703912764787674,
+    "height_mae_when_held_cm": 11.433859825134277,
+    "height_mae_when_not_held_cm": 1.6608781814575195,
+    "positive_labels": 24,
+    "negative_labels": 72
+  },
+  "Q_on_real_future": {
+    "n": 96,
+    "xyz_mae_cm": [
+      0.9664655923843384,
+      1.1097757816314697,
+      1.413679838180542
+    ],
+    "height_mae_cm": 1.4136799573898315,
+    "grasp_accuracy": 0.9895833333333334,
+    "grasp_precision": 1.0,
+    "grasp_recall": 0.9583333333333334,
+    "grasp_f1": 0.9787234042553191,
+    "grasp_brier": 0.010854609310626984,
+    "height_mae_when_held_cm": 2.8639109134674072,
+    "height_mae_when_not_held_cm": 0.9302695989608765,
+    "positive_labels": 24,
+    "negative_labels": 72
+  },
+  "Q_p_on_measured_future_p": {
+    "n": 96,
+    "xyz_mae_cm": [
+      2.2175960540771484,
+      3.472334861755371,
+      0.8375347852706909
+    ],
+    "height_mae_cm": 0.8375347852706909,
+    "grasp_accuracy": 1.0,
+    "grasp_precision": 1.0,
+    "grasp_recall": 1.0,
+    "grasp_f1": 1.0,
+    "grasp_brier": 0.0003447307099122554,
+    "height_mae_when_held_cm": 2.114593029022217,
+    "height_mae_when_not_held_cm": 0.4118487238883972,
+    "positive_labels": 24,
+    "negative_labels": 72
+  },
+  "baseline_contract": "direct supervised p0+action-prefix -> object xyz/grasp; no real future p. This is not an architecture-matched latent ablation."
+}
+saved report and per-rollout CSV under /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/seed_2/reports

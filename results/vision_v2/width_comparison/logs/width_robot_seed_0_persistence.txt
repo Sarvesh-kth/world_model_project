@@ -1,0 +1,303 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-m", "world_model.vision.test", "persistence", "--split", "val", "--horizon", "30", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--tag", "width_robot_seed_0"]
+persistence: val, 12 held-out scene groups, 96 rollouts
+Q interpretation gate: PASS
+{
+  "test": "persistence",
+  "split": "val",
+  "horizon": 30,
+  "scene_groups": 12,
+  "manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+  "dynamics_checkpoint_sha256": "4c1d8693a4fb165e27de2f22a7ed29fb5e4d012040733d12568069fdca52c293",
+  "Q_validation_gate_passed": true,
+  "Q_on_all_real_evaluation_states": {
+    "n": 2904,
+    "xyz_mae_cm": [
+      0.6387849450111389,
+      0.6621030569076538,
+      0.33817267417907715
+    ],
+    "height_mae_cm": 0.33817291259765625,
+    "grasp_accuracy": 0.9528236914600551,
+    "grasp_precision": 0.8700980392156863,
+    "grasp_recall": 0.8086560364464692,
+    "grasp_f1": 0.8382526564344747,
+    "grasp_brier": 0.03660337254405022,
+    "height_mae_when_held_cm": 0.9654691219329834,
+    "height_mae_when_not_held_cm": 0.2264556884765625,
+    "positive_labels": 439,
+    "negative_labels": 2465
+  },
+  "Q_object_interpretation_gate_passed": true,
+  "by_horizon": [
+    {
+      "horizon": 1,
+      "D_z_mse": 0.060040355660021305,
+      "persistence_z_mse": 0.08057020263125499,
+      "D_p_mse": 0.007038453652057797,
+      "persistence_p_mse": 0.14641693777715167,
+      "fraction_rollouts_D_beats_persistence_z": 0.875,
+      "D_end_effector_xyz_mae_cm": [
+        0.06664593517780304,
+        0.04986415430903435,
+        0.0771949514746666
+      ],
+      "D_Q_outcomes": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.47520318627357483,
+          0.7007384896278381,
+          0.0927942544221878
+        ],
+        "height_mae_cm": 0.0927942544221878,
+        "grasp_accuracy": 1.0,
+        "grasp_precision": 0.0,
+        "grasp_recall": 0.0,
+        "grasp_f1": 0.0,
+        "grasp_brier": 4.382348208764597e-07,
+        "height_mae_when_held_cm": null,
+        "height_mae_when_not_held_cm": 0.0927942544221878,
+        "positive_labels": 0,
+        "negative_labels": 96
+      },
+      "Q_constant_z_with_same_predicted_p": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.4951244592666626,
+          0.6693376898765564,
+          0.11560717970132828
+        ],
+        "height_mae_cm": 0.11560717970132828,
+        "grasp_accuracy": 1.0,
+        "grasp_precision": 0.0,
+        "grasp_recall": 0.0,
+        "grasp_f1": 0.0,
+        "grasp_brier": 9.285043489626332e-08,
+        "height_mae_when_held_cm": null,
+        "height_mae_when_not_held_cm": 0.11560717970132828,
+        "positive_labels": 0,
+        "negative_labels": 96
+      },
+      "Q_on_real_future": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.5627254247665405,
+          0.624525785446167,
+          0.10674422234296799
+        ],
+        "height_mae_cm": 0.10674422234296799,
+        "grasp_accuracy": 1.0,
+        "grasp_precision": 0.0,
+        "grasp_recall": 0.0,
+        "grasp_f1": 0.0,
+        "grasp_brier": 2.2584809755699098e-07,
+        "height_mae_when_held_cm": null,
+        "height_mae_when_not_held_cm": 0.10674422234296799,
+        "positive_labels": 0,
+        "negative_labels": 96
+      }
+    },
+    {
+      "horizon": 8,
+      "D_z_mse": 0.11477204159988712,
+      "persistence_z_mse": 0.44653185550123453,
+      "D_p_mse": 0.013588070304346426,
+      "persistence_p_mse": 0.6987887878591815,
+      "fraction_rollouts_D_beats_persistence_z": 1.0,
+      "D_end_effector_xyz_mae_cm": [
+        0.06174030527472496,
+        0.09426287561655045,
+        0.22100459039211273
+      ],
+      "D_Q_outcomes": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.6247284412384033,
+          0.7075996398925781,
+          0.21938520669937134
+        ],
+        "height_mae_cm": 0.21938520669937134,
+        "grasp_accuracy": 0.8229166666666666,
+        "grasp_precision": 0.375,
+        "grasp_recall": 0.2,
+        "grasp_f1": 0.26086956521739135,
+        "grasp_brier": 0.1293760985136032,
+        "height_mae_when_held_cm": 0.4172706604003906,
+        "height_mae_when_not_held_cm": 0.1827397495508194,
+        "positive_labels": 15,
+        "negative_labels": 81
+      },
+      "Q_constant_z_with_same_predicted_p": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.49842628836631775,
+          0.6613584756851196,
+          0.10254643857479095
+        ],
+        "height_mae_cm": 0.10254643857479095,
+        "grasp_accuracy": 0.84375,
+        "grasp_precision": 0.0,
+        "grasp_recall": 0.0,
+        "grasp_f1": 0.0,
+        "grasp_brier": 0.1558854728937149,
+        "height_mae_when_held_cm": 0.10875105857849121,
+        "height_mae_when_not_held_cm": 0.10139743238687515,
+        "positive_labels": 15,
+        "negative_labels": 81
+      },
+      "Q_on_real_future": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.6169987320899963,
+          0.6941458582878113,
+          0.28556522727012634
+        ],
+        "height_mae_cm": 0.28556522727012634,
+        "grasp_accuracy": 0.8541666666666666,
+        "grasp_precision": 0.5454545454545454,
+        "grasp_recall": 0.4,
+        "grasp_f1": 0.4615384615384615,
+        "grasp_brier": 0.13526366651058197,
+        "height_mae_when_held_cm": 0.4703926742076874,
+        "height_mae_when_not_held_cm": 0.2513379454612732,
+        "positive_labels": 15,
+        "negative_labels": 81
+      }
+    },
+    {
+      "horizon": 16,
+      "D_z_mse": 0.16548483065950373,
+      "persistence_z_mse": 0.9053602311760187,
+      "D_p_mse": 0.022816651733592153,
+      "persistence_p_mse": 1.4141125849758585,
+      "fraction_rollouts_D_beats_persistence_z": 1.0,
+      "D_end_effector_xyz_mae_cm": [
+        0.10014188289642334,
+        0.08545535802841187,
+        0.37539395689964294
+      ],
+      "D_Q_outcomes": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.6589547991752625,
+          0.7369504570960999,
+          0.3362068831920624
+        ],
+        "height_mae_cm": 0.3362068831920624,
+        "grasp_accuracy": 0.8541666666666666,
+        "grasp_precision": 0.7058823529411765,
+        "grasp_recall": 0.5714285714285714,
+        "grasp_f1": 0.6315789473684211,
+        "grasp_brier": 0.09212758392095566,
+        "height_mae_when_held_cm": 0.5867651700973511,
+        "height_mae_when_not_held_cm": 0.2660505771636963,
+        "positive_labels": 21,
+        "negative_labels": 75
+      },
+      "Q_constant_z_with_same_predicted_p": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.5842072367668152,
+          0.6385217905044556,
+          0.42257368564605713
+        ],
+        "height_mae_cm": 0.42257368564605713,
+        "grasp_accuracy": 0.78125,
+        "grasp_precision": 0.0,
+        "grasp_recall": 0.0,
+        "grasp_f1": 0.0,
+        "grasp_brier": 0.2175404578447342,
+        "height_mae_when_held_cm": 1.4867850542068481,
+        "height_mae_when_not_held_cm": 0.12459453195333481,
+        "positive_labels": 21,
+        "negative_labels": 75
+      },
+      "Q_on_real_future": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.7373748421669006,
+          0.6803205013275146,
+          0.37063491344451904
+        ],
+        "height_mae_cm": 0.37063491344451904,
+        "grasp_accuracy": 0.96875,
+        "grasp_precision": 1.0,
+        "grasp_recall": 0.8571428571428571,
+        "grasp_f1": 0.923076923076923,
+        "grasp_brier": 0.03285733237862587,
+        "height_mae_when_held_cm": 0.9245761632919312,
+        "height_mae_when_not_held_cm": 0.2155313491821289,
+        "positive_labels": 21,
+        "negative_labels": 75
+      }
+    },
+    {
+      "horizon": 30,
+      "D_z_mse": 0.2743229363113642,
+      "persistence_z_mse": 1.8051046431064606,
+      "D_p_mse": 0.0642247556146079,
+      "persistence_p_mse": 1.5629336329487462,
+      "fraction_rollouts_D_beats_persistence_z": 1.0,
+      "D_end_effector_xyz_mae_cm": [
+        0.291698694229126,
+        0.2779211401939392,
+        0.7733259797096252
+      ],
+      "D_Q_outcomes": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.9338349103927612,
+          0.8567568063735962,
+          2.0197594165802
+        ],
+        "height_mae_cm": 2.0197601318359375,
+        "grasp_accuracy": 0.9375,
+        "grasp_precision": 0.9,
+        "grasp_recall": 0.6428571428571429,
+        "grasp_f1": 0.75,
+        "grasp_brier": 0.060825180262327194,
+        "height_mae_when_held_cm": 8.558816909790039,
+        "height_mae_when_not_held_cm": 0.9033360481262207,
+        "positive_labels": 14,
+        "negative_labels": 82
+      },
+      "Q_constant_z_with_same_predicted_p": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.5860768556594849,
+          0.7421419024467468,
+          2.4180455207824707
+        ],
+        "height_mae_cm": 2.4180455207824707,
+        "grasp_accuracy": 0.8541666666666666,
+        "grasp_precision": 0.0,
+        "grasp_recall": 0.0,
+        "grasp_f1": 0.0,
+        "grasp_brier": 0.14558722078800201,
+        "height_mae_when_held_cm": 16.039501190185547,
+        "height_mae_when_not_held_cm": 0.0924309566617012,
+        "positive_labels": 14,
+        "negative_labels": 82
+      },
+      "Q_on_real_future": {
+        "n": 96,
+        "xyz_mae_cm": [
+          0.7234222888946533,
+          0.6439324617385864,
+          0.6830280423164368
+        ],
+        "height_mae_cm": 0.6830280423164368,
+        "grasp_accuracy": 0.9895833333333334,
+        "grasp_precision": 0.9333333333333333,
+        "grasp_recall": 1.0,
+        "grasp_f1": 0.9655172413793104,
+        "grasp_brier": 0.0059467763639986515,
+        "height_mae_when_held_cm": 1.62389075756073,
+        "height_mae_when_not_held_cm": 0.5223928689956665,
+        "positive_labels": 14,
+        "negative_labels": 82
+      }
+    }
+  ]
+}
+saved report and per-rollout CSV under /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/width_robot_seed_0/reports

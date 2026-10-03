@@ -1,0 +1,45 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-m", "world_model.vision.test", "action", "--split", "val", "--horizon", "30", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--tag", "width_visual_seed_1"]
+action: val, 12 held-out scene groups, 96 rollouts
+Q interpretation gate: PASS
+{
+  "test": "action",
+  "split": "val",
+  "horizon": 30,
+  "scene_groups": 12,
+  "manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+  "dynamics_checkpoint_sha256": "e3ce8a6a32396d815470bdefbba8a7567f496f947032ba2d84b3faa9747c3ef8",
+  "Q_validation_gate_passed": true,
+  "Q_on_all_real_evaluation_states": {
+    "n": 2904,
+    "xyz_mae_cm": [
+      0.6428655982017517,
+      0.819911539554596,
+      0.3398979604244232
+    ],
+    "height_mae_cm": 0.3398979902267456,
+    "grasp_accuracy": 0.9576446280991735,
+    "grasp_precision": 0.9072164948453608,
+    "grasp_recall": 0.8018223234624146,
+    "grasp_f1": 0.8512696493349456,
+    "grasp_brier": 0.03336084261536598,
+    "height_mae_when_held_cm": 0.939102292060852,
+    "height_mae_when_not_held_cm": 0.23318372666835785,
+    "positive_labels": 439,
+    "negative_labels": 2465
+  },
+  "Q_object_interpretation_gate_passed": true,
+  "eligibility": "absolute real A/B height effect >= 2.0 cm",
+  "eligible_pairs": 7,
+  "all_pairs": 24,
+  "matched_beats_swapped_fraction": 1.0,
+  "height_effect_mae_cm": 9.280644961765834,
+  "additional_action_comparisons": {
+    "eligibility": "real xyz separation >= 2.0 cm",
+    "eligible_pairs": 8,
+    "all_pairs": 48,
+    "matched_beats_swapped_fraction": 1.0,
+    "xyz_effect_l2_mae_cm": 7.907303810119629
+  }
+}
+saved report and per-rollout CSV under /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2/attempts/width_visual_seed_1/reports
