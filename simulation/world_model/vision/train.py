@@ -1,6 +1,7 @@
-"""Train Q on real clips, split D on short rollouts, or the no-vision outcome baseline."""
+"""Train Q, split dynamics, a frozen-D width correction, or the no-vision outcome baseline."""
 import argparse
 import pathlib
+import shutil
 
 import numpy as np
 import torch
@@ -22,6 +23,29 @@ def normalizer(a):
           torch.as_tensor(np.maximum(a.std(0), 1e-3), dtype=torch.float32))
 
 
+class WidthDynamics(SplitDynamics):
+  """Frozen baseline D plus one learned residual correction to finger width."""
+  def __init__(self, z_dim, width_input="visual"):
+    if width_input not in ("visual", "robot"):
+      raise ValueError("width_input must be visual or robot")
+    super().__init__(z_dim, 20, 5)
+    self.width_input = width_input
+    self.robot.requires_grad_(False)
+    self.visual.requires_grad_(False)
+    self.gripper = mlp(z_dim+20+5, 1)
+    # Both variants begin with exactly the baseline prediction.
+    nn.init.zeros_(self.gripper[-1].weight)
+    nn.init.zeros_(self.gripper[-1].bias)
+
+  def forward(self, z, p, action):
+    next_p = p + self.robot(torch.cat((p, action), dim=-1))
+    visual = z if self.width_input == "visual" else torch.zeros_like(z)
+    width = next_p[..., 18:19] + self.gripper(torch.cat((visual, p, action), dim=-1))
+    next_p = torch.cat((next_p[..., :18], width, next_p[..., 19:]), dim=-1)
+    next_z = z + self.visual(torch.cat((z, p.detach(), action, next_p.detach()), dim=-1))
+    return next_z, next_p
+
+
 def normalized(a, stats, name):
   return (torch.tensor(a, dtype=torch.float32)-stats[name+"_mean"])/stats[name+"_std"]
 
@@ -36,7 +60,13 @@ def sequence_input(p, actions, maximum):
 
 def build_model(ck):
   if ck["role"] == "dynamics":
-    model = SplitDynamics(ck["z_dim"], 20, 5, width=512, p_width=128)
+    architecture = ck.get("architecture", "SplitDynamics")
+    if architecture == "WidthDynamics":
+      model = WidthDynamics(ck["z_dim"], ck["width_input"])
+    elif architecture == "SplitDynamics":
+      model = SplitDynamics(ck["z_dim"], 20, 5, width=512, p_width=128)
+    else:
+      raise ValueError(f"unknown vision dynamics architecture: {architecture}")
   else:
     model = mlp(ck["input_dim"], 4)
   model.load_state_dict(ck["model"])
@@ -113,8 +143,9 @@ def fit(root, role, model, train, val, loss_fn, meta, args):
   device = "cuda" if torch.cuda.is_available() else "cpu"
   model.to(device)
   print(f"{role}: {len(train[0])} training / {len(val[0])} validation examples; "
-        f"device={device}; parameters={sum(p.numel() for p in model.parameters()):,}", flush=True)
-  optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
+        f"device={device}; parameters={sum(p.numel() for p in model.parameters()):,}; "
+        f"trainable={sum(p.numel() for p in model.parameters() if p.requires_grad):,}", flush=True)
+  optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.lr)
   loader = DataLoader(TensorDataset(*train), batch_size=args.batch_size, shuffle=True)
   best, best_epoch, history = float("inf"), None, []
   for epoch in range(1, args.epochs+1):
@@ -157,13 +188,17 @@ def fit(root, role, model, train, val, loss_fn, meta, args):
   write_json(root / "reports" / f"{role}_training.json", {"device": device, "history": history,
                          "best_validation_loss": best, "best_epoch": best_epoch, "checkpoint": str(path),
                          "checkpoint_sha256": digest(path), "seed": args.seed,
+                         "architecture": meta.get("architecture", "SplitDynamics") if role == "dynamics" else role,
+                         "width_input": meta.get("width_input"),
+                         "parent_checkpoint_sha256": meta.get("parent_checkpoint_sha256"),
+                         "frozen_companions": meta.get("frozen_companions", {}),
                          "settings": meta["training_settings"], "provenance": meta["provenance"]})
   print(f"{role}: best checkpoint {path} selected using validation only", flush=True)
 
 
 def main():
   p = argparse.ArgumentParser(description=__doc__)
-  p.add_argument("stage", choices=("readout", "dynamics", "baseline"))
+  p.add_argument("stage", choices=("readout", "dynamics", "baseline", "width"))
   p.add_argument("--run", required=True, type=pathlib.Path)
   p.add_argument("--epochs", type=int, default=60)
   p.add_argument("--batch-size", type=int, default=64)
@@ -171,6 +206,9 @@ def main():
   p.add_argument("--seed", type=int, default=0)
   p.add_argument("--rollout-steps", type=int, default=4)
   p.add_argument("--tag", default="", help="optional new model directory, e.g. retry_1; pass the same tag to tests")
+  p.add_argument("--from-tag", default="", help="width stage: existing baseline tag to freeze")
+  p.add_argument("--width-input", choices=("visual", "robot"), default="visual",
+                 help="width stage: current JEPA z or zero z; identical head capacity")
   p.add_argument("--q-xyz-cm", type=float, default=2.0)
   p.add_argument("--q-height-cm", type=float, default=1.0)
   p.add_argument("--q-f1", type=float, default=0.8)
@@ -180,8 +218,17 @@ def main():
     p.error("epochs, batch-size, rollout-steps and lr must be positive")
   if min(args.q_xyz_cm, args.q_height_cm) <= 0 or not 0 <= args.q_f1 <= 1 or not 0 <= args.q_brier <= 1:
     p.error("Q distance limits must be positive; F1 and Brier limits must be in [0,1]")
-  if args.tag and (pathlib.Path(args.tag).name != args.tag or args.tag in (".", "..")):
-    p.error("tag must be a single directory name")
+  for tag in (args.tag, args.from_tag):
+    if tag and (pathlib.Path(tag).name != tag or tag in (".", "..")):
+      p.error("tags must be single directory names")
+  output = args.run if not args.tag else args.run / "attempts" / args.tag
+  if args.stage == "width":
+    if not args.tag or not args.from_tag or args.tag == args.from_tag:
+      p.error("width requires different, nonempty --tag and --from-tag")
+    if output.exists():
+      p.error(f"{output} already exists; use a fresh width tag")
+  elif args.from_tag:
+    p.error("--from-tag is only for the width stage")
   torch.manual_seed(args.seed)
   torch.set_num_threads(min(torch.get_num_threads(), 4))
   manifest = load_run(args.run)
@@ -197,6 +244,13 @@ def main():
   stats = {}
   for name, array in (("z", z), ("p", robot), ("xyz", xyz)):
     stats[name+"_mean"], stats[name+"_std"] = normalizer(array[ids["train"]])
+  if args.stage == "width":
+    base, base_ck = load_model(args.run, "dynamics", args.from_tag)
+    if base_ck.get("architecture", "SplitDynamics") != "SplitDynamics":
+      p.error("width must start from an original SplitDynamics baseline")
+    if base_ck["seed"] != args.seed or base_ck["rollout_steps"] != args.rollout_steps:
+      p.error("use the baseline's --seed and --rollout-steps for a matched comparison")
+    stats = {name: base_ck[name] for name in stats}
   nz, np_, nxyz = (normalized(a, stats, n) for n, a in (("z", z), ("p", robot), ("xyz", xyz)))
   ng = torch.from_numpy(grasp)
   meta = {**stats, "manifest_sha256": digest(args.run / "manifest.json"),
@@ -205,7 +259,6 @@ def main():
           "training_settings": {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()},
           "provenance": {**provenance(), "torch": str(torch.__version__), "cuda": torch.version.cuda,
                          "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None}}
-  output = args.run if not args.tag else args.run / "attempts" / args.tag
   # Checkpoints remain tied to original data even when saved under an attempt directory.
   def train_role(role, model, arrays, loss, extra=None):
     fit(output, role, model, arrays["train"], arrays["val"], loss, {**meta, **(extra or {})}, args)
@@ -236,7 +289,7 @@ def main():
     write_json(output / "reports/readout_validation.json", reports)
     print(f"Q real-validation gate: {'PASS' if reports['q_gate_passed'] else 'FAIL'}; "
           "a failed gate makes imagined object metrics diagnostic only")
-  elif args.stage == "dynamics":
+  elif args.stage in ("dynamics", "width"):
     w = args.rollout_steps
     arrays = {}
     for split in ("train", "val"):
@@ -255,15 +308,50 @@ def main():
     def dynamics_loss(model, batch):
       zz, pp, aa = batch
       current_z, current_p = zz[:, 0], pp[:, 0]
-      z_loss, p_loss = 0, 0
+      z_loss, p_loss, width_loss, width_mae = 0, 0, 0, 0
       for t in range(w):
         current_z, current_p = model(current_z, current_p, aa[:, t])
         z_loss += (current_z-zz[:, t+1]).square().mean()/w
         p_loss += (current_p-pp[:, t+1]).square().mean()/w
+        width_error = current_p[:, 18]-pp[:, t+1, 18]
+        width_loss += width_error.square().mean()/w
+        width_mae += width_error.abs().mean()*stats["p_std"][18].item()*100/w
+      if args.stage == "width":
+        return width_loss, {"width_mse": width_loss.item(), "width_mae_cm": width_mae.item(),
+                            "z_mse": z_loss.item(), "p_mse": p_loss.item()}
       return z_loss+p_loss, {"z_mse": z_loss.item(), "p_mse": p_loss.item()}
 
-    train_role("dynamics", SplitDynamics(z.shape[1], 20, 5), arrays, dynamics_loss,
-               {"rollout_steps": w})
+    model = SplitDynamics(z.shape[1], 20, 5)
+    extra = {"rollout_steps": w}
+    if args.stage == "width":
+      model = WidthDynamics(z.shape[1], args.width_input)
+      model.robot.load_state_dict(base.robot.state_dict())
+      model.visual.load_state_dict(base.visual.state_dict())
+      example = [a[:2, 0] for a in arrays["train"]]
+      with torch.inference_mode():
+        original, initial = base(*example), model(*example)
+        if any(not torch.allclose(a, b, rtol=0, atol=1e-6) for a, b in zip(original, initial)):
+          raise RuntimeError("zero correction did not preserve baseline predictions")
+      parent = args.run / "attempts" / args.from_tag
+      companions = [parent / "models" / f"{role}.pt" for role in ("readout", "readout_p", "no_vision")]
+      companions.append(parent / "reports/readout_validation.json")
+      for path in companions:
+        if not path.is_file():
+          p.error(f"missing baseline companion {path}")
+      # Validate unchanged Q and blind model contracts before copying into a fresh attempt.
+      for role in ("readout", "readout_p", "no_vision"):
+        load_model(args.run, role, args.from_tag)
+      for path in companions:
+        destination = output / path.relative_to(parent)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(path, destination)
+      extra.update({"architecture": "WidthDynamics", "width_input": args.width_input,
+                    "parent_tag": args.from_tag, "parent_checkpoint_sha256": digest(parent / "models/dynamics.pt"),
+                    "frozen_companions": {str(path.relative_to(parent)): digest(path) for path in companions},
+                    "selection": "validation normalized width MSE over recursive windows"})
+      print(f"width correction: {args.width_input}; frozen baseline={args.from_tag}; "
+            "only gripper head trains; Q/encoder unchanged", flush=True)
+    train_role("dynamics", model, arrays, dynamics_loss, extra)
   else:
     maximum = max(len(r["actions"]) for r in manifest["rollouts"])
     arrays = {}

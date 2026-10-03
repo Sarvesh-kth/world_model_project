@@ -750,3 +750,98 @@ for seed in 0 1 2; do
     ../results/vision_v2/attempts/seed_${seed}/reports/
 done
 ```
+
+## Try a vision-conditioned finger-width correction
+
+Use the existing vision_v2 cache and seeds to test one bounded intervention.
+The original robot/visual heads and Q stay frozen. A small residual MLP predicts
+a correction to **next finger width**, starting from zero correction so its
+initial outputs exactly match the saved D. It receives current z, current p and
+the proposed action. No actual future robot measurements or object labels are
+model inputs; actual next width is the training target.
+
+Two variants use identical head size, seed, 60-epoch budget, eight-step recursive
+training windows, original normalization and validation splits:
+
+- `visual`: current JEPA z + p + action → width correction.
+- `robot`: zero z + p + action → width correction, a control for extra capacity/training.
+
+The original D_z and Q still use JEPA in **both** variants. This comparison tests
+vision specifically inside the width predictor; it is not a no-vision ablation
+of the entire system. Only the new head trains, using normalized width MSE; the
+best checkpoint is selected by validation width loss. Existing weights/functions
+are frozen, but changed width can alter later robot and visual predictions through
+their recurrent inputs. Q is copied unchanged so readout changes cannot explain
+differences. The final test split is not used.
+
+From `simulation/`, run the complete comparison in one command:
+
+```bash
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 ../.venv/bin/python -m world_model.vision.width_compare \
+  --run data/vision_v2 --execute --epochs 60
+```
+
+It requires your completed original validation/contact reports for seed_0/1/2.
+For each seed it trains `width_robot_seed_N` and `width_visual_seed_N`, runs the
+contact/reset diagnostic plus persistence/action/positions on validation, and
+prints the baseline/control/visual summary. It reuses the frozen cache; no new
+collection, encoder download or encoding occurs. Stage logs are under
+`data/vision_v2/logs/width_*.txt`. Existing completed width fits/stages are reused
+with settings/checkpoint/companion checks; an interrupted training directory is
+preserved and rejected rather than overwritten. Move that incomplete directory
+aside before retrying. Use the same epoch budget when continuing a comparison.
+
+To run one training stage yourself:
+
+```bash
+../.venv/bin/python -m world_model.vision.train width \
+  --run data/vision_v2 --from-tag seed_0 --tag width_visual_seed_0 \
+  --width-input visual --seed 0 --epochs 60 --rollout-steps 8
+```
+
+Run this only before that destination tag exists. All existing diagnostic commands
+accept the new tag; old checkpoints/default training remain supported. A runtime
+check verifies that zero correction preserves baseline z/p predictions before
+training. Original-head weights are excluded from the optimizer.
+
+### Reading the width comparison
+
+`data/vision_v2/reports/width_comparison.json` and `.csv` record source hashes and:
+
+- **Width error:** held-state rollout MAE and transition-state reset-one-step MAE.
+- **Useful object forecasts:** normal h8 held-height error, grasp F1/detections and
+  false positives; h30 held-height/F1 and action/position height-effect errors.
+- **Q gate:** a copied failed gate still marks object interpretations diagnostic.
+
+Compare `visual` against `robot` within each seed. Consistent visual gains would
+support JEPA's contribution to contact-sensitive width prediction. If both improve
+similarly, the benefit may come from the new head/objective rather than vision.
+If width improves but object forecasts do not, fixed D_z/Q remain limiting.
+Do not compare the new width training loss numerically with the old combined
+z+p training loss; compare the same physical validation metrics. There is no
+preclaimed improvement or automatic promotion to a planner.
+
+After this comparison, the next project stage is a validated goal-progress scorer
+and a short-horizon Grade E CEM attempt: current cameras → JEPA → imagined D
+sequences → score → execute one IK action → observe again. The current campaign
+covers grasp/lift/release; it does not establish transport/placement or collision
+accuracy. Score ranking and those action-coverage gaps must be checked when
+connecting the fixed-scene pick-and-place loop.
+
+To share the compact comparison and validation reports from `simulation/`:
+
+```bash
+mkdir -p ../results/vision_v2/width_comparison
+cp data/vision_v2/reports/width_comparison.* ../results/vision_v2/width_comparison/
+for seed in 0 1 2; do
+  for variant in robot visual; do
+    tag="width_${variant}_seed_${seed}"
+    mkdir -p "../results/vision_v2/width_comparison/$tag"
+    cp data/vision_v2/attempts/$tag/reports/*.json "../results/vision_v2/width_comparison/$tag/"
+  done
+done
+```
+
+Only reports are copied: cached clips, model weights and latent arrays remain
+outside Git. The original campaign's files.json describes its original export,
+not this new width comparison.
