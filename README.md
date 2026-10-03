@@ -568,3 +568,60 @@ for this profile use `--horizon 30` and the corresponding `--tag seed_0` when
 rerunning an evaluation by hand. The existing `world_model.vision.check` also
 exercises runner sequencing, export, resume and artifact guards using toy CPU
 features; it makes no real V-JEPA quality claim.
+
+## Diagnose Q with real versus predicted inputs
+
+After `vision_v2` finishes, use its existing validation cache and checkpoints to
+find where imagined object/grasp predictions fail. This command runs D from
+each real starting state with the saved actions, then substitutes inputs **only
+at Q** at steps 1, 8, 16 and 30:
+
+| Printed combination | Visual input to Q | Robot input to Q |
+|---|---|---|
+| `pred_z_pred_p` | D's prediction | D's prediction |
+| `real_z_pred_p` | Actual encoded future clip | D's prediction |
+| `pred_z_real_p` | D's prediction | Actual future robot measurements |
+| `real_z_real_p` | Actual encoded future clip | Actual future robot measurements |
+
+From `simulation/`, run the same diagnostic for all three training seeds:
+
+```bash
+for seed in 0 1 2; do
+  OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 ../.venv/bin/python -m world_model.vision.test hybrid \
+    --run data/vision_v2 --tag "seed_${seed}" --split val --horizon 30 || break
+done
+```
+
+It does not collect, encode or train again, and uses the small trained models
+on CPU. It requires the original `data/vision_v2` folder on the notebook, not
+just the Git-exported results. The hybrid command defaults to validation;
+the original four test commands retain their default test split.
+
+Read **held-only height MAE** (lower is better), **held detected** (recognized
+real held objects / actual held objects), false held predictions and grasp F1
+(higher is better). A row with no real held objects prints `n/a` for held-only
+error and F1; it cannot test detection of positive grasps. Compare substitutions
+within the same horizon, not accuracy across changing class counts.
+
+If replacing predicted z by real z helps, the visual forecast is implicated.
+If replacing predicted p by real p helps, robot information at Q is implicated.
+If real z plus real p is poor, Q itself needs work. Replacing p only at Q does
+not repair any p errors already used inside D_z's rollout. Real future inputs
+are offline diagnostics and are unavailable to a planner; Q gate failures still
+mark object interpretations as diagnostic.
+
+Each seed writes `hybrid_val_h30.json` (metrics, contracts and artifact hashes)
+and `hybrid_val_h30.csv` (each rollout/horizon/combination, real/predicted height,
+grasp probability, gripper width and command) under
+`data/vision_v2/attempts/seed_N/reports/`. It leaves existing weights and the
+four earlier reports intact. To share the new evidence from `simulation/`:
+
+```bash
+for seed in 0 1 2; do
+  cp data/vision_v2/attempts/seed_${seed}/reports/hybrid_val_h30.* \
+    ../results/vision_v2/attempts/seed_${seed}/reports/
+done
+```
+
+Commit those six new report files when ready. They are additional diagnostics;
+the original campaign's `files.json` does not list them until a new export.

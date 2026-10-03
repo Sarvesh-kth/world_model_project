@@ -1,4 +1,4 @@
-"""Run exactly one held-out test: persistence, action, no-vision, or positions."""
+"""Run one held-out comparison, or diagnose real/predicted inputs to Q."""
 import argparse
 import csv
 import json
@@ -76,6 +76,46 @@ def persistence(results, z, p, xyz, grasp, dc, horizons):
         "Q_constant_z_with_same_predicted_p": endpoint_metrics(rows, xyz, grasp, h, "persistent_q_"),
         "Q_on_real_future": endpoint_metrics(rows, xyz, grasp, h, "real_q_")})
   return {"by_horizon": by_horizon}
+
+
+def hybrid_test(results, z, p, xyz, grasp, q, qc, horizons):
+  """Replace only Q's endpoint inputs; D's rollout remains fully predicted."""
+  rows = list(results.values())
+  summaries, details = [], []
+  for h in horizons:
+    ids = [row["rollout"]["states"][h] for row in rows]
+    predicted_z = np.stack([row["z"][h] for row in rows])
+    predicted_p = np.stack([row["p"][h] for row in rows])
+    combinations = {"pred_z_pred_p": (predicted_z, predicted_p),
+                    "real_z_pred_p": (z[ids], predicted_p),
+                    "pred_z_real_p": (predicted_z, p[ids]),
+                    "real_z_real_p": (z[ids], p[ids])}
+    metrics = {}
+    for name, (zz, pp) in combinations.items():
+      position, probability = readout(q, qc, zz, pp)
+      if not np.isfinite(position).all() or not np.isfinite(probability).all():
+        raise RuntimeError(f"nonfinite Q output for {name} at horizon {h}")
+      held, guessed = grasp[ids] >= .5, probability >= .5
+      metrics[name] = {**outcome_metrics(position, probability, xyz[ids], grasp[ids]),
+          "true_held_detected": int((held & guessed).sum()),
+          "false_held_predictions": int((~held & guessed).sum()),
+          "missed_held": int((held & ~guessed).sum())}
+      for row, end, pos, prob in zip(rows, ids, position, probability):
+        r = row["rollout"]
+        details.append({"rollout": r["id"], "horizon": h, "combination": name,
+          "source_height_cm": float(100*xyz[r["states"][0], 2]),
+          "real_height_cm": float(100*xyz[end, 2]), "predicted_height_cm": float(100*pos[2]),
+          "real_held": bool(grasp[end]), "predicted_held": bool(prob >= .5),
+          "predicted_grasp_probability": float(prob),
+          "real_gripper_width_cm": float(100*p[end, 18]),
+          "D_gripper_width_cm": float(100*row["p"][h, 18]),
+          "real_gripper_command": float(p[end, 19]),
+          "D_gripper_command": float(row["p"][h, 19])})
+    summaries.append({"horizon": h, "combinations": metrics})
+  return {"by_horizon": summaries, "rows": details,
+      "diagnostic_contract": "D receives only starting z/p and actions throughout its rollout. "
+        "Real future z/p replace Q inputs only, and are not available to a runtime planner. "
+        "Correcting p at Q does not undo predicted-p errors already consumed by D_z."}
 
 
 def action_test(results, z, truth_xyz, dc, horizon, minimum_cm):
@@ -165,13 +205,15 @@ def position_test(results, p, xyz, horizon, minimum_cm, tolerance):
 
 def main():
   parser = argparse.ArgumentParser(description=__doc__)
-  parser.add_argument("test", choices=("persistence", "action", "no-vision", "positions"))
+  parser.add_argument("test", choices=("persistence", "action", "no-vision", "positions", "hybrid"))
   parser.add_argument("--run", required=True, type=pathlib.Path)
-  parser.add_argument("--split", choices=("val", "test"), default="test")
+  parser.add_argument("--split", choices=("val", "test"),
+                      help="default: val for hybrid, test for the original four comparisons")
   parser.add_argument("--horizon", type=int, default=24)
   parser.add_argument("--minimum-effect-cm", type=float, default=2.0)
   parser.add_argument("--tag", default="")
   args = parser.parse_args()
+  args.split = args.split or ("val" if args.test == "hybrid" else "test")
   if args.horizon < 1 or args.minimum_effect_cm <= 0:
     parser.error("horizon and minimum-effect-cm must be positive")
   if args.tag and (pathlib.Path(args.tag).name != args.tag or args.tag in (".", "..")):
@@ -191,6 +233,11 @@ def main():
   gate = validation["q_gate_passed"] and q_gate(real_q, qc["q_limits"])
   if args.test == "persistence":
     report = persistence(results, z, p, xyz, grasp, dc, sorted({1, min(8, args.horizon), min(16, args.horizon), args.horizon}))
+  elif args.test == "hybrid":
+    report = hybrid_test(results, z, p, xyz, grasp, q, qc,
+                        sorted({1, min(8, args.horizon), min(16, args.horizon), args.horizon}))
+    report["readout_checkpoint_sha256"] = digest(output / "models/readout.pt")
+    report["features_metadata_sha256"] = digest(args.run / "features/meta.json")
   elif args.test == "action":
     report = action_test(results, z, xyz, dc, args.horizon, args.minimum_effect_cm)
   elif args.test == "no-vision":
@@ -206,6 +253,7 @@ def main():
   else:
     report = position_test(results, p, xyz, args.horizon, args.minimum_effect_cm,
                            manifest["settings"]["pair_tolerance"])
+  csv_rows = report.pop("rows", None)
   report = {"test": args.test, "split": args.split, "horizon": args.horizon,
             "scene_groups": len({r['rollout']['scene'] for r in rows}),
             "manifest_sha256": digest(args.run / "manifest.json"),
@@ -220,18 +268,34 @@ def main():
   fields = ("rollout", "source_height_cm", "real_height_cm", "predicted_height_cm", "real_held",
             "predicted_grasp_probability", "real_Q_height_cm", "real_Q_grasp_probability")
   with (output / "reports" / f"{args.test}_{args.split}_h{args.horizon}.csv").open("w", newline="") as f:
-    writer = csv.DictWriter(f, fieldnames=fields); writer.writeheader()
-    for row in rows:
-      r = row["rollout"]; end = r["states"][args.horizon]
-      writer.writerow(dict(zip(fields, (r["id"], 100*xyz[r["states"][0], 2], 100*xyz[end, 2],
-                        100*row["xyz"][args.horizon, 2], bool(grasp[end]), row["grasp"][args.horizon],
-                        100*row["real_q_xyz"][args.horizon, 2], row["real_q_grasp"][args.horizon]))))
+    writer = csv.DictWriter(f, fieldnames=list(csv_rows[0]) if csv_rows is not None else fields)
+    writer.writeheader()
+    if csv_rows is not None:
+      writer.writerows(csv_rows)
+    else:
+      for row in rows:
+        r = row["rollout"]; end = r["states"][args.horizon]
+        writer.writerow(dict(zip(fields, (r["id"], 100*xyz[r["states"][0], 2], 100*xyz[end, 2],
+                          100*row["xyz"][args.horizon, 2], bool(grasp[end]), row["grasp"][args.horizon],
+                          100*row["real_q_xyz"][args.horizon, 2], row["real_q_grasp"][args.horizon]))))
   print(f"{args.test}: {args.split}, {report['scene_groups']} held-out scene groups, {len(rows)} rollouts")
   print(f"Q interpretation gate: {'PASS' if gate else 'FAIL — object predictions are diagnostic only'}")
   display = {k: v for k, v in report.items() if k not in ("pairs", "note")}
   if "additional_action_comparisons" in display:
     display["additional_action_comparisons"] = {k: v for k, v in display["additional_action_comparisons"].items() if k != "pairs"}
-  print(json.dumps(display, indent=2))
+  if args.test == "hybrid":
+    print("Offline Q-input substitutions; D is not refreshed with real future observations.")
+    print("step  Q inputs          height MAE cm  held-only cm  held detected  false held  grasp F1")
+    for horizon in report["by_horizon"]:
+      for name, m in horizon["combinations"].items():
+        held_error = "n/a" if m["height_mae_when_held_cm"] is None else f"{m['height_mae_when_held_cm']:.3f}"
+        f1 = "n/a" if m["positive_labels"] == 0 else f"{m['grasp_f1']:.3f}"
+        print(f"{horizon['horizon']:>4}  {name:<16}  {m['height_mae_cm']:>13.3f}  {held_error:>12}  "
+              f"{m['true_held_detected']:>3}/{m['positive_labels']:<10}  "
+              f"{m['false_held_predictions']:>10}  {f1:>8}")
+    print(report["diagnostic_contract"])
+  else:
+    print(json.dumps(display, indent=2))
   if args.test in ("action", "positions") and report["eligible_pairs"] == 0:
     print("INCONCLUSIVE: no real outcomes meet the effect threshold; use a longer collected horizon.")
   print(f"saved report and per-rollout CSV under {output}/reports")
