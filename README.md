@@ -569,6 +569,207 @@ rerunning an evaluation by hand. The existing `world_model.vision.check` also
 exercises runner sequencing, export, resume and artifact guards using toy CPU
 features; it makes no real V-JEPA quality claim.
 
+## Live A-to-B control: SAC baseline and JEPA planning
+
+This is an **opt-in experiment**, separate from the original viewer and saved
+vision experiments. The existing `environment/rewards.py` defines a reward; it
+does **not** contain a trained RL policy. This runner trains an actual policy
+using [Stable-Baselines3 SAC](https://stable-baselines3.readthedocs.io/en/v2.7.1/modules/sac.html)
+in our existing Panda/MuJoCo scene. It then measures whether the cube really
+gets picked up, transported to B and released. Successful computation alone
+does not establish a working controller.
+
+### Install and run on the GPU notebook
+
+From the repository root:
+
+```bash
+git pull --ff-only origin M2_Kuba
+.venv/bin/python -m pip install -r requirements-control.txt
+cd simulation
+../.venv/bin/python -u -m world_model.vision.control_pipeline \
+  --models-run data/vision_v2 --tag width_visual_seed_0 \
+  --out data/control_v1
+```
+
+The optional dependency is pinned to SB3 **2.7.1**, compatible with the existing
+Torch 2.6 CUDA installation. This command requires the original notebook's
+`vision_v2` manifest, feature metadata and frozen model checkpoints. It does not
+download a policy for a different robot or overwrite the earlier experiments.
+Use the existing OSMesa setup; the runner preserves the rendering backend.
+
+### What the single command does
+
+1. **Collect 20 successful full-task scripted demonstrations.** Save the real
+   observations, actions, rewards and outcomes. The scripted teacher has exact
+   simulator state. These are explicitly labelled demonstrations.
+2. **Initialize a small actor by behaviour cloning (120 epochs).** Train it to
+   reproduce those demonstration actions. Report its initial validation result
+   separately; behaviour cloning alone is not an RL training result.
+3. **Fine-tune with SAC for 10,000 real control steps.** Real demonstrations
+   initialize replay and 1,000 critic warmup updates. A strong, declared actor
+   demonstration loss (`--bc-weight 100`) remains during RL to reduce forgetting.
+   Use the opt-in goal/progress objective below, including real contact penalties.
+   The original simulator reward is logged separately. This is demonstration-
+   assisted RL; a successful fit does not demonstrate an advantage over BC alone.
+   Evaluate every 2,500 steps on
+   five validation seeds; select the best *RL* checkpoint by actual placement
+   success, then final distance. No test episode selects the checkpoint.
+4. **Run four controllers from home on the same five fresh test scenes:**
+
+   | Controller | What selects actions / what it observes |
+   |---|---|
+   | `scripted` | Existing waypoint reference, exact simulator state. |
+   | `rl_true` | Trained SAC actor, measured robot state plus exact cube/contact state. This is the privileged RL baseline. |
+   | `rl_q` | Same SAC actor, measured robot state plus cube position/held probability estimated by frozen JEPA → Q. |
+   | `jepa_mpc` | SAC proposes a sequence; CEM refines candidates; frozen D imagines future z/p; Q reads future cube state; predicted rewards and a terminal SAC critic estimate rank sequences. Execute only the first action, observe and repeat. |
+
+5. **Save and export the evidence.** Success means actually grasped, lifted at
+   least 4 cm while held, then released within the configuration's target radius
+   and 2 cm of resting height for its settling interval. The default comparison
+   jitters cube xy by at most 1 cm per axis around the fixed scene; B stays fixed.
+   Five test episodes are a small local check, not general manipulation proof.
+
+### What enters the models and reward
+
+The SAC actor receives the same 41-value observation layout in every mode:
+20 robot values, cube xyz, cube-to-gripper offset, explicit world-coordinate B,
+B-to-cube offset, held value, six task-history values, known cube resting height
+and remaining episode fraction. History records ever-grasped, previous-held,
+ever-lifted, settling fraction,
+completed placement and current potential. For `rl_true`, cube/contact/history
+are exact.
+Fixed unit scaling makes centimetre offsets significant to the actor; the D/Q
+checkpoint normalization and physical-unit inputs are preserved.
+For `rl_q` and `jepa_mpc`, cube/contact/history are estimated from camera-derived
+Q outputs. Actual object/contact values are logged for evaluation after actions;
+they do not select actions in these two modes.
+
+Online JEPA receives the same static-camera JPEG preprocessing, pinned encoder
+revision and causal 64-frame history as the saved model cache. Early clips repeat
+the first frame. JEPA remains frozen; D predicts the consequences of proposed
+actions. Q translates predicted z/p into cube xyz and held probability. There is
+no image decoder and no true future simulator rollout inside CEM.
+
+The original reward pays grasp/lift/transport repeatedly. A local SAC run with
+that objective placed **0/5 validation episodes after 100,000 steps**, despite
+its BC initialization placing 4/5. It cannot be described as an already working
+RL solution. Lingering incentives and forgetting are hypotheses behind the
+opt-in correction; neither is established as the sole cause.
+
+The new control reward is:
+
+```text
+0.99 * Phi(next) - Phi(current)
++ 15 once for strict completed placement
++ drop/action/failure/contact penalties
+- 0.01 per step
+```
+
+`Phi` reuses the original bounded reach/grasp/lift/transport terms and weights.
+It is zero on terminal states. The explicit episode deadline is a terminal task
+failure, so the critic does not bootstrap a continuation past it.
+Holding still earns no repeated positive bonus; finishing requires the lift/carry/release/settle criterion above. The same
+formula scores real SAC transitions and D/Q imagined transitions. This is
+[potential-based shaping](https://people.eecs.berkeley.edu/~pabbeel/cs287-fa09/readings/NgHaradaRussell-shaping-ICML1999.pdf),
+plus an explicit task objective; it does not guarantee learning success. Original
+reward totals and new control totals are reported separately and must not be
+compared as identical objectives. Every candidate has independent history;
+its placement bonus occurs once and scoring stops at its predicted terminal.
+Held probability is thresholded at 0.5; it is an estimate, not perfect contact.
+Q has no collision/proximity/table-contact head: those three penalties are
+explicitly **omitted from imagined scoring** and are always measured in actual
+evaluation. This first runner rejects layouts with obstacles. It does not claim
+collision-aware planning or exact reconstruction of full simulator state.
+
+Default CEM uses 64 candidates, 8 steps (0.8 simulated seconds), 3 iterations and
+8 elites. Its score is the discounted sum of supported imagined rewards plus
+the discounted minimum of SAC's two critic estimates at the final imagined
+state. The **SAC critic** is an RL value network; the project's **Q readout** is
+the cube-position/grasp network. Set `--terminal-weight 0` in a **new run** for
+reward-only scoring. Implausible predicted finger widths invalidate candidates;
+if all candidates are invalid, execute the Q-observed actor proposal and count
+that fallback explicitly.
+
+**Important scope:** current D/Q were fitted on local grasp/lift branches. This
+whole-task run tests their extrapolation into reaching, carrying and placement;
+it does not quietly retrain them or assume that they already predict those
+regions accurately. A bad baseline or failed learned controller is a result to
+inspect, not a successful project milestone.
+
+### Observed local baseline check
+
+[Saved CPU evidence](results/control_reference_check.json): the selected assisted
+SAC checkpoint (2,500 of 10,000 training steps, chosen by validation) placed
+**5/5 fresh test seeds**. Final cube distance from B was **0.05–1.28 cm**, with
+no recorded obstacle/table contact steps. BC alone also placed5/5, so this is
+not evidence of an RL improvement. Later RL checkpoints degraded to2/5
+validation placements; selecting the final checkpoint blindly would be wrong.
+The fixed-scene result does not establish broad robustness or JEPA performance.
+Real JEPA/Q/MPC still requires the notebook run above and its saved checkpoints.
+
+### Read, visualize, resume and share
+
+Start with `results/control_v1/summary.txt` and `summary.csv`. Read actual full
+placement counts before reward totals. The predeclared local SAC baseline check
+is at least 80% actual success over at least five test scenes. The report prints
+whether that was observed; smaller/custom checks do not meet this criterion.
+`rl_training.json` shows demonstration-only validation, RL validation history and
+the selected training step. Each episode has `steps.csv` with actions, true
+reward components, actual goal distance/lift/contact and model errors. MPC also
+exports candidate scores and selected imagined trajectories. One-step forecast
+errors compare the chosen first action with the actual next observation; later
+imagined states are **not** compared with a real trajectory that replanned
+different actions.
+
+Raw files stay under `simulation/data/control_v1/episodes/<method>/seed_<seed>/`:
+
+- `actual.gif` and `frames/`: actual camera observations, not imagined video.
+- `trajectory.npz`: measured p, actual cube/contact labels, executed actions and
+  actual rewards; JEPA methods also save real encoded z at every state.
+- `trajectory_meta.json`: alignment (`state[t]`, `action[t]`, `state[t+1]`) and
+  encoder identity. These recordings can supply future training data with new
+  held-out evaluation scenes; this run does not automatically train on tests.
+- `forecasts/step_*.npz`: candidate actions, predicted p/cube/held/rewards, scores,
+  validity, current z and the selected predicted visual trajectory.
+
+In a Jupyter cell, display an actual run (adjust the root if needed):
+
+```python
+from pathlib import Path
+from IPython.display import Image, display
+root = Path('/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_v1/episodes')
+for method in ('scripted', 'rl_true', 'rl_q', 'jepa_mpc'):
+    print(method)
+    display(Image(filename=str(sorted((root / method).glob('*/actual.gif'))[0])))
+```
+
+For an interrupted run, repeat the original command and add `--resume`.
+Completed stages are hash-checked and skipped. SAC resumes its last complete
+validation checkpoint, optimizer and replay; its physical episode/RNG stream
+restarts, so this is not bit-identical continuation. Interrupted episode files
+are preserved under `interrupted/` and that episode is rerun. For changed
+settings/code, use a fresh `--out`, such as `data/control_v2`.
+
+The small `../.venv/bin/python -m world_model.vision.control_pipeline --self-check`
+checks reward parity, candidate-history isolation, no holding bonus and a real scripted placement
+without installing SB3 or loading GPU models. It does not demonstrate SAC/JEPA
+control quality.
+
+After completion, from the repository root:
+
+```bash
+git add -- results/control_v1
+git --no-pager diff --cached --stat
+git commit -m "Record live SAC and JEPA control comparison"
+git push origin M2_Kuba
+git rev-parse --short HEAD
+```
+
+Only compact reports/logs are exported. Keep frames, videos, model weights,
+replay buffers and agent notes out of Git. Existing Mac/Linux viewer commands
+and dependencies remain unchanged.
+
 ## Diagnose Q with real versus predicted inputs
 
 After `vision_v2` finishes, use its existing validation cache and checkpoints to
