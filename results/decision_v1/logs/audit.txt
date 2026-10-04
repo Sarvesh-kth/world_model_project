@@ -1,0 +1,29 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.audit", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/decision_v1/observations"]
+scenes by split: {'train': 4, 'val': 6, 'test': 12}
+states=7964 rollouts=264 frames=9676
+held labels: {'train': {'False': 1320, 'True': 128}, 'val': {'False': 1984, 'True': 188}, 'test': {'False': 3686, 'True': 658}}
+position-pair maximum robot mismatch: 0
+  scene_0000 train: real close/open object-height effect +17.00 cm
+  scene_0001 train: real close/open object-height effect +11.68 cm
+  scene_0002 train: real close/open object-height effect +0.00 cm
+  scene_0003 train: real close/open object-height effect +0.00 cm
+  scene_0004 val: real close/open object-height effect +0.00 cm
+  scene_0005 val: real close/open object-height effect +16.00 cm
+  scene_0006 val: real close/open object-height effect +12.86 cm
+  scene_0007 val: real close/open object-height effect +0.00 cm
+  scene_0008 val: real close/open object-height effect +0.00 cm
+  scene_0009 val: real close/open object-height effect +0.00 cm
+  scene_0010 test: real close/open object-height effect +0.00 cm
+  scene_0011 test: real close/open object-height effect +17.69 cm
+  scene_0012 test: real close/open object-height effect +0.00 cm
+  scene_0013 test: real close/open object-height effect +15.35 cm
+  scene_0014 test: real close/open object-height effect +17.85 cm
+  scene_0015 test: real close/open object-height effect +17.28 cm
+  scene_0016 test: real close/open object-height effect +11.62 cm
+  scene_0017 test: real close/open object-height effect +0.00 cm
+  scene_0018 test: real close/open object-height effect +17.25 cm
+  scene_0019 test: real close/open object-height effect +0.00 cm
+  scene_0020 test: real close/open object-height effect +17.56 cm
+  scene_0021 test: real close/open object-height effect +16.86 cm
+PASS: alignment/splits/restores/images/labels checked. Inspect /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/decision_v1/observations/reports/scene_*.jpg

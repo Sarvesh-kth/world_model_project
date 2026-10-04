@@ -1,0 +1,302 @@
+{
+  "problems": [],
+  "states": 7964,
+  "rollouts": 264,
+  "scene_groups": 22,
+  "scenes_by_split": {
+    "train": 4,
+    "val": 6,
+    "test": 12
+  },
+  "held_labels_by_split": {
+    "train": {
+      "False": 1320,
+      "True": 128
+    },
+    "val": {
+      "False": 1984,
+      "True": 188
+    },
+    "test": {
+      "False": 3686,
+      "True": 658
+    }
+  },
+  "distinct_frames": 9676,
+  "max_position_pair_p_error": 0.0,
+  "branches": {
+    "close_lift": 44,
+    "open_lift": 44,
+    "close_hold": 44,
+    "open_hold": 44,
+    "close_side_lift": 44,
+    "close_lift_release": 44
+  },
+  "rejected_attempts": 0,
+  "contrasts": [
+    {
+      "scene": "scene_0000",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 17.000699043273926
+    },
+    {
+      "scene": "scene_0000",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0001",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 11.677759885787964
+    },
+    {
+      "scene": "scene_0001",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0002",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0002",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0003",
+      "placement": "under",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0003",
+      "placement": "offset",
+      "split": "train",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0004",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0004",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0005",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 15.998578071594238
+    },
+    {
+      "scene": "scene_0005",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0006",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 12.859541177749634
+    },
+    {
+      "scene": "scene_0006",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0007",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0007",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0008",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0008",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0009",
+      "placement": "under",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0009",
+      "placement": "offset",
+      "split": "val",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0010",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0010",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0011",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.694538831710815
+    },
+    {
+      "scene": "scene_0011",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0012",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0012",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0013",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 15.346020460128784
+    },
+    {
+      "scene": "scene_0013",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0014",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.849886417388916
+    },
+    {
+      "scene": "scene_0014",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0015",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.276257276535034
+    },
+    {
+      "scene": "scene_0015",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0016",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 11.622637510299683
+    },
+    {
+      "scene": "scene_0016",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 11.632484197616577
+    },
+    {
+      "scene": "scene_0017",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0017",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0018",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.248839139938354
+    },
+    {
+      "scene": "scene_0018",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0019",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0019",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0020",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 17.563718557357788
+    },
+    {
+      "scene": "scene_0020",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    },
+    {
+      "scene": "scene_0021",
+      "placement": "under",
+      "split": "test",
+      "height_effect_cm": 16.863173246383667
+    },
+    {
+      "scene": "scene_0021",
+      "placement": "offset",
+      "split": "test",
+      "height_effect_cm": 0.0
+    }
+  ]
+}
