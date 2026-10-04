@@ -845,3 +845,173 @@ done
 Only reports are copied: cached clips, model weights and latent arrays remain
 outside Git. The original campaign's files.json describes its original export,
 not this new width comparison.
+
+## Stable-lift score and candidate-choice experiment: one command
+
+This is the next check before connecting a planner: **can our frozen models
+choose a useful action sequence from alternatives?** It tests an explicit task
+scorer, not a trained reward network. It does not yet run CEM or complete
+pick-and-place. Use the GPU notebook with your completed `data/vision_v2` run,
+including the original and paired finger-width checkpoints for seeds 0/1/2.
+Those recordings, features and weights are local files; pulling Git alone
+does not supply them. No extra packages are needed beyond that working environment.
+
+Pull the code from your notebook's repository root:
+
+```bash
+git pull --ff-only origin M2_Kuba
+cd simulation
+```
+
+Start the entire experiment:
+
+```bash
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 ../.venv/bin/python \
+  -m world_model.vision.decision_pipeline \
+  --models-run data/vision_v2 --out data/decision_v1 --resume
+```
+
+Rerun this **same command** after an interruption. Collection resumes after its
+last complete scene; encoding resumes its partial cache; completed stages are
+verified and skipped. Changed settings, source checkpoints or relevant code
+require a new `--out` name. A software failure stops with its log path; failed
+model interpretation/calibration gates are saved scientific results.
+
+### What runs automatically
+
+1. **Collect fresh real outcomes.** Collection seed `20261004`; six fresh
+   validation and twelve test scene groups, plus four unused train groups for
+   the existing collector/audit contract. No model trains on this new data.
+   Each group varies robot preparation, cube placement and motion parameters.
+   Both cube-under-gripper and offset placements run six alternatives:
+   close/lift, open/lift, close/hold, open/hold, close/sideways/lift,
+   and close/lift/release. Each branch restores the same simulator state.
+   Defaults give 264 short trajectories and 7,964 recorded states.
+2. **Audit.** Check restores, matched robot postures, file/action alignment,
+   scene splits and successful/failed outcome coverage. Record real camera
+   frames, robot values, cube coordinates, held/contact labels and true simulator
+   rewards. Inspect the collection contact sheets if an audit fails.
+3. **Encode.** Encode real causal 64-frame camera histories with the same frozen
+   V-JEPA model and pinned revision as the original feature cache. Save vectors;
+   no encoder fine-tuning or JEPA predictor is used.
+4. **Evaluate choices and export.** Keep all existing D/Q checkpoints frozen.
+   At the original source and genuine later branch points, compare distinct
+   candidate sequences over 4, 8, 16 and 30 control steps. Identical action
+   prefixes are merged. Verify that alternatives share starting observations,
+   robot values and camera history. Recurse D from the actual starting z/p;
+   every future z/p used by the chooser is predicted. Save every forecast,
+   choice, abstention and actual answer.
+
+At 10 Hz, 4/8/16/30 steps mean 0.4/0.8/1.6/3 seconds. Branch points permit short
+tests while already holding the cube, as well as decisions before grasping.
+Reports separate held and unheld starting states. Overlapping decisions remain
+correlated within scene groups; their count is not an independent trial count.
+
+### The task score and ground truth
+
+**Actual local success:** the cube is at least **5 cm above its original
+pre-grasp height**, is actually held throughout the final **three recorded
+states**, and the candidate has no recorded robot/table or obstacle contact.
+These are the existing simulator labels: arm/table contact excludes fingers;
+obstacle contact includes the robot and object. They are not exhaustive safety checks.
+Three end states are a short stability check, not a guarantee of prolonged
+holding. This lift objective does not measure reaching the placement target.
+
+**Predicted qualification:** Q reads D's predicted future z/p and supplies cube
+height and held probabilities. A candidate must meet the same 5 cm height goal
+throughout its final three states, exceed a held-confidence threshold throughout
+those states, and predict physically plausible finger openings. The total width
+range is 0–8 cm, with a predeclared 2 mm tolerance. Large predicted height cannot
+compensate for low held confidence. Among qualified candidates, choose the highest
+minimum held confidence, breaking ties by lower action effort then branch name.
+If none qualifies, record **ABSTAIN**; no fallback action is executed.
+
+The confidence threshold is selected separately for each seed/horizon using
+**only fresh validation Q outputs on actual future states**, then shared by all
+D variants. The fixed threshold grid is 0.5/0.7/0.8/0.9/0.95/0.99. Support requires
+at least three true positive candidate cases from at least two scene groups and
+empirical precision of at least 0.9. Among supported settings, select highest
+recall, then lowest threshold. Unsupported calibration forces abstention.
+This does not establish a calibrated probability of joint lift/hold success.
+Test outcomes never select thresholds or checkpoints.
+
+The scorer's reference height comes from Q on the **past pre-grasp observation**.
+Simulator coordinates/contact/rewards are answers used for offline evaluation;
+they do not enter D or choose actions. Q is checked separately on real fresh
+validation/test states. A failed Q gate marks those object-based choice results
+`diagnostic_only`. Real future Q is an explicit diagnostic control, not an
+available runtime observation. There is currently no collision predictor: actual
+selected collisions are reported, but the chooser cannot forecast them.
+
+### What we compare
+
+| Report version | Future used to choose | Purpose |
+|---|---|---|
+| `original` | Original D → unchanged Q | Existing baseline |
+| `robot` | D with p/action width correction → unchanged Q | Correction without vision in the width head |
+| `visual` | D with z/p/action width correction → unchanged Q | Does vision in the width head improve choices? |
+| `unchanged_z_predicted_p` | Starting z repeated, original D's predicted p → Q | Does predicted visual change help? |
+| `real_Q_diagnostic` | Actual future JEPA z and measured p → Q | Can Q and this rule recognize actual successful outcomes? |
+
+Both corrected complete models still use JEPA in D_z/Q. This is not a full
+JEPA-versus-another-encoder comparison. Reports also compare always choosing
+close/lift, the expected success of uniformly random candidate choice, and
+the best success achievable within the recorded candidate set (oracle bound).
+The oracle uses actual outcomes only for evaluation, never for model choices.
+
+### How to read the results
+
+Read `../results/decision_v1/reports/summary.txt`, then `summary.csv` and the
+per-seed JSON/CSV files:
+
+- **`candidate_success_coverage`:** fraction of decision sets with at least one
+  actually successful candidate. Low coverage means the available moves rarely
+  solve the task. All-failure sets cannot demonstrate good action ordering.
+- **`chosen_success_rate_when_success_available`:** how often the model selected
+  a success when one was available; abstention counts as not selecting success.
+  Empty eligible sets return `null`, not perfect agreement.
+- **`chosen_success_rate_all_decisions`:** actual successful selections divided
+  by all decision sets. Compare with random/oracle baselines on those decisions.
+  Some later groups have no close/lift candidate; compare that baseline with
+  `chosen_success_rate_on_close_lift_decisions`, using its reported
+  `always_close_lift_decisions` count.
+- **`false_successes` / `false_success_rate_selected`:** qualified selections
+  that actually failed. This exposes confident but incorrect predictions.
+- **`abstention_rate`:** fraction with no selected candidate. Very high abstention
+  can make false-success rates look good without achieving the task.
+- **`candidate_success_precision` / `recall`:** qualification accuracy across
+  distinct candidates, separately from the single selected choice.
+- **`Q_gate_passed`, `calibration_supported`, `diagnostic_only`:** interpretation
+  limits. Check the JSON's Q metrics and threshold sweep before claiming a gain.
+- **`candidate_width_invalid_fraction`, `selected_collision_count`:** physical
+  forecast failures and actual unsafe selected outcomes. Simulator return is
+  saved separately; it is not this new binary local-success definition.
+
+`seed_N_candidates.csv` includes candidate actions, aliases, predicted scoring
+features and actual success/contact/return. `seed_N_forecast_steps.csv` includes
+actual versus predicted height, held probability and finger width at each step.
+`seed_N_decisions.csv` shows selected candidate or ABSTAIN, coverage and regret
+(binary success lost relative to the best candidate, for selected actions).
+For example, predicted close/lift qualifying but actually dropping the cube
+counts as false success, even if its latent prediction error is small.
+
+Full stage logs remain in `data/decision_v1/logs/`; raw frames and encoded
+vectors remain in `data/decision_v1/observations/`. The automatic export contains
+reports, full text logs, audit, scene/action settings, source/model/code hashes,
+timings and a file hash index. It excludes raw frames, latent arrays and weights.
+Wait for **`COMPLETE: reports/logs exported`**, then share from the repository root:
+
+```bash
+cd ..
+git add -- results/decision_v1
+git --no-pager diff --cached --stat
+git commit -m "Record stable-lift candidate-choice experiment"
+git push origin M2_Kuba
+git rev-parse --short HEAD
+```
+
+The scorer has a small dependency-light logic check, runnable from `simulation/`:
+
+```bash
+../.venv/bin/python -m world_model.vision.decision --check
+```

@@ -90,6 +90,9 @@ def branches(args, parameters):
   lift = parameters["lift_action"]
   result = {name: sequence(close, args.hold_steps, args.lift_steps, lift)
             for name, close in (("close_lift", True), ("open_lift", False))}
+  if getattr(args, "decision_branches", False):
+    result.update({name: sequence(close, args.hold_steps, args.lift_steps, 0.0)
+                   for name, close in (("close_hold", True), ("open_hold", False))})
   if args.profile == "varied":
     side = [a.copy() for a in result["close_lift"]]
     release = [a.copy() for a in result["close_lift"]]
@@ -206,6 +209,7 @@ def main():
   p.add_argument("--run", required=True, type=pathlib.Path)
   p.add_argument("--profile", choices=("controlled", "varied"), default="controlled")
   p.add_argument("--resume", action="store_true", help="continue an interrupted collection after its last complete scene")
+  p.add_argument("--decision-branches", action="store_true", help="also record close/open without lifting")
   p.add_argument("--config", default="configs/grade_e.yml")
   p.add_argument("--layout", default="configs/grade_e_layout.json")
   p.add_argument("--train-scenes", type=int, default=12)
@@ -231,7 +235,10 @@ def main():
   if not cfg.control.yaw.enabled:
     p.error("this experiment uses five-dimensional actions; enable control.yaw")
   args.run.mkdir(parents=True, exist_ok=True)
-  settings = {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items() if k != "resume"}
+  settings = {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()
+              if k not in ("resume", "decision_branches")}
+  if args.decision_branches:
+    settings["decision_branches"] = True
   manifest = {"schema": "vision_consequences_v1", "camera": args.camera, "clip_frames": 64,
               "clip_padding": "repeat_first_observed_frame", "control_hz": cfg.control.hz,
               "proprio_columns": P_COLUMNS, "action_columns": A_COLUMNS,

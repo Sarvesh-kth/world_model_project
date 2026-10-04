@@ -17,6 +17,7 @@ def main():
   p = argparse.ArgumentParser(description=__doc__)
   p.add_argument("--run", required=True, type=pathlib.Path)
   p.add_argument("--model", default="facebook/vjepa2-vitl-fpc64-256")
+  p.add_argument("--revision", help="pin the encoder to the revision used by existing checkpoints")
   p.add_argument("--resume", action="store_true", help="resume an interrupted cache for this exact run/model")
   args = p.parse_args()
   if not torch.cuda.is_available():
@@ -27,7 +28,9 @@ def main():
     p.error("dataset audit failed: " + "; ".join(issues[:5]))
   out = args.run / "features"
   signature = {"manifest_sha256": digest(args.run / "manifest.json"), "model": args.model}
-  done, vectors, revision = 0, None, None
+  if args.revision:
+    signature["requested_revision"] = args.revision
+  done, vectors, revision = 0, None, args.revision
   partial = out / "latents.partial.npy"
   if out.exists():
     if not args.resume or (out / "meta.json").exists():
@@ -36,7 +39,7 @@ def main():
     if any(progress[k] != v for k, v in signature.items()):
       p.error("interrupted cache belongs to a different run/model")
     done = progress["encoded"]
-    revision = progress.get("model_revision")
+    revision = progress.get("model_revision") or args.revision
     if not 0 <= done <= len(manifest["states"]):
       p.error("invalid progress count")
     if done:
