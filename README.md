@@ -1015,3 +1015,41 @@ The scorer has a small dependency-light logic check, runnable from `simulation/`
 ```bash
 ../.venv/bin/python -m world_model.vision.decision --check
 ```
+
+### Visualize saved decisions, predictions and real movements
+
+From `simulation/`, after pulling the visualization helper:
+
+```bash
+../.venv/bin/python -m world_model.vision.visualize_decisions
+```
+
+This reads the exported seed-0 reports and the notebook's existing recordings.
+It loads no models and needs no GPU. Under
+`artifacts/decision_v1/visualizations/` it creates:
+
+- `choices_seed_0.png`: successful selections, chosen failures and abstentions
+  at each horizon, with candidate coverage and Q-gate status.
+- `scene_0011_under_close_lift_seed_0.png`: actual versus predicted cube rise,
+  held probability and finger width for a successful real lift that D largely misses.
+- `scene_0011_under_real_branches.gif`: the **recorded real** close/lift,
+  open/lift and close/lift/release camera sequences side by side.
+
+Open the GIF/PNGs in Jupyter's file browser. If only the Git export is available,
+charts still work and the real GIF is skipped. The helper verifies that the
+recording manifest matches the report before generating a video. The rise
+curves use the same references as the scorer: actual pre-grasp height for real
+labels, Q's estimate on the past pre-grasp observation for predictions.
+Q on real future observations is plotted only as a diagnostic.
+
+Try the contrasting false-positive example or another model-fitting seed:
+
+```bash
+../.venv/bin/python -m world_model.vision.visualize_decisions --scene scene_0012
+../.venv/bin/python -m world_model.vision.visualize_decisions --seed 1
+```
+
+Choose `--placement offset` or `--branch close_lift_release` to inspect other
+recorded candidates. GIFs show physical simulator outcomes. D predicts numeric
+latent/robot states; no decoder currently converts those predictions into an
+imagined robot video. The plots are how we inspect those forecasts.
