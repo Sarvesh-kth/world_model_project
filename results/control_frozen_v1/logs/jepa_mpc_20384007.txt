@@ -1,0 +1,80 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.control_pipeline", "--models-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--baseline-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1", "--tag", "width_visual_seed_0", "--layout", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/configs/grade_e_layout.json", "--out", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v1", "--export-dir", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/control_frozen_v1", "--seed", "20364005", "--rl-steps", "10000", "--demos", "20", "--bc-epochs", "120", "--bc-weight", "100.0", "--critic-warmup", "1000", "--eval-every", "2500", "--validation-episodes", "5", "--test-episodes", "5", "--position-jitter", "0.01", "--horizon", "8", "--population", "64", "--elites", "8", "--iterations", "3", "--terminal-weight", "0.0", "--threads", "4", "--stage", "episode", "--method", "jepa_mpc", "--episode-seed", "20384007"]
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 1s [Retry 1/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 2s [Retry 2/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 4s [Retry 3/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 8s [Retry 4/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 8s [Retry 5/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 1s [Retry 1/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 2s [Retry 2/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 4s [Retry 3/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 8s [Retry 4/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 8s [Retry 5/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 1s [Retry 1/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 2s [Retry 2/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 4s [Retry 3/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 8s [Retry 4/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+Retrying in 8s [Retry 5/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/processor_config.json
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 1s [Retry 1/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 2s [Retry 2/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 4s [Retry 3/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 8s [Retry 4/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+Retrying in 8s [Retry 5/5].
+'[Errno -3] Temporary failure in name resolution' thrown while requesting HEAD https://huggingface.co/facebook/vjepa2-vitl-fpc64-256/resolve/b3c1679b7c34d3255ef3547f27c7b226aefab26f/preprocessor_config.json
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 9927.69it/s]
+jepa_mpc seed=20384007 step=10: held=False goal_distance=50.9cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=20: held=False goal_distance=50.9cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=30: held=False goal_distance=50.9cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=40: held=False goal_distance=51.1cm lift=-0.3cm success=False
+jepa_mpc seed=20384007 step=50: held=False goal_distance=51.3cm lift=-0.2cm success=False
+jepa_mpc seed=20384007 step=60: held=False goal_distance=50.8cm lift=0.3cm success=False
+jepa_mpc seed=20384007 step=70: held=False goal_distance=51.2cm lift=-0.3cm success=False
+jepa_mpc seed=20384007 step=80: held=False goal_distance=50.9cm lift=-0.4cm success=False
+jepa_mpc seed=20384007 step=90: held=False goal_distance=50.5cm lift=-0.4cm success=False
+jepa_mpc seed=20384007 step=100: held=False goal_distance=50.7cm lift=-0.3cm success=False
+jepa_mpc seed=20384007 step=110: held=False goal_distance=50.7cm lift=-0.4cm success=False
+jepa_mpc seed=20384007 step=120: held=False goal_distance=50.4cm lift=-0.2cm success=False
+jepa_mpc seed=20384007 step=130: held=False goal_distance=50.1cm lift=-0.2cm success=False
+jepa_mpc seed=20384007 step=140: held=False goal_distance=49.4cm lift=0.8cm success=False
+jepa_mpc seed=20384007 step=150: held=False goal_distance=50.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=160: held=False goal_distance=50.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=170: held=False goal_distance=50.1cm lift=-0.1cm success=False
+jepa_mpc seed=20384007 step=180: held=False goal_distance=53.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=190: held=False goal_distance=54.3cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=200: held=False goal_distance=54.9cm lift=-0.1cm success=False
+jepa_mpc seed=20384007 step=210: held=False goal_distance=57.0cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=220: held=False goal_distance=57.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=230: held=False goal_distance=57.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=240: held=False goal_distance=57.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=250: held=False goal_distance=57.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=260: held=False goal_distance=57.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=270: held=False goal_distance=57.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=280: held=False goal_distance=57.2cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=290: held=False goal_distance=56.8cm lift=0.0cm success=False
+jepa_mpc seed=20384007 step=300: held=True goal_distance=54.3cm lift=0.8cm success=False
+FINISHED jepa_mpc: success=False goal=54.3cm

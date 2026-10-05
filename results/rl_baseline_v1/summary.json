@@ -1,0 +1,12 @@
+{
+  "gate_passed": true,
+  "complete": true,
+  "inputs": "exact current simulator state + B",
+  "BC_test_successes": 99,
+  "SAC_test_successes": 100,
+  "test_episodes": 100,
+  "SAC_checkpoint_sha256": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+  "selected_rl_steps": 20000,
+  "selected_validation_success_rate": 1.0,
+  "note": "Imitation and RL are reported separately. Passing does not prove an RL gain or broad robustness."
+}

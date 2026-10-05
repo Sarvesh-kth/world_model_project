@@ -1,0 +1,15 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.control_pipeline", "--models-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--baseline-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1", "--tag", "width_visual_seed_0", "--layout", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/configs/grade_e_layout.json", "--out", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v1", "--export-dir", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/control_frozen_v1", "--seed", "20364005", "--rl-steps", "10000", "--demos", "20", "--bc-epochs", "120", "--bc-weight", "100.0", "--critic-warmup", "1000", "--eval-every", "2500", "--validation-episodes", "5", "--test-episodes", "5", "--position-jitter", "0.01", "--horizon", "8", "--population", "64", "--elites", "8", "--iterations", "3", "--terminal-weight", "0.0", "--threads", "4", "--stage", "episode", "--method", "rl_true", "--episode-seed", "20384007"]
+rl_true seed=20384007 step=10: held=False goal_distance=50.9cm lift=0.0cm success=False
+rl_true seed=20384007 step=20: held=False goal_distance=50.9cm lift=0.0cm success=False
+rl_true seed=20384007 step=30: held=False goal_distance=50.9cm lift=0.0cm success=False
+rl_true seed=20384007 step=40: held=True goal_distance=51.0cm lift=0.4cm success=False
+rl_true seed=20384007 step=50: held=True goal_distance=48.3cm lift=9.2cm success=False
+rl_true seed=20384007 step=60: held=True goal_distance=34.7cm lift=9.4cm success=False
+rl_true seed=20384007 step=70: held=True goal_distance=20.8cm lift=9.1cm success=False
+rl_true seed=20384007 step=80: held=True goal_distance=7.9cm lift=9.2cm success=False
+rl_true seed=20384007 step=90: held=True goal_distance=2.0cm lift=7.4cm success=False
+rl_true seed=20384007 step=100: held=False goal_distance=1.5cm lift=-0.1cm success=False
+rl_true seed=20384007 step=110: held=False goal_distance=1.5cm lift=0.0cm success=False
+rl_true seed=20384007 step=114: held=False goal_distance=1.5cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=1.5cm
