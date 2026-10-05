@@ -5,6 +5,17 @@ data/
 artifacts/
 .mujoco-osmesa/
 
+# Explicit team-shared experiment runs. Their contents use Git LFS.
+# Other generated runs remain local unless deliberately added here.
+!simulation/data/
+simulation/data/*
+!simulation/data/vision_v2/
+!simulation/data/rl_baseline_v1/
+!simulation/data/control_v1/
+!simulation/data/control_frozen_v1/
+!simulation/data/control_frozen_v2/
+
+
 # Keep local notes and agent instructions out of project commits.
 *.md
 .agents/

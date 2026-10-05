@@ -1,0 +1,7 @@
+# Keep shared datasets/checkpoints/recordings out of ordinary Git blobs.
+# Whole run trees also cover large manifests and files with unusual suffixes.
+simulation/data/vision_v2/** filter=lfs diff=lfs merge=lfs -text
+simulation/data/rl_baseline_v1/** filter=lfs diff=lfs merge=lfs -text
+simulation/data/control_v1/** filter=lfs diff=lfs merge=lfs -text
+simulation/data/control_frozen_v1/** filter=lfs diff=lfs merge=lfs -text
+simulation/data/control_frozen_v2/** filter=lfs diff=lfs merge=lfs -text

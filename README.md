@@ -1,10 +1,14 @@
 # JEPA World Model Pick and Place
 
-This repository currently contains a MuJoCo simulation of a Franka Panda arm,
-scripted pick-and-place demonstrations, episode data collection, and an initial
-frozen V-JEPA 2 feature/dynamics training pipeline. A learned reward model and
-learned controllers are planned work; the
-`success` demo uses a scripted policy that reads simulator state.
+This repository contains a MuJoCo Franka Panda simulation, scripted demonstrations,
+data collection, frozen V-JEPA 2 features, learned dynamics/readouts, a trained SAC
+baseline and experimental visual control. The `success` demo uses a scripted
+policy that reads simulator state. The live comparison uses a fixed reward
+formula; a separate learned immediate reward network remains planned work.
+
+**Sharing with teammates:** code/report exports do not include notebook-trained
+weights or recordings. See [Share trained runs and videos with Calle](#share-trained-runs-and-videos-with-calle)
+for Git LFS upload/download commands and video instructions.
 
 ## Install (macOS and Linux)
 
@@ -19,7 +23,8 @@ python3 -m venv .venv
 ```
 
 If you already have the repository, start with `cd world_model_project`. The
-virtual environment and generated `simulation/data/` are ignored by Git.
+virtual environment and most generated runs are ignored by Git. Explicitly shared
+run folders are allowed and configured for Git LFS; see the sharing section.
 
 ## Watch the robot
 
@@ -1480,3 +1485,237 @@ git --no-pager diff --cached --stat
 git commit -m "Record frozen SAC versus JEPA control comparison"
 git push origin M2_Kuba
 ```
+
+## Share trained runs and videos with Calle
+
+The earlier `results/` exports contain reports/logs, not trained weights, cached
+latents or raw frames. These remain on the notebook until explicitly uploaded.
+The sharing policy now permits these exact folders under `simulation/data/`:
+`vision_v2`, `rl_baseline_v1`, `control_v1`, `control_frozen_v1`, and
+`control_frozen_v2`. Their entire contents use Git LFS. Agent notes, virtualenvs,
+other generated runs and temporary artifacts retain their ignore rules.
+
+### Upload from Kuba's GPU notebook
+
+Work in the **repository root**, not `simulation/`. The data is on this notebook;
+running the upload from the Mac will not supply missing notebook files.
+
+```bash
+cd "$HOME/Robots&EmbodiedAI/project/world_model_project"
+git lfs version
+git lfs install --local
+git pull --ff-only origin M2_Kuba
+git branch --show-current
+```
+
+The branch must be `M2_Kuba`. If `git lfs` is missing, install the
+[official Git LFS client](https://github.com/git-lfs/git-lfs/blob/main/INSTALLING.md)
+first. The Ubuntu command is `sudo apt-get install git-lfs` when sudo is available.
+On the teaching notebook's Linux x86_64 environment, this installs the official
+v3.7.1 binary without sudo, checking its published SHA256:
+
+```bash
+(
+  set -e
+  lfs_tmp=$(mktemp -d)
+  trap 'rm -rf "$lfs_tmp"' EXIT
+  cd "$lfs_tmp"
+  curl -fL --retry 3 -o git-lfs.tar.gz \
+    https://github.com/git-lfs/git-lfs/releases/download/v3.7.1/git-lfs-linux-amd64-v3.7.1.tar.gz
+  printf '1c0b6ee5200ca708c5cebebb18fdeb0e1c98f1af5c1a9cba205a4c0ab5a5ec08  git-lfs.tar.gz\n' | sha256sum -c -
+  tar -xzf git-lfs.tar.gz --strip-components=1
+  mkdir -p "$HOME/.local/bin"
+  install -m 755 git-lfs "$HOME/.local/bin/git-lfs"
+)
+export PATH="$HOME/.local/bin:$PATH"
+git lfs version
+```
+
+Repeat the PATH export in future shells if `$HOME/.local/bin` is not already on
+PATH. Other architectures should use their matching official package. Git LFS
+is a Git client tool, not a Python package or CUDA dependency. The binary/checksum
+come from the [official release](https://github.com/git-lfs/git-lfs/releases/tag/v3.7.1).
+
+First check size:
+
+```bash
+du -sh simulation/data/vision_v2 simulation/data/rl_baseline_v1 \
+  simulation/data/control_v1 simulation/data/control_frozen_v1
+```
+
+Ordinary GitHub pushes reject individual files over100MiB. Git LFS has its own
+per-file limits and storage/download allowances. The repository owner's quota
+applies; check available allowance before uploading all frames/forecasts. GitHub
+Free/Pro currently include10GiB storage and10GiB download bandwidth, while the
+Free/Pro per-file LFS limit is2GB. If these runs exceed the available quota, upload
+the compact runtime set first and share bulk data through an agreed data store or
+GitHub release assets instead of putting large binaries into ordinary Git.
+See [file limits](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-git-large-file-storage)
+and [LFS billing](https://docs.github.com/en/billing/concepts/product-billing/git-lfs).
+
+**Minimum runtime set:** enough for `control_pipeline --baseline-run ...`; it
+does not include raw training frames or the cached latent array.
+
+```bash
+(
+  set -e
+  git add -- .gitattributes .gitignore README.md
+  git add -- simulation/data/vision_v2/manifest.json \
+    simulation/data/vision_v2/features/meta.json \
+    simulation/data/vision_v2/attempts/width_visual_seed_0/models/dynamics.pt \
+    simulation/data/vision_v2/attempts/width_visual_seed_0/models/readout.pt
+  git add -- simulation/data/rl_baseline_v1/pipeline.json \
+    simulation/data/rl_baseline_v1/summary.json \
+    simulation/data/rl_baseline_v1/evaluations.json \
+    simulation/data/rl_baseline_v1/models
+  git --no-pager diff --cached --stat
+  git lfs status
+  git commit -m "Share frozen SAC and JEPA control checkpoints"
+  git push origin M2_Kuba
+  git rev-parse --short HEAD
+)
+```
+
+Include **all baseline model files**: `frozen_baseline()` verifies every entry in
+`pipeline.json`'s `trained` map, including `bc_initial.zip`, even though the live
+controller executes `sac_best.zip`. Preserve original JSON/checkpoint bytes so
+their recorded SHA256 hashes stay valid. Do not edit absolute provenance paths
+to another person's home directory. Those describe the source run; new experiments
+use new output folders instead of resuming an archived pipeline on another host.
+
+**Full data and recordings:** after checking available storage, upload the
+completed run trees. This supplies cached `features/latents.npy`, all model tags,
+raw images, simulator states, trajectories, actual GIFs and candidate forecasts.
+That permits D/Q retraining with the same encoder without recollection/re-encoding.
+
+```bash
+(
+  set -e
+  git add -- simulation/data/vision_v2 simulation/data/rl_baseline_v1
+  for run in control_v1 control_frozen_v1; do
+    if [ -d "simulation/data/$run" ]; then
+      git add -- "simulation/data/$run"
+    fi
+  done
+  git --no-pager diff --cached --stat
+  git lfs status
+  git commit -m "Share vision training data and controller recordings"
+  git push origin M2_Kuba
+  git rev-parse --short HEAD
+)
+```
+
+Add `simulation/data/control_frozen_v2` the same way **after its running pipeline
+finishes**. Commit a finished snapshot, not files changing during training or
+collection. A normal `git push` uploads the required LFS objects through the
+installed hook. If authentication fails, use a GitHub token/SSH authentication;
+an account password is not accepted. Never put tokens into files or remote URLs.
+Do not use `git add .` or force-add the entire repository for these uploads.
+
+### Download on Calle's computer
+
+Install Git LFS first. For a fresh checkout, this avoids downloading every raw
+frame before Calle chooses which runs he needs:
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone --branch M2_Kuba --single-branch \
+  https://github.com/Sarvesh-kth/world_model_project.git
+cd world_model_project
+git lfs install --local
+git lfs pull --include="simulation/data/vision_v2/**,simulation/data/rl_baseline_v1/**,simulation/data/control_frozen_v1/**" --exclude=""
+```
+
+For an existing clone:
+
+```bash
+git switch M2_Kuba
+GIT_LFS_SKIP_SMUDGE=1 git pull --ff-only origin M2_Kuba
+git lfs install --local
+git lfs pull
+```
+
+For only the minimal runtime assets, use this selection instead of downloading
+all raw data (after cloning/pulling pointer files):
+
+```bash
+git lfs pull --include="simulation/data/vision_v2/manifest.json,simulation/data/vision_v2/features/meta.json,simulation/data/vision_v2/attempts/width_visual_seed_0/models/**,simulation/data/rl_baseline_v1/pipeline.json,simulation/data/rl_baseline_v1/summary.json,simulation/data/rl_baseline_v1/evaluations.json,simulation/data/rl_baseline_v1/models/**" --exclude=""
+```
+
+If a supposed `.pt`, `.npy` or `.jpg` is a tiny text file beginning with
+`version https://git-lfs.github.com/spec/v1`, it is still an LFS pointer. Run
+`git lfs pull` for that path. The upload is complete only after both Git objects
+and LFS objects are successfully pushed; a commit hash alone is not proof.
+Downloading the pinned base V-JEPA model from Hugging Face remains automatic;
+the pretrained encoder is not copied into this Git repository.
+
+### Watch and rebuild videos without GPU inference
+
+From a notebook whose current directory is `simulation/`:
+
+```python
+from pathlib import Path
+from IPython.display import Image as DisplayImage, display
+
+root = Path("data/control_frozen_v1/episodes")
+for method in ("scripted", "rl_true", "rl_q", "jepa_mpc"):
+    video = root / method / "seed_20384005" / "actual.gif"
+    print(method, video)
+    if video.is_file():
+        display(DisplayImage(filename=str(video)))
+    else:
+        print("Recording not downloaded; select this episode with git lfs pull.")
+```
+
+The latest comparable movies are in `control_frozen_v1`; `control_v1` contains
+the older weaker-baseline experiment. The20-episode `control_frozen_v2` batch uses
+seeds20394005..20394024. `actual.gif` shows actual executed motion, not decoded
+JEPA predictions. All four controllers automatically create it from their saved
+static camera frames. No CUDA or MuJoCo viewer is needed to display it.
+
+To rebuild a GIF from an episode's existing JPEGs, run from `simulation/`:
+
+```bash
+../.venv/bin/python - <<'PY'
+from pathlib import Path
+from PIL import Image
+
+episode = Path("data/control_frozen_v1/episodes/jepa_mpc/seed_20384005")
+paths = sorted((episode / "frames").glob("*.jpg"))[::2]
+if not paths:
+    raise SystemExit("No frames: download this episode's frames with git lfs pull")
+frames = []
+for path in paths:
+    with Image.open(path) as im:
+        frames.append(im.convert("RGB").resize((256, 256)))
+out = Path("artifacts/control_videos/jepa_mpc_seed_20384005.gif")
+out.parent.mkdir(parents=True, exist_ok=True)
+frames[0].save(out, save_all=True, append_images=frames[1:], duration=200, loop=0)
+print(out.resolve())
+PY
+```
+
+This matches the runner's10Hz frames, every-second-frame sampling and200ms GIF
+duration. Generated copies stay under ignored `artifacts/`. To inspect decisions,
+use each episode's `steps.csv`, `trajectory.npz`, `candidates.csv`,
+`selected_forecasts.csv`, and `forecasts/` NPZs. Only MPC has candidate forecasts.
+
+### Rerun the frozen control comparison on a CUDA machine
+
+Follow the Linux/CUDA and headless-rendering setup earlier in this README,
+including `requirements-control.txt`. From `simulation/`, after downloading the
+runtime set, use a **new** output directory:
+
+```bash
+../.venv/bin/python -u -m world_model.vision.control_pipeline \
+  --baseline-run data/rl_baseline_v1 \
+  --models-run data/vision_v2 --tag width_visual_seed_0 \
+  --seed 20364005 --test-episodes 5 \
+  --horizon 8 --population 64 --elites 8 --iterations 3 \
+  --terminal-weight 0 --out data/control_calle_v1
+```
+
+This reuses the frozen SAC and D/Q, generates actual recordings for all four
+methods and evaluates seeds20384005..20384009. It does not retrain the encoder,
+actor or readout. Source-contract/hash checks still apply. Ordinary GIF viewing
+works on Mac/Linux; this live JEPA runner requires CUDA. Reproducing the experiment
+does not imply visual placement succeeds; inspect the saved outcomes.
