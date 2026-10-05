@@ -1,0 +1,11 @@
+Detailed historical CSVs listed in files.json were removed from M2_Kuba on 2026-10-05 to keep pulls small.
+They are preserved unchanged at tag archive/pre-cleanup-2026-10-05. Restore one with:
+  git restore --source=archive/pre-cleanup-2026-10-05 -- <path>
+
+Removed files:
+  results/decision_v1/reports/seed_0_candidates.csv
+  results/decision_v1/reports/seed_0_forecast_steps.csv
+  results/decision_v1/reports/seed_1_candidates.csv
+  results/decision_v1/reports/seed_1_forecast_steps.csv
+  results/decision_v1/reports/seed_2_candidates.csv
+  results/decision_v1/reports/seed_2_forecast_steps.csv

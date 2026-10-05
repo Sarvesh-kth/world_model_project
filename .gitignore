@@ -11,10 +11,15 @@ artifacts/
 simulation/data/*
 !simulation/data/vision_v2/
 !simulation/data/rl_baseline_v1/
-!simulation/data/control_v1/
-!simulation/data/control_frozen_v1/
 !simulation/data/control_frozen_v2/
 !simulation/data/q_clutter_v1/
+# control_v1/control_frozen_v1 and the replay buffer below are archived at tag
+# archive/pre-cleanup-2026-10-05; keep them out of the active branch.
+simulation/data/rl_baseline_v1/models/resume_*.pkl
+results/decision_v1/reports/seed_*_forecast_steps.csv
+results/decision_v1/reports/seed_*_candidates.csv
+results/vision_v2/width_comparison/**/*_forecasts.csv
+results/vision_v2/width_comparison/**/*_robot.csv
 
 
 # Keep local notes and agent instructions out of project commits.

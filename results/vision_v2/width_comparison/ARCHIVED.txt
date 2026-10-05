@@ -1,0 +1,23 @@
+Detailed historical CSVs listed in files.json were removed from M2_Kuba on 2026-10-05 to keep pulls small.
+They are preserved unchanged at tag archive/pre-cleanup-2026-10-05. Restore one with:
+  git restore --source=archive/pre-cleanup-2026-10-05 -- <path>
+
+Removed files:
+  results/vision_v2/width_comparison/attempts/seed_0/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/seed_0/reports/contact_val_h30_reset1-4-8_robot.csv
+  results/vision_v2/width_comparison/attempts/seed_1/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/seed_1/reports/contact_val_h30_reset1-4-8_robot.csv
+  results/vision_v2/width_comparison/attempts/seed_2/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/seed_2/reports/contact_val_h30_reset1-4-8_robot.csv
+  results/vision_v2/width_comparison/attempts/width_robot_seed_0/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/width_robot_seed_0/reports/contact_val_h30_reset1-4-8_robot.csv
+  results/vision_v2/width_comparison/attempts/width_robot_seed_1/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/width_robot_seed_1/reports/contact_val_h30_reset1-4-8_robot.csv
+  results/vision_v2/width_comparison/attempts/width_robot_seed_2/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/width_robot_seed_2/reports/contact_val_h30_reset1-4-8_robot.csv
+  results/vision_v2/width_comparison/attempts/width_visual_seed_0/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/width_visual_seed_0/reports/contact_val_h30_reset1-4-8_robot.csv
+  results/vision_v2/width_comparison/attempts/width_visual_seed_1/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/width_visual_seed_1/reports/contact_val_h30_reset1-4-8_robot.csv
+  results/vision_v2/width_comparison/attempts/width_visual_seed_2/reports/contact_val_h30_reset1-4-8_forecasts.csv
+  results/vision_v2/width_comparison/attempts/width_visual_seed_2/reports/contact_val_h30_reset1-4-8_robot.csv

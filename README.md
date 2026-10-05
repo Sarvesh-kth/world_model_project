@@ -727,7 +727,8 @@ errors compare the chosen first action with the actual next observation; later
 imagined states are **not** compared with a real trajectory that replanned
 different actions.
 
-Raw files stay under `simulation/data/control_v1/episodes/<method>/seed_<seed>/`:
+Raw files stay under `simulation/data/control_v1/episodes/<method>/seed_<seed>/`
+(removed from `M2_Kuba`; see *Archived runs*):
 
 - `actual.gif` and `frames/`: actual camera observations, not imagined video.
 - `trajectory.npz`: measured p, actual cube/contact labels, executed actions and
@@ -1491,9 +1492,9 @@ git push origin M2_Kuba
 The earlier `results/` exports contain reports/logs, not trained weights, cached
 latents or raw frames. These remain on the notebook until explicitly uploaded.
 The sharing policy now permits these exact folders under `simulation/data/`:
-`vision_v2`, `rl_baseline_v1`, `control_v1`, `control_frozen_v1`, and
-`control_frozen_v2`. Their entire contents use Git LFS. Agent notes, virtualenvs,
-other generated runs and temporary artifacts retain their ignore rules.
+`vision_v2`, `rl_baseline_v1`, `control_frozen_v2` and `q_clutter_v1`. Their
+entire contents use Git LFS. Agent notes, virtualenvs, other generated runs and
+temporary artifacts retain their ignore rules.
 
 ### Upload from Kuba's GPU notebook
 
@@ -1540,7 +1541,7 @@ First check size:
 
 ```bash
 du -sh simulation/data/vision_v2 simulation/data/rl_baseline_v1 \
-  simulation/data/control_v1 simulation/data/control_frozen_v1
+  simulation/data/control_frozen_v2
 ```
 
 Ordinary GitHub pushes reject individual files over100MiB. Git LFS has its own
@@ -1592,11 +1593,6 @@ That permits D/Q retraining with the same encoder without recollection/re-encodi
 (
   set -e
   git add -- simulation/data/vision_v2 simulation/data/rl_baseline_v1
-  for run in control_v1 control_frozen_v1; do
-    if [ -d "simulation/data/$run" ]; then
-      git add -- "simulation/data/$run"
-    fi
-  done
   git --no-pager diff --cached --stat
   git lfs status
   git commit -m "Share vision training data and controller recordings"
@@ -1622,7 +1618,7 @@ GIT_LFS_SKIP_SMUDGE=1 git clone --branch M2_Kuba --single-branch \
   https://github.com/Sarvesh-kth/world_model_project.git
 cd world_model_project
 git lfs install --local
-git lfs pull --include="simulation/data/vision_v2/**,simulation/data/rl_baseline_v1/**,simulation/data/control_frozen_v1/**" --exclude=""
+git lfs pull --include="simulation/data/vision_v2/**,simulation/data/rl_baseline_v1/**,simulation/data/control_frozen_v2/**" --exclude=""
 ```
 
 For an existing clone:
@@ -1648,6 +1644,27 @@ and LFS objects are successfully pushed; a commit hash alone is not proof.
 Downloading the pinned base V-JEPA model from Hugging Face remains automatic;
 the pretrained encoder is not copied into this Git repository.
 
+### Archived runs
+
+To keep pulls small, these were removed from `M2_Kuba` on 2026-10-05 and are
+preserved unchanged at the tag `archive/pre-cleanup-2026-10-05`:
+`simulation/data/control_v1/`, `simulation/data/control_frozen_v1/`,
+`simulation/data/rl_baseline_v1/models/resume_000020000.pkl` (completed SAC
+replay buffer; not needed by `frozen_baseline()`), and the detailed historical
+CSVs listed in `results/decision_v1/ARCHIVED.txt` and
+`results/vision_v2/width_comparison/ARCHIVED.txt`. Their compact reports under
+`results/control_v1`, `results/control_frozen_v1` and the remaining
+`results/` summaries stay on the branch. Restore an archived path only when
+needed:
+
+```bash
+git fetch origin tag archive/pre-cleanup-2026-10-05
+git restore --source=archive/pre-cleanup-2026-10-05 -- simulation/data/control_frozen_v1/episodes/jepa_mpc/seed_20384005
+git lfs pull --include="simulation/data/control_frozen_v1/episodes/jepa_mpc/seed_20384005/**" --exclude=""
+```
+
+Do not commit restored archive paths back to `M2_Kuba`.
+
 ### Watch and rebuild videos without GPU inference
 
 From a notebook whose current directory is `simulation/`:
@@ -1656,9 +1673,9 @@ From a notebook whose current directory is `simulation/`:
 from pathlib import Path
 from IPython.display import Image as DisplayImage, display
 
-root = Path("data/control_frozen_v1/episodes")
+root = Path("data/control_frozen_v2/episodes")
 for method in ("scripted", "rl_true", "rl_q", "jepa_mpc"):
-    video = root / method / "seed_20384005" / "actual.gif"
+    video = root / method / "seed_20394005" / "actual.gif"
     print(method, video)
     if video.is_file():
         display(DisplayImage(filename=str(video)))
@@ -1666,13 +1683,14 @@ for method in ("scripted", "rl_true", "rl_q", "jepa_mpc"):
         print("Recording not downloaded; select this episode with git lfs pull.")
 ```
 
-The latest comparable movies are in `control_frozen_v1`; `control_v1` contains
-the older weaker-baseline experiment. The20-episode `control_frozen_v2` batch uses
-seeds20394005..20394024. `actual.gif` shows actual executed motion, not decoded
-JEPA predictions. All four controllers automatically create it from their saved
+The shared movies are the four seed20394005 GIFs in `control_frozen_v2`; that
+20-episode batch uses seeds20394005..20394024. The older `control_v1` and
+`control_frozen_v1` raw runs are archived (see above). `actual.gif` shows actual
+executed motion, not decoded JEPA predictions. All four controllers automatically create it from their saved
 static camera frames. No CUDA or MuJoCo viewer is needed to display it.
 
-To rebuild a GIF from an episode's existing JPEGs, run from `simulation/`:
+To rebuild a GIF from an episode's existing JPEGs, run from `simulation/`. The
+example episode is archived; restore it first as shown in *Archived runs*:
 
 ```bash
 ../.venv/bin/python - <<'PY'
