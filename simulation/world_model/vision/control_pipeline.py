@@ -83,18 +83,28 @@ def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, te
     memories = [copy.deepcopy(memory) for _ in range(n)]
     rewards = np.zeros((n, horizon), np.float32)
     valid = np.ones(n, bool)
+    rejected = [set() for _ in range(n)]
+
+    def require(ok, reason):
+        valid[:] &= ok
+        for i in np.flatnonzero(~ok):
+            rejected[i].add(reason)
+
     finished = np.zeros(n, bool)
     for t in range(horizon):
         zz, pp = models.predict(zs[-1], ps[-1], actions[:, t])
         finite = np.isfinite(zz).all(1) & np.isfinite(pp).all(1)
-        valid &= finite
+        require(finite, "D_nonfinite")
         # Freeze nonfinite candidates to permit a report; they stay disqualified.
         zz[~finite], pp[~finite] = zs[-1][~finite], ps[-1][~finite]
         xyz, held = models.read(zz, pp)
         finite = np.isfinite(xyz).all(1) & np.isfinite(held)
-        valid &= finite & (pp[:, 18] >= -.002) & (pp[:, 18] <= .082)
-        valid &= (np.abs(pp[:, 14:17]) < 5).all(1) & (np.abs(xyz) < 5).all(1)
-        valid &= (np.abs(pp) < 100).all(1) & (np.abs(zz) < 1e4).all(1)
+        require(finite, "Q_nonfinite")
+        require((pp[:, 18] >= -.002) & (pp[:, 18] <= .082), "finger_width")
+        require((np.abs(pp[:, 14:17]) < 5).all(1), "ee_bounds")
+        require((np.abs(xyz) < 5).all(1), "object_bounds")
+        require((np.abs(pp) < 100).all(1), "robot_bounds")
+        require((np.abs(zz) < 1e4).all(1), "latent_bounds")
         xyz[~finite], held[~finite] = xyzs[-1][~finite], grasps[-1][~finite]
         zs.append(zz); ps.append(pp); xyzs.append(xyz); grasps.append(held)
         for i in range(n):
@@ -112,12 +122,13 @@ def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, te
     continuation[finished | ~valid] = 0.0
     discounted = rewards @ np.power(policy.gamma, np.arange(horizon))
     scores = discounted + terminal_weight*policy.gamma**horizon*continuation
-    valid &= np.isfinite(scores)
+    require(np.isfinite(scores), "score_nonfinite")
     scores[~valid] = -1e9
     return {"actions": actions, "z": np.stack(zs, 1), "p": np.stack(ps, 1),
             "xyz": np.stack(xyzs, 1), "held": np.stack(grasps, 1), "rewards": rewards,
             "scores": scores, "valid": valid, "terminal_critic": continuation,
-            "discounted_reward": discounted}
+            "discounted_reward": discounted,
+            "invalid_reasons": np.asarray([";".join(sorted(r)) for r in rejected])}
 
 
 def actor_sequence(models, policy, z, p, memory, goal, rest_z, step, cfg, horizon):
@@ -195,6 +206,10 @@ def episode(root, signature, args):
     folder.mkdir(parents=True)
     session = TaskSession(cfg, signature["layout"], args.position_jitter)
     checkpoint = getattr(args, "policy_checkpoint", root / "models/sac_best.zip")
+    checkpoint_sha = None if args.method == "scripted" else digest(checkpoint)
+    frozen = signature.get("frozen_baseline")
+    if frozen and args.method != "scripted" and checkpoint_sha != frozen["checkpoint_sha256"]:
+        raise ValueError("controller does not use the frozen baseline checkpoint")
     policy = None if args.method == "scripted" else SAC.load(checkpoint, device="cpu")
     visual = args.method in ("rl_q", "jepa_mpc")
     models = WorldModels(args.models_run, args.tag, signature["encoder"]) if visual else None
@@ -278,12 +293,14 @@ def episode(root, signature, args):
                     archive.parent.mkdir(exist_ok=True)
                     np.savez_compressed(archive, actions=pool["actions"], p=pool["p"], xyz=pool["xyz"],
                         held=pool["held"], rewards=pool["rewards"], scores=pool["scores"], valid=pool["valid"],
+                        invalid_reasons=pool["invalid_reasons"],
                         current_z=z, selected_z=pool["z"][selected], selected=selected,
                         fallback=decision["fallback"])
                     for i in range(len(pool["scores"])):
                         candidates.append({"step": step+1, "candidate": i, "selected": i == selected,
                             "executed_selected": i == selected and not decision["fallback"],
                             "valid": bool(pool["valid"][i]), "score": float(pool["scores"][i]),
+                            "invalid_reasons": str(pool["invalid_reasons"][i]),
                             "discounted_reward": float(pool["discounted_reward"][i]),
                             "terminal_SAC_critic": float(pool["terminal_critic"][i])})
                     if not decision["fallback"]:
@@ -324,6 +341,7 @@ def episode(root, signature, args):
         images[0].save(folder / "actual.gif", save_all=True, append_images=images[1:],
                        duration=200, loop=0)
         result = {"method": args.method, "seed": seed, **session.result(),
+                  "SAC_checkpoint_sha256": checkpoint_sha,
                   "seconds": time.monotonic()-started,
                   "model_fallback_steps": sum(bool(r.get("planner_fallback_to_RL_Q")) for r in rows),
                   "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc"}
@@ -339,6 +357,67 @@ def episode(root, signature, args):
         print(f"FINISHED {args.method}: success={result['task_success']} goal={result['final_goal_distance_cm']:.1f}cm", flush=True)
     finally:
         session.close()
+
+
+def frozen_baseline(root, cfg, layout, jitter):
+    """Verify an already evaluated RL actor; newer integration code may reuse it."""
+    state = json.loads((root / "pipeline.json").read_text())
+    summary = json.loads((root / "summary.json").read_text())
+    if not state.get("complete") or not summary.get("complete") or not summary.get("gate_passed"):
+        raise ValueError("baseline must have completed and passed rl_baseline")
+    for name, sha in state["trained"].items():
+        if digest(root / "models" / name) != sha:
+            raise ValueError(f"baseline training artifact changed: {name}")
+    evaluations = root / "evaluations.json"
+    if digest(evaluations) != state["evaluations_sha256"]:
+        raise ValueError("baseline evaluations changed")
+    rows = json.loads(evaluations.read_text())["rl_true"]["episodes"]
+    if (len(rows) < 100 or len({r["seed"] for r in rows}) != len(rows)
+            or sum(r["task_success"] for r in rows)/len(rows) < .9
+            or state["inputs"]["options"]["validation_episodes"] < 20):
+        raise ValueError("baseline needs >=90% strict placement over >=100 fresh episodes and >=20 validation episodes")
+    training = root / "models/rl_training.json"
+    sha = digest(root / "models/sac_best.zip")
+    if (sha != summary["SAC_checkpoint_sha256"]
+            or sha != json.loads(training.read_text())["checkpoint_sha256"]):
+        raise ValueError("baseline model does not match its success report")
+    source = state["inputs"]
+    contracts = list((SIMULATION / "environment").glob("*.py")) + [SIMULATION / "world_model/vision/task_control.py"]
+    for path in contracts:
+        if digest(path) != source["code_sha256"][str(path.relative_to(SIMULATION))]:
+            raise ValueError("baseline physics/observation/reward code changed; keep its exact runtime contract")
+    if layout != source["layout"] or jitter != source["options"]["position_jitter"]:
+        raise ValueError("use the baseline's layout and position-jitter for a matched comparison")
+    for section in ("sim", "control", "robot", "table", "rewards", "episode"):
+        if cfg[section] != source["config"][section]:
+            raise ValueError(f"baseline/source-model physical configuration differs: {section}")
+    return {"run": str(root), "checkpoint_sha256": sha,
+            "training_sha256": digest(training), "evaluations_sha256": digest(evaluations),
+            "pipeline_sha256": digest(root / "pipeline.json"),
+            "summary_sha256": digest(root / "summary.json"),
+            "successes": sum(r["task_success"] for r in rows), "episodes": len(rows),
+            "validation_seeds": json.loads(training.read_text())["settings"]["validation_seeds"],
+            "test_seeds": [r["seed"] for r in rows],
+            "config": source["config"], "layout": source["layout"]}
+
+
+def reuse_baseline(root, evidence):
+    source = pathlib.Path(evidence["run"])
+    targets = ((source / "models/sac_best.zip", root / "models/sac_best.zip", evidence["checkpoint_sha256"]),
+               (source / "models/rl_training.json", root / "models/rl_training.json", evidence["training_sha256"]))
+    for src, dst, sha in targets:
+        if digest(src) != sha:
+            raise ValueError("frozen baseline changed before copying")
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        if dst.exists() and digest(dst) != sha:
+            raise ValueError("output contains a different RL checkpoint/report")
+        if not dst.exists():
+            shutil.copyfile(src, dst)
+        if digest(dst) != sha:
+            raise ValueError("copied baseline differs from its verified source")
+    write_json(root / "frozen_baseline.json", evidence)
+    print(f"REUSED FROZEN SAC: {evidence['successes']}/{evidence['episodes']}; "
+          f"sha256={evidence['checkpoint_sha256']}; no training", flush=True)
 
 
 def inputs(args):
@@ -366,7 +445,17 @@ def inputs(args):
     code += [SIMULATION / "world_model/vision" / f"{name}.py" for name in
              ("task_control", "rl_control", "control_pipeline", "train", "data", "pipeline")]
     code += [SIMULATION / "world_model/train_dynamics.py", SIMULATION / "data_collection/scripted_policy.py"]
-    return {"options": options, "config": cfg, "layout": layout, "known_rest_z": float(np.median(training_rest)),
+    baseline = frozen_baseline(args.baseline_run, cfg, layout, args.position_jitter) if args.baseline_run else None
+    if baseline:
+        seeds = set(range(args.seed+20000, args.seed+20000+args.test_episodes))
+        used = set(baseline["test_seeds"] + baseline["validation_seeds"])
+        source_options = json.loads((args.baseline_run / "pipeline.json").read_text())["inputs"]["options"]
+        baseline_seed = source_options["seed"]
+        span = max(3*source_options["demos"], 1000+source_options["rl_steps"]+5)
+        if seeds & used or any(baseline_seed <= s < baseline_seed+span for s in seeds):
+            raise ValueError("comparison seeds overlap baseline training/validation/evaluation; use a fresh --seed")
+    return {"options": options, "config": cfg, "layout": layout, "frozen_baseline": baseline,
+            "known_rest_z": float(np.median(training_rest)),
             "encoder": {k: features[k] for k in ("model", "model_revision", "camera", "clip_frames", "pooling")},
             "source_manifest_sha256": digest(args.models_run / "manifest.json"),
             "source_features_sha256": digest(args.models_run / "features/meta.json"),
@@ -401,7 +490,7 @@ def export(root, target, state):
                 destination = target / source.relative_to(root)
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(source, destination)
-    for source in (root / "models/rl_training.json", root / "demos.json", root / "rl_monitor.csv"):
+    for source in (root / "models/rl_training.json", root / "demos.json", root / "rl_monitor.csv", root / "frozen_baseline.json"):
         if source.exists():
             shutil.copyfile(source, target / source.name)
     summary = []
@@ -416,11 +505,16 @@ def export(root, target, state):
                 "mean_maximum_lift_cm": float(np.mean([r["maximum_lift_cm"] for r in rows])),
                 "table_contact_steps": sum(r["table_contact_steps"] for r in rows),
                 "model_fallback_steps": sum(r["model_fallback_steps"] for r in rows)})
+    frozen = state["inputs"].get("frozen_baseline")
     write_json(target / "summary.json", {"complete": state["complete"], "rows": summary,
+        "frozen_baseline": frozen,
         "note": "A working-library implementation is not a guaranteed trained-policy success. Read actual placement counts; BC uses privileged demonstrations. Q/D full-task forecasts and omitted contact penalties are limitations."})
     if summary:
         save_csv(target / "summary.csv", summary)
     text = ["Live A-to-B control comparison", f"complete={state['complete']}"]
+    if frozen:
+        text.append(f"Frozen SAC: {frozen['successes']}/{frozen['episodes']} source placements; "
+                    f"sha256={frozen['checkpoint_sha256']}; no retraining")
     for row in summary:
         text.append(f"{row['method']}: full placements {row['successes']}/{row['episodes']}; "
                     f"final goal distance={row['mean_final_goal_distance_cm']:.2f}cm; "
@@ -495,6 +589,8 @@ def check():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("data/vision_v2"))
+    parser.add_argument("--baseline-run", type=pathlib.Path,
+                        help="reuse a completed, passing rl_baseline run; skip all RL training")
     parser.add_argument("--tag", default="width_visual_seed_0")
     parser.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/grade_e_layout.json"))
     parser.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/control_v1"))
@@ -530,6 +626,11 @@ def main():
             or not 0 <= args.terminal_weight <= 2):
         parser.error("invalid training/planning/scene settings")
     args.models_run, args.out, args.layout = [p.resolve() for p in (args.models_run, args.out, args.layout)]
+    if args.baseline_run:
+        args.baseline_run = args.baseline_run.resolve()
+        if (args.out == args.baseline_run or args.out in args.baseline_run.parents
+                or args.baseline_run in args.out.parents):
+            parser.error("output must be outside the frozen baseline run")
     args.export_dir = (args.export_dir or SIMULATION.parent / "results" / args.out.name).resolve()
     if (SIMULATION / "data" not in args.out.parents or args.out == args.models_run
             or args.models_run in args.out.parents or args.out in args.models_run.parents):
@@ -543,8 +644,11 @@ def main():
         if state["inputs"] != signature:
             raise ValueError("stage settings differ from parent pipeline")
         if args.stage == "rl":
-            from .rl_control import train
-            train(args.out, signature["config"], signature["layout"], args)
+            if signature["frozen_baseline"]:
+                reuse_baseline(args.out, signature["frozen_baseline"])
+            else:
+                from .rl_control import train
+                train(args.out, signature["config"], signature["layout"], args)
         else:
             if args.method is None or args.episode_seed is None:
                 parser.error("episode stage requires method and seed")
@@ -566,8 +670,10 @@ def main():
         write_json(path, state)
     command = [sys.executable, "-u", "-m", "world_model.vision.control_pipeline"]
     for name, value in signature["options"].items():
-        command += ["--"+name.replace("_", "-"), str(value)]
-    jobs = [("train_rl", command+["--stage", "rl"], args.out / "models/rl_training.json")]
+        if value is not None:
+            command += ["--"+name.replace("_", "-"), str(value)]
+    rl_stage = "reuse_rl" if signature["frozen_baseline"] else "train_rl"
+    jobs = [(rl_stage, command+["--stage", "rl"], args.out / "models/rl_training.json")]
     for method in METHODS:
         for i in range(args.test_episodes):
             seed = args.seed+20000+i
@@ -587,8 +693,10 @@ def main():
             start = time.monotonic()
             run_command(cmd, args.out / "logs" / f"{name}.txt")
             files = [artifact]
-            if name == "train_rl":
+            if name in ("train_rl", "reuse_rl"):
                 files.append(args.out / "models/sac_best.zip")
+                if name == "reuse_rl":
+                    files.append(args.out / "frozen_baseline.json")
             else:
                 files += list(artifact.parent.glob("*.csv"))
             state["stages"][name] = {"complete": True, "seconds": time.monotonic()-start,

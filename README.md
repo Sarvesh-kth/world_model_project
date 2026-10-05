@@ -1354,6 +1354,129 @@ The new Mac CPU run (`results/rl_baseline_local_v1`) completed: BC-only93/100,
 selected SAC100/100 fresh placements, mean final distance0.369cm and maximum
 0.972cm. All eight SAC validation checkpoints scored20/20; validation selected
 the20,000-step checkpoint. This is one fixed-scene demonstration-assisted fit.
-Notebook reproduction is still required before reusing its frozen weights for
-JEPA comparison. The assisted stage retained BC training, so its improvement
-cannot be attributed solely to reward gradients.
+The notebook reproduction is reported below. The assisted stage retained BC
+training, so its improvement cannot be attributed solely to reward gradients.
+
+## Reconnect JEPA using the passing notebook SAC checkpoint
+
+The notebook baseline terminal output reported **SAC 100/100** and **BC 99/100**,
+with selected SAC checkpoint SHA256
+`b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248`.
+The next command reuses that exact checkpoint; it does not train SAC again.
+Existing frozen JEPA, visual readout Q and corrected dynamics D are reused too.
+
+From the notebook repository root:
+
+```bash
+git pull --ff-only origin M2_Kuba
+cd simulation
+../.venv/bin/python -u -m world_model.vision.control_pipeline \
+  --baseline-run data/rl_baseline_v1 \
+  --models-run data/vision_v2 --tag width_visual_seed_0 \
+  --seed 20364005 --test-episodes 5 \
+  --terminal-weight 0 \
+  --out data/control_frozen_v1
+```
+
+If already in `simulation/`, run `git pull --ff-only origin M2_Kuba` there and
+then the Python command. No installation or latent re-encoding stage is needed.
+The existing CUDA/Transformers and OSMesa virtualenv must still work.
+
+### What runs
+
+1. Verify the saved baseline passed at least 90/100 actual placements, completed
+   at least 20 validation episodes, and its checkpoint/evaluation hashes match.
+   Verify the same physical configuration, reward/observation code, layout and
+   starting-position variation. Reject overlapping seeds and source/output paths.
+2. Copy the frozen SAC actor/critics into the new output. Print
+   `REUSED FROZEN SAC ... no training`. Never modify the source baseline.
+3. Execute these four controllers from home on the **same five new scenes**:
+
+   | Method | Current object information | How actions are selected |
+   |---|---|---|
+   | `scripted` | Exact simulator coordinates | Original waypoint policy; reference only. |
+   | `rl_true` | Exact simulator coordinates/contact | Frozen successful SAC actor. |
+   | `rl_q` | Actual camera clip → frozen JEPA → visual Q | Same SAC actor using Q estimates. No D forecasting. |
+   | `jepa_mpc` | Actual camera clip → frozen JEPA → visual Q | SAC-guided CEM candidates, frozen D forecasts, visual Q readout and task-reward scoring. |
+
+4. Save actual images/GIFs, per-step chosen actions and task outcomes, Q estimates,
+   predicted-versus-actual next states, candidate scores and rejection reasons.
+5. Export shareable reports/logs under `results/control_frozen_v1`.
+
+No obstacles are present: the original cube/empty-table task is retained.
+Known destination B is explicitly provided to all controllers. True future
+cube/contact values are evaluator answers and never enter JEPA action selection.
+`rl_true` uses true **current** state as its declared privileged baseline.
+
+### There is a reward formula, not a reward network
+
+`GoalReward` is the fixed reach/grasp/lift/transport/placement progress formula,
+plus strict-placement bonus and penalties. It was written in code, not fitted
+from labels. During SAC training, its **actual** rewards train the actor and
+SAC's two critics. The critics estimate future cumulative reward; they are not
+our visual readout Q and are not a learned instantaneous reward function.
+
+In planning, each candidate uses:
+
+```text
+Current camera clip → JEPA → z0
+Measured robot values → p0
+Known destination → B
+
+SAC proposal + sampled variations → candidate action sequences
+    for each sequence:
+        D(current z, current p, proposed action) → next imagined z and p
+        visual Q(next imagined z, next imagined p) → cube xyz / held probability
+        reward formula(previous history, imagined state, action, B) → reward
+        repeat with the next candidate action
+    sum discounted rewards across the sequence
+Choose the highest-scoring valid sequence
+Execute only its FIRST action through the original IK controller
+Observe new real camera frames and robot values; repeat
+```
+
+CEM samples 64 sequences of 8 actions, refines them for 3 iterations, retaining
+8 elites. These are proposed alternatives, not a list of actions proven best
+by SAC. Future states are predictions and can be wrong. Candidates with invalid
+numeric/physical forecasts are rejected; if every candidate is rejected, the
+Q-observed SAC proposal is executed and the fallback is reported.
+
+The command uses `--terminal-weight 0`: scores contain discounted predicted
+rewards only. A separately named future run may use `--terminal-weight 1` to
+add the pretrained SAC critic's estimate of reward beyond the 8-step horizon.
+Reward history is copied separately for every candidate. Imagined obstacle,
+proximity and table-contact penalties remain omitted because Q cannot predict
+those contacts; actual evaluation retains them. No success of JEPA control is
+implied by the working exact-state SAC baseline.
+
+### What to inspect and share
+
+- `summary.txt`/`summary.json`: placements, goal distance, fallback counts; confirm
+  the frozen checkpoint hash is identical for `rl_true`, `rl_q` and `jepa_mpc`.
+- `frozen_baseline.json`: source checkpoint and passing 100-episode evidence.
+- `episodes/<method>/seed_<seed>/steps.csv`: actual motion, Q estimates and
+  one-step forecast errors. A small error while the cube stays stationary is
+  not evidence of successful manipulation.
+- MPC `candidates.csv`: valid flags and `invalid_reasons`, such as
+  `finger_width`, `D_nonfinite` or `Q_nonfinite`. Reasons accumulate over the
+  candidate horizon. Only the retained CEM pool per decision is archived.
+- Raw `actual.gif`, frames and forecast NPZs remain under
+  `simulation/data/control_frozen_v1/episodes`; use the earlier GIF display
+  snippet with this run's root.
+
+Read the three learned modes in order: `rl_true` checks the frozen controller
+on the new scenes; `rl_q` exposes current-perception errors; `jepa_mpc` adds
+learned forecasting/search. The final comparison does not isolate JEPA from D/Q
+or prove it beats other encoders. Current D/Q full-task coverage remains limited.
+
+Exact interrupted resume: repeat the command with `--resume`.
+Once complete, from `simulation/`, export both the new baseline evidence and
+this comparison so the results can be inspected locally:
+
+```bash
+cd ..
+git add -- results/rl_baseline_v1 results/control_frozen_v1
+git --no-pager diff --cached --stat
+git commit -m "Record frozen SAC versus JEPA control comparison"
+git push origin M2_Kuba
+```
