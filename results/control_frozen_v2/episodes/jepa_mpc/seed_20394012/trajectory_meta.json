@@ -1,0 +1,13 @@
+{
+  "states": 301,
+  "actions": 300,
+  "alignment": "state[t] -> actions[t] -> state[t+1]; frame serial is state index; pad first frame to 64",
+  "encoder": {
+    "model": "facebook/vjepa2-vitl-fpc64-256",
+    "model_revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f",
+    "camera": "static",
+    "clip_frames": 64,
+    "pooling": "mean_all_encoder_tokens"
+  },
+  "inputs": "p, action, camera-derived z; object xyz/held are evaluator/training labels only for JEPA methods"
+}

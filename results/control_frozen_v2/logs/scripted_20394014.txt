@@ -1,0 +1,15 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.control_pipeline", "--models-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--baseline-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1", "--tag", "width_visual_seed_0", "--layout", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/configs/grade_e_layout.json", "--out", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2", "--export-dir", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/control_frozen_v2", "--seed", "20374005", "--rl-steps", "10000", "--demos", "20", "--bc-epochs", "120", "--bc-weight", "100.0", "--critic-warmup", "1000", "--eval-every", "2500", "--validation-episodes", "5", "--test-episodes", "20", "--position-jitter", "0.01", "--horizon", "8", "--population", "64", "--elites", "8", "--iterations", "3", "--terminal-weight", "0.0", "--threads", "4", "--stage", "episode", "--method", "scripted", "--episode-seed", "20394014"]
+scripted seed=20394014 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20394014 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20394014 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20394014 step=40: held=True goal_distance=50.5cm lift=-0.0cm success=False
+scripted seed=20394014 step=50: held=True goal_distance=50.2cm lift=3.4cm success=False
+scripted seed=20394014 step=60: held=True goal_distance=44.4cm lift=10.1cm success=False
+scripted seed=20394014 step=70: held=True goal_distance=30.3cm lift=9.7cm success=False
+scripted seed=20394014 step=80: held=True goal_distance=16.4cm lift=9.6cm success=False
+scripted seed=20394014 step=90: held=True goal_distance=2.8cm lift=9.6cm success=False
+scripted seed=20394014 step=100: held=False goal_distance=0.3cm lift=-0.2cm success=False
+scripted seed=20394014 step=110: held=False goal_distance=0.3cm lift=0.0cm success=False
+scripted seed=20394014 step=114: held=False goal_distance=0.3cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.3cm

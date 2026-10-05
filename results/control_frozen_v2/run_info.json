@@ -1,0 +1,1491 @@
+{
+  "inputs": {
+    "options": {
+      "models_run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+      "baseline_run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+      "tag": "width_visual_seed_0",
+      "layout": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/configs/grade_e_layout.json",
+      "out": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2",
+      "export_dir": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/control_frozen_v2",
+      "seed": 20374005,
+      "rl_steps": 10000,
+      "demos": 20,
+      "bc_epochs": 120,
+      "bc_weight": 100.0,
+      "critic_warmup": 1000,
+      "eval_every": 2500,
+      "validation_episodes": 5,
+      "test_episodes": 20,
+      "position_jitter": 0.01,
+      "horizon": 8,
+      "population": 64,
+      "elites": 8,
+      "iterations": 3,
+      "terminal_weight": 0.0,
+      "threads": 4
+    },
+    "config": {
+      "seed": 0,
+      "sim": {
+        "timestep": 0.002,
+        "impratio": 10
+      },
+      "control": {
+        "hz": 10,
+        "max_delta": 0.04,
+        "yaw": {
+          "enabled": true,
+          "max_delta": 0.15
+        },
+        "workspace": {
+          "low": [
+            -0.12,
+            -0.42,
+            0.755
+          ],
+          "high": [
+            0.45,
+            0.42,
+            0.97
+          ]
+        },
+        "ik": {
+          "hz": 250,
+          "damping": 0.02,
+          "pos_gain": 10.0,
+          "ori_gain": 6.0,
+          "posture_gain": 2.0,
+          "max_lin_vel": 0.7,
+          "max_ang_vel": 2.0,
+          "max_joint_vel": 2.5,
+          "max_lead": 0.05
+        }
+      },
+      "cameras": {
+        "record_hz": 10,
+        "width": 256,
+        "height": 256,
+        "static": {
+          "pos": [
+            1.25,
+            0.0,
+            1.42
+          ],
+          "lookat": [
+            0.1,
+            0.0,
+            0.82
+          ],
+          "fovy": 52
+        },
+        "wrist": {
+          "fovy": 75,
+          "tilt_deg": 30
+        },
+        "pointcloud": {
+          "enabled": false,
+          "frame": "base",
+          "stride": 2,
+          "max_depth": 2.5
+        }
+      },
+      "robot": {
+        "base_pos": [
+          -0.4,
+          0.0,
+          0.75
+        ],
+        "home_qpos": [
+          0.0,
+          -0.6,
+          0.0,
+          -2.8,
+          0.0,
+          2.2,
+          -0.7853
+        ],
+        "posture_noise": 0.0,
+        "grip_scale": 2.0
+      },
+      "table": {
+        "center": [
+          0.15,
+          0.0
+        ],
+        "half_size": [
+          0.32,
+          0.46
+        ],
+        "height": 0.75,
+        "top_thickness": 0.04
+      },
+      "task": {
+        "pick_end": "random",
+        "place_end": "opposite",
+        "ends": {
+          "left": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              -0.38,
+              -0.18
+            ]
+          },
+          "right": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              0.18,
+              0.38
+            ]
+          },
+          "near": {
+            "x": [
+              -0.08,
+              0.04
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          },
+          "far": {
+            "x": [
+              0.2,
+              0.3
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          }
+        },
+        "reach_range": [
+          0.3,
+          0.65
+        ],
+        "min_pick_place_dist": 0.35,
+        "object": {
+          "pool": [
+            "cube",
+            "cuboid",
+            "cylinder",
+            "hex_prism",
+            "tri_prism",
+            "frustum"
+          ],
+          "holdout": [
+            "bottle"
+          ],
+          "scale": [
+            0.9,
+            1.1
+          ],
+          "mass": [
+            0.05,
+            0.2
+          ],
+          "friction": [
+            0.8,
+            1.5
+          ],
+          "randomize_color": true
+        },
+        "obstacles": {
+          "count": [
+            3,
+            5
+          ],
+          "extra_height": [
+            0.04,
+            0.19
+          ],
+          "clearance": 0.2,
+          "spacing": 0.1,
+          "corridor_span": [
+            0.25,
+            0.75
+          ],
+          "lateral_offset": 0.16,
+          "kinds": {
+            "wall": {
+              "length": [
+                0.08,
+                0.16
+              ],
+              "thickness": 0.02,
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "box": {
+              "width": [
+                0.03,
+                0.06
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "cylinder": {
+              "radius": [
+                0.015,
+                0.03
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            }
+          }
+        }
+      },
+      "episode": {
+        "max_steps": 300,
+        "success_radius": 0.07,
+        "settle_steps": 15,
+        "fall_margin": 0.05,
+        "terminate_on_success": false
+      },
+      "rewards": {
+        "lift_height": 0.04,
+        "safe_distance": 0.06,
+        "weights": {
+          "reach": 0.5,
+          "grasp": 0.5,
+          "lift": 0.5,
+          "transport": 1.0,
+          "place": 5.0,
+          "success": 10.0,
+          "fail": 10.0,
+          "collision": 0.5,
+          "proximity": 0.3,
+          "table_hit": 0.2,
+          "drop": 1.0,
+          "action": 0.01
+        }
+      },
+      "data": {
+        "root": "data",
+        "jpeg_quality": 90,
+        "workers": 4,
+        "mix": {
+          "success": 0.5,
+          "scripted": 0.3,
+          "drop": 0.1,
+          "collide": 0.0,
+          "random": 0.1
+        },
+        "success_attempts": 1,
+        "scripted": {
+          "noise": 0.1,
+          "noise_correlation": 0.8,
+          "speed_range": [
+            0.6,
+            1.0
+          ],
+          "carry_height": 0.1,
+          "route_margin": 0.16
+        }
+      }
+    },
+    "layout": {
+      "object": "cube",
+      "scale": 1.0,
+      "mass": 0.1,
+      "friction": 1.0,
+      "color": [
+        0.2,
+        0.7,
+        0.7,
+        1.0
+      ],
+      "pick_end": "left",
+      "place_end": "right",
+      "pick": [
+        0.18,
+        -0.23
+      ],
+      "place": [
+        0.1,
+        0.27
+      ],
+      "obstacles": []
+    },
+    "frozen_baseline": {
+      "run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+      "checkpoint_sha256": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+      "training_sha256": "aa98befc88c989fcff92793770749669587be2c85e62e2dbad0e508007bc9612",
+      "evaluations_sha256": "af52ce85c872b23000a7bb28654a2dd11bd70be79602a5105767531c50ca43c7",
+      "pipeline_sha256": "6fdc5a343d7ed8ed01b36f3ec31721c02461fafe5a6dcb98c631ccb5f1469541",
+      "summary_sha256": "799ea4173aa45d9ee9f6474dd914c7d71d5bd8274b636ff0b5b03b12b71446dc",
+      "successes": 100,
+      "episodes": 100,
+      "validation_seeds": [
+        20273005,
+        20273006,
+        20273007,
+        20273008,
+        20273009,
+        20273010,
+        20273011,
+        20273012,
+        20273013,
+        20273014,
+        20273015,
+        20273016,
+        20273017,
+        20273018,
+        20273019,
+        20273020,
+        20273021,
+        20273022,
+        20273023,
+        20273024
+      ],
+      "test_seeds": [
+        21263005,
+        21263006,
+        21263007,
+        21263008,
+        21263009,
+        21263010,
+        21263011,
+        21263012,
+        21263013,
+        21263014,
+        21263015,
+        21263016,
+        21263017,
+        21263018,
+        21263019,
+        21263020,
+        21263021,
+        21263022,
+        21263023,
+        21263024,
+        21263025,
+        21263026,
+        21263027,
+        21263028,
+        21263029,
+        21263030,
+        21263031,
+        21263032,
+        21263033,
+        21263034,
+        21263035,
+        21263036,
+        21263037,
+        21263038,
+        21263039,
+        21263040,
+        21263041,
+        21263042,
+        21263043,
+        21263044,
+        21263045,
+        21263046,
+        21263047,
+        21263048,
+        21263049,
+        21263050,
+        21263051,
+        21263052,
+        21263053,
+        21263054,
+        21263055,
+        21263056,
+        21263057,
+        21263058,
+        21263059,
+        21263060,
+        21263061,
+        21263062,
+        21263063,
+        21263064,
+        21263065,
+        21263066,
+        21263067,
+        21263068,
+        21263069,
+        21263070,
+        21263071,
+        21263072,
+        21263073,
+        21263074,
+        21263075,
+        21263076,
+        21263077,
+        21263078,
+        21263079,
+        21263080,
+        21263081,
+        21263082,
+        21263083,
+        21263084,
+        21263085,
+        21263086,
+        21263087,
+        21263088,
+        21263089,
+        21263090,
+        21263091,
+        21263092,
+        21263093,
+        21263094,
+        21263095,
+        21263096,
+        21263097,
+        21263098,
+        21263099,
+        21263100,
+        21263101,
+        21263102,
+        21263103,
+        21263104
+      ],
+      "config": {
+        "seed": 0,
+        "sim": {
+          "timestep": 0.002,
+          "impratio": 10
+        },
+        "control": {
+          "hz": 10,
+          "max_delta": 0.04,
+          "yaw": {
+            "enabled": true,
+            "max_delta": 0.15
+          },
+          "workspace": {
+            "low": [
+              -0.12,
+              -0.42,
+              0.755
+            ],
+            "high": [
+              0.45,
+              0.42,
+              0.97
+            ]
+          },
+          "ik": {
+            "hz": 250,
+            "damping": 0.02,
+            "pos_gain": 10.0,
+            "ori_gain": 6.0,
+            "posture_gain": 2.0,
+            "max_lin_vel": 0.7,
+            "max_ang_vel": 2.0,
+            "max_joint_vel": 2.5,
+            "max_lead": 0.05
+          }
+        },
+        "cameras": {
+          "record_hz": 10,
+          "width": 256,
+          "height": 256,
+          "static": {
+            "pos": [
+              1.25,
+              0.0,
+              1.42
+            ],
+            "lookat": [
+              0.1,
+              0.0,
+              0.82
+            ],
+            "fovy": 52
+          },
+          "wrist": {
+            "fovy": 75,
+            "tilt_deg": 30
+          },
+          "pointcloud": {
+            "enabled": false,
+            "frame": "base",
+            "stride": 2,
+            "max_depth": 2.5
+          }
+        },
+        "robot": {
+          "base_pos": [
+            -0.4,
+            0.0,
+            0.75
+          ],
+          "home_qpos": [
+            0.0,
+            -0.6,
+            0.0,
+            -2.8,
+            0.0,
+            2.2,
+            -0.7853
+          ],
+          "posture_noise": 0.0,
+          "grip_scale": 2.0
+        },
+        "table": {
+          "center": [
+            0.15,
+            0.0
+          ],
+          "half_size": [
+            0.32,
+            0.46
+          ],
+          "height": 0.75,
+          "top_thickness": 0.04
+        },
+        "task": {
+          "pick_end": "random",
+          "place_end": "opposite",
+          "ends": {
+            "left": {
+              "x": [
+                -0.02,
+                0.28
+              ],
+              "y": [
+                -0.38,
+                -0.18
+              ]
+            },
+            "right": {
+              "x": [
+                -0.02,
+                0.28
+              ],
+              "y": [
+                0.18,
+                0.38
+              ]
+            },
+            "near": {
+              "x": [
+                -0.08,
+                0.04
+              ],
+              "y": [
+                -0.22,
+                0.22
+              ]
+            },
+            "far": {
+              "x": [
+                0.2,
+                0.3
+              ],
+              "y": [
+                -0.22,
+                0.22
+              ]
+            }
+          },
+          "reach_range": [
+            0.3,
+            0.65
+          ],
+          "min_pick_place_dist": 0.35,
+          "object": {
+            "pool": [
+              "cube",
+              "cuboid",
+              "cylinder",
+              "hex_prism",
+              "tri_prism",
+              "frustum"
+            ],
+            "holdout": [
+              "bottle"
+            ],
+            "scale": [
+              0.9,
+              1.1
+            ],
+            "mass": [
+              0.05,
+              0.2
+            ],
+            "friction": [
+              0.8,
+              1.5
+            ],
+            "randomize_color": true
+          },
+          "obstacles": {
+            "count": [
+              3,
+              5
+            ],
+            "extra_height": [
+              0.04,
+              0.19
+            ],
+            "clearance": 0.2,
+            "spacing": 0.1,
+            "corridor_span": [
+              0.25,
+              0.75
+            ],
+            "lateral_offset": 0.16,
+            "kinds": {
+              "wall": {
+                "length": [
+                  0.08,
+                  0.16
+                ],
+                "thickness": 0.02,
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              },
+              "box": {
+                "width": [
+                  0.03,
+                  0.06
+                ],
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              },
+              "cylinder": {
+                "radius": [
+                  0.015,
+                  0.03
+                ],
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              }
+            }
+          }
+        },
+        "episode": {
+          "max_steps": 300,
+          "success_radius": 0.07,
+          "settle_steps": 15,
+          "fall_margin": 0.05,
+          "terminate_on_success": false
+        },
+        "rewards": {
+          "lift_height": 0.04,
+          "safe_distance": 0.06,
+          "weights": {
+            "reach": 0.5,
+            "grasp": 0.5,
+            "lift": 0.5,
+            "transport": 1.0,
+            "place": 5.0,
+            "success": 10.0,
+            "fail": 10.0,
+            "collision": 0.5,
+            "proximity": 0.3,
+            "table_hit": 0.2,
+            "drop": 1.0,
+            "action": 0.01
+          }
+        },
+        "data": {
+          "root": "data",
+          "jpeg_quality": 90,
+          "workers": 4,
+          "mix": {
+            "success": 0.5,
+            "scripted": 0.3,
+            "drop": 0.1,
+            "collide": 0.0,
+            "random": 0.1
+          },
+          "success_attempts": 1,
+          "scripted": {
+            "noise": 0.1,
+            "noise_correlation": 0.8,
+            "speed_range": [
+              0.6,
+              1.0
+            ],
+            "carry_height": 0.1,
+            "route_margin": 0.16
+          }
+        }
+      },
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18,
+          -0.23
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": []
+      }
+    },
+    "known_rest_z": 0.7724708914756775,
+    "encoder": {
+      "model": "facebook/vjepa2-vitl-fpc64-256",
+      "model_revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f",
+      "camera": "static",
+      "clip_frames": 64,
+      "pooling": "mean_all_encoder_tokens"
+    },
+    "source_manifest_sha256": "d72bcc7c5b388114a138612b44f74288cbae16d9bb12118c801548df4f64abc9",
+    "source_features_sha256": "88680bba1d75e81fea4bd9fe4b11412382f928508967b216f4260751be9b2ac4",
+    "source_dynamics_sha256": "e3f41e8a1c276b566f3f26a22970e8a1f27f0ce5a2cb8b53890d6c50ac74c84e",
+    "source_readout_sha256": "9b3b0e9aa6039af97df64b6f129a6648d37b10bf434a605550263fcb03e3daa7",
+    "code_sha256": {
+      "data_collection/scripted_policy.py": "096a13c395f222c817e193c75244ea82d3747378463853fd53b0fde13b213c76",
+      "environment/__init__.py": "94a4334305b3eb50b5427827354a2f5e888cf7e156d0898354b5045198d35b3b",
+      "environment/config.py": "310b006e8ecfc0c8d6faf1996f0048acef48f7d79b166f77eefa75f931b85bd4",
+      "environment/control.py": "2335542725df0db1806c04dcf54926fefa3e05a955b51df8c95556f4134d1e02",
+      "environment/env.py": "f837388906cd8df6c9fb89abfd95a429686bb79e7c6c25708733c4b517197e7d",
+      "environment/obstacles.py": "999e42ce22579860fdaf74ec08663a509ff4a27593a3b5ba7c18aad4b2cf4fcf",
+      "environment/rewards.py": "9d13d03b2c202b4bef9c22733303501e653f31aff55b1d500c254ec1e83a39f6",
+      "environment/scene.py": "e141978f149435c725d887d452cb769e55f9d72795fd54a54706fb0bff120ddf",
+      "world_model/train_dynamics.py": "ad008046fadf0dc4001dc781248f81e9ec9b13bf21daad65114895993a1fde2a",
+      "world_model/vision/control_pipeline.py": "dfb8726d8572ed057fc17265a1af6969553db01f27a9f808269f8d48c0ed7233",
+      "world_model/vision/data.py": "01bddc46d47391157cc74a0612944597c89620e25335602fa3a0f3ef40713feb",
+      "world_model/vision/pipeline.py": "f70cffdaf143ef582d0f63c056a11166e58045cd7c9f1fee8176a7962c02743e",
+      "world_model/vision/rl_control.py": "14471887029b57f95bc12aa467449574d42053f87db2e5bf54e8fd29ae7c9c39",
+      "world_model/vision/task_control.py": "bbd08ae3c437ebc944e19d7a23307eba1ab286ad523cd4639d78f09162ddfca2",
+      "world_model/vision/train.py": "73ea3ad51c55349eb8b9b3ecc62dbe30e2cf07034fb2a9e9e60f4aa1deda1134"
+    },
+    "contracts": {
+      "reward": "GoalReward potential progress + strict placement bonus15 + penalties + time cost0.01; original rewards logged separately",
+      "reward_gamma": 0.99,
+      "omitted_imagined_penalties": [
+        "collision",
+        "proximity",
+        "table_hit"
+      ],
+      "held_probability_threshold": 0.5,
+      "success": "ever grasped AND held lift>=4cm AND released at B within source success_radius and rest-height tolerance2cm for source settle_steps",
+      "terminal_score": "discounted supported reward + terminal_weight * gamma^horizon * minimum SAC critic estimate",
+      "coverage": "existing D/Q fitted on local grasp/lift data; full-task extrapolation is experimental"
+    }
+  },
+  "provenance": {
+    "python": "3.11.9",
+    "platform": "Linux-5.15.0-1085-nvidia-x86_64-with-glibc2.35",
+    "git_commit": "abaef85313680b481cd55b4292a7019e7bb70be0",
+    "git_dirty": false
+  },
+  "complete": true,
+  "stages": {
+    "reuse_rl": {
+      "complete": true,
+      "seconds": 1.2711951551027596,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/models/rl_training.json": "aa98befc88c989fcff92793770749669587be2c85e62e2dbad0e508007bc9612",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/models/sac_best.zip": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/frozen_baseline.json": "012610fdf05c24bbb4637a6148dbd84bc03ee2db52c0b2012b164fe5777421c9"
+      }
+    },
+    "scripted_20394005": {
+      "complete": true,
+      "seconds": 13.617335163988173,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394005/result.json": "50692bba94ec4e602f7ebec8ef6f9ac36e28d9957368f859f3b04c3aa7936100",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394005/steps.csv": "3f9b031b72fc526033ca03643d3922f0fb9a1adb9c8fbbea5646b8e21b5cdc27"
+      }
+    },
+    "scripted_20394006": {
+      "complete": true,
+      "seconds": 13.9884027778171,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394006/result.json": "4851159a263b645ff8f3923c2405bd846fc00aa8dc089341c9a159988aa49196",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394006/steps.csv": "95135b601a6389e839d41288ed5674601f9d8818af1d198d2e0d80703ac1bf72"
+      }
+    },
+    "scripted_20394007": {
+      "complete": true,
+      "seconds": 13.954729836899787,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394007/result.json": "8adc0e94a75b2f6780956d0a57715d07438665f855cc99b20771958b9483d75d",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394007/steps.csv": "d7e999bd81b5e8a5d14925cde9738afa09b3ee58475c1dbb94491da2ad269b8c"
+      }
+    },
+    "scripted_20394008": {
+      "complete": true,
+      "seconds": 13.496072127018124,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394008/result.json": "ef90c1cf6f1065f40241728678a220beb77f23e1e379e352fcfb3850f0bbb46f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394008/steps.csv": "182501c689d003e8130cdbe104a834c7844edde54f9e810c31710449268f465a"
+      }
+    },
+    "scripted_20394009": {
+      "complete": true,
+      "seconds": 13.390512593090534,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394009/result.json": "4c17ea7929f4d9004cd81dfe64d3caeff63bc25548a4a94f88cfa01eb4254a9e",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394009/steps.csv": "7eb37966b74f8b876f111eabf3f3be3b6f13ef2c6c2e15d523155da35eca6e37"
+      }
+    },
+    "scripted_20394010": {
+      "complete": true,
+      "seconds": 14.211079710163176,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394010/result.json": "129c6f85a381356b7ff785b53c90453150b461f3614bbda813533a5e848d3d72",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394010/steps.csv": "2466abe005bdee4876019a88744dddd2fa2c67c15e4bfe2eff2d59211e0f864a"
+      }
+    },
+    "scripted_20394011": {
+      "complete": true,
+      "seconds": 14.362279370892793,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394011/result.json": "0226016f167b931d747a499538642be3b5b80ea16f1cc90d5ca2e45e525fe737",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394011/steps.csv": "242465600587bf4426531708b961e48c4cebcd6dfe9e1e366ec63781c46c0a9b"
+      }
+    },
+    "scripted_20394012": {
+      "complete": true,
+      "seconds": 13.404778685886413,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394012/result.json": "dd7c3f3e20854c9d4b5f6ee3dfcd7591bb2eeca4ebcd8dcd6ecf35ff18b136f9",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394012/steps.csv": "aa151f59d46194f7aa13567625f75c34d64a92506dd2822fcabd62fe2e2f3b6f"
+      }
+    },
+    "scripted_20394013": {
+      "complete": true,
+      "seconds": 13.734085600357503,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394013/result.json": "f51bfc9c2ebeac28151a4f0252ef265d1c5898c0bd566040491b350400670f29",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394013/steps.csv": "e33c92a8b7679045ad21c5bcee79c3fddf94283e1c4f9877facf334193681800"
+      }
+    },
+    "scripted_20394014": {
+      "complete": true,
+      "seconds": 13.37139534112066,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394014/result.json": "acd23aea09829e9e348e29473f1323f83c0a4c547591f720e0c31cec10b96192",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394014/steps.csv": "e426b9cfc23788f883281e32c38f0ec942d6aea0232747df6215f4bbac927cc9"
+      }
+    },
+    "scripted_20394015": {
+      "complete": true,
+      "seconds": 13.91716260369867,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394015/result.json": "c9ca5d59891d96c25d07ad6c109fdbfa3f6085bbf62a5686d21c506ca9417089",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394015/steps.csv": "2d772b57fc51239e64d6619a4f9fba6803641964aa6c1922489d6fea2d73629c"
+      }
+    },
+    "scripted_20394016": {
+      "complete": true,
+      "seconds": 13.632428847718984,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394016/result.json": "9e793fa5ef82c31beba7e81962a56737cc1ac499adf902ccb508173eb5b7d700",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394016/steps.csv": "ca5b557b2aa2298013d322ac09b2d6d2be18f73f58096db1adcce4106ea4a813"
+      }
+    },
+    "scripted_20394017": {
+      "complete": true,
+      "seconds": 13.882067852187902,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394017/result.json": "daf7cc9f2f3af12d24d1131e1c352a35a5402024b16a9fd26c4f24f5cfd5b2cb",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394017/steps.csv": "761d6c7b447996b8a83f040f330f5fc9f8ac4fccbf898610fe9ea922eec54780"
+      }
+    },
+    "scripted_20394018": {
+      "complete": true,
+      "seconds": 13.631827645003796,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394018/result.json": "59a5cbbf7d9805d39050699d412b33a58a8daa36257b9c4967c3eaeccbb70e03",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394018/steps.csv": "336028fdde13b38f1aac877e1bc5b511a61aa4990892d5d870cad91bbbb8aa30"
+      }
+    },
+    "scripted_20394019": {
+      "complete": true,
+      "seconds": 13.463287028949708,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394019/result.json": "22c8d5d9844dffc9f760fca30eea29f24f72639c38a7828469bf789823f93ac0",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394019/steps.csv": "8ffc75081c588c4f7adcb8675a207da7a166fa1b37fcb388c1df64ee0b55f6ea"
+      }
+    },
+    "scripted_20394020": {
+      "complete": true,
+      "seconds": 13.872716058976948,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394020/result.json": "9afa7c0217d63ff275bf58a124bb8107348315eb93e1298702c6504d1529a88f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394020/steps.csv": "8029103e8afe733dd5c14516040d77098ea4cc3a3ca68f7ebb9186f4b0219410"
+      }
+    },
+    "scripted_20394021": {
+      "complete": true,
+      "seconds": 13.779552970081568,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394021/result.json": "e8a2fe09d4200c980ac9a8f7186e53fc80228e77c032472058c382232a0ecde5",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394021/steps.csv": "07d58ed44355deeaffb0999bbb8051447c11024d3e7a63bf10ed78da921ad18b"
+      }
+    },
+    "scripted_20394022": {
+      "complete": true,
+      "seconds": 14.049342087935656,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394022/result.json": "60fc00525852cf22ac5af71d59444d61268131c76bfd98cace02dd133a3ddb44",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394022/steps.csv": "cc5d01ac008f100b0f0fac23eaac94d4f049e008c5398b9e05c513c6a2145e27"
+      }
+    },
+    "scripted_20394023": {
+      "complete": true,
+      "seconds": 13.297671628650278,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394023/result.json": "626896c4f314538915723f3503c786b5d40f5a678e73afc3d41684bed6453fdf",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394023/steps.csv": "22281bc18f7cea40398a292493f1136ed192a62fa59dd2934dac7c679f6494fe"
+      }
+    },
+    "scripted_20394024": {
+      "complete": true,
+      "seconds": 14.858275898732245,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394024/result.json": "6566587773ff80fce8e90a3b4804a8997cf98f67cff233245b65c7b1f9115240",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/scripted/seed_20394024/steps.csv": "e317eaeeeaf49fa585b93585b565c6545583b60497e33ac936a913c9e06648eb"
+      }
+    },
+    "rl_true_20394005": {
+      "complete": true,
+      "seconds": 14.30894140386954,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394005/result.json": "a26a2157a23d68e0146af44a1c7cd33360159aa40393b0b94b004b453db70809",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394005/steps.csv": "762aab1c3de23fd6562ce042ec0a081c671e72c668bcec50e87fa5def8ab6005"
+      }
+    },
+    "rl_true_20394006": {
+      "complete": true,
+      "seconds": 15.065492351073772,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394006/result.json": "c3fce9e4253a81a289e1e1314ad170e439fc451191cf3b2de1347487965c7e40",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394006/steps.csv": "71f07d2f4816a2f8b99897a26f629ef2c875e7ef29dccf14d40d9351ce015080"
+      }
+    },
+    "rl_true_20394007": {
+      "complete": true,
+      "seconds": 14.798129589762539,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394007/result.json": "4818c9b3b6c1af55a50ef62211d2a9163fc9dab69e91e15cfcafea1d8efb521f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394007/steps.csv": "4941c009054dc78023d15c8743b35bafe17173e8e93ab98ba4d9d4342d3ab2f9"
+      }
+    },
+    "rl_true_20394008": {
+      "complete": true,
+      "seconds": 14.743478729389608,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394008/result.json": "79724aab0f1c7ba28f4556304284c32280a8c63c02796cfdf7c791fa1cb7504e",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394008/steps.csv": "32747455ac9e6c37673cd8b285325780b2e65c57c0815e460ff37d857b77e99e"
+      }
+    },
+    "rl_true_20394009": {
+      "complete": true,
+      "seconds": 14.929133396130055,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394009/result.json": "8ab80bf9b4db721c29c2398c01808967bc1b0687c37a48373bdf4f9ed31bbc22",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394009/steps.csv": "a749cce9989921faf27af6140896e2dc5219b8b7c1d6a2a6be88013322e89bae"
+      }
+    },
+    "rl_true_20394010": {
+      "complete": true,
+      "seconds": 14.540087670087814,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394010/result.json": "95082a4b3f0f23548b7f8297335bbf64c7b12e90902810d59168297cb17a9f77",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394010/steps.csv": "8d93e4f33e4711b23b56955984476111b41686c6072459ce3f20a348b25d6582"
+      }
+    },
+    "rl_true_20394011": {
+      "complete": true,
+      "seconds": 13.439677054062486,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394011/result.json": "1fe1a4456eaa0385428bd2a87b3969e9c2e0eeb97e1e603a12f91328dac1ef68",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394011/steps.csv": "a763d8d700f164ba47b77246c207d3915e7502ea95050281578a518129ed39bb"
+      }
+    },
+    "rl_true_20394012": {
+      "complete": true,
+      "seconds": 14.499169386923313,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394012/result.json": "1244d00d2e8483c7bdea5bc256d01c4cfbd0f10bf45d0d41bc91627e0feb51e6",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394012/steps.csv": "7779d97ff47541bc1124c8a0d8be9173c8156c30a0071a1e6322367b47a75c35"
+      }
+    },
+    "rl_true_20394013": {
+      "complete": true,
+      "seconds": 14.371321660932153,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394013/result.json": "db133b6001e377e87270ba4ec3d06cccd53a73a258e7f4ecf996e2d1a193c59c",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394013/steps.csv": "b67a0a024f6144e8c7d441aea93c548040ba4b1280cd80874e0d4ff33944fb42"
+      }
+    },
+    "rl_true_20394014": {
+      "complete": true,
+      "seconds": 14.894176552072167,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394014/result.json": "d598f96398c46fc09492756b6df909fbfe679bdf89e7600d7a7eaa74e1abec38",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394014/steps.csv": "98c5080a6490e51726278f0cda46fd3228a37f12d884a2143c8f9a7cae091402"
+      }
+    },
+    "rl_true_20394015": {
+      "complete": true,
+      "seconds": 13.853502061683685,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394015/result.json": "e3e5ef85fb63c51e8221d2797012dd8ea5b439cf52c8490df08ef627478e4f04",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394015/steps.csv": "0645631b35eb6a327eab2cbfb12ca6625868c5567147cb2f2eb957838b1af40b"
+      }
+    },
+    "rl_true_20394016": {
+      "complete": true,
+      "seconds": 14.273131946101785,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394016/result.json": "4d48d3c0ec3d1057ff823d756e089bcf0d58809562265c2fb9b3a4861d52a838",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394016/steps.csv": "2de1dc5a1aaf859b92675e1035f71b7ba380f1c57ec95e5e0416ef624c6dae87"
+      }
+    },
+    "rl_true_20394017": {
+      "complete": true,
+      "seconds": 14.567283467855304,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394017/result.json": "4028d49b945df348a24ac98a3e3b7e1e9104e435ab85a78cfd262a1cf5fdf162",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394017/steps.csv": "c9838922e1e7dde778f8104e93c7772a35d2788198e90677f5b4a3e6309fd1e9"
+      }
+    },
+    "rl_true_20394018": {
+      "complete": true,
+      "seconds": 14.68522930610925,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394018/result.json": "451dad5c667023691d12e7c9a1a0bcb739dd1441e55e2c9c8abf57c59701474f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394018/steps.csv": "e9b106795a8a7377b292a114f854b2cc208ba0ff92234711d917eb23fc79d8f4"
+      }
+    },
+    "rl_true_20394019": {
+      "complete": true,
+      "seconds": 14.314801201689988,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394019/result.json": "d5f75b867af8a116ac40e0eb67a7e0b0e13883308957fc01a087b7609405119d",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394019/steps.csv": "d89c2270f4784cbd3f3c23450346648a19066e919b5910dab24051e5ffed6b22"
+      }
+    },
+    "rl_true_20394020": {
+      "complete": true,
+      "seconds": 15.116107364650816,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394020/result.json": "7ef2c6a3069d37013016149a94e486449eb63f608c49c504e1372d36e3531aad",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394020/steps.csv": "02818e166bd659281da50e4a6ae49f3b274e7208fd9265078a44e2ec793d2584"
+      }
+    },
+    "rl_true_20394021": {
+      "complete": true,
+      "seconds": 32.37077291961759,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394021/result.json": "61043647a85f353ab022eec9165eb12e0e59243b68304cb9462ac50386982bbc",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394021/steps.csv": "a8fae0c35200370fca26e204631dbdca883c0f7add994afc1ef6a64534740b69"
+      }
+    },
+    "rl_true_20394022": {
+      "complete": true,
+      "seconds": 14.509771801996976,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394022/result.json": "1c0d9349063456fddce4d5a9b5e1576273af6b8eadb363981537ef3bcdf2938c",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394022/steps.csv": "0a97395260ebf1e0838fea21a88f88e67be5c55d666b63ad1343cc737d70e5e5"
+      }
+    },
+    "rl_true_20394023": {
+      "complete": true,
+      "seconds": 14.817488137166947,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394023/result.json": "af8d09e4d83000ff7d4cb7b68e0e814153f69dc3a88bc571447b071fee9d2cec",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394023/steps.csv": "1f5ede65f1f69de5d2fe3ab5a4e1d5d81f56ddd27fba3ff379556c7c5e5f73ab"
+      }
+    },
+    "rl_true_20394024": {
+      "complete": true,
+      "seconds": 14.564206164795905,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394024/result.json": "17b0f19071be8a32c156c9f7876db58104cafa3ecd4a63925d9325753d734fcd",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_true/seed_20394024/steps.csv": "a471684eb7a17c25fe87434af44dfc769e4a5a066c6e7be0cfec82621262b1da"
+      }
+    },
+    "rl_q_20394005": {
+      "complete": true,
+      "seconds": 133.27369049098343,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394005/result.json": "c564e936de309d0d19dace3d95c1033b77f29f9e6fc535c0029fbce04fc6df3f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394005/steps.csv": "20d9aab314b2801c3ea06fa22fa1effd3f91c6d63e887c6b937ac2349da6d44d"
+      }
+    },
+    "rl_q_20394006": {
+      "complete": true,
+      "seconds": 132.67816870985553,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394006/result.json": "dfeb29fb61b195cfe387ff20d38a3126b98f8ff9644f87ddb41704f1e108cd07",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394006/steps.csv": "fa3ba53f486932cb12553389c41d8543492ae23a3ff41a1fe8702817160cb052"
+      }
+    },
+    "rl_q_20394007": {
+      "complete": true,
+      "seconds": 131.4447594229132,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394007/result.json": "0e007a9dc753378ee57e34c073d8f8745a244b4e6a416e7eddd78350c1441b5a",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394007/steps.csv": "05391e91c9d702ecef7ce334b9e82fdf14ea7517b3b7ae9b19518e0368e0016f"
+      }
+    },
+    "rl_q_20394008": {
+      "complete": true,
+      "seconds": 132.25574570987374,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394008/result.json": "735f3081d5904c023ee70332e2f464c5bfada6923ea318c7d8e79e770ea87e04",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394008/steps.csv": "1b0aad8af50c744b14c505618937a50c51a8b576aa3829bcf3cb95ccc62e72a6"
+      }
+    },
+    "rl_q_20394009": {
+      "complete": true,
+      "seconds": 134.8717548539862,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394009/result.json": "f49d2259921f138340cf4c3ba82ce3ea4a7c5ec23d69381f1ab6ea6af200b2e0",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394009/steps.csv": "815715163aca4893621ddd9ece8b9bd52e46db3c5a1e29ba19fff44fb1451ead"
+      }
+    },
+    "rl_q_20394010": {
+      "complete": true,
+      "seconds": 132.62548994086683,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394010/result.json": "2bd2384497c78623b94355cf0ec694424f98f32881b8160b73952283715d19b3",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394010/steps.csv": "9355e2d69bfd099c9c8f502498f7653e6c75db60782657bb678461f6e2b8bcbe"
+      }
+    },
+    "rl_q_20394011": {
+      "complete": true,
+      "seconds": 130.2579130907543,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394011/result.json": "7851d65a19fa73c8e91aaea4a74e89371ae939c9918462478fc03a88f234a63e",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394011/steps.csv": "8bb16a0f509eb0074d89a569c3240d485e5217b31c9f7f3dcf260b409de684f9"
+      }
+    },
+    "rl_q_20394012": {
+      "complete": true,
+      "seconds": 130.83624866977334,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394012/result.json": "86846d3bc074657bd6786ae81a52b5672ec6645525d2903f9f2504eb67f5aee6",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394012/steps.csv": "71279a187437e333c04e076d9f412e84ab9cf297ea9df6a81a15877c07c5af4d"
+      }
+    },
+    "rl_q_20394013": {
+      "complete": true,
+      "seconds": 132.18033891823143,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394013/result.json": "2a2ddfb443cdd0f0950bdf9d7db6b942b1b19cec34cbac947add735a4a16afcd",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394013/steps.csv": "e66132398bbb635a6ed8d02250973368ad979cd4f17c27b8b56e53e2dca285c8"
+      }
+    },
+    "rl_q_20394014": {
+      "complete": true,
+      "seconds": 129.19693370815367,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394014/result.json": "0af6b417927633262d8d6ebfab8f9ba6a7052a8cda78d02c377853f5393808c4",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394014/steps.csv": "ded206e4fde7abcb2cb9936cea0f568cfc322487ecb68fa05506dc2354850f77"
+      }
+    },
+    "rl_q_20394015": {
+      "complete": true,
+      "seconds": 135.2186570088379,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394015/result.json": "68fabe3d2f20a433e6cafcf3751e4976aee91db47543556fc5bb2c1992ac2281",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394015/steps.csv": "0e7ff04a646cd2981b8c6e053bcbf1fe4ffee3bfb0cd835d30ebfc1207221358"
+      }
+    },
+    "rl_q_20394016": {
+      "complete": true,
+      "seconds": 131.79294820595533,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394016/result.json": "89c1531ccdc390c526082e7c198bf0766d438ad7a0aba7cbeaaf00257eb7d226",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394016/steps.csv": "bd1cacc98c9bc27bb728f2520d3ff93608c74d3da1311b1947e721407180ebb0"
+      }
+    },
+    "rl_q_20394017": {
+      "complete": true,
+      "seconds": 131.524540128652,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394017/result.json": "19f20ee826036228e89e94aaa18649af2a8ca3d39b753a5ba436bfc9f5589603",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394017/steps.csv": "3931dca04c83879d3f1dac599abc1088c105136a6676b2d9fec05008ae4673b3"
+      }
+    },
+    "rl_q_20394018": {
+      "complete": true,
+      "seconds": 131.6684710928239,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394018/result.json": "d70c2108d31ac828baf32c2a44ba76ff6a1d5343e0f4b68696b4386a61828918",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394018/steps.csv": "43f0850d32a776b21eb7ea6b7400baa634bab95838c09a04665819bd4d50d8d9"
+      }
+    },
+    "rl_q_20394019": {
+      "complete": true,
+      "seconds": 131.31173542374745,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394019/result.json": "c5e54db11f146401d7ec8038b5559ed451ae39644d2b6d6d5f2b08bedbabb103",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394019/steps.csv": "9316f33134d165a4ccbc9cf0765de2f45dd446cc6bee67a044f74e6eeec80663"
+      }
+    },
+    "rl_q_20394020": {
+      "complete": true,
+      "seconds": 130.7418596940115,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394020/result.json": "3816b96c61c6fc23838b8b469150bc739186ee7d586fdc191cf8bacdd6b634a6",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394020/steps.csv": "c651863ebb8019c35ba7f9f461fa0386a99b875459b6ef5545e05cd109ec1b69"
+      }
+    },
+    "rl_q_20394021": {
+      "complete": true,
+      "seconds": 130.79250883683562,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394021/result.json": "c36ec345dd8c599d2c345ea3ffb4650e5c026eca5ad6167c5ec9553a6bb74a1e",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394021/steps.csv": "3690c95a4b60ddb0398f778dc3c34dd8c642f7e88d2fbc7615c891052a4acd38"
+      }
+    },
+    "rl_q_20394022": {
+      "complete": true,
+      "seconds": 130.24713708506897,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394022/result.json": "1b3047307a4f009d40c46b0033ac3876f74bfae3b87399e4f476ac2399b09f43",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394022/steps.csv": "31b8b6752307ac6fbd2a4df4efb218d150e4dffe41567d4dc30c22cb79473d4c"
+      }
+    },
+    "rl_q_20394023": {
+      "complete": true,
+      "seconds": 128.05940068280324,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394023/result.json": "fb23412a9525c2ac72f5b569fcc029d21c78f5f0fb52ccd03359444bfc04e3c4",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394023/steps.csv": "323e5afb01b1ba9208563396be12ccc9fbb9c58cb864a292a33209a8211d463f"
+      }
+    },
+    "rl_q_20394024": {
+      "complete": true,
+      "seconds": 128.870220284909,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394024/result.json": "4f255c7b07acfbb75619a1613585d6bf2fee8c5555671bcf5524e473758d91c9",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/rl_q/seed_20394024/steps.csv": "e364b8a7f72e8ee538f4f3696e64593e60b9e99ffbc0df1ff74ed2680573dda2"
+      }
+    },
+    "jepa_mpc_20394005": {
+      "complete": true,
+      "seconds": 159.84335508802906,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394005/result.json": "8892f40139d6766a0fa030c5a0917195f187bac35537f7d99e7797695f30cf3f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394005/selected_forecasts.csv": "747e786ca814869327fd465302ef37dd049ec7eb7744d0e195d43fa682c179e1",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394005/candidates.csv": "414878b8e673cba53fa2afb6f29a262ffc67a4fa6d6292da822070699ad80511",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394005/steps.csv": "37dadb016ee7c4f4ab999d402be686704508f72459abfb8268e43fdee7affdff"
+      }
+    },
+    "jepa_mpc_20394006": {
+      "complete": true,
+      "seconds": 164.96056465618312,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394006/result.json": "f85e0d241f557d417463b7e7f4271af5c60f2ac7b9230706472e14f7dd38a0d8",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394006/selected_forecasts.csv": "1a1e124437fb8e4a6301ede9b1b1a366bafe0c9244651fed6c9b88b8ca9f7519",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394006/candidates.csv": "c29f0b913a50e58ed0169eaf63beeceac400c2443a312d787e86f66d5135347e",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394006/steps.csv": "61cbdbb22480ac12c0100de95548acb54b316477f1671144da807674e455fd12"
+      }
+    },
+    "jepa_mpc_20394007": {
+      "complete": true,
+      "seconds": 161.41149442316964,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394007/result.json": "01081f5941e7652f67e9891189304c25026f9c48eb33a5712abe954ca13718ae",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394007/selected_forecasts.csv": "7ec324b754cf1d0d9b876964f3e2ec58bf6010a9513b32834ea38b01850fb6ed",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394007/candidates.csv": "4e6b38b078355f1a487f39ae922b4f0ed32405244445e097e1c5149f25551f2f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394007/steps.csv": "57af694901a525019c92a7f1b644d7c1c338a31d0861921fca73018891525111"
+      }
+    },
+    "jepa_mpc_20394008": {
+      "complete": true,
+      "seconds": 166.63405105797574,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394008/result.json": "635ebf9f5414e33caa8bbdbbd187540680a62335d773c758f615ca642e5583dc",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394008/selected_forecasts.csv": "6c4d2c6cf5c3b034612529a779850349367ba981c9fb8e862746740ab1a8a533",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394008/candidates.csv": "7040f475ad713cd13b9ea77545c9aeeb4dc99485ee227472495037ba688f0ce7",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394008/steps.csv": "62834c0acade971cb342abe3ccfd15838b16b3e17dab0eee03f01bc3ad717a03"
+      }
+    },
+    "jepa_mpc_20394009": {
+      "complete": true,
+      "seconds": 168.04641094291583,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394009/result.json": "d322fca5cb16bd2ebcd70d782c16d786654ff539f3b00ad59300b25d12ddc52c",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394009/selected_forecasts.csv": "8a9a4dcf7f69b20bf89a3fc84a0d70fd4bcb9e89cf94d30c3624ba874505e259",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394009/candidates.csv": "835fa031e8e52a9cb5b1cdd5e6cb1f13d42cd30f81c064d47d26f6500f6d34ee",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394009/steps.csv": "81779142a0b4bf6b0264451a40d061f939e09769c8464d062a276ac6108d9529"
+      }
+    },
+    "jepa_mpc_20394010": {
+      "complete": true,
+      "seconds": 169.46023303316906,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394010/result.json": "35a5428b3de49f70053795951485a26e4da268562c375b44eb9644c8be132d53",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394010/selected_forecasts.csv": "ef410d61da3dc1bcfc54c6ad10485cdb414ab4ef2f83152119d5368cdfaff9ca",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394010/candidates.csv": "8b0a3af978897c7a914380671407b2238c91ace4a148f3f4ec535873de84065e",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394010/steps.csv": "8015d837e3ee08fc45be4278d61680f77024a364b43fa9a3a0b5047d7699c94d"
+      }
+    },
+    "jepa_mpc_20394011": {
+      "complete": true,
+      "seconds": 167.6853610719554,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394011/result.json": "4640f9d247aae1f0cee3925c7272a849e1aec8fe61b14c8a3a73cdecb91cf313",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394011/selected_forecasts.csv": "af13d14451b8c7bc052c732ae861adbdfffaa521317f2f31a2928aab1e437c1e",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394011/candidates.csv": "e5ad786bd0051e2054a6f037e325c694685e7060c828500d7e84624de5205ba7",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394011/steps.csv": "5ad055e1e56f85e476bc1db7f1a99ad631905affb665646fed61becdc584f893"
+      }
+    },
+    "jepa_mpc_20394012": {
+      "complete": true,
+      "seconds": 167.5326721998863,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394012/result.json": "09fd5706fa226f2a4cea141ae51bbb157b58ace843c92cc58645a53a5b776c5f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394012/selected_forecasts.csv": "d6546e25ddef2c45f18d32a1b0ebde837104c358290c6860f0a189c9a354aa8f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394012/candidates.csv": "e1d2eea1fd67816a81b451ff2b685e1c724ade80408a4b137d3425780b46dae6",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394012/steps.csv": "ca13b76db7c024596df2aab38317dac3376050757450dbef132edd77469e00de"
+      }
+    },
+    "jepa_mpc_20394013": {
+      "complete": true,
+      "seconds": 166.2962792380713,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394013/result.json": "1099c4866f355546995f732ebe7cc2127e9d431e85ee23e62b101667041c92bf",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394013/selected_forecasts.csv": "2aad2ff3f21f25f419d9771ecd155b8e255372276047394387bba420204b4098",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394013/candidates.csv": "51df09d19658887d0413890b2515f6198dfd29e3ce0bb144ece8a096c0979797",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394013/steps.csv": "40ffde305843b8e90cc5525e11d31902b6f11494c1f8b307854e946d05d125e0"
+      }
+    },
+    "jepa_mpc_20394014": {
+      "complete": true,
+      "seconds": 164.4400070779957,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394014/result.json": "c0897ed815247ef7813e77a7bf0a7a15b5d36c164d4f11eb71c95c635fc70200",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394014/selected_forecasts.csv": "6ef8f810960507fa07de88dbf1290ca8a96b9e0719f0d806ba139d9cf32a6197",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394014/candidates.csv": "857c598fc5fefc35beb866b6c723c23d8b698d13cfc8ccf7050f4e701150bcb8",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394014/steps.csv": "a023c6336ddb911057a822adb0e1f52a7da64b02ee8c18805181f7df0b8dffd1"
+      }
+    },
+    "jepa_mpc_20394015": {
+      "complete": true,
+      "seconds": 166.92085060104728,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394015/result.json": "13ae95f453bb4f6e44ec38b153d4cdd714f3742f702b424135d7f8623140e2de",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394015/selected_forecasts.csv": "ff2c2ba7bd4c31f91c3ffb18d67d52e258515b2bb7df52c549334468992ba1ad",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394015/candidates.csv": "3f1a2eec51bc842000bafdeae9f3f7f05fec2c9b168200cf8ee5e822e894e7ee",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394015/steps.csv": "19941840768a15541fa2dbac21bc03f6b2072c320720bd0b0aa30bbbfd20d3f0"
+      }
+    },
+    "jepa_mpc_20394016": {
+      "complete": true,
+      "seconds": 165.3744645291008,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394016/result.json": "2b0f26c2a37708de426c9b7f2a98beb1de4c488bbea327b11ab48da3945ad465",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394016/selected_forecasts.csv": "54c585ae633b689882b88f83b5190e484a9ddc06111d94c90ff9a8e2b7b6206c",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394016/candidates.csv": "985dfe1356ea6ab6637e13819f0a545b5640e37dd05b31b809a83d47d61adbd5",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394016/steps.csv": "f38376f341acce6e714e791d81bb5ea7d0992aa0d660ec71ad6d592e3a56b921"
+      }
+    },
+    "jepa_mpc_20394017": {
+      "complete": true,
+      "seconds": 166.9259051750414,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394017/result.json": "cac3f5c7f431430f2f278765b4fbc79d547c1fa8bb19bffff029e33b7971eb94",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394017/selected_forecasts.csv": "dae42b2190b2d52b5985faa972ade577868e3cb79a0cc0717ef881869104715f",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394017/candidates.csv": "3f3f4797c0ee9046e6d6e2aef3cfda6932c4518c6b2eedb5d519e7437f616b31",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394017/steps.csv": "fb2a7a9cfeef7f4f981a36ab28656caa49d5173c7dfaeddb7a184715e30ddb1f"
+      }
+    },
+    "jepa_mpc_20394018": {
+      "complete": true,
+      "seconds": 168.24566788459197,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394018/result.json": "9f0c264b42662b9359b8a68d127c79027931e2b3f4695f7f869b87ed1b72e999",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394018/selected_forecasts.csv": "79e7b86b5f094416bd25ccf81a1240c7049cb94a102dde229f2cfe7390dc669a",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394018/candidates.csv": "7164ba22ef749242b2bf6a780f4339456ec0de57234c25e662023e56c5ba350b",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394018/steps.csv": "9f16924118badc1aa4a3f23ee96da64bed1879ef24698e4719f325dd1ceb32ed"
+      }
+    },
+    "jepa_mpc_20394019": {
+      "complete": true,
+      "seconds": 167.22545708389953,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394019/result.json": "305452318646e3e66fcf628e11241db4250bafaa0811fe9552a0b03dd91b48e0",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394019/selected_forecasts.csv": "e7e3196fa1a61e7f48ba589055739ba9e6a48bb55cab0ea395b64143dd04185a",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394019/candidates.csv": "b4836602aa6c7878bd10042c149d06536143a91a1d6fed215ec2bf5870c9e0b4",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394019/steps.csv": "db42d1b64de43d13a5f5546d47f5da5b690e59154c50b7277a69c5b0a543d550"
+      }
+    },
+    "jepa_mpc_20394020": {
+      "complete": true,
+      "seconds": 166.72901904396713,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394020/result.json": "b1e1f0238495b118d683c6a6addb09c237f54e5a7b0cb279d20f90543f1f8a10",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394020/selected_forecasts.csv": "fe365d62f9c289ddee609a596d00f107c4d9c71974819f2f72153b28d7e3ca30",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394020/candidates.csv": "2296850b62f9a774d892fa694ef3e5fd9d78308b605fc9739c70456c4d0d4ec7",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394020/steps.csv": "95bdcbef3cbdc52d84cd69e0c8d93156389a614fe631beb59cd7adca2bbaf543"
+      }
+    },
+    "jepa_mpc_20394021": {
+      "complete": true,
+      "seconds": 166.55463135708123,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394021/result.json": "14b84a77102ce6e946d19f20dd95159c701e2a7237a8675470e0d77fbf27f5e3",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394021/selected_forecasts.csv": "dafa78ba3c8dc087ad8a9c5ebd2f4e3447ba3b0ac4ae3c48bb7db2d220e2cb34",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394021/candidates.csv": "b4bead9910df7989a0fc56ceff71a53bb32b3ecb46cb660f2071e87f318c7342",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394021/steps.csv": "f217934c509f40308cc9d804280f90da4ad828dc0874f78db0418d0af8ddf578"
+      }
+    },
+    "jepa_mpc_20394022": {
+      "complete": true,
+      "seconds": 167.1266847141087,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394022/result.json": "067b71f4920af8068edf20d8268733fa38a22e95bc60ad9a1bc9376c0cf21797",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394022/selected_forecasts.csv": "8125dd9930551e72cd762759b2be83a5ca1dfa86167d904588df1ef1e51a315e",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394022/candidates.csv": "0e607f53b9b7d9209ace4b96d0a2bf7510c8ec907000fced144a10cc35d134ce",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394022/steps.csv": "10c4d2e4e28fa9c1cadc10749428b60add8e5fc92bc8e0affbadad15cc04e1b3"
+      }
+    },
+    "jepa_mpc_20394023": {
+      "complete": true,
+      "seconds": 166.58440894586965,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394023/result.json": "fe5637106d09ea92250d0ec148459aa83b3cb8f860425dbf66ab42f90e574cd9",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394023/selected_forecasts.csv": "ec2f338b00870fa59cd485724c8f8d9756014f3484a5598607d45dbc7b7c3430",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394023/candidates.csv": "cf2afb43b836d56505eeb7e3a3d909c933e0d77e3ce9c96176d5931d6b4a2081",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394023/steps.csv": "bfc08b1cc18afc43d4ceeef979e515c039b9e529c8b6483b5e21d7b26179fd81"
+      }
+    },
+    "jepa_mpc_20394024": {
+      "complete": true,
+      "seconds": 165.76888485392556,
+      "artifacts": {
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394024/result.json": "7ac88a8b1208e99ba9b4ac365794c2ab69447cdfe8c9cbe4d175e6521e0938a0",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394024/selected_forecasts.csv": "ff771a76648df5ef3e69996c58f1a3485239878af2a011ed010f69af342eac7b",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394024/candidates.csv": "aa34ce834a21ead512d5b31815b9dbafdf9bad07c6a7089504efca42c03afdb3",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_frozen_v2/episodes/jepa_mpc/seed_20394024/steps.csv": "fdd7b05b8c29c8425a1b79f75975898fa74a21077381b8adf0d3027597f3e132"
+      }
+    }
+  },
+  "started_utc": "2026-10-05T14:47:25.213695+00:00"
+}

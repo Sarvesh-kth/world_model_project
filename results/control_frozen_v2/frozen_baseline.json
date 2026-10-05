@@ -1,0 +1,428 @@
+{
+  "run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+  "checkpoint_sha256": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+  "training_sha256": "aa98befc88c989fcff92793770749669587be2c85e62e2dbad0e508007bc9612",
+  "evaluations_sha256": "af52ce85c872b23000a7bb28654a2dd11bd70be79602a5105767531c50ca43c7",
+  "pipeline_sha256": "6fdc5a343d7ed8ed01b36f3ec31721c02461fafe5a6dcb98c631ccb5f1469541",
+  "summary_sha256": "799ea4173aa45d9ee9f6474dd914c7d71d5bd8274b636ff0b5b03b12b71446dc",
+  "successes": 100,
+  "episodes": 100,
+  "validation_seeds": [
+    20273005,
+    20273006,
+    20273007,
+    20273008,
+    20273009,
+    20273010,
+    20273011,
+    20273012,
+    20273013,
+    20273014,
+    20273015,
+    20273016,
+    20273017,
+    20273018,
+    20273019,
+    20273020,
+    20273021,
+    20273022,
+    20273023,
+    20273024
+  ],
+  "test_seeds": [
+    21263005,
+    21263006,
+    21263007,
+    21263008,
+    21263009,
+    21263010,
+    21263011,
+    21263012,
+    21263013,
+    21263014,
+    21263015,
+    21263016,
+    21263017,
+    21263018,
+    21263019,
+    21263020,
+    21263021,
+    21263022,
+    21263023,
+    21263024,
+    21263025,
+    21263026,
+    21263027,
+    21263028,
+    21263029,
+    21263030,
+    21263031,
+    21263032,
+    21263033,
+    21263034,
+    21263035,
+    21263036,
+    21263037,
+    21263038,
+    21263039,
+    21263040,
+    21263041,
+    21263042,
+    21263043,
+    21263044,
+    21263045,
+    21263046,
+    21263047,
+    21263048,
+    21263049,
+    21263050,
+    21263051,
+    21263052,
+    21263053,
+    21263054,
+    21263055,
+    21263056,
+    21263057,
+    21263058,
+    21263059,
+    21263060,
+    21263061,
+    21263062,
+    21263063,
+    21263064,
+    21263065,
+    21263066,
+    21263067,
+    21263068,
+    21263069,
+    21263070,
+    21263071,
+    21263072,
+    21263073,
+    21263074,
+    21263075,
+    21263076,
+    21263077,
+    21263078,
+    21263079,
+    21263080,
+    21263081,
+    21263082,
+    21263083,
+    21263084,
+    21263085,
+    21263086,
+    21263087,
+    21263088,
+    21263089,
+    21263090,
+    21263091,
+    21263092,
+    21263093,
+    21263094,
+    21263095,
+    21263096,
+    21263097,
+    21263098,
+    21263099,
+    21263100,
+    21263101,
+    21263102,
+    21263103,
+    21263104
+  ],
+  "config": {
+    "seed": 0,
+    "sim": {
+      "timestep": 0.002,
+      "impratio": 10
+    },
+    "control": {
+      "hz": 10,
+      "max_delta": 0.04,
+      "yaw": {
+        "enabled": true,
+        "max_delta": 0.15
+      },
+      "workspace": {
+        "low": [
+          -0.12,
+          -0.42,
+          0.755
+        ],
+        "high": [
+          0.45,
+          0.42,
+          0.97
+        ]
+      },
+      "ik": {
+        "hz": 250,
+        "damping": 0.02,
+        "pos_gain": 10.0,
+        "ori_gain": 6.0,
+        "posture_gain": 2.0,
+        "max_lin_vel": 0.7,
+        "max_ang_vel": 2.0,
+        "max_joint_vel": 2.5,
+        "max_lead": 0.05
+      }
+    },
+    "cameras": {
+      "record_hz": 10,
+      "width": 256,
+      "height": 256,
+      "static": {
+        "pos": [
+          1.25,
+          0.0,
+          1.42
+        ],
+        "lookat": [
+          0.1,
+          0.0,
+          0.82
+        ],
+        "fovy": 52
+      },
+      "wrist": {
+        "fovy": 75,
+        "tilt_deg": 30
+      },
+      "pointcloud": {
+        "enabled": false,
+        "frame": "base",
+        "stride": 2,
+        "max_depth": 2.5
+      }
+    },
+    "robot": {
+      "base_pos": [
+        -0.4,
+        0.0,
+        0.75
+      ],
+      "home_qpos": [
+        0.0,
+        -0.6,
+        0.0,
+        -2.8,
+        0.0,
+        2.2,
+        -0.7853
+      ],
+      "posture_noise": 0.0,
+      "grip_scale": 2.0
+    },
+    "table": {
+      "center": [
+        0.15,
+        0.0
+      ],
+      "half_size": [
+        0.32,
+        0.46
+      ],
+      "height": 0.75,
+      "top_thickness": 0.04
+    },
+    "task": {
+      "pick_end": "random",
+      "place_end": "opposite",
+      "ends": {
+        "left": {
+          "x": [
+            -0.02,
+            0.28
+          ],
+          "y": [
+            -0.38,
+            -0.18
+          ]
+        },
+        "right": {
+          "x": [
+            -0.02,
+            0.28
+          ],
+          "y": [
+            0.18,
+            0.38
+          ]
+        },
+        "near": {
+          "x": [
+            -0.08,
+            0.04
+          ],
+          "y": [
+            -0.22,
+            0.22
+          ]
+        },
+        "far": {
+          "x": [
+            0.2,
+            0.3
+          ],
+          "y": [
+            -0.22,
+            0.22
+          ]
+        }
+      },
+      "reach_range": [
+        0.3,
+        0.65
+      ],
+      "min_pick_place_dist": 0.35,
+      "object": {
+        "pool": [
+          "cube",
+          "cuboid",
+          "cylinder",
+          "hex_prism",
+          "tri_prism",
+          "frustum"
+        ],
+        "holdout": [
+          "bottle"
+        ],
+        "scale": [
+          0.9,
+          1.1
+        ],
+        "mass": [
+          0.05,
+          0.2
+        ],
+        "friction": [
+          0.8,
+          1.5
+        ],
+        "randomize_color": true
+      },
+      "obstacles": {
+        "count": [
+          3,
+          5
+        ],
+        "extra_height": [
+          0.04,
+          0.19
+        ],
+        "clearance": 0.2,
+        "spacing": 0.1,
+        "corridor_span": [
+          0.25,
+          0.75
+        ],
+        "lateral_offset": 0.16,
+        "kinds": {
+          "wall": {
+            "length": [
+              0.08,
+              0.16
+            ],
+            "thickness": 0.02,
+            "height": [
+              0.16,
+              0.19
+            ]
+          },
+          "box": {
+            "width": [
+              0.03,
+              0.06
+            ],
+            "height": [
+              0.16,
+              0.19
+            ]
+          },
+          "cylinder": {
+            "radius": [
+              0.015,
+              0.03
+            ],
+            "height": [
+              0.16,
+              0.19
+            ]
+          }
+        }
+      }
+    },
+    "episode": {
+      "max_steps": 300,
+      "success_radius": 0.07,
+      "settle_steps": 15,
+      "fall_margin": 0.05,
+      "terminate_on_success": false
+    },
+    "rewards": {
+      "lift_height": 0.04,
+      "safe_distance": 0.06,
+      "weights": {
+        "reach": 0.5,
+        "grasp": 0.5,
+        "lift": 0.5,
+        "transport": 1.0,
+        "place": 5.0,
+        "success": 10.0,
+        "fail": 10.0,
+        "collision": 0.5,
+        "proximity": 0.3,
+        "table_hit": 0.2,
+        "drop": 1.0,
+        "action": 0.01
+      }
+    },
+    "data": {
+      "root": "data",
+      "jpeg_quality": 90,
+      "workers": 4,
+      "mix": {
+        "success": 0.5,
+        "scripted": 0.3,
+        "drop": 0.1,
+        "collide": 0.0,
+        "random": 0.1
+      },
+      "success_attempts": 1,
+      "scripted": {
+        "noise": 0.1,
+        "noise_correlation": 0.8,
+        "speed_range": [
+          0.6,
+          1.0
+        ],
+        "carry_height": 0.1,
+        "route_margin": 0.16
+      }
+    }
+  },
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.18,
+      -0.23
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": []
+  }
+}
