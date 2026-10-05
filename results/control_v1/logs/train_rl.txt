@@ -1,0 +1,189 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.control_pipeline", "--models-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--tag", "width_visual_seed_0", "--layout", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/configs/grade_e_layout.json", "--out", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_v1", "--export-dir", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/control_v1", "--seed", "20261005", "--rl-steps", "10000", "--demos", "20", "--bc-epochs", "120", "--bc-weight", "100.0", "--critic-warmup", "1000", "--eval-every", "2500", "--validation-episodes", "5", "--test-episodes", "5", "--position-jitter", "0.01", "--horizon", "8", "--population", "64", "--elites", "8", "--iterations", "3", "--terminal-weight", "1.0", "--threads", "4", "--stage", "rl"]
+demo 1: success=True steps=110
+demo 2: success=True steps=110
+demo 3: success=True steps=121
+demo 4: success=True steps=116
+demo 5: success=True steps=119
+demo 6: success=True steps=111
+demo 7: success=True steps=116
+demo 8: success=True steps=110
+demo 9: success=True steps=119
+demo 10: success=True steps=109
+demo 11: success=True steps=122
+demo 12: success=True steps=114
+demo 13: success=True steps=121
+demo 14: success=True steps=110
+demo 15: success=True steps=111
+demo 16: success=True steps=119
+demo 17: success=True steps=120
+demo 18: success=True steps=115
+demo 19: success=True steps=120
+demo 20: success=True steps=119
+Using cpu device
+Wrapping the env in a DummyVecEnv.
+BC warm start epoch 20: action MSE=0.13756
+BC warm start epoch 40: action MSE=0.09195
+BC warm start epoch 60: action MSE=0.08916
+BC warm start epoch 80: action MSE=0.07092
+BC warm start epoch 100: action MSE=0.05155
+BC warm start epoch 120: action MSE=0.05282
+BC ONLY validation: 5/5; not an RL result
+Logging to /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/control_v1/rl_logs
+Critic warmup: 1000 demonstration Bellman updates; actor frozen
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 281      |
+|    ep_rew_mean        | -8.04    |
+|    success_rate       | 0.25     |
+| time/                 |          |
+|    episodes           | 4        |
+|    fps                | 229      |
+|    time_elapsed       | 4        |
+|    total_timesteps    | 1124     |
+| train/                |          |
+|    actor_loss         | 8.03     |
+|    critic_loss        | 0.323    |
+|    demonstration_loss | 4.76     |
+|    ent_coef           | 0.0695   |
+|    ent_coef_loss      | 6.59     |
+|    learning_rate      | 0.0003   |
+|    n_updates          | 1123     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 290      |
+|    ep_rew_mean        | -11.7    |
+|    success_rate       | 0.125    |
+| time/                 |          |
+|    episodes           | 8        |
+|    fps                | 124      |
+|    time_elapsed       | 18       |
+|    total_timesteps    | 2324     |
+| train/                |          |
+|    actor_loss         | 7.37     |
+|    critic_loss        | 0.215    |
+|    demonstration_loss | 2.99     |
+|    ent_coef           | 0.0677   |
+|    ent_coef_loss      | -3.91    |
+|    learning_rate      | 0.0003   |
+|    n_updates          | 2323     |
+------------------------------------
+SAC validation at 2500: 4/5 full placements; best=80.0%
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 294      |
+|    ep_rew_mean        | -12.9    |
+|    success_rate       | 0.0833   |
+| time/                 |          |
+|    episodes           | 12       |
+|    fps                | 92       |
+|    time_elapsed       | 38       |
+|    total_timesteps    | 3524     |
+| train/                |          |
+|    actor_loss         | 6.54     |
+|    critic_loss        | 0.292    |
+|    demonstration_loss | 2.27     |
+|    ent_coef           | 0.0592   |
+|    ent_coef_loss      | -4.73    |
+|    learning_rate      | 0.0003   |
+|    n_updates          | 3523     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 295      |
+|    ep_rew_mean        | -13.2    |
+|    success_rate       | 0.0625   |
+| time/                 |          |
+|    episodes           | 16       |
+|    fps                | 86       |
+|    time_elapsed       | 54       |
+|    total_timesteps    | 4724     |
+| train/                |          |
+|    actor_loss         | 5.49     |
+|    critic_loss        | 0.16     |
+|    demonstration_loss | 2.33     |
+|    ent_coef           | 0.045    |
+|    ent_coef_loss      | -8.33    |
+|    learning_rate      | 0.0003   |
+|    n_updates          | 4723     |
+------------------------------------
+SAC validation at 5000: 2/5 full placements; best=80.0%
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 296      |
+|    ep_rew_mean        | -13.4    |
+|    success_rate       | 0.05     |
+| time/                 |          |
+|    episodes           | 20       |
+|    fps                | 75       |
+|    time_elapsed       | 78       |
+|    total_timesteps    | 5924     |
+| train/                |          |
+|    actor_loss         | 4.43     |
+|    critic_loss        | 0.325    |
+|    demonstration_loss | 1.6      |
+|    ent_coef           | 0.0313   |
+|    ent_coef_loss      | -11.7    |
+|    learning_rate      | 0.0003   |
+|    n_updates          | 5923     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 297      |
+|    ep_rew_mean        | -13.6    |
+|    success_rate       | 0.0417   |
+| time/                 |          |
+|    episodes           | 24       |
+|    fps                | 76       |
+|    time_elapsed       | 93       |
+|    total_timesteps    | 7124     |
+| train/                |          |
+|    actor_loss         | 3.62     |
+|    critic_loss        | 0.284    |
+|    demonstration_loss | 0.662    |
+|    ent_coef           | 0.0217   |
+|    ent_coef_loss      | -10.8    |
+|    learning_rate      | 0.0003   |
+|    n_updates          | 7123     |
+------------------------------------
+SAC validation at 7500: 4/5 full placements; best=80.0%
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 297      |
+|    ep_rew_mean        | -13.7    |
+|    success_rate       | 0.0357   |
+| time/                 |          |
+|    episodes           | 28       |
+|    fps                | 72       |
+|    time_elapsed       | 114      |
+|    total_timesteps    | 8324     |
+| train/                |          |
+|    actor_loss         | 2.64     |
+|    critic_loss        | 0.104    |
+|    demonstration_loss | 0.945    |
+|    ent_coef           | 0.0153   |
+|    ent_coef_loss      | -13.1    |
+|    learning_rate      | 0.0003   |
+|    n_updates          | 8323     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 298      |
+|    ep_rew_mean        | -13.8    |
+|    success_rate       | 0.0312   |
+| time/                 |          |
+|    episodes           | 32       |
+|    fps                | 73       |
+|    time_elapsed       | 129      |
+|    total_timesteps    | 9524     |
+| train/                |          |
+|    actor_loss         | 2.35     |
+|    critic_loss        | 0.0643   |
+|    demonstration_loss | 3.41     |
+|    ent_coef           | 0.0109   |
+|    ent_coef_loss      | -13.1    |
+|    learning_rate      | 0.0003   |
+|    n_updates          | 9523     |
+------------------------------------
+SAC validation at 10000: 3/5 full placements; best=80.0%

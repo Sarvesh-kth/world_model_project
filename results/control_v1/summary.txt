@@ -1,0 +1,8 @@
+Live A-to-B control comparison
+complete=True
+scripted: full placements 5/5; final goal distance=0.22cm; model fallbacks=0
+rl_true: full placements 3/5; final goal distance=14.92cm; model fallbacks=0
+rl_q: full placements 0/5; final goal distance=50.75cm; model fallbacks=0
+jepa_mpc: full placements 0/5; final goal distance=50.19cm; model fallbacks=450
+Repeatable SAC baseline on this test=False (predeclared criterion: >=80% over >=5 near-fixed-scene episodes).
+Actual GIFs/JPEGs and candidate NPZ forecasts remain in the notebook data run. No model success is implied by pipeline completion.

@@ -1,0 +1,54 @@
+{
+  "complete": true,
+  "rows": [
+    {
+      "method": "scripted",
+      "episodes": 5,
+      "successes": 5,
+      "success_rate": 1.0,
+      "mean_original_return": 107.92774425667577,
+      "mean_control_return": 12.359650160650334,
+      "mean_final_goal_distance_cm": 0.21507239937782288,
+      "mean_maximum_lift_cm": 9.954684972763062,
+      "table_contact_steps": 0,
+      "model_fallback_steps": 0
+    },
+    {
+      "method": "rl_true",
+      "episodes": 5,
+      "successes": 3,
+      "success_rate": 0.6,
+      "mean_original_return": 94.91238238318257,
+      "mean_control_return": 1.580285842326596,
+      "mean_final_goal_distance_cm": 14.924747049808502,
+      "mean_maximum_lift_cm": 9.300229549407959,
+      "table_contact_steps": 0,
+      "model_fallback_steps": 0
+    },
+    {
+      "method": "rl_q",
+      "episodes": 5,
+      "successes": 0,
+      "success_rate": 0.0,
+      "mean_original_return": 28.10607181568282,
+      "mean_control_return": -14.001082452726138,
+      "mean_final_goal_distance_cm": 50.74547576904297,
+      "mean_maximum_lift_cm": 0.27118682861328125,
+      "table_contact_steps": 0,
+      "model_fallback_steps": 0
+    },
+    {
+      "method": "jepa_mpc",
+      "episodes": 5,
+      "successes": 0,
+      "success_rate": 0.0,
+      "mean_original_return": 24.66931319976245,
+      "mean_control_return": -14.274903642470312,
+      "mean_final_goal_distance_cm": 50.19355926513672,
+      "mean_maximum_lift_cm": 0.0,
+      "table_contact_steps": 0,
+      "model_fallback_steps": 450
+    }
+  ],
+  "note": "A working-library implementation is not a guaranteed trained-policy success. Read actual placement counts; BC uses privileged demonstrations. Q/D full-task forecasts and omitted contact penalties are limitations."
+}
