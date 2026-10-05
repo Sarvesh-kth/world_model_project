@@ -1254,3 +1254,106 @@ Choose `--placement offset` or `--branch close_lift_release` to inspect other
 recorded candidates. GIFs show physical simulator outcomes. D predicts numeric
 latent/robot states; no decoder currently converts those predictions into an
 imagined robot video. The plots are how we inspect those forecasts.
+
+## Establish the exact-state RL baseline first
+
+`control_v1` on the notebook placed 3/5 with exact-state SAC, and 0/5 with
+both visual controllers. We now establish reliable A-to-B control separately
+before adding JEPA. This runner needs no encoder, latent cache, D or Q weights.
+
+From the repository root on the notebook:
+
+```bash
+git pull --ff-only origin M2_Kuba
+.venv/bin/python -m pip install -r requirements-control.txt
+cd simulation
+../.venv/bin/python -u -m world_model.vision.rl_baseline \
+  --out data/rl_baseline_v1
+```
+
+If already in `simulation/`, install with
+`../.venv/bin/python -m pip install -r ../requirements-control.txt` and run the
+last command. Use the notebook's existing OSMesa setup; this runner requires
+no CUDA. Training and inference use CPU. On macOS, ordinary Python works for
+these saved offscreen videos; `mjpython` is only required for the interactive
+MuJoCo viewer.
+
+The single command:
+
+1. Collects **100 successful scripted demonstrations** of the complete task.
+2. Initializes the SAC actor by **240 epochs of behaviour cloning (BC)**.
+   BC means learning to copy recorded actions. Its score is reported separately.
+3. Fits critics on demonstrations for 2,000 updates, then runs **20,000 real
+   SAC environment steps**, retaining the declared demonstration regularizer.
+   This is **demonstration-assisted RL**, not training from scratch.
+   The learning rate is `3e-5`, initial automatic entropy coefficient `0.005`;
+   these are proposed stabilizing settings, not a guaranteed fix.
+4. Evaluates SAC every 2,500 training steps on **20 validation episodes**.
+   Only validation placement success, then goal distance, selects the checkpoint.
+5. Freezes the selected SAC checkpoint and evaluates **BC and SAC separately
+   on the same 100 fresh episodes**. Final-test scores do not select weights.
+6. Saves actual videos/frames/trajectories for the first five fresh seeds for
+   scripted, BC-only and SAC control. No scripted actions or fallback are used
+   during BC/SAC evaluation: the learned actor selects every action.
+7. Exports JSON/CSV reports and logs to `results/rl_baseline_v1`.
+
+The arm, original IK and strict success check remain the same: cube grasped,
+lifted at least 4 cm, then released and settled within 7 cm of B for 15 steps.
+Scope: a fixed unit cube, empty table, fixed B, A jittered by ±1 cm per axis.
+It does not establish reliability on obstacles, different shapes or arbitrary
+positions. JEPA stays disconnected during this run.
+
+### Reading the baseline output
+
+- `complete=true`: the procedure finished; this is not a success claim.
+- `gate_passed=true`: SAC placed successfully in **at least 90/100** fresh
+  episodes, with at least 20 validation episodes and 100 final-test episodes.
+- `BC_test_successes` and `SAC_test_successes`: imitation versus reward-trained
+  policy. Better SAC performance must be observed, not assumed.
+- `selected_rl_steps`: validation-selected SAC checkpoint, not the last weights.
+- `evaluations.json`: per-seed `ever_held`, `ever_lifted_4cm`, final distance,
+  contacts, steps and actual placement outcome, so pick failures and misplaced
+  releases can be distinguished.
+- `rl_training.json` and `run_info.json`: learning settings, training/validation
+  curve, checkpoint hash, exact code/configuration hashes and seed lists.
+
+Saved videos are on the notebook, outside Git:
+
+```python
+from pathlib import Path
+from IPython.display import Image, display
+root = Path('data/rl_baseline_v1/episodes')  # notebook cwd: simulation/
+for method in ('scripted', 'bc_true', 'rl_true'):
+    video = sorted((root / method).glob('*/actual.gif'))[0]
+    print(method, video)
+    display(Image(filename=str(video)))
+```
+
+Resume an interrupted run with the same command plus `--resume`. The runner
+checks code/settings and completed checkpoint/evaluation hashes. Preserve old
+runs when changing settings; use a new output name. Raw frames/checkpoints
+stay under `simulation/data/rl_baseline_v1` and are not pushed.
+
+Once complete, from `simulation/`:
+
+```bash
+cd ..
+git add -- results/rl_baseline_v1
+git --no-pager diff --cached --stat
+git commit -m "Record exact-state RL baseline evaluation"
+git push origin M2_Kuba
+```
+
+**Do not add JEPA until the baseline passes.** Then freeze this exact SAC
+checkpoint and compare true-state inputs, JEPA/Q observations, and D/Q planning
+on common new scenes. A separately retrained actor is a different baseline.
+
+### Observed local baseline reference
+
+The new Mac CPU run (`results/rl_baseline_local_v1`) completed: BC-only93/100,
+selected SAC100/100 fresh placements, mean final distance0.369cm and maximum
+0.972cm. All eight SAC validation checkpoints scored20/20; validation selected
+the20,000-step checkpoint. This is one fixed-scene demonstration-assisted fit.
+Notebook reproduction is still required before reusing its frozen weights for
+JEPA comparison. The assisted stage retained BC training, so its improvement
+cannot be attributed solely to reward gradients.

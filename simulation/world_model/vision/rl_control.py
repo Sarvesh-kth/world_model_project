@@ -21,7 +21,7 @@ def validate(model, cfg, layout, args):
                 obs, _, done, timeout, _ = session.step(action)
                 if done or timeout:
                     break
-            results.append(session.result())
+            results.append({"seed": args.seed+10000+i, **session.result()})
     finally:
         session.close()
     return {"episodes": results, "successes": sum(r["task_success"] for r in results),
@@ -108,9 +108,11 @@ def train(root, cfg, layout, args):
             print(f"Resuming SAC from {model.num_timesteps} steps; simulator resets on resume", flush=True)
         else:
             model = SAC("MlpPolicy", env, device="cpu", seed=args.seed, verbose=1,
-                        policy_kwargs={"net_arch": [128, 128]}, learning_rate=3e-4,
+                        policy_kwargs={"net_arch": [128, 128]},
+                        learning_rate=getattr(args, "learning_rate", 3e-4),
                         buffer_size=max(100000, len(data["obs"])+args.rl_steps),
-                        learning_starts=1000, batch_size=256, ent_coef="auto_0.05", gamma=GoalReward.gamma)
+                        learning_starts=1000, batch_size=256,
+                        ent_coef=getattr(args, "ent_coef", "auto_0.05"), gamma=GoalReward.gamma)
             rng = np.random.default_rng(args.seed)
             obs = torch.as_tensor(data["obs"], dtype=torch.float32)
             actions = torch.as_tensor(data["action"], dtype=torch.float32)
@@ -206,6 +208,8 @@ def train(root, cfg, layout, args):
                 "algorithm": "SB3 SAC; scripted BC initialization, demonstration replay and declared actor demonstration regularization",
                 "reward": "GoalReward: gamma*Phi(next)-Phi(current), strict placement bonus15, real penalties and time cost0.01",
                 "rl_steps": args.rl_steps, "critic_warmup": args.critic_warmup, "bc_weight": args.bc_weight,
+                "learning_rate": getattr(args, "learning_rate", 3e-4),
+                "ent_coef": getattr(args, "ent_coef", "auto_0.05"),
                 "bc_epochs": args.bc_epochs, "demos": args.demos, "seed": args.seed,
                 "actor_inputs": 41, "actions": 5, "network": [128, 128], "gamma": model.gamma,
                 "validation_seeds": [args.seed+10000+i for i in range(args.validation_episodes)],

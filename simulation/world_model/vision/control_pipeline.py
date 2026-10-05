@@ -194,7 +194,8 @@ def episode(root, signature, args):
         folder.rename(backup)
     folder.mkdir(parents=True)
     session = TaskSession(cfg, signature["layout"], args.position_jitter)
-    policy = None if args.method == "scripted" else SAC.load(root / "models/sac_best.zip", device="cpu")
+    checkpoint = getattr(args, "policy_checkpoint", root / "models/sac_best.zip")
+    policy = None if args.method == "scripted" else SAC.load(checkpoint, device="cpu")
     visual = args.method in ("rl_q", "jepa_mpc")
     models = WorldModels(args.models_run, args.tag, signature["encoder"]) if visual else None
     goal = np.array([*signature["layout"]["place"], signature["known_rest_z"]], np.float32)
@@ -222,7 +223,7 @@ def episode(root, signature, args):
             decision_start = time.monotonic()
             if scripted is not None:
                 action = scripted.act()
-            elif args.method == "rl_true":
+            elif args.method in ("rl_true", "bc_true"):
                 action, _ = policy.predict(obs, deterministic=True)
             elif args.method == "rl_q":
                 estimate = policy_observation(p, xyz, held, memory, goal, signature["known_rest_z"],
