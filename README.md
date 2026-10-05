@@ -1719,3 +1719,114 @@ methods and evaluates seeds20384005..20384009. It does not retrain the encoder,
 actor or readout. Source-contract/hash checks still apply. Ordinary GIF viewing
 works on Mac/Linux; this live JEPA runner requires CUDA. Reproducing the experiment
 does not imply visual placement succeeds; inspect the saved outcomes.
+
+
+## One-command full-task Q and rectangular-clutter experiment
+
+This is a **new experiment**, not a claim that visual control or RL recovery already works. It preserves the original passing SAC checkpoint and the previous `vision_v2` models. If the original SAC fails a validation-only recovery probe, it trains a separate recovery actor and freezes that actor for all final comparisons. The new entry point is `world_model.vision.clutter_pipeline`.
+
+### What it runs
+
+1. Verify the frozen SAC source: completed baseline, >=90/100 fresh placements, checkpoint hashes and unchanged physics/observation/reward. Check CUDA and render one frame before collection.
+2. Collect 22 whole scene groups by default: 12 training, four validation, six test. Each has the same cube/A/B/reset seed in empty and rectangular-clutter variants, and four cases. Thus there are 176 collected trajectories. Normal empty trajectories use the frozen SAC; forced-release trajectories use the existing scripted controller, restarted after the intervention to demonstrate recovery. Replay each empty trajectory's **executed** actions in its clutter pair. Failures are retained; unexpected collection contacts or changed intervention timing stop the audit.
+3. Audit complete-scene splits, paired starting states/actions, camera histories, labels and files. All variants of a scene stay in the same split.
+4. Probe the original actor on validation scenes in all eight empty/clutter × normal/recovery conditions. If the minimum condition success is below 80%, train a **new** SAC in `recovery_rl/`, initialized from the source checkpoint: successful training-scene demonstrations, 240 BC epochs, 2,000 critic warmup updates and 20,000 online RL steps by default. Select by minimum per-condition validation success, then mean goal distance. External forced-opening actions are excluded from actor imitation; Q/D still learn their visual consequences. Online recovery episodes start after a real scripted release, so SB3 always stores the action actually executed by the actor. The original checkpoint is never overwritten. A bounded fit can still fail; the final gate reports that failure.
+5. Freeze the selected actor (original if the probe passed, otherwise the new fit) and run exact-state SAC and scripted reference on final test scenes. Save actual GIFs/frames/actions/contacts/outcomes. No final test result chooses the actor or a checkpoint.
+6. Encode every saved causal static-camera history with the same pinned, frozen V-JEPA encoder: 64 frames, first-frame padding when necessary, mean of encoder tokens, normally 1,024 numbers. Neither actions nor simulator object coordinates enter JEPA.
+7. Fit **Q-empty** on complete empty-table paths and **Q-mixed** on both variants, including carry, release and recovery. Both predict cube xyz and held probability from `(z, p)`. Normalize and train on the training split; select checkpoints using validation only. Each also trains a diagnostic p-only readout. Q-mixed has twice as many view examples: this comparison measures the practical mixed-data recipe, not an isolated effect of obstacles with matched update counts.
+8. Train a shared split D on mixed full-task transitions using eight-step recursive loss. Then fit the existing visual finger-width correction with D frozen. Both Q variants use this **same** corrected D in control. Also fit a blind action-sequence baseline on varied starting states, using only measured starting p and proposed actions.
+9. Evaluate both Q models on identical real held-out clips, by view and phase: approach, grasp/lift, carry, lower, release/settling and recovery. Report xyz/height errors, false-held/missed-held counts, F1, calibration and delay before Q notices a real release.
+10. Evaluate D at 1/4/8/16 steps against unchanged latents, deliberately wrong actions and the blind baseline. Simulator outcomes are answers, never D inputs. Incorrect-action forecasts are compared with the recorded outcome of the original action sequence; this is an action-dependence diagnostic, not a new simulator counterfactual.
+11. Compare six controllers on the same five test scene groups, two views and four cases: scripted, exact-state SAC, SAC+Q-empty, SAC+Q-mixed, CEM+D+Q-empty, CEM+D+Q-mixed. This makes 240 control episodes. Execute only the first selected action, observe again and replan. Save predictions, rewards, validity/fallback reasons and actual videos.
+
+Rectangles are fixed within each scene group and vary across groups. The rectangles are physical boxes with randomized positions, yaw and heights **5–20 cm**, in a strip at the far edge of the existing table. They stay away from the intended A-to-B corridor. This first campaign tests clutter sensitivity; it does not establish avoidance of blocking obstacles. The current 41-number actor observation contains no obstacle geometry, and D/Q cannot predict collision penalties. Actual obstacle contacts are still measured and penalized by the environment. The reports state this scoring limitation.
+
+**Forced release:** after a held cube has moved 15%, 50% or 75% of its original distance towards B, the evaluator overrides seven actions with “stay here and open”. Gravity drops the cube; no cube teleport, robot reset or camera-history reset occurs. Then the controller regains control. Commands and forced interventions are recorded separately. A case that never reaches the trigger is a failure to reach that test condition, not a recovery success. The visual controller receives camera history and measured p, not the evaluator's true cube/contact labels.
+
+**Goal and reward:** B is still passed explicitly through the existing policy observation and the fixed `GoalReward` scoring function. No reward network is trained. A separate recovery SAC actor is fitted only if the validation probe fails; the reward equations remain unchanged. Success still requires lift, arrival at B, release and 15 settling steps. The new planner horizon defaults to **20 steps (2 s)** so that a release near the beginning can include settling. This setting is an experiment, not a proved fix. Terminal critic weight remains zero. No bonus is added merely for attempting recovery.
+
+### Start on the notebook
+
+The existing CUDA virtualenv, OSMesa setup, `data/rl_baseline_v1` and `data/vision_v2/features/meta.json` are required. Raw `vision_v2` images are not used: this campaign collects new full-task images. Run from `simulation/`:
+
+```bash
+cd "$HOME/Robots&EmbodiedAI/project/world_model_project/simulation"
+git -C .. pull --ff-only origin M2_Kuba
+../.venv/bin/python -m pip install -r ../requirements-control.txt
+
+../.venv/bin/python -u -m world_model.vision.clutter_pipeline
+```
+
+That last command runs every stage and exports results automatically. It can take several hours: encoding every observation and running the live JEPA/CEM comparisons are the expensive parts. A 20 GB MIG GPU is enough for the existing single-clip frozen encoder/bounded training batches; the preflight verifies the actual CUDA stack. Run the exact same command again after an interruption: finished stages are authenticated and skipped, encoding continues from its saved progress, collection continues at trajectory boundaries, and interrupted Q/D fits restart that fit while preserving its partial files. Interrupted SAC fitting restores its last committed weights and replay buffer; the simulator resets on resume. Completed control episodes are reused; an unfinished episode restarts from reset and its old recordings are archived. Settings, source checkpoint or code changes require a fresh `--run` **and** `--export`. Do not update code during an active run.
+
+To survive an SSH/browser disconnect, start the same pipeline in the background once:
+
+```bash
+mkdir -p data
+nohup ../.venv/bin/python -u -m world_model.vision.clutter_pipeline \
+  > data/q_clutter_v1.console.log 2>&1 < /dev/null &
+tail -f data/q_clutter_v1.console.log
+```
+
+Do not launch two processes into the same run. The pipeline takes an OS file lock, rejects a concurrent run and releases the lock when the process exits. `Ctrl-C` exits `tail`, not the background run. A notebook server shutdown can still stop its processes.
+
+Optional smaller real-GPU pilot, with separate paths:
+
+```bash
+../.venv/bin/python -u -m world_model.vision.clutter_pipeline --pilot \
+  --run data/q_clutter_pilot --export ../results/q_clutter_pilot
+```
+
+The pilot uses 3/1/1 groups, three fit epochs and one control scene. It exercises the full procedure; it cannot pass the five-episode reference criterion. Defaults for Q/D are one training seed, 60 epochs, 64 candidates, eight elites and three CEM iterations. Optional recovery fitting uses `--rl-steps 20000 --bc-epochs 240 --critic-warmup 2000`; the pilot reduces these to 1,000/2/20. Change scene/epoch counts only on a fresh run, for example `--train-scenes 36 --val-scenes 8 --test-scenes 8 --control-scenes 5 --run data/q_clutter_v2 --export ../results/q_clutter_v2`. One training seed is a first comparison; repeat with fresh runs/seeds before claiming a stable advantage.
+
+### Where to read the results
+
+| File or directory | Meaning |
+| --- | --- |
+| `simulation/data/q_clutter_v1/pipeline.json` | Exact settings, source/code hashes and completed stages. `complete` means the jobs finished, not that the models succeeded. |
+| `results/q_clutter_v1/reports/summary.txt` | Controller placement/recovery/contact/fallback summary. |
+| `results/q_clutter_v1/reports/control_summary.csv` | Each method × Q × empty/clutter × release case, with denominators. |
+| `results/q_clutter_v1/reports/offline.json` | Phase/view Q errors, release lag and multi-step D comparisons. |
+| `results/q_clutter_v1/reports/Q_real_states.csv` | Real xyz/held and both Q estimates at every evaluation state. |
+| `results/q_clutter_v1/recovery_rl/` | Source validation probe, separate SAC fitting/validation record and selected actor hash. |
+| `results/q_clutter_v1/attempts/*/reports/` | Training curves, validation selection and Q gates. |
+| `simulation/data/q_clutter_v1/attempts/q_empty/models/readout.pt` | Empty-only Q checkpoint. |
+| `simulation/data/q_clutter_v1/attempts/q_mixed/models/readout.pt` | Mixed-view Q checkpoint. |
+| `simulation/data/q_clutter_v1/attempts/shared_width/models/dynamics.pt` | Shared corrected visual/robot dynamics checkpoint. |
+| `simulation/data/q_clutter_v1/control/*/*/episodes/*/seed_*/` | Actual GIF, frames, step CSV, trajectory NPZ, candidate forecasts. These large files stay in the raw run. |
+| `simulation/data/q_clutter_v1/logs/` | Full sequential stage logs/tracebacks. |
+
+Interpretation order: first check exact-state SAC placements and triggered recovery, then Q on real observations, then imagined outcomes, then closed-loop placement. **Final reference gate:** >=80% placements over >=5 episodes in every view/case, zero rectangle-contact steps, and >=5 triggered recovery episodes for each release case. If it fails, the visual results are still exported, but they do not show a successful RL reference under that condition; improve the recovery curriculum or add obstacle-aware RL in a fresh experiment before claiming the full robot solution works. Q gates remain unchanged; failed gates are diagnostic results, not software crashes. Nonfinite offline forecasts are counted in `invalid_windows`; reported errors cover only the common finite windows. Inspect those counts before comparing errors. Lower errors or higher F1 alone are not successful A-to-B control. `empty_p`/`mixed_p` in offline reports are diagnostic readouts without z. When attached to the corrected D, its predicted robot width can still depend on vision; the separate `blind` action-sequence model never sees z and is not an architecture-matched latent ablation.
+
+Display an actual video in a notebook:
+
+```python
+from pathlib import Path
+from IPython.display import display, Image
+run = Path("data/q_clutter_v1")  # notebook working directory: simulation/
+for video in sorted(run.glob("control/*/*/episodes/*/seed_*/actual.gif"))[:6]:
+    print(video)
+    display(Image(filename=str(video)))
+```
+
+Commit the compact results after the campaign finishes:
+
+```bash
+cd ..
+git add -- results/q_clutter_v1
+git --no-pager diff --cached --stat
+git commit -m "Record full-task empty and clutter Q comparison"
+git push origin M2_Kuba
+git rev-parse --short HEAD
+```
+
+The default raw run is also allowlisted for Git LFS if Calle needs the weights and recordings. Follow the LFS installation/quota/setup instructions above before adding `simulation/data/q_clutter_v1`; compact reports alone do not include checkpoints.
+
+### CPU implementation check
+
+```bash
+# Requires Torch/SB3 plus simulation dependencies, but no CUDA or HF download.
+../.venv/bin/python -m world_model.vision.check_clutter --run data/q_clutter_check
+```
+
+This check runs real MuJoCo collection/drop/re-grasp/recording, audits paired actions/splits, fits tiny Q/D/blind/width models, verifies normalizers and report/export contracts, and rejects a false reference pass. It also exercises tiny recovery SAC updates, source initialization, replay resume and the no-fit copy branch; it checks that external opening commands are excluded from imitation and online stored actions match execution. It intentionally uses **synthetic, privileged visual vectors**. It tests code execution; its fit errors are not evidence about JEPA.

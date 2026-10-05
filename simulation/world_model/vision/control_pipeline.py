@@ -22,14 +22,14 @@ METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc")
 
 
 class WorldModels:
-    def __init__(self, root, tag, encoder):
+    def __init__(self, root, tag, encoder, dynamics_tag=None):
         import torch
         from transformers import AutoModel, AutoVideoProcessor
         from .train import load_model
         if not torch.cuda.is_available():
             raise RuntimeError("live JEPA encoding needs the notebook CUDA virtualenv")
         self.torch = torch
-        self.d, self.dc = load_model(root, "dynamics", tag)
+        self.d, self.dc = load_model(root, "dynamics", tag if dynamics_tag is None else dynamics_tag)
         self.q, self.qc = load_model(root, "readout", tag)
         self.processor = AutoVideoProcessor.from_pretrained(encoder["model"], revision=encoder["model_revision"])
         self.encoder = AutoModel.from_pretrained(encoder["model"], revision=encoder["model_revision"],
@@ -191,7 +191,7 @@ def save_frame(session, folder, serial, history):
     del history[:-64]
 
 
-def episode(root, signature, args):
+def episode(root, signature, args, *, session_factory=TaskSession, models=None, policy=None):
     import torch
     from stable_baselines3 import SAC
     torch.set_num_threads(args.threads)
@@ -204,15 +204,15 @@ def episode(root, signature, args):
         backup.parent.mkdir(exist_ok=True)
         folder.rename(backup)
     folder.mkdir(parents=True)
-    session = TaskSession(cfg, signature["layout"], args.position_jitter)
+    session = session_factory(cfg, signature["layout"], args.position_jitter)
     checkpoint = getattr(args, "policy_checkpoint", root / "models/sac_best.zip")
     checkpoint_sha = None if args.method == "scripted" else digest(checkpoint)
     frozen = signature.get("frozen_baseline")
     if frozen and args.method != "scripted" and checkpoint_sha != frozen["checkpoint_sha256"]:
         raise ValueError("controller does not use the frozen baseline checkpoint")
-    policy = None if args.method == "scripted" else SAC.load(checkpoint, device="cpu")
+    policy = None if args.method == "scripted" else policy if policy is not None else SAC.load(checkpoint, device="cpu")
     visual = args.method in ("rl_q", "jepa_mpc")
-    models = WorldModels(args.models_run, args.tag, signature["encoder"]) if visual else None
+    models = (models if models is not None else WorldModels(args.models_run, args.tag, signature["encoder"])) if visual else None
     goal = np.array([*signature["layout"]["place"], signature["known_rest_z"]], np.float32)
     memory = GoalReward(cfg)
     histories, rows, predictions, candidates = [], [], [], []
@@ -250,6 +250,13 @@ def episode(root, signature, args):
                 action, previous = decision["action"], decision["sequence"]
             decision_seconds = time.monotonic()-decision_start
             obs, reward, done, timeout, info = session.step(action)
+            proposed_action = np.asarray(action).copy()
+            action = np.asarray(info.get("executed_action", action))
+            intervened = bool(info.get("forced_release", False))
+            if intervened:
+                previous = None
+            if scripted is not None and info.get("restart_scripted"):
+                scripted = ScriptedPickPlace(session.sim, np.random.default_rng(seed+step+1))
             actual_xyz, actual_p = session.obs["state"][:3].copy(), session.obs["proprio"].copy()
             states_p.append(actual_p); states_xyz.append(actual_xyz)
             states_held.append(info["held_endpoint"]); executed_actions.append(np.asarray(action).copy())
@@ -262,6 +269,9 @@ def episode(root, signature, args):
                    "task_success": info["task_success"], "table_contact": info["table_contact"],
                    "obstacle_contact": info["obstacle_contact"], "decision_seconds": decision_seconds}
             row.update({f"action_{k}": float(v) for k, v in zip(("dx", "dy", "dz", "dyaw", "gripper"), action)})
+            if "forced_release" in info:
+                row.update({"forced_release": intervened, "phase": info["phase"],
+                            "proposed_gripper": float(proposed_action[-1])})
             row.update({f"actual_object_{k}": float(v) for k, v in zip("xyz", actual_xyz)})
             row.update({f"true_component_{k}": float(v) for k, v in info["reward_components"].items()})
             row.update({f"control_component_{k}": float(v) for k, v in info["control_reward_components"].items()})
@@ -282,7 +292,7 @@ def episode(root, signature, args):
                     row.update({"predicted_score": float(pool["scores"][selected]),
                                 "planner_fallback_to_RL_Q": decision["fallback"],
                                 "valid_candidates": int(pool["valid"].sum())})
-                    if not decision["fallback"]:
+                    if not decision["fallback"] and not intervened:
                         predicted_xyz = pool["xyz"][selected, 1]
                         row.update({"D_Q_one_step_xyz_mae_cm": float(100*np.abs(predicted_xyz-actual_xyz).mean()),
                             "D_Q_one_step_height_mae_cm": float(100*abs(predicted_xyz[2]-actual_xyz[2])),
@@ -295,10 +305,10 @@ def episode(root, signature, args):
                         held=pool["held"], rewards=pool["rewards"], scores=pool["scores"], valid=pool["valid"],
                         invalid_reasons=pool["invalid_reasons"],
                         current_z=z, selected_z=pool["z"][selected], selected=selected,
-                        fallback=decision["fallback"])
+                        fallback=decision["fallback"], intervention=intervened)
                     for i in range(len(pool["scores"])):
                         candidates.append({"step": step+1, "candidate": i, "selected": i == selected,
-                            "executed_selected": i == selected and not decision["fallback"],
+                            "executed_selected": i == selected and not decision["fallback"] and not intervened,
                             "valid": bool(pool["valid"][i]), "score": float(pool["scores"][i]),
                             "invalid_reasons": str(pool["invalid_reasons"][i]),
                             "discounted_reward": float(pool["discounted_reward"][i]),

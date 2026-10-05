@@ -56,39 +56,44 @@ def audit(root, manifest, images=True):
         problems.append(f"camera history does not follow branch {s['key']}")
   if referenced != set(range(len(states))):
     problems.append("orphan or invalid state indices")
-  contrasts, p_errors = [], []
-  for (scene, placement), pair in pairs.items():
-    if not {"close_lift", "open_lift"}.issubset(pair):
-      problems.append(f"missing action branch {scene}/{placement}")
-      continue
-    a, b = pair["close_lift"], pair["open_lift"]
-    if len({r["states"][0] for r in pair.values()}) != 1:
-      problems.append(f"action branches do not share source {scene}/{placement}")
-    contrast = states[a["states"][-1]]["object_xyz"][2]-states[b["states"][-1]]["object_xyz"][2]
-    contrasts.append({"scene": scene, "placement": placement, "split": a["split"],
-                      "height_effect_cm": 100*contrast})
-  for scene in scenes:
-    near, far = pairs.get((scene, "under"), {}), pairs.get((scene, "offset"), {})
-    if not {"close_lift", "open_lift"}.issubset(near) or set(near) != set(far):
-      problems.append(f"missing position pair {scene}")
-      continue
-    p1 = states[near["close_lift"]["states"][0]]["p"]
-    p2 = states[far["close_lift"]["states"][0]]["p"]
-    error = float(np.max(np.abs(np.asarray(p1)-p2)))
-    p_errors.append(error)
-    if error > manifest["settings"]["pair_tolerance"]:
-      problems.append(f"position pair robot state mismatch {scene}: {error}")
-    for branch in near:
-      if near[branch]["actions"] != far[branch]["actions"]:
-        problems.append(f"position pair actions differ {scene}/{branch}")
+  if manifest.get("campaign") == "full_task_clutter_v1":
+    from .full_task import audit_pairs
+    contrasts, p_errors = audit_pairs(manifest, problems)
+  else:
+    contrasts, p_errors = [], []
+    for (scene, placement), pair in pairs.items():
+      if not {"close_lift", "open_lift"}.issubset(pair):
+        problems.append(f"missing action branch {scene}/{placement}")
+        continue
+      a, b = pair["close_lift"], pair["open_lift"]
+      if len({r["states"][0] for r in pair.values()}) != 1:
+        problems.append(f"action branches do not share source {scene}/{placement}")
+      contrast = states[a["states"][-1]]["object_xyz"][2]-states[b["states"][-1]]["object_xyz"][2]
+      contrasts.append({"scene": scene, "placement": placement, "split": a["split"],
+                        "height_effect_cm": 100*contrast})
+    for scene in scenes:
+      near, far = pairs.get((scene, "under"), {}), pairs.get((scene, "offset"), {})
+      if not {"close_lift", "open_lift"}.issubset(near) or set(near) != set(far):
+        problems.append(f"missing position pair {scene}")
+        continue
+      p1 = states[near["close_lift"]["states"][0]]["p"]
+      p2 = states[far["close_lift"]["states"][0]]["p"]
+      error = float(np.max(np.abs(np.asarray(p1)-p2)))
+      p_errors.append(error)
+      if error > manifest["settings"]["pair_tolerance"]:
+        problems.append(f"position pair robot state mismatch {scene}: {error}")
+      for branch in near:
+        if near[branch]["actions"] != far[branch]["actions"]:
+          problems.append(f"position pair actions differ {scene}/{branch}")
   for split in ("train", "val", "test"):
     labels = [s["held"] for s in states if s["split"] == split]
     if not labels or not any(labels) or all(labels):
       problems.append(f"{split} needs both held and not-held labels; grasp setup may have failed")
-    eligible = [c for c in contrasts if c["split"] == split and c["placement"] == "under"
-                and abs(c["height_effect_cm"]) >= 2]
-    if not eligible:
-      problems.append(f"{split} has no under-gripper A/B height effect >= 2 cm")
+    if manifest.get("campaign") != "full_task_clutter_v1":
+      eligible = [c for c in contrasts if c["split"] == split and c["placement"] == "under"
+                  and abs(c["height_effect_cm"]) >= 2]
+      if not eligible:
+        problems.append(f"{split} has no under-gripper A/B height effect >= 2 cm")
   if images:
     for filename in sorted(files):
       try:
@@ -107,6 +112,7 @@ def audit(root, manifest, images=True):
 
 
 def previews(root, manifest):
+  (root / "reports").mkdir(parents=True, exist_ok=True)
   # ponytail: one contact sheet per scene; videos can be added when these are insufficient.
   states = manifest["states"]
   for scene in sorted({r["scene"] for r in manifest["rollouts"]}):

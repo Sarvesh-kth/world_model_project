@@ -66,7 +66,8 @@ def demonstrations(path, cfg, layout, args):
     return data
 
 
-def train(root, cfg, layout, args):
+def train(root, cfg, layout, args, *, demonstrations_fn=demonstrations,
+          env_factory=make_rl_env, validate_fn=validate):
     import torch
     import stable_baselines3
     from stable_baselines3 import SAC
@@ -85,10 +86,10 @@ def train(root, cfg, layout, args):
             raise ValueError("completed SAC checkpoint changed")
         print("SAC training already complete", flush=True)
         return
-    data = demonstrations(root / "demos.npz", cfg, layout, args)
+    data = demonstrations_fn(root / "demos.npz", cfg, layout, args)
     demo_obs = torch.as_tensor(data["obs"], dtype=torch.float32)
     demo_actions = torch.as_tensor(data["action"], dtype=torch.float32)
-    env = Monitor(make_rl_env(cfg, layout, args.position_jitter, args.seed+1000),
+    env = Monitor(env_factory(cfg, layout, args.position_jitter, args.seed+1000),
                   filename=str(root / "rl_monitor.csv"), info_keywords=("task_success",))
     progress = folder / "rl_progress.json"
     start = time.monotonic()
@@ -113,6 +114,13 @@ def train(root, cfg, layout, args):
                         buffer_size=max(100000, len(data["obs"])+args.rl_steps),
                         learning_starts=1000, batch_size=256,
                         ent_coef=getattr(args, "ent_coef", "auto_0.05"), gamma=GoalReward.gamma)
+            if getattr(args, "start_checkpoint", None):
+                source = SAC.load(args.start_checkpoint, device="cpu")
+                model.policy.load_state_dict(source.policy.state_dict())
+                del source
+                # A new fit keeps the requested seed/optimizers/entropy settings;
+                # interrupted fits instead restore the full SAC and replay above.
+                print(f"New SAC actor/critic weights initialized from preserved checkpoint {args.start_checkpoint}", flush=True)
             rng = np.random.default_rng(args.seed)
             obs = torch.as_tensor(data["obs"], dtype=torch.float32)
             actions = torch.as_tensor(data["action"], dtype=torch.float32)
@@ -135,7 +143,7 @@ def train(root, cfg, layout, args):
                 model.replay_buffer.add(data["obs"][i:i+1], data["next_obs"][i:i+1],
                     data["action"][i:i+1], np.array([data["reward"][i]]),
                     np.array([bool(data["terminated"][i]) or timeout]), [{"TimeLimit.truncated": timeout}])
-            initial = validate(model, cfg, layout, args)
+            initial = validate_fn(model, cfg, layout, args)
             model.save(folder / "bc_initial.zip")
             history = {"BC_initial_validation": initial, "validation": [], "best": None,
                        "demo_sha256": digest(root / "demos.npz")}
@@ -165,15 +173,15 @@ def train(root, cfg, layout, args):
             print(f"Critic warmup: {args.critic_warmup} demonstration Bellman updates; actor frozen", flush=True)
 
         def checkpoint():
-            evaluation = {"training_steps": model.num_timesteps, **validate(model, cfg, layout, args)}
+            evaluation = {"training_steps": model.num_timesteps, **validate_fn(model, cfg, layout, args)}
             history["validation"].append(evaluation)
-            rank = (evaluation["success_rate"], -evaluation["mean_final_goal_distance_cm"])
+            rank = (evaluation.get("selection_success_rate", evaluation["success_rate"]), -evaluation["mean_final_goal_distance_cm"])
             best = history["best"]
             last = folder / f"resume_{model.num_timesteps:09d}.zip"
             replay = last.with_suffix(".pkl")
             model.save(last)
             model.save_replay_buffer(replay)
-            if best is None or rank > (best["success_rate"], -best["mean_final_goal_distance_cm"]):
+            if best is None or rank > (best.get("selection_success_rate", best["success_rate"]), -best["mean_final_goal_distance_cm"]):
                 history["best"] = evaluation
                 history["best_checkpoint_file"] = last.name
             history["last_checkpoint_file"] = last.name
@@ -209,11 +217,14 @@ def train(root, cfg, layout, args):
                 "reward": "GoalReward: gamma*Phi(next)-Phi(current), strict placement bonus15, real penalties and time cost0.01",
                 "rl_steps": args.rl_steps, "critic_warmup": args.critic_warmup, "bc_weight": args.bc_weight,
                 "learning_rate": getattr(args, "learning_rate", 3e-4),
+                "start_checkpoint_sha256": digest(args.start_checkpoint) if getattr(args, "start_checkpoint", None) else None,
                 "ent_coef": getattr(args, "ent_coef", "auto_0.05"),
                 "bc_epochs": args.bc_epochs, "demos": args.demos, "seed": args.seed,
                 "actor_inputs": 41, "actions": 5, "network": [128, 128], "gamma": model.gamma,
-                "validation_seeds": [args.seed+10000+i for i in range(args.validation_episodes)],
+                "validation_seeds": getattr(args, "validation_seeds", [args.seed+10000+i for i in range(args.validation_episodes)]),
                 "demo_loss": "bc_weight*(movement/yaw MSE+2*gripper MSE), added to SAC actor gradient",
-                "checkpoint_selection": "validation placement success, then final goal distance; RL checkpoints only"}})
+                "checkpoint_selection": "minimum per-condition validation success, then goal distance; RL checkpoints only"
+                                        if "selection_success_rate" in history["best"] else
+                                        "validation placement success, then final goal distance; RL checkpoints only"}})
     finally:
         env.close()

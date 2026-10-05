@@ -186,6 +186,7 @@ def fit(root, role, model, train, val, loss_fn, meta, args):
     print(f"{role} epoch {epoch:03d} train={total/count:.5f} val={value:.5f} "
           + " ".join(f"{k}={v:.5f}" for k, v in parts.items()), flush=True)
   write_json(root / "reports" / f"{role}_training.json", {"device": device, "history": history,
+                         "training_examples": len(train[0]), "validation_examples": len(val[0]),
                          "best_validation_loss": best, "best_epoch": best_epoch, "checkpoint": str(path),
                          "checkpoint_sha256": digest(path), "seed": args.seed,
                          "architecture": meta.get("architecture", "SplitDynamics") if role == "dynamics" else role,
@@ -205,7 +206,11 @@ def main():
   p.add_argument("--lr", type=float, default=0.001)
   p.add_argument("--seed", type=int, default=0)
   p.add_argument("--rollout-steps", type=int, default=4)
+  p.add_argument("--baseline-horizon", type=int, default=0,
+                 help="baseline only: train action windows from varied source states; 0 keeps episode-prefix behavior")
   p.add_argument("--tag", default="", help="optional new model directory, e.g. retry_1; pass the same tag to tests")
+  p.add_argument("--view", choices=("all", "empty"), default="all",
+                 help="readout only: restrict fitting/selection to empty-table states")
   p.add_argument("--from-tag", default="", help="width stage: existing baseline tag to freeze")
   p.add_argument("--width-input", choices=("visual", "robot"), default="visual",
                  help="width stage: current JEPA z or zero z; identical head capacity")
@@ -214,6 +219,10 @@ def main():
   p.add_argument("--q-f1", type=float, default=0.8)
   p.add_argument("--q-brier", type=float, default=0.15)
   args = p.parse_args()
+  if args.view != "all" and args.stage != "readout":
+    p.error("--view is only supported for readout training")
+  if args.baseline_horizon < 0 or (args.baseline_horizon and args.stage != "baseline"):
+    p.error("--baseline-horizon must be nonnegative and is only for baseline")
   if min(args.epochs, args.batch_size, args.rollout_steps) < 1 or args.lr <= 0:
     p.error("epochs, batch-size, rollout-steps and lr must be positive")
   if min(args.q_xyz_cm, args.q_height_cm) <= 0 or not 0 <= args.q_f1 <= 1 or not 0 <= args.q_brier <= 1:
@@ -238,7 +247,9 @@ def main():
   z, feature_meta = load_features(args.run, manifest)
   robot, xyz, grasp = state_arrays(manifest)
   splits = np.asarray([s["split"] for s in manifest["states"]])
-  ids = {s: np.flatnonzero(splits == s) for s in ("train", "val")}
+  views = np.asarray([s.get("view", "empty") for s in manifest["states"]])
+  keep = np.ones(len(splits), bool) if args.view == "all" else views == args.view
+  ids = {s: np.flatnonzero((splits == s) & keep) for s in ("train", "val")}
   if any(len(i) == 0 for i in ids.values()):
     p.error("training and validation states are required")
   stats = {}
@@ -353,15 +364,20 @@ def main():
             "only gripper head trains; Q/encoder unchanged", flush=True)
     train_role("dynamics", model, arrays, dynamics_loss, extra)
   else:
-    maximum = max(len(r["actions"]) for r in manifest["rollouts"])
+    maximum = args.baseline_horizon or max(len(r["actions"]) for r in manifest["rollouts"])
     arrays = {}
     for split in ("train", "val"):
       inputs, targets = [], []
       for r in manifest["rollouts"]:
         if r["split"] == split:
-          for h in range(1, len(r["states"])):
-            inputs.append(sequence_input(np_[r["states"][0]].numpy(), r["actions"][:h], maximum))
-            targets.append(r["states"][h])
+          starts = range(0, len(r["actions"]), 4) if args.baseline_horizon else (0,)
+          for start in starts:
+            lengths = sorted({1, 4, 8, 16, maximum}) if args.baseline_horizon else range(1, len(r["states"]))
+            for h in lengths:
+              if start+h > len(r["actions"]) or h > maximum:
+                continue
+              inputs.append(sequence_input(np_[r["states"][start]].numpy(), r["actions"][start:start+h], maximum))
+              targets.append(r["states"][start+h])
       arrays[split] = [torch.tensor(np.asarray(inputs), dtype=torch.float32), nxyz[targets], ng[targets]]
     dim = arrays["train"][0].shape[1]
     train_role("no_vision", mlp(dim, 4), arrays, outcome_loss,
