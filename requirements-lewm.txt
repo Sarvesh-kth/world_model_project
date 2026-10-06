@@ -1,0 +1,3 @@
+# LeWM's two vendored MIT core modules need only einops beyond the existing stack.
+# Install with --no-deps to preserve the notebook's working Torch/CUDA environment.
+einops>=0.8,<0.9

@@ -1848,3 +1848,125 @@ The default raw run is also allowlisted for Git LFS if Calle needs the weights a
 ```
 
 This check runs real MuJoCo collection/drop/re-grasp/recording, audits paired actions/splits, fits tiny Q/D/blind/width models, verifies normalizers and report/export contracts, and rejects a false reference pass. It also exercises tiny recovery SAC updates, source initialization, replay resume and the no-fit copy branch; it checks that external opening commands are excluded from imitation and online stored actions match execution. It intentionally uses **synthetic, privileged visual vectors**. It tests code execution; its fit errors are not evidence about JEPA.
+
+## LeWM comparison: native goal-image planning, without Q
+
+**Status: adaptation prepared; notebook training, GPU memory fit and control performance have not been observed.** Finish `q_clutter_v1` before launching this comparison. Its `pipeline.json` must say `complete: true`. The new package is outside `world_model/vision/`, so adding this code does not change that campaign's recorded simulator/model source hashes.
+
+The [LeWorldModel paper, section 3.2](https://arxiv.org/html/2603.19312v3#S3.SS2) plans directly in latent space. The [official `JEPA.criterion`](https://github.com/lucas-maes/le-wm/blob/8edfeb336732b5f3ce7b8b210d0ba370a09e2cac/jepa.py) scores a candidate by **summing squared differences between its final predicted embedding and the goal embedding**. This avoids translating the predicted vector into cube coordinates or fitting another Q. It does **not** convert feature distance to centimetres, recover our simulator reward, or guarantee good grasping/collision decisions.
+
+### What is trained and what controls the robot
+
+```text
+TRAINING — same recorded q_clutter_v1 trajectories
+RGB frames + executed actions
+        ├── current/history images → trainable ViT-Tiny encoder → 192-value z
+        ├── five executed commands → action embedder → action conditioning
+        └── real future image → SAME trainable encoder → target future z
+                           ↓
+             LeWM transformer predicts future z
+                           ↓
+         prediction MSE + 0.09 × SIGReg → update encoder AND predictor
+
+CONTROL — one decision at a time
+Current camera history → LeWM encoder → current latent history
+Supplied goal image    → SAME encoder → goal latent
+Candidate actions     → LeWM predictor → imagined future latents
+                       → terminal latent distance to goal → CEM selects a sequence
+                       → execute ONLY its first command → observe camera again
+```
+
+LeWM replaces the visual encoder/predictor and the readable-state scoring route **for this separate experiment**. It receives images and actions; it does not receive object coordinates, measured robot state `p`, a reward, SAC proposals, our D_p, or Q. The existing Cartesian/IK controller converts the selected five-value command `[dx,dy,dz,dyaw,gripper]` into real joint/gripper movement in the same MuJoCo environment. Positive gripper means open; negative means close. During drop tests, the same external forced-opening intervention can override a command; the next decision uses the command actually executed.
+
+Default temporal context is **three images five control steps apart**, e.g. images at `t−10`, `t−5`, `t`. At 10 Hz this covers one second. One predicted transition includes **all five executed commands** between two images, packed into 25 values, and predicts the image embedding five control steps later. Missing early history repeats the initial image and pads past actions with zeros. This differs from the previous V-JEPA 64-frame clip: LeWM's image encoder and temporal predictor are trained jointly on these data, from random initialization. Old V-JEPA vectors and Q/D checkpoints are not loaded into LeWM.
+
+The official MIT `jepa.py` and `module.py` are vendored unchanged at upstream commit `8edfeb336732b5f3ce7b8b210d0ba370a09e2cac`, with license and provenance in `simulation/world_model/lewm/upstream/`. The loader, training loop, discrete gripper handling and evaluation are adaptations for this simulator. This is not a reproduction of the paper's datasets or reported success rates.
+
+### Start after the current campaign finishes
+
+Use the same notebook virtualenv that already runs `clutter_pipeline`; it supplies Torch/CUDA, Transformers, MuJoCo and SB3. Only `einops` is added:
+
+```bash
+cd "$HOME/Robots&EmbodiedAI/project/world_model_project/simulation"
+git -C .. pull --ff-only origin M2_Kuba
+../.venv/bin/python -m pip install --no-deps -r ../requirements-lewm.txt
+```
+
+Optional small pilot to check the CUDA/data/control path before the full run:
+
+```bash
+../.venv/bin/python -u -m world_model.lewm.pipeline --pilot \
+  --out data/lewm_native_pilot --export ../results/lewm_native_pilot
+```
+
+The pilot uses two training epochs, batch eight, one held-out scene group and a small CEM population. It still records eight episodes: empty/clutter × normal/three drop cases. Its weakly trained checkpoint is a software pilot, not evidence of LeWM's task ability.
+
+**Full end-to-end command:**
+
+```bash
+../.venv/bin/python -u -m world_model.lewm.pipeline
+```
+
+Or launch that same run in the background to survive a browser disconnect:
+
+```bash
+nohup ../.venv/bin/python -u -m world_model.lewm.pipeline \
+  >> data/lewm_native_v1.console.log 2>&1 < /dev/null &
+tail -f data/lewm_native_v1.console.log
+```
+
+Choose one launch method; do not start both. The output lock prevents concurrent launches into the same directory. After interruption, repeat the **identical command**: committed training epochs and feature batches resume; completed stages/episodes are authenticated and reused; an unfinished episode restarts from reset with its partial recordings preserved. Changed code, settings or source require separate `--out` and `--export` paths. If the pilot or full run hits CUDA out-of-memory, use a smaller batch in a **fresh run**, for example `--batch-size 16 --out data/lewm_native_b16 --export ../results/lewm_native_b16`; actual memory use is logged. Do not launch alongside the existing GPU campaign.
+
+### Seven stages and saved outputs
+
+1. **Prepare:** authenticate the completed source campaign, audit frame/action alignment and splits, and copy its manifest/layout metadata. Images are linked to the source observations, preserving the exact JPEG bytes without another raw-data copy. Training/validation/test remain separated by whole scene groups. Physical labels remain available to the evaluator only.
+2. **Train:** fit the encoder, action embedder and transformer together for 100 epochs, batch 32, AdamW `5e-5`, bf16. Select `models/lewm.pt` by validation prediction-plus-SIGReg loss; `models/last.pt` also saves optimizer/RNG state for resuming. Test data and goal images are not used to fit or select weights. `reports/training.json` logs losses, embedding spread and allocated/reserved/capacity VRAM. Small prediction error together with almost constant embeddings is not useful dynamics.
+3. **Encode:** cache one 192-value LeWM vector per recorded current frame in `features/latents.npy`. These are new representation-specific vectors; the original V-JEPA cache remains unchanged.
+4. **Specify goals:** supply a goal JPEG for each empty/clutter scene: the cube released at B, with the same camera/clutter and a reference final arm pose. Use its successful normal recorded endpoint when available; otherwise generate a separate successful scripted endpoint. This is an explicit task specification supplied after fitting, including for held-out scenes; it is not an intermediate future observation given to the predictor. Creating a valid goal image is a requirement of this method.
+5. **Offline evaluation:** forecast recorded held-out trajectories over 5/10/20/40 control steps. Compare correct-action forecasts to an unchanged latent and opposite-action forecasts. Check real latent goal cost against actual cube distance. Where recordings provide different future actions from identical reset/layout/action-prefix/image-history states, compare native choices against the best recorded endpoint distance. No eligible branches means no ranking evidence. Real endpoint latent choices are diagnostic and never used by the live planner.
+6. **Live control:** run native goal-image CEM on the first five held-out scene groups, exact saved layouts/reset seeds and the same recovery intervention rules: **40 new episodes** (five groups × two views × four cases). Default horizon is 40 physical commands, grouped into eight predicted transitions, population 128, elites 16 and ten CEM iterations. Execute only one command before observing/replanning. No exact-state or SAC fallback chooses a LeWM action; wholly nonfinite candidate pools stop the run with an error.
+7. **Compare/export:** reuse completed source `scripted`, `rl_true`, `rl_q` with Q-empty/Q-mixed, and `jepa_mpc` with Q-empty/Q-mixed results on those same scenes. Export small reports/logs to `results/lewm_native_v1`. Source weights, data and results are read-only.
+
+The main comparison is **whole-system performance**, not an isolated encoder ablation: the representation, predictor, goal format, scoring and planning budget differ. The legacy systems receive numeric B; LeWM receives a goal image expressing B. Raw latent MSE between V-JEPA and LeWM has incompatible scales. The rectangles remain physical, route-clear clutter from the source campaign; this does not establish planning around blocking obstacles.
+
+### How to read results
+
+Start with `results/lewm_native_v1/reports/summary.txt` and `comparison.csv`:
+
+- **Placements/rate:** actual grasp, lift at least 4 cm, release near B and required settling, using the unchanged evaluator. `complete=True` only means the procedure finished.
+- **Grasped/lifted counts:** distinguish failure to approach/grasp from later carrying/placing failures.
+- **Forced releases/regrasps/recovered placements:** assess recovery only in episodes where the intervention actually triggered. Failure to reach a drop trigger is not a successful recovery test.
+- **Actual goal distance and table/rectangle contacts:** simulator measurements for comparison; these are not planner inputs.
+- **`offline.json`:** within LeWM's own representation, correct-action prediction should beat persistence and wrong actions. Check invalid/attempted counts, embedding spread and phase-specific `forecasts.csv` rows.
+- **`recorded_choices.csv`:** endpoint-distance regret is selected endpoint distance minus the best available recorded distance; zero is best among those recorded choices. Compare imagined-latent regret with real-endpoint-latent regret. Poor real-latent ranking implicates the goal metric/representation; good real-latent ranking but poor imagined ranking implicates prediction. This endpoint-distance diagnostic is not the full placement reward or proof of causation.
+- **Goal cost:** lower means closer in LeWM feature space, never centimetres. The goal image also contains the arm and background; check whether the metric favours cube progress rather than only matching arm appearance. More training cannot be assumed to fix a bad goal metric.
+
+Raw checkpoints, features, supplied goal images, actual camera frames/GIFs, trajectories and per-decision candidate NPZs remain in `simulation/data/lewm_native_v1`. NPZ `selected_z` arrays are imagined latent vectors, not generated future pictures. During live control, later real frames reflect replanning and must not be treated as ground truth for an earlier unexecuted full candidate sequence.
+
+To inspect a saved movie in a notebook whose working directory is `simulation/`:
+
+```python
+from pathlib import Path
+from IPython.display import Image, display
+
+movies = sorted(Path("data/lewm_native_v1/control").glob(
+    "*/episodes/lewm_native/seed_*/actual.gif"))
+print("Saved movies:", len(movies))
+if movies:
+    print(movies[0])
+    display(Image(filename=str(movies[0])))
+    display(Image(filename=str(movies[0].with_name("goal.jpg"))))
+```
+
+Share compact results after completion, from the repository root:
+
+```bash
+cd ..
+git add -- results/lewm_native_v1
+git --no-pager diff --cached --stat
+git commit -m "Record native LeWM goal-image comparison"
+git push origin M2_Kuba
+git rev-parse --short HEAD
+```
+
+The new raw run is ignored by default. Compact exports do not include weights/videos, and the linked source observations must remain present to resume training. Share selected new checkpoints/GIFs deliberately through the project's existing LFS procedure if needed; avoid another blanket upload of raw caches.

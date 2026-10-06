@@ -1,0 +1,16 @@
+LeWorldModel / LeWM
+https://github.com/lucas-maes/le-wm
+Pinned upstream commit: 8edfeb336732b5f3ce7b8b210d0ba370a09e2cac
+
+jepa.py and module.py are unmodified copies from this commit.
+Copyright (c) 2026 Lucas Maes. MIT license reproduced in LICENSE.
+
+Paper: LeWorldModel: Stable End-to-End Joint-Embedding Predictive
+Architecture from Pixels (Maes, Le Lidec, Scieur, LeCun, Balestriero, 2026)
+https://arxiv.org/abs/2603.19312
+
+Our adaptation uses these model and SIGReg implementations, constructs the
+same ViT-Tiny architecture with the existing Hugging Face Transformers API,
+and supplies this project's frame/action loader, scene-group splits and
+PyTorch training loop. It does not copy upstream benchmark datasets,
+checkpoints, environment package, training framework or reported results.
