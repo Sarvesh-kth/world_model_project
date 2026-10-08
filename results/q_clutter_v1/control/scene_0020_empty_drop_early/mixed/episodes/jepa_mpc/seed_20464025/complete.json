@@ -1,0 +1,9 @@
+{
+  "result.json": "19d776c48add4f93b7ee8135068d3f500465916dbdfb4ec2a3ce4f29a800c7e1",
+  "trajectory_meta.json": "7d3c07380dc8bc6df5b31cc2b5f5f6f8d885b35138606b76464a6efe92540bbe",
+  "selected_forecasts.csv": "f659f7825a8dd5d39ab1661bee8b262db9976a493e7b7ffa7eb09e6f9f3ecbe2",
+  "candidates.csv": "2a0fc094d15d6d3dd5df2ab06521e9a76ab92c8b720faa3ac33856829c10bbe1",
+  "steps.csv": "538fe548bb2631f6ca96055e1080bc70dd0d4968de000db5e8d0b43dcf66a40d",
+  "trajectory.npz": "61174e03392e3a226537e8d395f2a54ef7013e135109ff893c4437d948a2bf77",
+  "actual.gif": "8daf7d2f82e0b384beb6589898252b5a35de9d48ca10e280317a4b00d11a3146"
+}

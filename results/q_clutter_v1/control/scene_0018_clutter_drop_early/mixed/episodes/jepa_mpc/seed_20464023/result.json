@@ -1,0 +1,85 @@
+{
+  "method": "jepa_mpc",
+  "seed": 20464023,
+  "task_success": false,
+  "steps": 300,
+  "true_original_return": -0.82521775879054,
+  "control_return": -14.043568556322715,
+  "ever_held": false,
+  "ever_lifted_4cm": false,
+  "maximum_lift_cm": 0.0,
+  "minimum_goal_distance_cm": 51.5131413936615,
+  "final_goal_distance_cm": 51.51314163208008,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.18731417289976857,
+      -0.23767768460289096
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": [
+      {
+        "kind": "box",
+        "pos": [
+          0.4058513594785931,
+          -0.08500000000000002
+        ],
+        "yaw": 0.18042251305095086,
+        "size": [
+          0.022773862934824265,
+          0.019939744338051582,
+          0.09892216739336815
+        ]
+      }
+    ]
+  },
+  "case": "drop_early",
+  "intervention_triggered": false,
+  "intervention_step": null,
+  "release_end_step": null,
+  "regrasp_step": null,
+  "regrasped_after_intervention": false,
+  "regrasp_seconds": null,
+  "recovery_placed": false,
+  "SAC_checkpoint_sha256": "15b37ab39ca1b8215facda7f6a675092e271b6342e5959f42a80df7fb27099ec",
+  "seconds": 192.23309045704082,
+  "model_fallback_steps": 0,
+  "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc",
+  "Q_on_actual_observations": {
+    "n": 300,
+    "xyz_mae_cm": [
+      5.221141989032428,
+      19.116300359368324,
+      3.3536957701047263
+    ],
+    "height_mae_cm": 3.3536957701047263,
+    "grasp_accuracy": 0.14333333333333334,
+    "grasp_precision": 0.0,
+    "grasp_recall": 0.0,
+    "grasp_f1": 0.0,
+    "grasp_brier": 0.7463325634511653,
+    "height_mae_when_held_cm": null,
+    "height_mae_when_not_held_cm": 3.3536957701047263,
+    "positive_labels": 0,
+    "negative_labels": 300
+  },
+  "D_Q_one_step_height_mae_cm": 3.777217985788981,
+  "D_one_step_latent_normalized_mse": 0.07818251814693213
+}

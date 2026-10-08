@@ -1,0 +1,1342 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.clutter_pipeline", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1", "--baseline-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1", "--encoder-run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2", "--export", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1", "--train-scenes", "12", "--val-scenes", "4", "--test-scenes", "6", "--control-scenes", "5", "--seed", "20464005", "--training-seed", "0", "--epochs", "60", "--rl-steps", "20000", "--bc-epochs", "240", "--critic-warmup", "2000", "--rollout-steps", "8", "--horizon", "20", "--population", "64", "--elites", "8", "--iterations", "3", "--terminal-weight", "0", "--threads", "4", "--stage", "reference"]
+CONTROL scene_0016/empty/normal/scripted/Q-exact
+scripted seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=50: held=True goal_distance=50.6cm lift=0.1cm success=False
+scripted seed=20464021 step=60: held=True goal_distance=50.3cm lift=8.7cm success=False
+scripted seed=20464021 step=70: held=True goal_distance=37.7cm lift=9.8cm success=False
+scripted seed=20464021 step=80: held=True goal_distance=23.7cm lift=9.7cm success=False
+scripted seed=20464021 step=90: held=True goal_distance=9.7cm lift=9.6cm success=False
+scripted seed=20464021 step=100: held=True goal_distance=0.5cm lift=6.4cm success=False
+scripted seed=20464021 step=110: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464021 step=119: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0016/empty/normal/rl_true/Q-exact
+rl_true seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=50: held=True goal_distance=50.4cm lift=7.9cm success=False
+rl_true seed=20464021 step=60: held=True goal_distance=37.8cm lift=9.4cm success=False
+rl_true seed=20464021 step=70: held=True goal_distance=23.9cm lift=8.7cm success=False
+rl_true seed=20464021 step=80: held=True goal_distance=10.0cm lift=11.4cm success=False
+rl_true seed=20464021 step=90: held=True goal_distance=3.7cm lift=5.5cm success=False
+rl_true seed=20464021 step=100: held=True goal_distance=1.9cm lift=3.6cm success=False
+rl_true seed=20464021 step=110: held=False goal_distance=1.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=116: held=False goal_distance=1.8cm lift=-0.1cm success=True
+FINISHED rl_true: success=True goal=1.8cm
+CONTROL scene_0016/empty/drop_early/scripted/Q-exact
+scripted seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=50: held=True goal_distance=50.6cm lift=0.1cm success=False
+scripted seed=20464021 step=60: held=True goal_distance=50.3cm lift=8.7cm success=False
+scripted seed=20464021 step=70: held=False goal_distance=39.6cm lift=-0.0cm success=False
+scripted seed=20464021 step=80: held=False goal_distance=39.6cm lift=0.0cm success=False
+scripted seed=20464021 step=90: held=True goal_distance=39.6cm lift=0.0cm success=False
+scripted seed=20464021 step=100: held=True goal_distance=39.3cm lift=7.4cm success=False
+scripted seed=20464021 step=110: held=True goal_distance=29.0cm lift=9.9cm success=False
+scripted seed=20464021 step=120: held=True goal_distance=15.0cm lift=9.9cm success=False
+scripted seed=20464021 step=130: held=True goal_distance=1.5cm lift=9.8cm success=False
+scripted seed=20464021 step=140: held=False goal_distance=0.2cm lift=-0.0cm success=False
+scripted seed=20464021 step=150: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464021 step=152: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0016/empty/drop_early/rl_true/Q-exact
+rl_true seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=50: held=True goal_distance=50.4cm lift=7.9cm success=False
+rl_true seed=20464021 step=60: held=False goal_distance=39.7cm lift=-0.0cm success=False
+rl_true seed=20464021 step=70: held=False goal_distance=39.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=80: held=True goal_distance=39.7cm lift=0.7cm success=False
+rl_true seed=20464021 step=90: held=True goal_distance=36.4cm lift=9.5cm success=False
+rl_true seed=20464021 step=100: held=True goal_distance=22.5cm lift=9.6cm success=False
+rl_true seed=20464021 step=110: held=True goal_distance=8.6cm lift=10.4cm success=False
+rl_true seed=20464021 step=120: held=True goal_distance=0.6cm lift=5.6cm success=False
+rl_true seed=20464021 step=130: held=False goal_distance=0.1cm lift=0.0cm success=False
+rl_true seed=20464021 step=138: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.1cm
+CONTROL scene_0016/empty/drop_middle/scripted/Q-exact
+scripted seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=50: held=True goal_distance=50.6cm lift=0.1cm success=False
+scripted seed=20464021 step=60: held=True goal_distance=50.3cm lift=8.7cm success=False
+scripted seed=20464021 step=70: held=True goal_distance=37.7cm lift=9.8cm success=False
+scripted seed=20464021 step=80: held=False goal_distance=23.5cm lift=4.9cm success=False
+scripted seed=20464021 step=90: held=False goal_distance=22.8cm lift=0.0cm success=False
+scripted seed=20464021 step=100: held=True goal_distance=22.8cm lift=0.0cm success=False
+scripted seed=20464021 step=110: held=True goal_distance=22.8cm lift=4.6cm success=False
+scripted seed=20464021 step=120: held=True goal_distance=15.4cm lift=9.8cm success=False
+scripted seed=20464021 step=130: held=True goal_distance=1.8cm lift=9.8cm success=False
+scripted seed=20464021 step=140: held=False goal_distance=0.1cm lift=-0.0cm success=False
+scripted seed=20464021 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464021 step=153: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0016/empty/drop_middle/rl_true/Q-exact
+rl_true seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=50: held=True goal_distance=50.4cm lift=7.9cm success=False
+rl_true seed=20464021 step=60: held=True goal_distance=37.8cm lift=9.4cm success=False
+rl_true seed=20464021 step=70: held=False goal_distance=23.7cm lift=4.2cm success=False
+rl_true seed=20464021 step=80: held=False goal_distance=23.0cm lift=0.0cm success=False
+rl_true seed=20464021 step=90: held=True goal_distance=23.1cm lift=0.0cm success=False
+rl_true seed=20464021 step=100: held=True goal_distance=22.7cm lift=8.9cm success=False
+rl_true seed=20464021 step=110: held=True goal_distance=9.0cm lift=9.7cm success=False
+rl_true seed=20464021 step=120: held=True goal_distance=2.1cm lift=6.1cm success=False
+rl_true seed=20464021 step=130: held=True goal_distance=1.3cm lift=2.4cm success=False
+rl_true seed=20464021 step=140: held=False goal_distance=0.9cm lift=0.0cm success=False
+rl_true seed=20464021 step=146: held=False goal_distance=0.9cm lift=-0.0cm success=True
+FINISHED rl_true: success=True goal=0.9cm
+CONTROL scene_0016/empty/drop_late/scripted/Q-exact
+scripted seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=50: held=True goal_distance=50.6cm lift=0.1cm success=False
+scripted seed=20464021 step=60: held=True goal_distance=50.3cm lift=8.7cm success=False
+scripted seed=20464021 step=70: held=True goal_distance=37.7cm lift=9.8cm success=False
+scripted seed=20464021 step=80: held=True goal_distance=23.7cm lift=9.7cm success=False
+scripted seed=20464021 step=90: held=False goal_distance=10.2cm lift=-0.0cm success=False
+scripted seed=20464021 step=100: held=False goal_distance=10.2cm lift=0.0cm success=False
+scripted seed=20464021 step=110: held=True goal_distance=10.3cm lift=0.0cm success=False
+scripted seed=20464021 step=120: held=True goal_distance=10.4cm lift=4.7cm success=False
+scripted seed=20464021 step=130: held=True goal_distance=3.3cm lift=9.4cm success=False
+scripted seed=20464021 step=140: held=True goal_distance=0.2cm lift=3.4cm success=False
+scripted seed=20464021 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464021 step=155: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0016/empty/drop_late/rl_true/Q-exact
+rl_true seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=50: held=True goal_distance=50.4cm lift=7.9cm success=False
+rl_true seed=20464021 step=60: held=True goal_distance=37.8cm lift=9.4cm success=False
+rl_true seed=20464021 step=70: held=True goal_distance=23.9cm lift=8.7cm success=False
+rl_true seed=20464021 step=80: held=False goal_distance=9.8cm lift=7.1cm success=False
+rl_true seed=20464021 step=90: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=100: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=110: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=120: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=130: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=140: held=True goal_distance=9.2cm lift=8.1cm success=False
+rl_true seed=20464021 step=150: held=True goal_distance=1.3cm lift=9.7cm success=False
+rl_true seed=20464021 step=160: held=False goal_distance=1.0cm lift=0.0cm success=False
+rl_true seed=20464021 step=170: held=False goal_distance=1.0cm lift=0.0cm success=False
+rl_true seed=20464021 step=171: held=False goal_distance=1.0cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=1.0cm
+CONTROL scene_0016/clutter/normal/scripted/Q-exact
+scripted seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=50: held=True goal_distance=50.6cm lift=0.1cm success=False
+scripted seed=20464021 step=60: held=True goal_distance=50.3cm lift=8.7cm success=False
+scripted seed=20464021 step=70: held=True goal_distance=37.7cm lift=9.8cm success=False
+scripted seed=20464021 step=80: held=True goal_distance=23.7cm lift=9.7cm success=False
+scripted seed=20464021 step=90: held=True goal_distance=9.7cm lift=9.6cm success=False
+scripted seed=20464021 step=100: held=True goal_distance=0.5cm lift=6.4cm success=False
+scripted seed=20464021 step=110: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464021 step=119: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0016/clutter/normal/rl_true/Q-exact
+rl_true seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=50: held=True goal_distance=50.4cm lift=7.9cm success=False
+rl_true seed=20464021 step=60: held=True goal_distance=37.8cm lift=9.4cm success=False
+rl_true seed=20464021 step=70: held=True goal_distance=23.9cm lift=8.7cm success=False
+rl_true seed=20464021 step=80: held=True goal_distance=10.0cm lift=11.4cm success=False
+rl_true seed=20464021 step=90: held=True goal_distance=3.7cm lift=5.5cm success=False
+rl_true seed=20464021 step=100: held=True goal_distance=1.9cm lift=3.6cm success=False
+rl_true seed=20464021 step=110: held=False goal_distance=1.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=116: held=False goal_distance=1.8cm lift=-0.1cm success=True
+FINISHED rl_true: success=True goal=1.8cm
+CONTROL scene_0016/clutter/drop_early/scripted/Q-exact
+scripted seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=50: held=True goal_distance=50.6cm lift=0.1cm success=False
+scripted seed=20464021 step=60: held=True goal_distance=50.3cm lift=8.7cm success=False
+scripted seed=20464021 step=70: held=False goal_distance=39.6cm lift=-0.0cm success=False
+scripted seed=20464021 step=80: held=False goal_distance=39.6cm lift=0.0cm success=False
+scripted seed=20464021 step=90: held=True goal_distance=39.6cm lift=0.0cm success=False
+scripted seed=20464021 step=100: held=True goal_distance=39.3cm lift=7.4cm success=False
+scripted seed=20464021 step=110: held=True goal_distance=29.0cm lift=9.9cm success=False
+scripted seed=20464021 step=120: held=True goal_distance=15.0cm lift=9.9cm success=False
+scripted seed=20464021 step=130: held=True goal_distance=1.5cm lift=9.8cm success=False
+scripted seed=20464021 step=140: held=False goal_distance=0.2cm lift=-0.0cm success=False
+scripted seed=20464021 step=150: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464021 step=152: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0016/clutter/drop_early/rl_true/Q-exact
+rl_true seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=50: held=True goal_distance=50.4cm lift=7.9cm success=False
+rl_true seed=20464021 step=60: held=False goal_distance=39.7cm lift=-0.0cm success=False
+rl_true seed=20464021 step=70: held=False goal_distance=39.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=80: held=True goal_distance=39.7cm lift=0.7cm success=False
+rl_true seed=20464021 step=90: held=True goal_distance=36.4cm lift=9.5cm success=False
+rl_true seed=20464021 step=100: held=True goal_distance=22.5cm lift=9.6cm success=False
+rl_true seed=20464021 step=110: held=True goal_distance=8.6cm lift=10.4cm success=False
+rl_true seed=20464021 step=120: held=True goal_distance=0.6cm lift=5.6cm success=False
+rl_true seed=20464021 step=130: held=False goal_distance=0.1cm lift=0.0cm success=False
+rl_true seed=20464021 step=138: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.1cm
+CONTROL scene_0016/clutter/drop_middle/scripted/Q-exact
+scripted seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=50: held=True goal_distance=50.6cm lift=0.1cm success=False
+scripted seed=20464021 step=60: held=True goal_distance=50.3cm lift=8.7cm success=False
+scripted seed=20464021 step=70: held=True goal_distance=37.7cm lift=9.8cm success=False
+scripted seed=20464021 step=80: held=False goal_distance=23.5cm lift=4.9cm success=False
+scripted seed=20464021 step=90: held=False goal_distance=22.8cm lift=0.0cm success=False
+scripted seed=20464021 step=100: held=True goal_distance=22.8cm lift=0.0cm success=False
+scripted seed=20464021 step=110: held=True goal_distance=22.8cm lift=4.6cm success=False
+scripted seed=20464021 step=120: held=True goal_distance=15.4cm lift=9.8cm success=False
+scripted seed=20464021 step=130: held=True goal_distance=1.8cm lift=9.8cm success=False
+scripted seed=20464021 step=140: held=False goal_distance=0.1cm lift=-0.0cm success=False
+scripted seed=20464021 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464021 step=153: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0016/clutter/drop_middle/rl_true/Q-exact
+rl_true seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=50: held=True goal_distance=50.4cm lift=7.9cm success=False
+rl_true seed=20464021 step=60: held=True goal_distance=37.8cm lift=9.4cm success=False
+rl_true seed=20464021 step=70: held=False goal_distance=23.7cm lift=4.2cm success=False
+rl_true seed=20464021 step=80: held=False goal_distance=23.0cm lift=0.0cm success=False
+rl_true seed=20464021 step=90: held=True goal_distance=23.1cm lift=0.0cm success=False
+rl_true seed=20464021 step=100: held=True goal_distance=22.7cm lift=8.9cm success=False
+rl_true seed=20464021 step=110: held=True goal_distance=9.0cm lift=9.7cm success=False
+rl_true seed=20464021 step=120: held=True goal_distance=2.1cm lift=6.1cm success=False
+rl_true seed=20464021 step=130: held=True goal_distance=1.3cm lift=2.4cm success=False
+rl_true seed=20464021 step=140: held=False goal_distance=0.9cm lift=0.0cm success=False
+rl_true seed=20464021 step=146: held=False goal_distance=0.9cm lift=-0.0cm success=True
+FINISHED rl_true: success=True goal=0.9cm
+CONTROL scene_0016/clutter/drop_late/scripted/Q-exact
+scripted seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+scripted seed=20464021 step=50: held=True goal_distance=50.6cm lift=0.1cm success=False
+scripted seed=20464021 step=60: held=True goal_distance=50.3cm lift=8.7cm success=False
+scripted seed=20464021 step=70: held=True goal_distance=37.7cm lift=9.8cm success=False
+scripted seed=20464021 step=80: held=True goal_distance=23.7cm lift=9.7cm success=False
+scripted seed=20464021 step=90: held=False goal_distance=10.2cm lift=-0.0cm success=False
+scripted seed=20464021 step=100: held=False goal_distance=10.2cm lift=0.0cm success=False
+scripted seed=20464021 step=110: held=True goal_distance=10.3cm lift=0.0cm success=False
+scripted seed=20464021 step=120: held=True goal_distance=10.4cm lift=4.7cm success=False
+scripted seed=20464021 step=130: held=True goal_distance=3.3cm lift=9.4cm success=False
+scripted seed=20464021 step=140: held=True goal_distance=0.2cm lift=3.4cm success=False
+scripted seed=20464021 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464021 step=155: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0016/clutter/drop_late/rl_true/Q-exact
+rl_true seed=20464021 step=10: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=20: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=30: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=40: held=False goal_distance=50.7cm lift=0.0cm success=False
+rl_true seed=20464021 step=50: held=True goal_distance=50.4cm lift=7.9cm success=False
+rl_true seed=20464021 step=60: held=True goal_distance=37.8cm lift=9.4cm success=False
+rl_true seed=20464021 step=70: held=True goal_distance=23.9cm lift=8.7cm success=False
+rl_true seed=20464021 step=80: held=False goal_distance=9.8cm lift=7.1cm success=False
+rl_true seed=20464021 step=90: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=100: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=110: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=120: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=130: held=False goal_distance=8.8cm lift=0.0cm success=False
+rl_true seed=20464021 step=140: held=True goal_distance=9.2cm lift=8.1cm success=False
+rl_true seed=20464021 step=150: held=True goal_distance=1.3cm lift=9.7cm success=False
+rl_true seed=20464021 step=160: held=False goal_distance=1.0cm lift=0.0cm success=False
+rl_true seed=20464021 step=170: held=False goal_distance=1.0cm lift=0.0cm success=False
+rl_true seed=20464021 step=171: held=False goal_distance=1.0cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=1.0cm
+CONTROL scene_0017/empty/normal/scripted/Q-exact
+scripted seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=50: held=True goal_distance=51.4cm lift=0.1cm success=False
+scripted seed=20464022 step=60: held=True goal_distance=51.2cm lift=6.3cm success=False
+scripted seed=20464022 step=70: held=True goal_distance=42.8cm lift=10.9cm success=False
+scripted seed=20464022 step=80: held=True goal_distance=28.9cm lift=9.9cm success=False
+scripted seed=20464022 step=90: held=True goal_distance=15.0cm lift=9.8cm success=False
+scripted seed=20464022 step=100: held=True goal_distance=1.5cm lift=9.8cm success=False
+scripted seed=20464022 step=110: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464022 step=120: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464022 step=122: held=False goal_distance=0.0cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.0cm
+CONTROL scene_0017/empty/normal/rl_true/Q-exact
+rl_true seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=50: held=True goal_distance=51.3cm lift=0.8cm success=False
+rl_true seed=20464022 step=60: held=True goal_distance=47.2cm lift=10.0cm success=False
+rl_true seed=20464022 step=70: held=True goal_distance=33.5cm lift=9.7cm success=False
+rl_true seed=20464022 step=80: held=True goal_distance=19.5cm lift=9.3cm success=False
+rl_true seed=20464022 step=90: held=True goal_distance=5.6cm lift=11.0cm success=False
+rl_true seed=20464022 step=100: held=True goal_distance=1.4cm lift=5.2cm success=False
+rl_true seed=20464022 step=110: held=False goal_distance=0.7cm lift=0.0cm success=False
+rl_true seed=20464022 step=120: held=False goal_distance=0.7cm lift=0.0cm success=False
+rl_true seed=20464022 step=122: held=False goal_distance=0.7cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.7cm
+CONTROL scene_0017/empty/drop_early/scripted/Q-exact
+scripted seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=50: held=True goal_distance=51.4cm lift=0.1cm success=False
+scripted seed=20464022 step=60: held=True goal_distance=51.2cm lift=6.3cm success=False
+scripted seed=20464022 step=70: held=True goal_distance=42.8cm lift=10.9cm success=False
+scripted seed=20464022 step=80: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464022 step=90: held=True goal_distance=40.4cm lift=0.0cm success=False
+scripted seed=20464022 step=100: held=True goal_distance=40.4cm lift=3.4cm success=False
+scripted seed=20464022 step=110: held=True goal_distance=34.4cm lift=9.9cm success=False
+scripted seed=20464022 step=120: held=True goal_distance=20.5cm lift=9.9cm success=False
+scripted seed=20464022 step=130: held=True goal_distance=6.6cm lift=9.9cm success=False
+scripted seed=20464022 step=140: held=True goal_distance=0.0cm lift=4.3cm success=False
+scripted seed=20464022 step=150: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464022 step=156: held=False goal_distance=0.0cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.0cm
+CONTROL scene_0017/empty/drop_early/rl_true/Q-exact
+rl_true seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=50: held=True goal_distance=51.3cm lift=0.8cm success=False
+rl_true seed=20464022 step=60: held=True goal_distance=47.2cm lift=10.0cm success=False
+rl_true seed=20464022 step=70: held=False goal_distance=41.0cm lift=0.0cm success=False
+rl_true seed=20464022 step=80: held=False goal_distance=41.0cm lift=0.0cm success=False
+rl_true seed=20464022 step=90: held=True goal_distance=40.9cm lift=0.8cm success=False
+rl_true seed=20464022 step=100: held=True goal_distance=37.5cm lift=9.6cm success=False
+rl_true seed=20464022 step=110: held=True goal_distance=23.6cm lift=9.6cm success=False
+rl_true seed=20464022 step=120: held=True goal_distance=9.7cm lift=9.9cm success=False
+rl_true seed=20464022 step=130: held=True goal_distance=1.1cm lift=6.7cm success=False
+rl_true seed=20464022 step=140: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464022 step=150: held=False goal_distance=0.4cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.4cm
+CONTROL scene_0017/empty/drop_middle/scripted/Q-exact
+scripted seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=50: held=True goal_distance=51.4cm lift=0.1cm success=False
+scripted seed=20464022 step=60: held=True goal_distance=51.2cm lift=6.3cm success=False
+scripted seed=20464022 step=70: held=True goal_distance=42.8cm lift=10.9cm success=False
+scripted seed=20464022 step=80: held=True goal_distance=28.9cm lift=9.9cm success=False
+scripted seed=20464022 step=90: held=False goal_distance=22.4cm lift=0.0cm success=False
+scripted seed=20464022 step=100: held=False goal_distance=22.4cm lift=0.0cm success=False
+scripted seed=20464022 step=110: held=True goal_distance=22.5cm lift=0.1cm success=False
+scripted seed=20464022 step=120: held=True goal_distance=20.9cm lift=9.4cm success=False
+scripted seed=20464022 step=130: held=True goal_distance=7.0cm lift=9.7cm success=False
+scripted seed=20464022 step=140: held=True goal_distance=0.0cm lift=4.3cm success=False
+scripted seed=20464022 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464022 step=157: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0017/empty/drop_middle/rl_true/Q-exact
+rl_true seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=50: held=True goal_distance=51.3cm lift=0.8cm success=False
+rl_true seed=20464022 step=60: held=True goal_distance=47.2cm lift=10.0cm success=False
+rl_true seed=20464022 step=70: held=True goal_distance=33.5cm lift=9.7cm success=False
+rl_true seed=20464022 step=80: held=False goal_distance=22.8cm lift=0.0cm success=False
+rl_true seed=20464022 step=90: held=False goal_distance=22.8cm lift=0.0cm success=False
+rl_true seed=20464022 step=100: held=True goal_distance=22.8cm lift=0.3cm success=False
+rl_true seed=20464022 step=110: held=True goal_distance=20.9cm lift=9.1cm success=False
+rl_true seed=20464022 step=120: held=True goal_distance=7.0cm lift=9.4cm success=False
+rl_true seed=20464022 step=130: held=True goal_distance=1.0cm lift=6.2cm success=False
+rl_true seed=20464022 step=140: held=False goal_distance=0.3cm lift=0.0cm success=False
+rl_true seed=20464022 step=150: held=False goal_distance=0.3cm lift=0.0cm success=False
+rl_true seed=20464022 step=151: held=False goal_distance=0.3cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.3cm
+CONTROL scene_0017/empty/drop_late/scripted/Q-exact
+scripted seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=50: held=True goal_distance=51.4cm lift=0.1cm success=False
+scripted seed=20464022 step=60: held=True goal_distance=51.2cm lift=6.3cm success=False
+scripted seed=20464022 step=70: held=True goal_distance=42.8cm lift=10.9cm success=False
+scripted seed=20464022 step=80: held=True goal_distance=28.9cm lift=9.9cm success=False
+scripted seed=20464022 step=90: held=True goal_distance=15.0cm lift=9.8cm success=False
+scripted seed=20464022 step=100: held=False goal_distance=9.9cm lift=0.0cm success=False
+scripted seed=20464022 step=110: held=False goal_distance=9.9cm lift=0.0cm success=False
+scripted seed=20464022 step=120: held=True goal_distance=10.2cm lift=0.6cm success=False
+scripted seed=20464022 step=130: held=True goal_distance=7.2cm lift=9.7cm success=False
+scripted seed=20464022 step=140: held=True goal_distance=0.1cm lift=5.3cm success=False
+scripted seed=20464022 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464022 step=158: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0017/empty/drop_late/rl_true/Q-exact
+rl_true seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=50: held=True goal_distance=51.3cm lift=0.8cm success=False
+rl_true seed=20464022 step=60: held=True goal_distance=47.2cm lift=10.0cm success=False
+rl_true seed=20464022 step=70: held=True goal_distance=33.5cm lift=9.7cm success=False
+rl_true seed=20464022 step=80: held=True goal_distance=19.5cm lift=9.3cm success=False
+rl_true seed=20464022 step=90: held=False goal_distance=10.2cm lift=0.0cm success=False
+rl_true seed=20464022 step=100: held=False goal_distance=10.2cm lift=0.0cm success=False
+rl_true seed=20464022 step=110: held=True goal_distance=10.2cm lift=1.9cm success=False
+rl_true seed=20464022 step=120: held=True goal_distance=8.0cm lift=8.4cm success=False
+rl_true seed=20464022 step=130: held=True goal_distance=0.9cm lift=6.1cm success=False
+rl_true seed=20464022 step=140: held=False goal_distance=0.8cm lift=0.0cm success=False
+rl_true seed=20464022 step=148: held=False goal_distance=0.8cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.8cm
+CONTROL scene_0017/clutter/normal/scripted/Q-exact
+scripted seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=50: held=True goal_distance=51.4cm lift=0.1cm success=False
+scripted seed=20464022 step=60: held=True goal_distance=51.2cm lift=6.3cm success=False
+scripted seed=20464022 step=70: held=True goal_distance=42.8cm lift=10.9cm success=False
+scripted seed=20464022 step=80: held=True goal_distance=28.9cm lift=9.9cm success=False
+scripted seed=20464022 step=90: held=True goal_distance=15.0cm lift=9.8cm success=False
+scripted seed=20464022 step=100: held=True goal_distance=1.5cm lift=9.8cm success=False
+scripted seed=20464022 step=110: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464022 step=120: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464022 step=122: held=False goal_distance=0.0cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.0cm
+CONTROL scene_0017/clutter/normal/rl_true/Q-exact
+rl_true seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=50: held=True goal_distance=51.3cm lift=0.8cm success=False
+rl_true seed=20464022 step=60: held=True goal_distance=47.2cm lift=10.0cm success=False
+rl_true seed=20464022 step=70: held=True goal_distance=33.5cm lift=9.7cm success=False
+rl_true seed=20464022 step=80: held=True goal_distance=19.5cm lift=9.3cm success=False
+rl_true seed=20464022 step=90: held=True goal_distance=5.6cm lift=11.0cm success=False
+rl_true seed=20464022 step=100: held=True goal_distance=1.4cm lift=5.2cm success=False
+rl_true seed=20464022 step=110: held=False goal_distance=0.7cm lift=0.0cm success=False
+rl_true seed=20464022 step=120: held=False goal_distance=0.7cm lift=0.0cm success=False
+rl_true seed=20464022 step=122: held=False goal_distance=0.7cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.7cm
+CONTROL scene_0017/clutter/drop_early/scripted/Q-exact
+scripted seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=50: held=True goal_distance=51.4cm lift=0.1cm success=False
+scripted seed=20464022 step=60: held=True goal_distance=51.2cm lift=6.3cm success=False
+scripted seed=20464022 step=70: held=True goal_distance=42.8cm lift=10.9cm success=False
+scripted seed=20464022 step=80: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464022 step=90: held=True goal_distance=40.4cm lift=0.0cm success=False
+scripted seed=20464022 step=100: held=True goal_distance=40.4cm lift=3.4cm success=False
+scripted seed=20464022 step=110: held=True goal_distance=34.4cm lift=9.9cm success=False
+scripted seed=20464022 step=120: held=True goal_distance=20.5cm lift=9.9cm success=False
+scripted seed=20464022 step=130: held=True goal_distance=6.6cm lift=9.9cm success=False
+scripted seed=20464022 step=140: held=True goal_distance=0.0cm lift=4.3cm success=False
+scripted seed=20464022 step=150: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464022 step=156: held=False goal_distance=0.0cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.0cm
+CONTROL scene_0017/clutter/drop_early/rl_true/Q-exact
+rl_true seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=50: held=True goal_distance=51.3cm lift=0.8cm success=False
+rl_true seed=20464022 step=60: held=True goal_distance=47.2cm lift=10.0cm success=False
+rl_true seed=20464022 step=70: held=False goal_distance=41.0cm lift=0.0cm success=False
+rl_true seed=20464022 step=80: held=False goal_distance=41.0cm lift=0.0cm success=False
+rl_true seed=20464022 step=90: held=True goal_distance=40.9cm lift=0.8cm success=False
+rl_true seed=20464022 step=100: held=True goal_distance=37.5cm lift=9.6cm success=False
+rl_true seed=20464022 step=110: held=True goal_distance=23.6cm lift=9.6cm success=False
+rl_true seed=20464022 step=120: held=True goal_distance=9.7cm lift=9.9cm success=False
+rl_true seed=20464022 step=130: held=True goal_distance=1.1cm lift=6.7cm success=False
+rl_true seed=20464022 step=140: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464022 step=150: held=False goal_distance=0.4cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.4cm
+CONTROL scene_0017/clutter/drop_middle/scripted/Q-exact
+scripted seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=50: held=True goal_distance=51.4cm lift=0.1cm success=False
+scripted seed=20464022 step=60: held=True goal_distance=51.2cm lift=6.3cm success=False
+scripted seed=20464022 step=70: held=True goal_distance=42.8cm lift=10.9cm success=False
+scripted seed=20464022 step=80: held=True goal_distance=28.9cm lift=9.9cm success=False
+scripted seed=20464022 step=90: held=False goal_distance=22.4cm lift=0.0cm success=False
+scripted seed=20464022 step=100: held=False goal_distance=22.4cm lift=0.0cm success=False
+scripted seed=20464022 step=110: held=True goal_distance=22.5cm lift=0.1cm success=False
+scripted seed=20464022 step=120: held=True goal_distance=20.9cm lift=9.4cm success=False
+scripted seed=20464022 step=130: held=True goal_distance=7.0cm lift=9.7cm success=False
+scripted seed=20464022 step=140: held=True goal_distance=0.0cm lift=4.3cm success=False
+scripted seed=20464022 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464022 step=157: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0017/clutter/drop_middle/rl_true/Q-exact
+rl_true seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=50: held=True goal_distance=51.3cm lift=0.8cm success=False
+rl_true seed=20464022 step=60: held=True goal_distance=47.2cm lift=10.0cm success=False
+rl_true seed=20464022 step=70: held=True goal_distance=33.5cm lift=9.7cm success=False
+rl_true seed=20464022 step=80: held=False goal_distance=22.8cm lift=0.0cm success=False
+rl_true seed=20464022 step=90: held=False goal_distance=22.8cm lift=0.0cm success=False
+rl_true seed=20464022 step=100: held=True goal_distance=22.8cm lift=0.3cm success=False
+rl_true seed=20464022 step=110: held=True goal_distance=20.9cm lift=9.1cm success=False
+rl_true seed=20464022 step=120: held=True goal_distance=7.0cm lift=9.4cm success=False
+rl_true seed=20464022 step=130: held=True goal_distance=1.0cm lift=6.2cm success=False
+rl_true seed=20464022 step=140: held=False goal_distance=0.3cm lift=0.0cm success=False
+rl_true seed=20464022 step=150: held=False goal_distance=0.3cm lift=0.0cm success=False
+rl_true seed=20464022 step=151: held=False goal_distance=0.3cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.3cm
+CONTROL scene_0017/clutter/drop_late/scripted/Q-exact
+scripted seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464022 step=50: held=True goal_distance=51.4cm lift=0.1cm success=False
+scripted seed=20464022 step=60: held=True goal_distance=51.2cm lift=6.3cm success=False
+scripted seed=20464022 step=70: held=True goal_distance=42.8cm lift=10.9cm success=False
+scripted seed=20464022 step=80: held=True goal_distance=28.9cm lift=9.9cm success=False
+scripted seed=20464022 step=90: held=True goal_distance=15.0cm lift=9.8cm success=False
+scripted seed=20464022 step=100: held=False goal_distance=9.9cm lift=0.0cm success=False
+scripted seed=20464022 step=110: held=False goal_distance=9.9cm lift=0.0cm success=False
+scripted seed=20464022 step=120: held=True goal_distance=10.2cm lift=0.6cm success=False
+scripted seed=20464022 step=130: held=True goal_distance=7.2cm lift=9.7cm success=False
+scripted seed=20464022 step=140: held=True goal_distance=0.1cm lift=5.3cm success=False
+scripted seed=20464022 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464022 step=158: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0017/clutter/drop_late/rl_true/Q-exact
+rl_true seed=20464022 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464022 step=50: held=True goal_distance=51.3cm lift=0.8cm success=False
+rl_true seed=20464022 step=60: held=True goal_distance=47.2cm lift=10.0cm success=False
+rl_true seed=20464022 step=70: held=True goal_distance=33.5cm lift=9.7cm success=False
+rl_true seed=20464022 step=80: held=True goal_distance=19.5cm lift=9.3cm success=False
+rl_true seed=20464022 step=90: held=False goal_distance=10.2cm lift=0.0cm success=False
+rl_true seed=20464022 step=100: held=False goal_distance=10.2cm lift=0.0cm success=False
+rl_true seed=20464022 step=110: held=True goal_distance=10.2cm lift=1.9cm success=False
+rl_true seed=20464022 step=120: held=True goal_distance=8.0cm lift=8.4cm success=False
+rl_true seed=20464022 step=130: held=True goal_distance=0.9cm lift=6.1cm success=False
+rl_true seed=20464022 step=140: held=False goal_distance=0.8cm lift=0.0cm success=False
+rl_true seed=20464022 step=148: held=False goal_distance=0.8cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.8cm
+CONTROL scene_0018/empty/normal/scripted/Q-exact
+scripted seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=50: held=True goal_distance=51.2cm lift=2.0cm success=False
+scripted seed=20464023 step=60: held=True goal_distance=46.9cm lift=10.9cm success=False
+scripted seed=20464023 step=70: held=True goal_distance=33.1cm lift=9.9cm success=False
+scripted seed=20464023 step=80: held=True goal_distance=19.1cm lift=9.9cm success=False
+scripted seed=20464023 step=90: held=True goal_distance=5.1cm lift=9.9cm success=False
+scripted seed=20464023 step=100: held=True goal_distance=0.2cm lift=3.6cm success=False
+scripted seed=20464023 step=110: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464023 step=115: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0018/empty/normal/rl_true/Q-exact
+rl_true seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=50: held=True goal_distance=51.5cm lift=-0.0cm success=False
+rl_true seed=20464023 step=60: held=True goal_distance=51.1cm lift=8.4cm success=False
+rl_true seed=20464023 step=70: held=True goal_distance=38.6cm lift=9.5cm success=False
+rl_true seed=20464023 step=80: held=True goal_distance=24.5cm lift=9.3cm success=False
+rl_true seed=20464023 step=90: held=True goal_distance=10.6cm lift=9.5cm success=False
+rl_true seed=20464023 step=100: held=True goal_distance=1.1cm lift=6.7cm success=False
+rl_true seed=20464023 step=110: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464023 step=120: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464023 step=121: held=False goal_distance=0.4cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.4cm
+CONTROL scene_0018/empty/drop_early/scripted/Q-exact
+scripted seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=50: held=True goal_distance=51.2cm lift=2.0cm success=False
+scripted seed=20464023 step=60: held=True goal_distance=46.9cm lift=10.9cm success=False
+scripted seed=20464023 step=70: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464023 step=80: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464023 step=90: held=True goal_distance=40.4cm lift=0.1cm success=False
+scripted seed=20464023 step=100: held=True goal_distance=38.4cm lift=10.0cm success=False
+scripted seed=20464023 step=110: held=True goal_distance=24.3cm lift=10.0cm success=False
+scripted seed=20464023 step=120: held=True goal_distance=10.4cm lift=10.0cm success=False
+scripted seed=20464023 step=130: held=True goal_distance=0.1cm lift=8.1cm success=False
+scripted seed=20464023 step=140: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464023 step=149: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0018/empty/drop_early/rl_true/Q-exact
+rl_true seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=50: held=True goal_distance=51.5cm lift=-0.0cm success=False
+rl_true seed=20464023 step=60: held=True goal_distance=51.1cm lift=8.4cm success=False
+rl_true seed=20464023 step=70: held=False goal_distance=40.4cm lift=-0.0cm success=False
+rl_true seed=20464023 step=80: held=False goal_distance=40.4cm lift=0.0cm success=False
+rl_true seed=20464023 step=90: held=True goal_distance=40.4cm lift=0.7cm success=False
+rl_true seed=20464023 step=100: held=True goal_distance=37.1cm lift=9.4cm success=False
+rl_true seed=20464023 step=110: held=True goal_distance=23.2cm lift=9.5cm success=False
+rl_true seed=20464023 step=120: held=True goal_distance=9.3cm lift=10.6cm success=False
+rl_true seed=20464023 step=130: held=True goal_distance=1.2cm lift=5.7cm success=False
+rl_true seed=20464023 step=140: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464023 step=150: held=False goal_distance=0.4cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.4cm
+CONTROL scene_0018/empty/drop_middle/scripted/Q-exact
+scripted seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=50: held=True goal_distance=51.2cm lift=2.0cm success=False
+scripted seed=20464023 step=60: held=True goal_distance=46.9cm lift=10.9cm success=False
+scripted seed=20464023 step=70: held=True goal_distance=33.1cm lift=9.9cm success=False
+scripted seed=20464023 step=80: held=False goal_distance=22.3cm lift=0.0cm success=False
+scripted seed=20464023 step=90: held=False goal_distance=22.3cm lift=0.0cm success=False
+scripted seed=20464023 step=100: held=True goal_distance=22.4cm lift=0.1cm success=False
+scripted seed=20464023 step=110: held=True goal_distance=22.4cm lift=8.3cm success=False
+scripted seed=20464023 step=120: held=True goal_distance=10.8cm lift=9.8cm success=False
+scripted seed=20464023 step=130: held=True goal_distance=0.2cm lift=8.0cm success=False
+scripted seed=20464023 step=140: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464023 step=150: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0018/empty/drop_middle/rl_true/Q-exact
+rl_true seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=50: held=True goal_distance=51.5cm lift=-0.0cm success=False
+rl_true seed=20464023 step=60: held=True goal_distance=51.1cm lift=8.4cm success=False
+rl_true seed=20464023 step=70: held=True goal_distance=38.6cm lift=9.5cm success=False
+rl_true seed=20464023 step=80: held=True goal_distance=24.5cm lift=9.3cm success=False
+rl_true seed=20464023 step=90: held=False goal_distance=22.3cm lift=0.0cm success=False
+rl_true seed=20464023 step=100: held=False goal_distance=22.3cm lift=0.0cm success=False
+rl_true seed=20464023 step=110: held=True goal_distance=22.3cm lift=6.7cm success=False
+rl_true seed=20464023 step=120: held=True goal_distance=12.4cm lift=9.6cm success=False
+rl_true seed=20464023 step=130: held=True goal_distance=1.9cm lift=9.1cm success=False
+rl_true seed=20464023 step=140: held=False goal_distance=0.3cm lift=-0.3cm success=False
+rl_true seed=20464023 step=150: held=False goal_distance=0.3cm lift=0.0cm success=False
+rl_true seed=20464023 step=154: held=False goal_distance=0.3cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.3cm
+CONTROL scene_0018/empty/drop_late/scripted/Q-exact
+scripted seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=50: held=True goal_distance=51.2cm lift=2.0cm success=False
+scripted seed=20464023 step=60: held=True goal_distance=46.9cm lift=10.9cm success=False
+scripted seed=20464023 step=70: held=True goal_distance=33.1cm lift=9.9cm success=False
+scripted seed=20464023 step=80: held=True goal_distance=19.1cm lift=9.9cm success=False
+scripted seed=20464023 step=90: held=False goal_distance=9.8cm lift=0.0cm success=False
+scripted seed=20464023 step=100: held=False goal_distance=9.8cm lift=0.0cm success=False
+scripted seed=20464023 step=110: held=True goal_distance=9.8cm lift=0.1cm success=False
+scripted seed=20464023 step=120: held=True goal_distance=10.0cm lift=6.9cm success=False
+scripted seed=20464023 step=130: held=True goal_distance=1.6cm lift=9.4cm success=False
+scripted seed=20464023 step=140: held=False goal_distance=0.1cm lift=-0.2cm success=False
+scripted seed=20464023 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464023 step=154: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0018/empty/drop_late/rl_true/Q-exact
+rl_true seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=50: held=True goal_distance=51.5cm lift=-0.0cm success=False
+rl_true seed=20464023 step=60: held=True goal_distance=51.1cm lift=8.4cm success=False
+rl_true seed=20464023 step=70: held=True goal_distance=38.6cm lift=9.5cm success=False
+rl_true seed=20464023 step=80: held=True goal_distance=24.5cm lift=9.3cm success=False
+rl_true seed=20464023 step=90: held=False goal_distance=10.4cm lift=4.8cm success=False
+rl_true seed=20464023 step=100: held=False goal_distance=9.7cm lift=0.0cm success=False
+rl_true seed=20464023 step=110: held=False goal_distance=9.7cm lift=0.0cm success=False
+rl_true seed=20464023 step=120: held=True goal_distance=9.6cm lift=2.7cm success=False
+rl_true seed=20464023 step=130: held=True goal_distance=6.1cm lift=8.7cm success=False
+rl_true seed=20464023 step=140: held=True goal_distance=0.5cm lift=4.1cm success=False
+rl_true seed=20464023 step=150: held=False goal_distance=0.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=157: held=False goal_distance=0.5cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.5cm
+CONTROL scene_0018/clutter/normal/scripted/Q-exact
+scripted seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=50: held=True goal_distance=51.2cm lift=2.0cm success=False
+scripted seed=20464023 step=60: held=True goal_distance=46.9cm lift=10.9cm success=False
+scripted seed=20464023 step=70: held=True goal_distance=33.1cm lift=9.9cm success=False
+scripted seed=20464023 step=80: held=True goal_distance=19.1cm lift=9.9cm success=False
+scripted seed=20464023 step=90: held=True goal_distance=5.1cm lift=9.9cm success=False
+scripted seed=20464023 step=100: held=True goal_distance=0.2cm lift=3.6cm success=False
+scripted seed=20464023 step=110: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464023 step=115: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0018/clutter/normal/rl_true/Q-exact
+rl_true seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=50: held=True goal_distance=51.5cm lift=-0.0cm success=False
+rl_true seed=20464023 step=60: held=True goal_distance=51.1cm lift=8.4cm success=False
+rl_true seed=20464023 step=70: held=True goal_distance=38.6cm lift=9.5cm success=False
+rl_true seed=20464023 step=80: held=True goal_distance=24.5cm lift=9.3cm success=False
+rl_true seed=20464023 step=90: held=True goal_distance=10.6cm lift=9.5cm success=False
+rl_true seed=20464023 step=100: held=True goal_distance=1.1cm lift=6.7cm success=False
+rl_true seed=20464023 step=110: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464023 step=120: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464023 step=121: held=False goal_distance=0.4cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.4cm
+CONTROL scene_0018/clutter/drop_early/scripted/Q-exact
+scripted seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=50: held=True goal_distance=51.2cm lift=2.0cm success=False
+scripted seed=20464023 step=60: held=True goal_distance=46.9cm lift=10.9cm success=False
+scripted seed=20464023 step=70: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464023 step=80: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464023 step=90: held=True goal_distance=40.4cm lift=0.1cm success=False
+scripted seed=20464023 step=100: held=True goal_distance=38.4cm lift=10.0cm success=False
+scripted seed=20464023 step=110: held=True goal_distance=24.3cm lift=10.0cm success=False
+scripted seed=20464023 step=120: held=True goal_distance=10.4cm lift=10.0cm success=False
+scripted seed=20464023 step=130: held=True goal_distance=0.1cm lift=8.1cm success=False
+scripted seed=20464023 step=140: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464023 step=149: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0018/clutter/drop_early/rl_true/Q-exact
+rl_true seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=50: held=True goal_distance=51.5cm lift=-0.0cm success=False
+rl_true seed=20464023 step=60: held=True goal_distance=51.1cm lift=8.4cm success=False
+rl_true seed=20464023 step=70: held=False goal_distance=40.4cm lift=-0.0cm success=False
+rl_true seed=20464023 step=80: held=False goal_distance=40.4cm lift=0.0cm success=False
+rl_true seed=20464023 step=90: held=True goal_distance=40.4cm lift=0.7cm success=False
+rl_true seed=20464023 step=100: held=True goal_distance=37.1cm lift=9.4cm success=False
+rl_true seed=20464023 step=110: held=True goal_distance=23.2cm lift=9.5cm success=False
+rl_true seed=20464023 step=120: held=True goal_distance=9.3cm lift=10.6cm success=False
+rl_true seed=20464023 step=130: held=True goal_distance=1.2cm lift=5.7cm success=False
+rl_true seed=20464023 step=140: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464023 step=150: held=False goal_distance=0.4cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.4cm
+CONTROL scene_0018/clutter/drop_middle/scripted/Q-exact
+scripted seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=50: held=True goal_distance=51.2cm lift=2.0cm success=False
+scripted seed=20464023 step=60: held=True goal_distance=46.9cm lift=10.9cm success=False
+scripted seed=20464023 step=70: held=True goal_distance=33.1cm lift=9.9cm success=False
+scripted seed=20464023 step=80: held=False goal_distance=22.3cm lift=0.0cm success=False
+scripted seed=20464023 step=90: held=False goal_distance=22.3cm lift=0.0cm success=False
+scripted seed=20464023 step=100: held=True goal_distance=22.4cm lift=0.1cm success=False
+scripted seed=20464023 step=110: held=True goal_distance=22.4cm lift=8.3cm success=False
+scripted seed=20464023 step=120: held=True goal_distance=10.8cm lift=9.8cm success=False
+scripted seed=20464023 step=130: held=True goal_distance=0.2cm lift=8.0cm success=False
+scripted seed=20464023 step=140: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464023 step=150: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0018/clutter/drop_middle/rl_true/Q-exact
+rl_true seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=50: held=True goal_distance=51.5cm lift=-0.0cm success=False
+rl_true seed=20464023 step=60: held=True goal_distance=51.1cm lift=8.4cm success=False
+rl_true seed=20464023 step=70: held=True goal_distance=38.6cm lift=9.5cm success=False
+rl_true seed=20464023 step=80: held=True goal_distance=24.5cm lift=9.3cm success=False
+rl_true seed=20464023 step=90: held=False goal_distance=22.3cm lift=0.0cm success=False
+rl_true seed=20464023 step=100: held=False goal_distance=22.3cm lift=0.0cm success=False
+rl_true seed=20464023 step=110: held=True goal_distance=22.3cm lift=6.7cm success=False
+rl_true seed=20464023 step=120: held=True goal_distance=12.4cm lift=9.6cm success=False
+rl_true seed=20464023 step=130: held=True goal_distance=1.9cm lift=9.1cm success=False
+rl_true seed=20464023 step=140: held=False goal_distance=0.3cm lift=-0.3cm success=False
+rl_true seed=20464023 step=150: held=False goal_distance=0.3cm lift=0.0cm success=False
+rl_true seed=20464023 step=154: held=False goal_distance=0.3cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.3cm
+CONTROL scene_0018/clutter/drop_late/scripted/Q-exact
+scripted seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+scripted seed=20464023 step=50: held=True goal_distance=51.2cm lift=2.0cm success=False
+scripted seed=20464023 step=60: held=True goal_distance=46.9cm lift=10.9cm success=False
+scripted seed=20464023 step=70: held=True goal_distance=33.1cm lift=9.9cm success=False
+scripted seed=20464023 step=80: held=True goal_distance=19.1cm lift=9.9cm success=False
+scripted seed=20464023 step=90: held=False goal_distance=9.8cm lift=0.0cm success=False
+scripted seed=20464023 step=100: held=False goal_distance=9.8cm lift=0.0cm success=False
+scripted seed=20464023 step=110: held=True goal_distance=9.8cm lift=0.1cm success=False
+scripted seed=20464023 step=120: held=True goal_distance=10.0cm lift=6.9cm success=False
+scripted seed=20464023 step=130: held=True goal_distance=1.6cm lift=9.4cm success=False
+scripted seed=20464023 step=140: held=False goal_distance=0.1cm lift=-0.2cm success=False
+scripted seed=20464023 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464023 step=154: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0018/clutter/drop_late/rl_true/Q-exact
+rl_true seed=20464023 step=10: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=20: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=30: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=40: held=False goal_distance=51.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=50: held=True goal_distance=51.5cm lift=-0.0cm success=False
+rl_true seed=20464023 step=60: held=True goal_distance=51.1cm lift=8.4cm success=False
+rl_true seed=20464023 step=70: held=True goal_distance=38.6cm lift=9.5cm success=False
+rl_true seed=20464023 step=80: held=True goal_distance=24.5cm lift=9.3cm success=False
+rl_true seed=20464023 step=90: held=False goal_distance=10.4cm lift=4.8cm success=False
+rl_true seed=20464023 step=100: held=False goal_distance=9.7cm lift=0.0cm success=False
+rl_true seed=20464023 step=110: held=False goal_distance=9.7cm lift=0.0cm success=False
+rl_true seed=20464023 step=120: held=True goal_distance=9.6cm lift=2.7cm success=False
+rl_true seed=20464023 step=130: held=True goal_distance=6.1cm lift=8.7cm success=False
+rl_true seed=20464023 step=140: held=True goal_distance=0.5cm lift=4.1cm success=False
+rl_true seed=20464023 step=150: held=False goal_distance=0.5cm lift=0.0cm success=False
+rl_true seed=20464023 step=157: held=False goal_distance=0.5cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.5cm
+CONTROL scene_0019/empty/normal/scripted/Q-exact
+scripted seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=40: held=True goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=50: held=True goal_distance=49.5cm lift=3.4cm success=False
+scripted seed=20464024 step=60: held=True goal_distance=43.8cm lift=10.9cm success=False
+scripted seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.8cm success=False
+scripted seed=20464024 step=80: held=True goal_distance=15.9cm lift=9.8cm success=False
+scripted seed=20464024 step=90: held=True goal_distance=2.1cm lift=9.8cm success=False
+scripted seed=20464024 step=100: held=False goal_distance=0.1cm lift=-0.0cm success=False
+scripted seed=20464024 step=110: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464024 step=113: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0019/empty/normal/rl_true/Q-exact
+rl_true seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=40: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=50: held=True goal_distance=49.6cm lift=2.7cm success=False
+rl_true seed=20464024 step=60: held=True goal_distance=44.0cm lift=9.9cm success=False
+rl_true seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.0cm success=False
+rl_true seed=20464024 step=80: held=True goal_distance=16.1cm lift=10.6cm success=False
+rl_true seed=20464024 step=90: held=True goal_distance=6.1cm lift=5.7cm success=False
+rl_true seed=20464024 step=100: held=True goal_distance=1.9cm lift=8.4cm success=False
+rl_true seed=20464024 step=110: held=False goal_distance=1.9cm lift=0.0cm success=False
+rl_true seed=20464024 step=120: held=False goal_distance=1.5cm lift=0.9cm success=True
+FINISHED rl_true: success=True goal=1.5cm
+CONTROL scene_0019/empty/drop_early/scripted/Q-exact
+scripted seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=40: held=True goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=50: held=True goal_distance=49.5cm lift=3.4cm success=False
+scripted seed=20464024 step=60: held=True goal_distance=43.8cm lift=10.9cm success=False
+scripted seed=20464024 step=70: held=False goal_distance=38.7cm lift=0.0cm success=False
+scripted seed=20464024 step=80: held=False goal_distance=38.7cm lift=0.0cm success=False
+scripted seed=20464024 step=90: held=True goal_distance=38.5cm lift=0.7cm success=False
+scripted seed=20464024 step=100: held=True goal_distance=35.2cm lift=10.0cm success=False
+scripted seed=20464024 step=110: held=True goal_distance=21.2cm lift=10.0cm success=False
+scripted seed=20464024 step=120: held=True goal_distance=7.2cm lift=10.0cm success=False
+scripted seed=20464024 step=130: held=True goal_distance=0.2cm lift=4.2cm success=False
+scripted seed=20464024 step=140: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464024 step=146: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0019/empty/drop_early/rl_true/Q-exact
+rl_true seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=40: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=50: held=True goal_distance=49.6cm lift=2.7cm success=False
+rl_true seed=20464024 step=60: held=True goal_distance=44.0cm lift=9.9cm success=False
+rl_true seed=20464024 step=70: held=False goal_distance=38.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=80: held=False goal_distance=38.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=90: held=True goal_distance=38.7cm lift=4.6cm success=False
+rl_true seed=20464024 step=100: held=True goal_distance=30.5cm lift=9.4cm success=False
+rl_true seed=20464024 step=110: held=True goal_distance=16.6cm lift=9.2cm success=False
+rl_true seed=20464024 step=120: held=True goal_distance=3.5cm lift=9.5cm success=False
+rl_true seed=20464024 step=130: held=True goal_distance=0.6cm lift=4.6cm success=False
+rl_true seed=20464024 step=140: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464024 step=147: held=False goal_distance=0.4cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.4cm
+CONTROL scene_0019/empty/drop_middle/scripted/Q-exact
+scripted seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=40: held=True goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=50: held=True goal_distance=49.5cm lift=3.4cm success=False
+scripted seed=20464024 step=60: held=True goal_distance=43.8cm lift=10.9cm success=False
+scripted seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.8cm success=False
+scripted seed=20464024 step=80: held=False goal_distance=21.9cm lift=0.0cm success=False
+scripted seed=20464024 step=90: held=False goal_distance=21.9cm lift=0.0cm success=False
+scripted seed=20464024 step=100: held=True goal_distance=21.9cm lift=0.1cm success=False
+scripted seed=20464024 step=110: held=True goal_distance=21.5cm lift=9.2cm success=False
+scripted seed=20464024 step=120: held=True goal_distance=7.6cm lift=9.7cm success=False
+scripted seed=20464024 step=130: held=True goal_distance=0.2cm lift=5.2cm success=False
+scripted seed=20464024 step=140: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464024 step=148: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0019/empty/drop_middle/rl_true/Q-exact
+rl_true seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=40: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=50: held=True goal_distance=49.6cm lift=2.7cm success=False
+rl_true seed=20464024 step=60: held=True goal_distance=44.0cm lift=9.9cm success=False
+rl_true seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.0cm success=False
+rl_true seed=20464024 step=80: held=False goal_distance=22.3cm lift=0.0cm success=False
+rl_true seed=20464024 step=90: held=False goal_distance=22.3cm lift=0.0cm success=False
+rl_true seed=20464024 step=100: held=True goal_distance=22.2cm lift=4.7cm success=False
+rl_true seed=20464024 step=110: held=True goal_distance=14.0cm lift=9.1cm success=False
+rl_true seed=20464024 step=120: held=True goal_distance=2.3cm lift=8.9cm success=False
+rl_true seed=20464024 step=130: held=True goal_distance=0.1cm lift=3.4cm success=False
+rl_true seed=20464024 step=140: held=False goal_distance=0.2cm lift=0.0cm success=False
+rl_true seed=20464024 step=145: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.2cm
+CONTROL scene_0019/empty/drop_late/scripted/Q-exact
+scripted seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=40: held=True goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=50: held=True goal_distance=49.5cm lift=3.4cm success=False
+scripted seed=20464024 step=60: held=True goal_distance=43.8cm lift=10.9cm success=False
+scripted seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.8cm success=False
+scripted seed=20464024 step=80: held=True goal_distance=15.9cm lift=9.8cm success=False
+scripted seed=20464024 step=90: held=False goal_distance=9.4cm lift=0.0cm success=False
+scripted seed=20464024 step=100: held=False goal_distance=9.4cm lift=0.0cm success=False
+scripted seed=20464024 step=110: held=True goal_distance=9.4cm lift=0.1cm success=False
+scripted seed=20464024 step=120: held=True goal_distance=7.8cm lift=9.3cm success=False
+scripted seed=20464024 step=130: held=True goal_distance=0.2cm lift=5.1cm success=False
+scripted seed=20464024 step=140: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464024 step=148: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0019/empty/drop_late/rl_true/Q-exact
+rl_true seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=40: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=50: held=True goal_distance=49.6cm lift=2.7cm success=False
+rl_true seed=20464024 step=60: held=True goal_distance=44.0cm lift=9.9cm success=False
+rl_true seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.0cm success=False
+rl_true seed=20464024 step=80: held=True goal_distance=16.1cm lift=10.6cm success=False
+rl_true seed=20464024 step=90: held=False goal_distance=9.4cm lift=0.0cm success=False
+rl_true seed=20464024 step=100: held=False goal_distance=9.4cm lift=0.0cm success=False
+rl_true seed=20464024 step=110: held=True goal_distance=9.3cm lift=3.8cm success=False
+rl_true seed=20464024 step=120: held=True goal_distance=2.5cm lift=9.5cm success=False
+rl_true seed=20464024 step=130: held=False goal_distance=1.1cm lift=-0.2cm success=False
+rl_true seed=20464024 step=140: held=False goal_distance=1.1cm lift=0.0cm success=False
+rl_true seed=20464024 step=144: held=False goal_distance=1.1cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=1.1cm
+CONTROL scene_0019/clutter/normal/scripted/Q-exact
+scripted seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=40: held=True goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=50: held=True goal_distance=49.5cm lift=3.4cm success=False
+scripted seed=20464024 step=60: held=True goal_distance=43.8cm lift=10.9cm success=False
+scripted seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.8cm success=False
+scripted seed=20464024 step=80: held=True goal_distance=15.9cm lift=9.8cm success=False
+scripted seed=20464024 step=90: held=True goal_distance=2.1cm lift=9.8cm success=False
+scripted seed=20464024 step=100: held=False goal_distance=0.1cm lift=-0.0cm success=False
+scripted seed=20464024 step=110: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464024 step=113: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0019/clutter/normal/rl_true/Q-exact
+rl_true seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=40: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=50: held=True goal_distance=49.6cm lift=2.7cm success=False
+rl_true seed=20464024 step=60: held=True goal_distance=44.0cm lift=9.9cm success=False
+rl_true seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.0cm success=False
+rl_true seed=20464024 step=80: held=True goal_distance=16.1cm lift=10.6cm success=False
+rl_true seed=20464024 step=90: held=True goal_distance=6.1cm lift=5.7cm success=False
+rl_true seed=20464024 step=100: held=True goal_distance=1.9cm lift=8.4cm success=False
+rl_true seed=20464024 step=110: held=False goal_distance=1.9cm lift=0.0cm success=False
+rl_true seed=20464024 step=120: held=False goal_distance=1.5cm lift=0.9cm success=True
+FINISHED rl_true: success=True goal=1.5cm
+CONTROL scene_0019/clutter/drop_early/scripted/Q-exact
+scripted seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=40: held=True goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=50: held=True goal_distance=49.5cm lift=3.4cm success=False
+scripted seed=20464024 step=60: held=True goal_distance=43.8cm lift=10.9cm success=False
+scripted seed=20464024 step=70: held=False goal_distance=38.7cm lift=0.0cm success=False
+scripted seed=20464024 step=80: held=False goal_distance=38.7cm lift=0.0cm success=False
+scripted seed=20464024 step=90: held=True goal_distance=38.5cm lift=0.7cm success=False
+scripted seed=20464024 step=100: held=True goal_distance=35.2cm lift=10.0cm success=False
+scripted seed=20464024 step=110: held=True goal_distance=21.2cm lift=10.0cm success=False
+scripted seed=20464024 step=120: held=True goal_distance=7.2cm lift=10.0cm success=False
+scripted seed=20464024 step=130: held=True goal_distance=0.2cm lift=4.2cm success=False
+scripted seed=20464024 step=140: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464024 step=146: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0019/clutter/drop_early/rl_true/Q-exact
+rl_true seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=40: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=50: held=True goal_distance=49.6cm lift=2.7cm success=False
+rl_true seed=20464024 step=60: held=True goal_distance=44.0cm lift=9.9cm success=False
+rl_true seed=20464024 step=70: held=False goal_distance=38.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=80: held=False goal_distance=38.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=90: held=True goal_distance=38.7cm lift=4.6cm success=False
+rl_true seed=20464024 step=100: held=True goal_distance=30.5cm lift=9.4cm success=False
+rl_true seed=20464024 step=110: held=True goal_distance=16.6cm lift=9.2cm success=False
+rl_true seed=20464024 step=120: held=True goal_distance=3.5cm lift=9.5cm success=False
+rl_true seed=20464024 step=130: held=True goal_distance=0.6cm lift=4.6cm success=False
+rl_true seed=20464024 step=140: held=False goal_distance=0.4cm lift=0.0cm success=False
+rl_true seed=20464024 step=147: held=False goal_distance=0.4cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.4cm
+CONTROL scene_0019/clutter/drop_middle/scripted/Q-exact
+scripted seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=40: held=True goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=50: held=True goal_distance=49.5cm lift=3.4cm success=False
+scripted seed=20464024 step=60: held=True goal_distance=43.8cm lift=10.9cm success=False
+scripted seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.8cm success=False
+scripted seed=20464024 step=80: held=False goal_distance=21.9cm lift=0.0cm success=False
+scripted seed=20464024 step=90: held=False goal_distance=21.9cm lift=0.0cm success=False
+scripted seed=20464024 step=100: held=True goal_distance=21.9cm lift=0.1cm success=False
+scripted seed=20464024 step=110: held=True goal_distance=21.5cm lift=9.2cm success=False
+scripted seed=20464024 step=120: held=True goal_distance=7.6cm lift=9.7cm success=False
+scripted seed=20464024 step=130: held=True goal_distance=0.2cm lift=5.2cm success=False
+scripted seed=20464024 step=140: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464024 step=148: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0019/clutter/drop_middle/rl_true/Q-exact
+rl_true seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=40: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=50: held=True goal_distance=49.6cm lift=2.7cm success=False
+rl_true seed=20464024 step=60: held=True goal_distance=44.0cm lift=9.9cm success=False
+rl_true seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.0cm success=False
+rl_true seed=20464024 step=80: held=False goal_distance=22.3cm lift=0.0cm success=False
+rl_true seed=20464024 step=90: held=False goal_distance=22.3cm lift=0.0cm success=False
+rl_true seed=20464024 step=100: held=True goal_distance=22.2cm lift=4.7cm success=False
+rl_true seed=20464024 step=110: held=True goal_distance=14.0cm lift=9.1cm success=False
+rl_true seed=20464024 step=120: held=True goal_distance=2.3cm lift=8.9cm success=False
+rl_true seed=20464024 step=130: held=True goal_distance=0.1cm lift=3.4cm success=False
+rl_true seed=20464024 step=140: held=False goal_distance=0.2cm lift=0.0cm success=False
+rl_true seed=20464024 step=145: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.2cm
+CONTROL scene_0019/clutter/drop_late/scripted/Q-exact
+scripted seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=40: held=True goal_distance=49.8cm lift=0.0cm success=False
+scripted seed=20464024 step=50: held=True goal_distance=49.5cm lift=3.4cm success=False
+scripted seed=20464024 step=60: held=True goal_distance=43.8cm lift=10.9cm success=False
+scripted seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.8cm success=False
+scripted seed=20464024 step=80: held=True goal_distance=15.9cm lift=9.8cm success=False
+scripted seed=20464024 step=90: held=False goal_distance=9.4cm lift=0.0cm success=False
+scripted seed=20464024 step=100: held=False goal_distance=9.4cm lift=0.0cm success=False
+scripted seed=20464024 step=110: held=True goal_distance=9.4cm lift=0.1cm success=False
+scripted seed=20464024 step=120: held=True goal_distance=7.8cm lift=9.3cm success=False
+scripted seed=20464024 step=130: held=True goal_distance=0.2cm lift=5.1cm success=False
+scripted seed=20464024 step=140: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464024 step=148: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0019/clutter/drop_late/rl_true/Q-exact
+rl_true seed=20464024 step=10: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=20: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=30: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=40: held=False goal_distance=49.8cm lift=0.0cm success=False
+rl_true seed=20464024 step=50: held=True goal_distance=49.6cm lift=2.7cm success=False
+rl_true seed=20464024 step=60: held=True goal_distance=44.0cm lift=9.9cm success=False
+rl_true seed=20464024 step=70: held=True goal_distance=29.9cm lift=9.0cm success=False
+rl_true seed=20464024 step=80: held=True goal_distance=16.1cm lift=10.6cm success=False
+rl_true seed=20464024 step=90: held=False goal_distance=9.4cm lift=0.0cm success=False
+rl_true seed=20464024 step=100: held=False goal_distance=9.4cm lift=0.0cm success=False
+rl_true seed=20464024 step=110: held=True goal_distance=9.3cm lift=3.8cm success=False
+rl_true seed=20464024 step=120: held=True goal_distance=2.5cm lift=9.5cm success=False
+rl_true seed=20464024 step=130: held=False goal_distance=1.1cm lift=-0.2cm success=False
+rl_true seed=20464024 step=140: held=False goal_distance=1.1cm lift=0.0cm success=False
+rl_true seed=20464024 step=144: held=False goal_distance=1.1cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=1.1cm
+CONTROL scene_0020/empty/normal/scripted/Q-exact
+scripted seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=50: held=True goal_distance=50.3cm lift=0.1cm success=False
+scripted seed=20464025 step=60: held=True goal_distance=50.1cm lift=8.2cm success=False
+scripted seed=20464025 step=70: held=True goal_distance=37.2cm lift=9.6cm success=False
+scripted seed=20464025 step=80: held=True goal_distance=23.3cm lift=9.6cm success=False
+scripted seed=20464025 step=90: held=True goal_distance=9.4cm lift=9.5cm success=False
+scripted seed=20464025 step=100: held=True goal_distance=0.6cm lift=7.7cm success=False
+scripted seed=20464025 step=110: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464025 step=120: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464025 step=121: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0020/empty/normal/rl_true/Q-exact
+rl_true seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=50: held=True goal_distance=50.2cm lift=4.5cm success=False
+rl_true seed=20464025 step=60: held=True goal_distance=43.1cm lift=9.6cm success=False
+rl_true seed=20464025 step=70: held=True goal_distance=29.1cm lift=8.9cm success=False
+rl_true seed=20464025 step=80: held=True goal_distance=15.1cm lift=9.7cm success=False
+rl_true seed=20464025 step=90: held=True goal_distance=4.5cm lift=6.6cm success=False
+rl_true seed=20464025 step=100: held=True goal_distance=1.2cm lift=5.3cm success=False
+rl_true seed=20464025 step=110: held=False goal_distance=1.0cm lift=0.0cm success=False
+rl_true seed=20464025 step=120: held=False goal_distance=1.0cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=1.0cm
+CONTROL scene_0020/empty/drop_early/scripted/Q-exact
+scripted seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=50: held=True goal_distance=50.3cm lift=0.1cm success=False
+scripted seed=20464025 step=60: held=True goal_distance=50.1cm lift=8.2cm success=False
+scripted seed=20464025 step=70: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464025 step=80: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464025 step=90: held=True goal_distance=40.5cm lift=0.1cm success=False
+scripted seed=20464025 step=100: held=True goal_distance=40.4cm lift=8.4cm success=False
+scripted seed=20464025 step=110: held=True goal_distance=28.8cm lift=9.8cm success=False
+scripted seed=20464025 step=120: held=True goal_distance=14.9cm lift=9.8cm success=False
+scripted seed=20464025 step=130: held=True goal_distance=1.5cm lift=9.8cm success=False
+scripted seed=20464025 step=140: held=False goal_distance=0.0cm lift=-0.0cm success=False
+scripted seed=20464025 step=150: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464025 step=153: held=False goal_distance=0.0cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.0cm
+CONTROL scene_0020/empty/drop_early/rl_true/Q-exact
+rl_true seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=50: held=True goal_distance=50.2cm lift=4.5cm success=False
+rl_true seed=20464025 step=60: held=True goal_distance=43.1cm lift=9.6cm success=False
+rl_true seed=20464025 step=70: held=False goal_distance=39.3cm lift=0.0cm success=False
+rl_true seed=20464025 step=80: held=False goal_distance=39.3cm lift=0.0cm success=False
+rl_true seed=20464025 step=90: held=True goal_distance=38.8cm lift=8.6cm success=False
+rl_true seed=20464025 step=100: held=True goal_distance=25.5cm lift=9.8cm success=False
+rl_true seed=20464025 step=110: held=True goal_distance=11.6cm lift=8.2cm success=False
+rl_true seed=20464025 step=120: held=True goal_distance=0.5cm lift=9.7cm success=False
+rl_true seed=20464025 step=130: held=False goal_distance=0.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=140: held=False goal_distance=0.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=141: held=False goal_distance=0.5cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.5cm
+CONTROL scene_0020/empty/drop_middle/scripted/Q-exact
+scripted seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=50: held=True goal_distance=50.3cm lift=0.1cm success=False
+scripted seed=20464025 step=60: held=True goal_distance=50.1cm lift=8.2cm success=False
+scripted seed=20464025 step=70: held=True goal_distance=37.2cm lift=9.6cm success=False
+scripted seed=20464025 step=80: held=False goal_distance=23.1cm lift=4.8cm success=False
+scripted seed=20464025 step=90: held=False goal_distance=22.4cm lift=0.0cm success=False
+scripted seed=20464025 step=100: held=True goal_distance=22.4cm lift=0.0cm success=False
+scripted seed=20464025 step=110: held=True goal_distance=22.5cm lift=3.3cm success=False
+scripted seed=20464025 step=120: held=True goal_distance=16.6cm lift=9.3cm success=False
+scripted seed=20464025 step=130: held=True goal_distance=3.0cm lift=9.5cm success=False
+scripted seed=20464025 step=140: held=True goal_distance=0.1cm lift=3.5cm success=False
+scripted seed=20464025 step=150: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464025 step=155: held=False goal_distance=0.0cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.0cm
+CONTROL scene_0020/empty/drop_middle/rl_true/Q-exact
+rl_true seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=50: held=True goal_distance=50.2cm lift=4.5cm success=False
+rl_true seed=20464025 step=60: held=True goal_distance=43.1cm lift=9.6cm success=False
+rl_true seed=20464025 step=70: held=True goal_distance=29.1cm lift=8.9cm success=False
+rl_true seed=20464025 step=80: held=False goal_distance=22.7cm lift=0.0cm success=False
+rl_true seed=20464025 step=90: held=False goal_distance=22.7cm lift=0.0cm success=False
+rl_true seed=20464025 step=100: held=True goal_distance=22.7cm lift=2.0cm success=False
+rl_true seed=20464025 step=110: held=True goal_distance=18.1cm lift=9.7cm success=False
+rl_true seed=20464025 step=120: held=True goal_distance=5.0cm lift=8.9cm success=False
+rl_true seed=20464025 step=130: held=True goal_distance=0.4cm lift=7.0cm success=False
+rl_true seed=20464025 step=140: held=False goal_distance=1.1cm lift=0.0cm success=False
+rl_true seed=20464025 step=150: held=False goal_distance=1.9cm lift=1.2cm success=False
+rl_true seed=20464025 step=151: held=False goal_distance=2.6cm lift=1.5cm success=True
+FINISHED rl_true: success=True goal=2.6cm
+CONTROL scene_0020/empty/drop_late/scripted/Q-exact
+scripted seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=50: held=True goal_distance=50.3cm lift=0.1cm success=False
+scripted seed=20464025 step=60: held=True goal_distance=50.1cm lift=8.2cm success=False
+scripted seed=20464025 step=70: held=True goal_distance=37.2cm lift=9.6cm success=False
+scripted seed=20464025 step=80: held=True goal_distance=23.3cm lift=9.6cm success=False
+scripted seed=20464025 step=90: held=False goal_distance=9.9cm lift=-0.1cm success=False
+scripted seed=20464025 step=100: held=False goal_distance=9.9cm lift=0.0cm success=False
+scripted seed=20464025 step=110: held=True goal_distance=9.9cm lift=0.0cm success=False
+scripted seed=20464025 step=120: held=True goal_distance=10.2cm lift=6.1cm success=False
+scripted seed=20464025 step=130: held=True goal_distance=1.9cm lift=9.6cm success=False
+scripted seed=20464025 step=140: held=False goal_distance=0.1cm lift=-0.2cm success=False
+scripted seed=20464025 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464025 step=154: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0020/empty/drop_late/rl_true/Q-exact
+rl_true seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=50: held=True goal_distance=50.2cm lift=4.5cm success=False
+rl_true seed=20464025 step=60: held=True goal_distance=43.1cm lift=9.6cm success=False
+rl_true seed=20464025 step=70: held=True goal_distance=29.1cm lift=8.9cm success=False
+rl_true seed=20464025 step=80: held=True goal_distance=15.1cm lift=9.7cm success=False
+rl_true seed=20464025 step=90: held=False goal_distance=9.8cm lift=0.0cm success=False
+rl_true seed=20464025 step=100: held=False goal_distance=9.8cm lift=0.0cm success=False
+rl_true seed=20464025 step=110: held=True goal_distance=9.9cm lift=3.2cm success=False
+rl_true seed=20464025 step=120: held=True goal_distance=5.1cm lift=9.0cm success=False
+rl_true seed=20464025 step=130: held=True goal_distance=1.5cm lift=4.4cm success=False
+rl_true seed=20464025 step=140: held=False goal_distance=1.3cm lift=0.0cm success=False
+rl_true seed=20464025 step=147: held=False goal_distance=1.0cm lift=0.2cm success=True
+FINISHED rl_true: success=True goal=1.0cm
+CONTROL scene_0020/clutter/normal/scripted/Q-exact
+scripted seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=50: held=True goal_distance=50.3cm lift=0.1cm success=False
+scripted seed=20464025 step=60: held=True goal_distance=50.1cm lift=8.2cm success=False
+scripted seed=20464025 step=70: held=True goal_distance=37.2cm lift=9.6cm success=False
+scripted seed=20464025 step=80: held=True goal_distance=23.3cm lift=9.6cm success=False
+scripted seed=20464025 step=90: held=True goal_distance=9.4cm lift=9.5cm success=False
+scripted seed=20464025 step=100: held=True goal_distance=0.6cm lift=7.7cm success=False
+scripted seed=20464025 step=110: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464025 step=120: held=False goal_distance=0.2cm lift=0.0cm success=False
+scripted seed=20464025 step=121: held=False goal_distance=0.2cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.2cm
+CONTROL scene_0020/clutter/normal/rl_true/Q-exact
+rl_true seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=50: held=True goal_distance=50.2cm lift=4.5cm success=False
+rl_true seed=20464025 step=60: held=True goal_distance=43.1cm lift=9.6cm success=False
+rl_true seed=20464025 step=70: held=True goal_distance=29.1cm lift=8.9cm success=False
+rl_true seed=20464025 step=80: held=True goal_distance=15.1cm lift=9.7cm success=False
+rl_true seed=20464025 step=90: held=True goal_distance=4.5cm lift=6.6cm success=False
+rl_true seed=20464025 step=100: held=True goal_distance=1.2cm lift=5.3cm success=False
+rl_true seed=20464025 step=110: held=False goal_distance=1.0cm lift=0.0cm success=False
+rl_true seed=20464025 step=120: held=False goal_distance=1.0cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=1.0cm
+CONTROL scene_0020/clutter/drop_early/scripted/Q-exact
+scripted seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=50: held=True goal_distance=50.3cm lift=0.1cm success=False
+scripted seed=20464025 step=60: held=True goal_distance=50.1cm lift=8.2cm success=False
+scripted seed=20464025 step=70: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464025 step=80: held=False goal_distance=40.5cm lift=0.0cm success=False
+scripted seed=20464025 step=90: held=True goal_distance=40.5cm lift=0.1cm success=False
+scripted seed=20464025 step=100: held=True goal_distance=40.4cm lift=8.4cm success=False
+scripted seed=20464025 step=110: held=True goal_distance=28.8cm lift=9.8cm success=False
+scripted seed=20464025 step=120: held=True goal_distance=14.9cm lift=9.8cm success=False
+scripted seed=20464025 step=130: held=True goal_distance=1.5cm lift=9.8cm success=False
+scripted seed=20464025 step=140: held=False goal_distance=0.0cm lift=-0.0cm success=False
+scripted seed=20464025 step=150: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464025 step=153: held=False goal_distance=0.0cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.0cm
+CONTROL scene_0020/clutter/drop_early/rl_true/Q-exact
+rl_true seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=50: held=True goal_distance=50.2cm lift=4.5cm success=False
+rl_true seed=20464025 step=60: held=True goal_distance=43.1cm lift=9.6cm success=False
+rl_true seed=20464025 step=70: held=False goal_distance=39.3cm lift=0.0cm success=False
+rl_true seed=20464025 step=80: held=False goal_distance=39.3cm lift=0.0cm success=False
+rl_true seed=20464025 step=90: held=True goal_distance=38.8cm lift=8.6cm success=False
+rl_true seed=20464025 step=100: held=True goal_distance=25.5cm lift=9.8cm success=False
+rl_true seed=20464025 step=110: held=True goal_distance=11.6cm lift=8.2cm success=False
+rl_true seed=20464025 step=120: held=True goal_distance=0.5cm lift=9.7cm success=False
+rl_true seed=20464025 step=130: held=False goal_distance=0.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=140: held=False goal_distance=0.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=141: held=False goal_distance=0.5cm lift=0.0cm success=True
+FINISHED rl_true: success=True goal=0.5cm
+CONTROL scene_0020/clutter/drop_middle/scripted/Q-exact
+scripted seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=50: held=True goal_distance=50.3cm lift=0.1cm success=False
+scripted seed=20464025 step=60: held=True goal_distance=50.1cm lift=8.2cm success=False
+scripted seed=20464025 step=70: held=True goal_distance=37.2cm lift=9.6cm success=False
+scripted seed=20464025 step=80: held=False goal_distance=23.1cm lift=4.8cm success=False
+scripted seed=20464025 step=90: held=False goal_distance=22.4cm lift=0.0cm success=False
+scripted seed=20464025 step=100: held=True goal_distance=22.4cm lift=0.0cm success=False
+scripted seed=20464025 step=110: held=True goal_distance=22.5cm lift=3.3cm success=False
+scripted seed=20464025 step=120: held=True goal_distance=16.6cm lift=9.3cm success=False
+scripted seed=20464025 step=130: held=True goal_distance=3.0cm lift=9.5cm success=False
+scripted seed=20464025 step=140: held=True goal_distance=0.1cm lift=3.5cm success=False
+scripted seed=20464025 step=150: held=False goal_distance=0.0cm lift=0.0cm success=False
+scripted seed=20464025 step=155: held=False goal_distance=0.0cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.0cm
+CONTROL scene_0020/clutter/drop_middle/rl_true/Q-exact
+rl_true seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=50: held=True goal_distance=50.2cm lift=4.5cm success=False
+rl_true seed=20464025 step=60: held=True goal_distance=43.1cm lift=9.6cm success=False
+rl_true seed=20464025 step=70: held=True goal_distance=29.1cm lift=8.9cm success=False
+rl_true seed=20464025 step=80: held=False goal_distance=22.7cm lift=0.0cm success=False
+rl_true seed=20464025 step=90: held=False goal_distance=22.7cm lift=0.0cm success=False
+rl_true seed=20464025 step=100: held=True goal_distance=22.7cm lift=2.0cm success=False
+rl_true seed=20464025 step=110: held=True goal_distance=18.1cm lift=9.7cm success=False
+rl_true seed=20464025 step=120: held=True goal_distance=5.0cm lift=8.9cm success=False
+rl_true seed=20464025 step=130: held=True goal_distance=0.4cm lift=7.0cm success=False
+rl_true seed=20464025 step=140: held=False goal_distance=1.1cm lift=0.0cm success=False
+rl_true seed=20464025 step=150: held=False goal_distance=1.9cm lift=1.2cm success=False
+rl_true seed=20464025 step=151: held=False goal_distance=2.6cm lift=1.5cm success=True
+FINISHED rl_true: success=True goal=2.6cm
+CONTROL scene_0020/clutter/drop_late/scripted/Q-exact
+scripted seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+scripted seed=20464025 step=50: held=True goal_distance=50.3cm lift=0.1cm success=False
+scripted seed=20464025 step=60: held=True goal_distance=50.1cm lift=8.2cm success=False
+scripted seed=20464025 step=70: held=True goal_distance=37.2cm lift=9.6cm success=False
+scripted seed=20464025 step=80: held=True goal_distance=23.3cm lift=9.6cm success=False
+scripted seed=20464025 step=90: held=False goal_distance=9.9cm lift=-0.1cm success=False
+scripted seed=20464025 step=100: held=False goal_distance=9.9cm lift=0.0cm success=False
+scripted seed=20464025 step=110: held=True goal_distance=9.9cm lift=0.0cm success=False
+scripted seed=20464025 step=120: held=True goal_distance=10.2cm lift=6.1cm success=False
+scripted seed=20464025 step=130: held=True goal_distance=1.9cm lift=9.6cm success=False
+scripted seed=20464025 step=140: held=False goal_distance=0.1cm lift=-0.2cm success=False
+scripted seed=20464025 step=150: held=False goal_distance=0.1cm lift=0.0cm success=False
+scripted seed=20464025 step=154: held=False goal_distance=0.1cm lift=0.0cm success=True
+FINISHED scripted: success=True goal=0.1cm
+CONTROL scene_0020/clutter/drop_late/rl_true/Q-exact
+rl_true seed=20464025 step=10: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=20: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=30: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=40: held=False goal_distance=50.5cm lift=0.0cm success=False
+rl_true seed=20464025 step=50: held=True goal_distance=50.2cm lift=4.5cm success=False
+rl_true seed=20464025 step=60: held=True goal_distance=43.1cm lift=9.6cm success=False
+rl_true seed=20464025 step=70: held=True goal_distance=29.1cm lift=8.9cm success=False
+rl_true seed=20464025 step=80: held=True goal_distance=15.1cm lift=9.7cm success=False
+rl_true seed=20464025 step=90: held=False goal_distance=9.8cm lift=0.0cm success=False
+rl_true seed=20464025 step=100: held=False goal_distance=9.8cm lift=0.0cm success=False
+rl_true seed=20464025 step=110: held=True goal_distance=9.9cm lift=3.2cm success=False
+rl_true seed=20464025 step=120: held=True goal_distance=5.1cm lift=9.0cm success=False
+rl_true seed=20464025 step=130: held=True goal_distance=1.5cm lift=4.4cm success=False
+rl_true seed=20464025 step=140: held=False goal_distance=1.3cm lift=0.0cm success=False
+rl_true seed=20464025 step=147: held=False goal_distance=1.0cm lift=0.2cm success=True
+FINISHED rl_true: success=True goal=1.0cm

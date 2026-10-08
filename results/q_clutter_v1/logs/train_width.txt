@@ -1,0 +1,65 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.train", "width", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1", "--tag", "shared_width", "--from-tag", "mixed_dynamics", "--width-input", "visual", "--seed", "0", "--epochs", "60", "--rollout-steps", "8"]
+width correction: visual; frozen baseline=mixed_dynamics; only gripper head trains; Q/encoder unchanged
+dynamics: 12860 training / 4268 validation examples; device=cuda; parameters=1,510,805; trainable=151,297
+dynamics epoch 001 train=0.00308 val=0.01295 width_mse=0.01295 width_mae_cm=0.06385 z_mse=0.05106 p_mse=0.00477
+dynamics epoch 002 train=0.00244 val=0.01165 width_mse=0.01165 width_mae_cm=0.05762 z_mse=0.05106 p_mse=0.00470
+dynamics epoch 003 train=0.00226 val=0.01149 width_mse=0.01149 width_mae_cm=0.05639 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 004 train=0.00198 val=0.01323 width_mse=0.01323 width_mae_cm=0.06067 z_mse=0.05107 p_mse=0.00478
+dynamics epoch 005 train=0.00191 val=0.01196 width_mse=0.01196 width_mae_cm=0.05772 z_mse=0.05106 p_mse=0.00473
+dynamics epoch 006 train=0.00164 val=0.01164 width_mse=0.01164 width_mae_cm=0.05606 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 007 train=0.00164 val=0.01210 width_mse=0.01210 width_mae_cm=0.05804 z_mse=0.05106 p_mse=0.00473
+dynamics epoch 008 train=0.00148 val=0.01230 width_mse=0.01230 width_mae_cm=0.05834 z_mse=0.05107 p_mse=0.00474
+dynamics epoch 009 train=0.00138 val=0.01163 width_mse=0.01163 width_mae_cm=0.05430 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 010 train=0.00131 val=0.01169 width_mse=0.01169 width_mae_cm=0.05419 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 011 train=0.00146 val=0.01127 width_mse=0.01127 width_mae_cm=0.05317 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 012 train=0.00127 val=0.01242 width_mse=0.01242 width_mae_cm=0.05936 z_mse=0.05107 p_mse=0.00475
+dynamics epoch 013 train=0.00119 val=0.01180 width_mse=0.01180 width_mae_cm=0.05737 z_mse=0.05107 p_mse=0.00472
+dynamics epoch 014 train=0.00110 val=0.01208 width_mse=0.01208 width_mae_cm=0.05597 z_mse=0.05107 p_mse=0.00474
+dynamics epoch 015 train=0.00111 val=0.01173 width_mse=0.01173 width_mae_cm=0.05650 z_mse=0.05107 p_mse=0.00472
+dynamics epoch 016 train=0.00103 val=0.01193 width_mse=0.01193 width_mae_cm=0.05395 z_mse=0.05107 p_mse=0.00473
+dynamics epoch 017 train=0.00105 val=0.01195 width_mse=0.01195 width_mae_cm=0.05499 z_mse=0.05107 p_mse=0.00473
+dynamics epoch 018 train=0.00100 val=0.01180 width_mse=0.01180 width_mae_cm=0.05652 z_mse=0.05107 p_mse=0.00472
+dynamics epoch 019 train=0.00091 val=0.01161 width_mse=0.01161 width_mae_cm=0.05285 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 020 train=0.00087 val=0.01196 width_mse=0.01196 width_mae_cm=0.05588 z_mse=0.05107 p_mse=0.00473
+dynamics epoch 021 train=0.00086 val=0.01162 width_mse=0.01162 width_mae_cm=0.05376 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 022 train=0.00081 val=0.01165 width_mse=0.01165 width_mae_cm=0.05370 z_mse=0.05107 p_mse=0.00472
+dynamics epoch 023 train=0.00082 val=0.01189 width_mse=0.01189 width_mae_cm=0.05539 z_mse=0.05107 p_mse=0.00473
+dynamics epoch 024 train=0.00085 val=0.01176 width_mse=0.01176 width_mae_cm=0.05552 z_mse=0.05107 p_mse=0.00472
+dynamics epoch 025 train=0.00094 val=0.01163 width_mse=0.01163 width_mae_cm=0.05462 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 026 train=0.00078 val=0.01122 width_mse=0.01122 width_mae_cm=0.05071 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 027 train=0.00083 val=0.01147 width_mse=0.01147 width_mae_cm=0.05090 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 028 train=0.00075 val=0.01159 width_mse=0.01159 width_mae_cm=0.05198 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 029 train=0.00074 val=0.01125 width_mse=0.01125 width_mae_cm=0.05068 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 030 train=0.00068 val=0.01120 width_mse=0.01120 width_mae_cm=0.05110 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 031 train=0.00071 val=0.01139 width_mse=0.01139 width_mae_cm=0.05094 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 032 train=0.00062 val=0.01145 width_mse=0.01145 width_mae_cm=0.05250 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 033 train=0.00061 val=0.01137 width_mse=0.01137 width_mae_cm=0.05143 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 034 train=0.00072 val=0.01121 width_mse=0.01121 width_mae_cm=0.05123 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 035 train=0.00078 val=0.01123 width_mse=0.01123 width_mae_cm=0.05301 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 036 train=0.00062 val=0.01116 width_mse=0.01116 width_mae_cm=0.04945 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 037 train=0.00060 val=0.01138 width_mse=0.01138 width_mae_cm=0.05314 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 038 train=0.00060 val=0.01129 width_mse=0.01129 width_mae_cm=0.05211 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 039 train=0.00062 val=0.01155 width_mse=0.01155 width_mae_cm=0.05313 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 040 train=0.00056 val=0.01131 width_mse=0.01131 width_mae_cm=0.05127 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 041 train=0.00055 val=0.01098 width_mse=0.01098 width_mae_cm=0.05048 z_mse=0.05107 p_mse=0.00468
+dynamics epoch 042 train=0.00059 val=0.01109 width_mse=0.01109 width_mae_cm=0.05107 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 043 train=0.00055 val=0.01159 width_mse=0.01159 width_mae_cm=0.05877 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 044 train=0.00056 val=0.01111 width_mse=0.01111 width_mae_cm=0.05037 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 045 train=0.00055 val=0.01122 width_mse=0.01122 width_mae_cm=0.05087 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 046 train=0.00109 val=0.01183 width_mse=0.01183 width_mae_cm=0.05793 z_mse=0.05107 p_mse=0.00473
+dynamics epoch 047 train=0.00082 val=0.01185 width_mse=0.01185 width_mae_cm=0.05302 z_mse=0.05107 p_mse=0.00472
+dynamics epoch 048 train=0.00069 val=0.01132 width_mse=0.01132 width_mae_cm=0.04998 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 049 train=0.00057 val=0.01108 width_mse=0.01108 width_mae_cm=0.04799 z_mse=0.05107 p_mse=0.00468
+dynamics epoch 050 train=0.00057 val=0.01158 width_mse=0.01158 width_mae_cm=0.05155 z_mse=0.05107 p_mse=0.00471
+dynamics epoch 051 train=0.00058 val=0.01124 width_mse=0.01124 width_mae_cm=0.05047 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 052 train=0.00053 val=0.01108 width_mse=0.01108 width_mae_cm=0.05137 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 053 train=0.00050 val=0.01113 width_mse=0.01113 width_mae_cm=0.04927 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 054 train=0.00049 val=0.01100 width_mse=0.01100 width_mae_cm=0.04948 z_mse=0.05107 p_mse=0.00468
+dynamics epoch 055 train=0.00051 val=0.01138 width_mse=0.01138 width_mae_cm=0.05025 z_mse=0.05107 p_mse=0.00470
+dynamics epoch 056 train=0.00051 val=0.01091 width_mse=0.01091 width_mae_cm=0.04992 z_mse=0.05107 p_mse=0.00468
+dynamics epoch 057 train=0.00044 val=0.01119 width_mse=0.01119 width_mae_cm=0.04920 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 058 train=0.00051 val=0.01121 width_mse=0.01121 width_mae_cm=0.04862 z_mse=0.05107 p_mse=0.00469
+dynamics epoch 059 train=0.00046 val=0.01186 width_mse=0.01186 width_mae_cm=0.05153 z_mse=0.05107 p_mse=0.00472
+dynamics epoch 060 train=0.00052 val=0.01171 width_mse=0.01171 width_mae_cm=0.05102 z_mse=0.05107 p_mse=0.00471
+dynamics: best checkpoint /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1/attempts/shared_width/models/dynamics.pt selected using validation only

@@ -1,0 +1,91 @@
+{
+  "method": "rl_true",
+  "seed": 20464024,
+  "task_success": true,
+  "steps": 145,
+  "true_original_return": 127.71545750401008,
+  "control_return": 11.044850970059343,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 9.862357378005981,
+  "minimum_goal_distance_cm": 0.1019827788695693,
+  "final_goal_distance_cm": 0.16116493940353394,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.18318287518299425,
+      -0.2214196227286115
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": [
+      {
+        "kind": "box",
+        "pos": [
+          0.4214738506141462,
+          0.0
+        ],
+        "yaw": 0.18326000423032407,
+        "size": [
+          0.02717652369665323,
+          0.023093829531432138,
+          0.06679428089800235
+        ]
+      },
+      {
+        "kind": "box",
+        "pos": [
+          0.40770764865003417,
+          0.16999999999999998
+        ],
+        "yaw": -0.01609061656256555,
+        "size": [
+          0.023937290379536888,
+          0.019996443075210795,
+          0.06649957868776055
+        ]
+      },
+      {
+        "kind": "box",
+        "pos": [
+          0.40071989737732183,
+          0.25500000000000006
+        ],
+        "yaw": 0.1315403522869883,
+        "size": [
+          0.019223329376313967,
+          0.02101756572065962,
+          0.0570827199181135
+        ]
+      }
+    ]
+  },
+  "case": "drop_middle",
+  "intervention_triggered": true,
+  "intervention_step": 75,
+  "release_end_step": 81,
+  "regrasp_step": 93,
+  "regrasped_after_intervention": true,
+  "regrasp_seconds": 1.2,
+  "recovery_placed": true,
+  "SAC_checkpoint_sha256": "15b37ab39ca1b8215facda7f6a675092e271b6342e5959f42a80df7fb27099ec",
+  "seconds": 11.931872326880693,
+  "model_fallback_steps": 0,
+  "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc"
+}

@@ -1,0 +1,7 @@
+
+COMMAND ["/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.audit", "--run", "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1"]
+scenes by split: {'train': 12, 'val': 4, 'test': 6}
+states=25024 rollouts=176 frames=25024
+held labels: {'train': {'False': 6776, 'True': 6852}, 'val': {'False': 2240, 'True': 2284}, 'test': {'False': 3452, 'True': 3420}}
+position-pair maximum robot mismatch: 0
+PASS: alignment/splits/restores/images/labels checked. Inspect /home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1/reports/scene_*.jpg

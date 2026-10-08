@@ -1,0 +1,35 @@
+{
+  "problems": [],
+  "states": 25024,
+  "rollouts": 176,
+  "scene_groups": 22,
+  "scenes_by_split": {
+    "train": 12,
+    "val": 4,
+    "test": 6
+  },
+  "held_labels_by_split": {
+    "train": {
+      "False": 6776,
+      "True": 6852
+    },
+    "val": {
+      "False": 2240,
+      "True": 2284
+    },
+    "test": {
+      "False": 3452,
+      "True": 3420
+    }
+  },
+  "distinct_frames": 25024,
+  "max_position_pair_p_error": 0.0,
+  "branches": {
+    "normal": 44,
+    "drop_early": 44,
+    "drop_middle": 44,
+    "drop_late": 44
+  },
+  "rejected_attempts": 0,
+  "contrasts": []
+}

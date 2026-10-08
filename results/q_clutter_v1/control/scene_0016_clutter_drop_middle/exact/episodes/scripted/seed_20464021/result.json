@@ -1,0 +1,91 @@
+{
+  "method": "scripted",
+  "seed": 20464021,
+  "task_success": true,
+  "steps": 153,
+  "true_original_return": 131.45762537145802,
+  "control_return": 10.879518923000987,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 10.486316680908203,
+  "minimum_goal_distance_cm": 0.12115089921280742,
+  "final_goal_distance_cm": 0.1211508959531784,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.17718294868718346,
+      -0.23129165239704513
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": [
+      {
+        "kind": "box",
+        "pos": [
+          0.4080705488499085,
+          -0.08500000000000002
+        ],
+        "yaw": 0.28580509621900746,
+        "size": [
+          0.018170594583964247,
+          0.02471470766641813,
+          0.05081036117629666
+        ]
+      },
+      {
+        "kind": "box",
+        "pos": [
+          0.4034353610435441,
+          0.0
+        ],
+        "yaw": 0.06512300773257018,
+        "size": [
+          0.019476418739869435,
+          0.023348094934252068,
+          0.028888023551769202
+        ]
+      },
+      {
+        "kind": "box",
+        "pos": [
+          0.41045883280968065,
+          0.16999999999999998
+        ],
+        "yaw": 0.12069308501280962,
+        "size": [
+          0.024713915845675866,
+          0.018601028455815776,
+          0.07848774589981655
+        ]
+      }
+    ]
+  },
+  "case": "drop_middle",
+  "intervention_triggered": true,
+  "intervention_step": 80,
+  "release_end_step": 86,
+  "regrasp_step": 99,
+  "regrasped_after_intervention": true,
+  "regrasp_seconds": 1.3,
+  "recovery_placed": true,
+  "SAC_checkpoint_sha256": null,
+  "seconds": 12.731164345983416,
+  "model_fallback_steps": 0,
+  "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc"
+}

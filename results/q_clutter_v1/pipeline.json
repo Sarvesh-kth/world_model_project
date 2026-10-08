@@ -1,0 +1,1504 @@
+{
+  "inputs": {
+    "campaign": "full_task_clutter_v1",
+    "settings": {
+      "run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+      "baseline_run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+      "encoder_run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+      "export": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1",
+      "train_scenes": 12,
+      "val_scenes": 4,
+      "test_scenes": 6,
+      "control_scenes": 5,
+      "seed": 20464005,
+      "training_seed": 0,
+      "epochs": 60,
+      "rl_steps": 20000,
+      "bc_epochs": 240,
+      "critic_warmup": 2000,
+      "rollout_steps": 8,
+      "horizon": 20,
+      "population": 64,
+      "elites": 8,
+      "iterations": 3,
+      "terminal_weight": 0,
+      "threads": 4,
+      "pilot": false
+    },
+    "config": {
+      "seed": 0,
+      "sim": {
+        "timestep": 0.002,
+        "impratio": 10
+      },
+      "control": {
+        "hz": 10,
+        "max_delta": 0.04,
+        "yaw": {
+          "enabled": true,
+          "max_delta": 0.15
+        },
+        "workspace": {
+          "low": [
+            -0.12,
+            -0.42,
+            0.755
+          ],
+          "high": [
+            0.45,
+            0.42,
+            0.97
+          ]
+        },
+        "ik": {
+          "hz": 250,
+          "damping": 0.02,
+          "pos_gain": 10.0,
+          "ori_gain": 6.0,
+          "posture_gain": 2.0,
+          "max_lin_vel": 0.7,
+          "max_ang_vel": 2.0,
+          "max_joint_vel": 2.5,
+          "max_lead": 0.05
+        }
+      },
+      "cameras": {
+        "record_hz": 10,
+        "width": 256,
+        "height": 256,
+        "static": {
+          "pos": [
+            1.25,
+            0.0,
+            1.42
+          ],
+          "lookat": [
+            0.1,
+            0.0,
+            0.82
+          ],
+          "fovy": 52
+        },
+        "wrist": {
+          "fovy": 75,
+          "tilt_deg": 30
+        },
+        "pointcloud": {
+          "enabled": false,
+          "frame": "base",
+          "stride": 2,
+          "max_depth": 2.5
+        }
+      },
+      "robot": {
+        "base_pos": [
+          -0.4,
+          0.0,
+          0.75
+        ],
+        "home_qpos": [
+          0.0,
+          -0.6,
+          0.0,
+          -2.8,
+          0.0,
+          2.2,
+          -0.7853
+        ],
+        "posture_noise": 0.0,
+        "grip_scale": 2.0
+      },
+      "table": {
+        "center": [
+          0.15,
+          0.0
+        ],
+        "half_size": [
+          0.32,
+          0.46
+        ],
+        "height": 0.75,
+        "top_thickness": 0.04
+      },
+      "task": {
+        "pick_end": "random",
+        "place_end": "opposite",
+        "ends": {
+          "left": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              -0.38,
+              -0.18
+            ]
+          },
+          "right": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              0.18,
+              0.38
+            ]
+          },
+          "near": {
+            "x": [
+              -0.08,
+              0.04
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          },
+          "far": {
+            "x": [
+              0.2,
+              0.3
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          }
+        },
+        "reach_range": [
+          0.3,
+          0.65
+        ],
+        "min_pick_place_dist": 0.35,
+        "object": {
+          "pool": [
+            "cube",
+            "cuboid",
+            "cylinder",
+            "hex_prism",
+            "tri_prism",
+            "frustum"
+          ],
+          "holdout": [
+            "bottle"
+          ],
+          "scale": [
+            0.9,
+            1.1
+          ],
+          "mass": [
+            0.05,
+            0.2
+          ],
+          "friction": [
+            0.8,
+            1.5
+          ],
+          "randomize_color": true
+        },
+        "obstacles": {
+          "count": [
+            3,
+            5
+          ],
+          "extra_height": [
+            0.04,
+            0.19
+          ],
+          "clearance": 0.2,
+          "spacing": 0.1,
+          "corridor_span": [
+            0.25,
+            0.75
+          ],
+          "lateral_offset": 0.16,
+          "kinds": {
+            "wall": {
+              "length": [
+                0.08,
+                0.16
+              ],
+              "thickness": 0.02,
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "box": {
+              "width": [
+                0.03,
+                0.06
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "cylinder": {
+              "radius": [
+                0.015,
+                0.03
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            }
+          }
+        }
+      },
+      "episode": {
+        "max_steps": 300,
+        "success_radius": 0.07,
+        "settle_steps": 15,
+        "fall_margin": 0.05,
+        "terminate_on_success": false
+      },
+      "rewards": {
+        "lift_height": 0.04,
+        "safe_distance": 0.06,
+        "weights": {
+          "reach": 0.5,
+          "grasp": 0.5,
+          "lift": 0.5,
+          "transport": 1.0,
+          "place": 5.0,
+          "success": 10.0,
+          "fail": 10.0,
+          "collision": 0.5,
+          "proximity": 0.3,
+          "table_hit": 0.2,
+          "drop": 1.0,
+          "action": 0.01
+        }
+      },
+      "data": {
+        "root": "data",
+        "jpeg_quality": 90,
+        "workers": 4,
+        "mix": {
+          "success": 0.5,
+          "scripted": 0.3,
+          "drop": 0.1,
+          "collide": 0.0,
+          "random": 0.1
+        },
+        "success_attempts": 1,
+        "scripted": {
+          "noise": 0.1,
+          "noise_correlation": 0.8,
+          "speed_range": [
+            0.6,
+            1.0
+          ],
+          "carry_height": 0.1,
+          "route_margin": 0.16
+        }
+      }
+    },
+    "layout": {
+      "object": "cube",
+      "scale": 1.0,
+      "mass": 0.1,
+      "friction": 1.0,
+      "color": [
+        0.2,
+        0.7,
+        0.7,
+        1.0
+      ],
+      "pick_end": "left",
+      "place_end": "right",
+      "pick": [
+        0.18,
+        -0.23
+      ],
+      "place": [
+        0.1,
+        0.27
+      ],
+      "obstacles": []
+    },
+    "groups": [
+      {
+        "scene": "scene_0000",
+        "seed": 20464005,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0001",
+        "seed": 20464006,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0002",
+        "seed": 20464007,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0003",
+        "seed": 20464008,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0004",
+        "seed": 20464009,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0005",
+        "seed": 20464010,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0006",
+        "seed": 20464011,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0007",
+        "seed": 20464012,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0008",
+        "seed": 20464013,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0009",
+        "seed": 20464014,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0010",
+        "seed": 20464015,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0011",
+        "seed": 20464016,
+        "split": "train"
+      },
+      {
+        "scene": "scene_0012",
+        "seed": 20464017,
+        "split": "val"
+      },
+      {
+        "scene": "scene_0013",
+        "seed": 20464018,
+        "split": "val"
+      },
+      {
+        "scene": "scene_0014",
+        "seed": 20464019,
+        "split": "val"
+      },
+      {
+        "scene": "scene_0015",
+        "seed": 20464020,
+        "split": "val"
+      },
+      {
+        "scene": "scene_0016",
+        "seed": 20464021,
+        "split": "test"
+      },
+      {
+        "scene": "scene_0017",
+        "seed": 20464022,
+        "split": "test"
+      },
+      {
+        "scene": "scene_0018",
+        "seed": 20464023,
+        "split": "test"
+      },
+      {
+        "scene": "scene_0019",
+        "seed": 20464024,
+        "split": "test"
+      },
+      {
+        "scene": "scene_0020",
+        "seed": 20464025,
+        "split": "test"
+      },
+      {
+        "scene": "scene_0021",
+        "seed": 20464026,
+        "split": "test"
+      }
+    ],
+    "frozen_baseline": {
+      "run": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+      "checkpoint_sha256": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+      "training_sha256": "aa98befc88c989fcff92793770749669587be2c85e62e2dbad0e508007bc9612",
+      "evaluations_sha256": "af52ce85c872b23000a7bb28654a2dd11bd70be79602a5105767531c50ca43c7",
+      "pipeline_sha256": "6fdc5a343d7ed8ed01b36f3ec31721c02461fafe5a6dcb98c631ccb5f1469541",
+      "summary_sha256": "799ea4173aa45d9ee9f6474dd914c7d71d5bd8274b636ff0b5b03b12b71446dc",
+      "successes": 100,
+      "episodes": 100,
+      "validation_seeds": [
+        20273005,
+        20273006,
+        20273007,
+        20273008,
+        20273009,
+        20273010,
+        20273011,
+        20273012,
+        20273013,
+        20273014,
+        20273015,
+        20273016,
+        20273017,
+        20273018,
+        20273019,
+        20273020,
+        20273021,
+        20273022,
+        20273023,
+        20273024
+      ],
+      "test_seeds": [
+        21263005,
+        21263006,
+        21263007,
+        21263008,
+        21263009,
+        21263010,
+        21263011,
+        21263012,
+        21263013,
+        21263014,
+        21263015,
+        21263016,
+        21263017,
+        21263018,
+        21263019,
+        21263020,
+        21263021,
+        21263022,
+        21263023,
+        21263024,
+        21263025,
+        21263026,
+        21263027,
+        21263028,
+        21263029,
+        21263030,
+        21263031,
+        21263032,
+        21263033,
+        21263034,
+        21263035,
+        21263036,
+        21263037,
+        21263038,
+        21263039,
+        21263040,
+        21263041,
+        21263042,
+        21263043,
+        21263044,
+        21263045,
+        21263046,
+        21263047,
+        21263048,
+        21263049,
+        21263050,
+        21263051,
+        21263052,
+        21263053,
+        21263054,
+        21263055,
+        21263056,
+        21263057,
+        21263058,
+        21263059,
+        21263060,
+        21263061,
+        21263062,
+        21263063,
+        21263064,
+        21263065,
+        21263066,
+        21263067,
+        21263068,
+        21263069,
+        21263070,
+        21263071,
+        21263072,
+        21263073,
+        21263074,
+        21263075,
+        21263076,
+        21263077,
+        21263078,
+        21263079,
+        21263080,
+        21263081,
+        21263082,
+        21263083,
+        21263084,
+        21263085,
+        21263086,
+        21263087,
+        21263088,
+        21263089,
+        21263090,
+        21263091,
+        21263092,
+        21263093,
+        21263094,
+        21263095,
+        21263096,
+        21263097,
+        21263098,
+        21263099,
+        21263100,
+        21263101,
+        21263102,
+        21263103,
+        21263104
+      ],
+      "config": {
+        "seed": 0,
+        "sim": {
+          "timestep": 0.002,
+          "impratio": 10
+        },
+        "control": {
+          "hz": 10,
+          "max_delta": 0.04,
+          "yaw": {
+            "enabled": true,
+            "max_delta": 0.15
+          },
+          "workspace": {
+            "low": [
+              -0.12,
+              -0.42,
+              0.755
+            ],
+            "high": [
+              0.45,
+              0.42,
+              0.97
+            ]
+          },
+          "ik": {
+            "hz": 250,
+            "damping": 0.02,
+            "pos_gain": 10.0,
+            "ori_gain": 6.0,
+            "posture_gain": 2.0,
+            "max_lin_vel": 0.7,
+            "max_ang_vel": 2.0,
+            "max_joint_vel": 2.5,
+            "max_lead": 0.05
+          }
+        },
+        "cameras": {
+          "record_hz": 10,
+          "width": 256,
+          "height": 256,
+          "static": {
+            "pos": [
+              1.25,
+              0.0,
+              1.42
+            ],
+            "lookat": [
+              0.1,
+              0.0,
+              0.82
+            ],
+            "fovy": 52
+          },
+          "wrist": {
+            "fovy": 75,
+            "tilt_deg": 30
+          },
+          "pointcloud": {
+            "enabled": false,
+            "frame": "base",
+            "stride": 2,
+            "max_depth": 2.5
+          }
+        },
+        "robot": {
+          "base_pos": [
+            -0.4,
+            0.0,
+            0.75
+          ],
+          "home_qpos": [
+            0.0,
+            -0.6,
+            0.0,
+            -2.8,
+            0.0,
+            2.2,
+            -0.7853
+          ],
+          "posture_noise": 0.0,
+          "grip_scale": 2.0
+        },
+        "table": {
+          "center": [
+            0.15,
+            0.0
+          ],
+          "half_size": [
+            0.32,
+            0.46
+          ],
+          "height": 0.75,
+          "top_thickness": 0.04
+        },
+        "task": {
+          "pick_end": "random",
+          "place_end": "opposite",
+          "ends": {
+            "left": {
+              "x": [
+                -0.02,
+                0.28
+              ],
+              "y": [
+                -0.38,
+                -0.18
+              ]
+            },
+            "right": {
+              "x": [
+                -0.02,
+                0.28
+              ],
+              "y": [
+                0.18,
+                0.38
+              ]
+            },
+            "near": {
+              "x": [
+                -0.08,
+                0.04
+              ],
+              "y": [
+                -0.22,
+                0.22
+              ]
+            },
+            "far": {
+              "x": [
+                0.2,
+                0.3
+              ],
+              "y": [
+                -0.22,
+                0.22
+              ]
+            }
+          },
+          "reach_range": [
+            0.3,
+            0.65
+          ],
+          "min_pick_place_dist": 0.35,
+          "object": {
+            "pool": [
+              "cube",
+              "cuboid",
+              "cylinder",
+              "hex_prism",
+              "tri_prism",
+              "frustum"
+            ],
+            "holdout": [
+              "bottle"
+            ],
+            "scale": [
+              0.9,
+              1.1
+            ],
+            "mass": [
+              0.05,
+              0.2
+            ],
+            "friction": [
+              0.8,
+              1.5
+            ],
+            "randomize_color": true
+          },
+          "obstacles": {
+            "count": [
+              3,
+              5
+            ],
+            "extra_height": [
+              0.04,
+              0.19
+            ],
+            "clearance": 0.2,
+            "spacing": 0.1,
+            "corridor_span": [
+              0.25,
+              0.75
+            ],
+            "lateral_offset": 0.16,
+            "kinds": {
+              "wall": {
+                "length": [
+                  0.08,
+                  0.16
+                ],
+                "thickness": 0.02,
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              },
+              "box": {
+                "width": [
+                  0.03,
+                  0.06
+                ],
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              },
+              "cylinder": {
+                "radius": [
+                  0.015,
+                  0.03
+                ],
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              }
+            }
+          }
+        },
+        "episode": {
+          "max_steps": 300,
+          "success_radius": 0.07,
+          "settle_steps": 15,
+          "fall_margin": 0.05,
+          "terminate_on_success": false
+        },
+        "rewards": {
+          "lift_height": 0.04,
+          "safe_distance": 0.06,
+          "weights": {
+            "reach": 0.5,
+            "grasp": 0.5,
+            "lift": 0.5,
+            "transport": 1.0,
+            "place": 5.0,
+            "success": 10.0,
+            "fail": 10.0,
+            "collision": 0.5,
+            "proximity": 0.3,
+            "table_hit": 0.2,
+            "drop": 1.0,
+            "action": 0.01
+          }
+        },
+        "data": {
+          "root": "data",
+          "jpeg_quality": 90,
+          "workers": 4,
+          "mix": {
+            "success": 0.5,
+            "scripted": 0.3,
+            "drop": 0.1,
+            "collide": 0.0,
+            "random": 0.1
+          },
+          "success_attempts": 1,
+          "scripted": {
+            "noise": 0.1,
+            "noise_correlation": 0.8,
+            "speed_range": [
+              0.6,
+              1.0
+            ],
+            "carry_height": 0.1,
+            "route_margin": 0.16
+          }
+        }
+      },
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18,
+          -0.23
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": []
+      }
+    },
+    "encoder": {
+      "model": "facebook/vjepa2-vitl-fpc64-256",
+      "model_revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f",
+      "camera": "static",
+      "clip_frames": 64,
+      "pooling": "mean_all_encoder_tokens"
+    },
+    "known_rest_z": 0.7725,
+    "code_sha256": {
+      "environment/scene.py": "e141978f149435c725d887d452cb769e55f9d72795fd54a54706fb0bff120ddf",
+      "environment/obstacles.py": "999e42ce22579860fdaf74ec08663a509ff4a27593a3b5ba7c18aad4b2cf4fcf",
+      "environment/rewards.py": "9d13d03b2c202b4bef9c22733303501e653f31aff55b1d500c254ec1e83a39f6",
+      "environment/env.py": "f837388906cd8df6c9fb89abfd95a429686bb79e7c6c25708733c4b517197e7d",
+      "environment/config.py": "310b006e8ecfc0c8d6faf1996f0048acef48f7d79b166f77eefa75f931b85bd4",
+      "environment/__init__.py": "94a4334305b3eb50b5427827354a2f5e888cf7e156d0898354b5045198d35b3b",
+      "environment/control.py": "2335542725df0db1806c04dcf54926fefa3e05a955b51df8c95556f4134d1e02",
+      "world_model/vision/clutter_pipeline.py": "6dcc60090566ddf597a8ef5d835db92b11b9aae2cd8ef8d1b76d16823e26a96e",
+      "world_model/vision/check.py": "e8a71fad49a44bbd312ddf3a583c8e2c3e215eec52d06c27c2048644662f8f16",
+      "world_model/vision/train.py": "a37ab858f994d937732a50d1c0f0794da905008592198c2899904e87ed30a53c",
+      "world_model/vision/task_control.py": "bbd08ae3c437ebc944e19d7a23307eba1ab286ad523cd4639d78f09162ddfca2",
+      "world_model/vision/visualize_decisions.py": "cc2f0da9e7089d58e88a080f6585a56272dd88c6e9797174f9624771f15a6f99",
+      "world_model/vision/control_pipeline.py": "86b31df42efb952b9281745dd4316e152b852c5d446c9f74f66c97c44f6faa03",
+      "world_model/vision/audit.py": "a0d4ec695a4542289f61ffbe954d578a1f5d219883e1295c388fcd12d8c7f1bb",
+      "world_model/vision/collect.py": "681917d033d7f72bec079fe3758f1540e702ee0226f9fb78094b4f1b810154c2",
+      "world_model/vision/contact.py": "3a019daee9f3f03e8c8e9e66851f3a757143b31013dc55387c9cc8740b4f1910",
+      "world_model/vision/rl_control.py": "ac95df6677a360af4c2f13aacca23513ee1558b003a446e7f8bd63d5e4a62cb4",
+      "world_model/vision/width_compare.py": "195f52cc871175ed8e711ed65811110e35d67740a2cde029a504c3e503b182e8",
+      "world_model/vision/decision.py": "9ae68122f51d17781850e20cd1f5707be9be107a080f182aa304c4424a43f9f0",
+      "world_model/vision/rl_baseline.py": "8ad71bcf6241ad81526dbc2385c66c302e13b0ffe70f16168c323b97e837e61d",
+      "world_model/vision/full_task.py": "6fc3095c8a7fcc67d988858b71cd73c3882a9cc59d5f752e6a1e89820eafb09c",
+      "world_model/vision/__init__.py": "0eb28bcc5207efc49e7866ab409bcfa3062a83f8734026c0e81d585549187aed",
+      "world_model/vision/encode.py": "9c3e5e1df1f35ffe0d7b06d8f6d927f3e50a903762b9ba9dbd5932e4558e0030",
+      "world_model/vision/data.py": "01bddc46d47391157cc74a0612944597c89620e25335602fa3a0f3ef40713feb",
+      "world_model/vision/test.py": "6c31adaac4bb4f59cc1e7f2dc0907f74d845a6bb09fb030768ecbfb20d2ea50e",
+      "world_model/vision/decision_pipeline.py": "ffe2b02e3ecfc446479efa89e4ddd63a582e0b4ccce89ad47ac6b927c7c313de",
+      "world_model/vision/pipeline.py": "f70cffdaf143ef582d0f63c056a11166e58045cd7c9f1fee8176a7962c02743e",
+      "world_model/vision/check_clutter.py": "06f9196527d0b6815a80d6d38d070fdfa05dfdc445202d86f63139e27570684f",
+      "world_model/train_dynamics.py": "ad008046fadf0dc4001dc781248f81e9ec9b13bf21daad65114895993a1fde2a",
+      "data_collection/scripted_policy.py": "096a13c395f222c817e193c75244ea82d3747378463853fd53b0fde13b213c76",
+      "data_collection/route.py": "db7ed06fa3dbffcd740a01b8129f656593cd6389c2411b19c6888257bcf438b1"
+    },
+    "score_contract": "GoalReward supported terms only; no predicted obstacle contacts. Horizon20 includes15 settling steps; shared D; terminal critic disabled by default."
+  },
+  "complete": true,
+  "stages": {
+    "preflight": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.clutter_pipeline",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--baseline-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+        "--encoder-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+        "--export",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1",
+        "--train-scenes",
+        "12",
+        "--val-scenes",
+        "4",
+        "--test-scenes",
+        "6",
+        "--control-scenes",
+        "5",
+        "--seed",
+        "20464005",
+        "--training-seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rl-steps",
+        "20000",
+        "--bc-epochs",
+        "240",
+        "--critic-warmup",
+        "2000",
+        "--rollout-steps",
+        "8",
+        "--horizon",
+        "20",
+        "--population",
+        "64",
+        "--elites",
+        "8",
+        "--iterations",
+        "3",
+        "--terminal-weight",
+        "0",
+        "--threads",
+        "4",
+        "--stage",
+        "preflight"
+      ],
+      "started": 1791223562.4157186,
+      "finished": 1791223565.6631083,
+      "files": {}
+    },
+    "collect": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.clutter_pipeline",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--baseline-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+        "--encoder-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+        "--export",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1",
+        "--train-scenes",
+        "12",
+        "--val-scenes",
+        "4",
+        "--test-scenes",
+        "6",
+        "--control-scenes",
+        "5",
+        "--seed",
+        "20464005",
+        "--training-seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rl-steps",
+        "20000",
+        "--bc-epochs",
+        "240",
+        "--critic-warmup",
+        "2000",
+        "--rollout-steps",
+        "8",
+        "--horizon",
+        "20",
+        "--population",
+        "64",
+        "--elites",
+        "8",
+        "--iterations",
+        "3",
+        "--terminal-weight",
+        "0",
+        "--threads",
+        "4",
+        "--stage",
+        "collect"
+      ],
+      "started": 1791223565.6651487,
+      "finished": 1791225694.6057615,
+      "files": {
+        "manifest.json": "19e87630ced4986ff79200dccdf4b0f7a2591cf5ced05ff7ac9992a8154de40f",
+        "scene_settings.json": "67712a464e779f311e3c930db0e3ae94337a4c9ad46a703fbf6e15b8b5918256"
+      }
+    },
+    "audit": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.audit",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1"
+      ],
+      "started": 1791225694.7843153,
+      "finished": 1791225698.738776,
+      "files": {
+        "reports/audit.json": "d6e04bde3d90ace6edb6b44c4cc411389562bb62bb11553dc6832d5d41a80c28"
+      }
+    },
+    "recovery_rl": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.clutter_pipeline",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--baseline-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+        "--encoder-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+        "--export",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1",
+        "--train-scenes",
+        "12",
+        "--val-scenes",
+        "4",
+        "--test-scenes",
+        "6",
+        "--control-scenes",
+        "5",
+        "--seed",
+        "20464005",
+        "--training-seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rl-steps",
+        "20000",
+        "--bc-epochs",
+        "240",
+        "--critic-warmup",
+        "2000",
+        "--rollout-steps",
+        "8",
+        "--horizon",
+        "20",
+        "--population",
+        "64",
+        "--elites",
+        "8",
+        "--iterations",
+        "3",
+        "--terminal-weight",
+        "0",
+        "--threads",
+        "4",
+        "--stage",
+        "recovery_rl"
+      ],
+      "started": 1791225698.7419062,
+      "finished": 1791226260.4979718,
+      "files": {
+        "recovery_rl/ready.json": "c7ffbb1cf497565f7e7c2fde62585fec439b31aa4a06bfc83aa8687bde4429e9",
+        "recovery_rl/source_validation.json": "f4c4afa01d18e5574feed64152c2f2e7e3c470be370d809f7647c1ebcfd93960",
+        "recovery_rl/models/sac_best.zip": "15b37ab39ca1b8215facda7f6a675092e271b6342e5959f42a80df7fb27099ec",
+        "recovery_rl/models/rl_training.json": "2ba0921df964395c813916dc01f186779c216736f4276872a4159c81c938f972"
+      }
+    },
+    "reference": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.clutter_pipeline",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--baseline-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+        "--encoder-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+        "--export",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1",
+        "--train-scenes",
+        "12",
+        "--val-scenes",
+        "4",
+        "--test-scenes",
+        "6",
+        "--control-scenes",
+        "5",
+        "--seed",
+        "20464005",
+        "--training-seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rl-steps",
+        "20000",
+        "--bc-epochs",
+        "240",
+        "--critic-warmup",
+        "2000",
+        "--rollout-steps",
+        "8",
+        "--horizon",
+        "20",
+        "--population",
+        "64",
+        "--elites",
+        "8",
+        "--iterations",
+        "3",
+        "--terminal-weight",
+        "0",
+        "--threads",
+        "4",
+        "--stage",
+        "reference"
+      ],
+      "started": 1791226260.5072708,
+      "finished": 1791227206.8252327,
+      "files": {
+        "reports/reference_complete.json": "ad1ed6243ea081e7d97d9e7bf7443870a40e1ea693c6c7fb4a35354451f1de93"
+      }
+    },
+    "encode": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.encode",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--model",
+        "facebook/vjepa2-vitl-fpc64-256",
+        "--revision",
+        "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+      ],
+      "started": 1791227206.8777819,
+      "finished": 1791239214.2978294,
+      "files": {
+        "features/meta.json": "db94faf577d711d1aeb9a97d36cd82d1e8931e27402a05ec3e02d46f206b4b43",
+        "features/latents.npy": "942e36c01136353fe753dec821ee719680382123ddc86c053c7debfcafb36f40"
+      }
+    },
+    "train_Q_empty": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.train",
+        "readout",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--tag",
+        "q_empty",
+        "--view",
+        "empty",
+        "--seed",
+        "0",
+        "--epochs",
+        "60"
+      ],
+      "started": 1791239214.4570422,
+      "finished": 1791239274.5559719,
+      "files": {
+        "attempts/q_empty/models/readout.pt": "c5a1bc3dd052c37086d457cd5022bcb5d3ea9aee449a006a843bf209498f0802",
+        "attempts/q_empty/models/readout_p.pt": "fee50e8eb694d12036ea414450a38b0e27993663740e240dcae3b758d1e789e4",
+        "attempts/q_empty/reports/readout_training.json": "6382b94a7fd4e7eed6b77e0a55ab1860f15586acd4322ace1216d6147e5026a5",
+        "attempts/q_empty/reports/readout_p_training.json": "94f12b303d3fdca080789536d46e24ab2ecaa2d398a6f522e01c2c15ebf62ce7",
+        "attempts/q_empty/reports/readout_validation.json": "1c2bc184b58b1eaee47537b3290ab23cd2f3cfa6ab509dec290ce39e4121bfbf"
+      }
+    },
+    "train_Q_mixed": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.train",
+        "readout",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--tag",
+        "q_mixed",
+        "--view",
+        "all",
+        "--seed",
+        "0",
+        "--epochs",
+        "60"
+      ],
+      "started": 1791239274.6060085,
+      "finished": 1791239386.0182235,
+      "files": {
+        "attempts/q_mixed/models/readout.pt": "ec25f933526b8ec4215109a002444c6a4fa088dfa033df42d2176da1453c7159",
+        "attempts/q_mixed/models/readout_p.pt": "41905266987aa80e1bc9fcdc6acb87edb384d103fd113a1e129e8604175f694c",
+        "attempts/q_mixed/reports/readout_training.json": "376ef7feea1b5ce2e2f3ccbcf78c1e98b9dc7cc00906f519e71353a34f463a35",
+        "attempts/q_mixed/reports/readout_p_training.json": "47825d1c5c51d4db74b8a9159d43f7c7130ff156d86ecbe6c034e948e2e2abb5",
+        "attempts/q_mixed/reports/readout_validation.json": "09c1c4280b5f1bbc3606c2c4f0987cd01e2430ff6619265da3f8dc8f4669172b"
+      }
+    },
+    "train_dynamics": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.train",
+        "dynamics",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--tag",
+        "mixed_dynamics",
+        "--seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rollout-steps",
+        "8"
+      ],
+      "started": 1791239386.0649042,
+      "finished": 1791239576.992536,
+      "files": {
+        "attempts/mixed_dynamics/models/dynamics.pt": "8bd3c09637cb23d084a79d0918335ee0161b05792230e6fa0a5053a4c19f767a",
+        "attempts/mixed_dynamics/reports/dynamics_training.json": "f0afcff8c510383e6d846c76a3b51961de97e378c48e67f736f1ca0231a7d633"
+      }
+    },
+    "train_no_vision": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.train",
+        "baseline",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--tag",
+        "mixed_dynamics",
+        "--seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rollout-steps",
+        "8",
+        "--baseline-horizon",
+        "20"
+      ],
+      "started": 1791239577.0454977,
+      "finished": 1791239641.8972757,
+      "files": {
+        "attempts/mixed_dynamics/models/no_vision.pt": "f8d15e768c43309b1064cd52520d4e55c29edc4b0e9a15412ad66d40eddffe5e",
+        "attempts/mixed_dynamics/reports/no_vision_training.json": "61e862278c0592fa036747228a00cfd189101b4a63dffe3f25c00d0ccb840e17"
+      }
+    },
+    "bind": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.clutter_pipeline",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--baseline-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+        "--encoder-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+        "--export",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1",
+        "--train-scenes",
+        "12",
+        "--val-scenes",
+        "4",
+        "--test-scenes",
+        "6",
+        "--control-scenes",
+        "5",
+        "--seed",
+        "20464005",
+        "--training-seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rl-steps",
+        "20000",
+        "--bc-epochs",
+        "240",
+        "--critic-warmup",
+        "2000",
+        "--rollout-steps",
+        "8",
+        "--horizon",
+        "20",
+        "--population",
+        "64",
+        "--elites",
+        "8",
+        "--iterations",
+        "3",
+        "--terminal-weight",
+        "0",
+        "--threads",
+        "4",
+        "--stage",
+        "bind"
+      ],
+      "started": 1791239641.9433594,
+      "finished": 1791239642.4361088,
+      "files": {
+        "attempts/mixed_dynamics/models/readout.pt": "ec25f933526b8ec4215109a002444c6a4fa088dfa033df42d2176da1453c7159",
+        "attempts/mixed_dynamics/models/readout_p.pt": "41905266987aa80e1bc9fcdc6acb87edb384d103fd113a1e129e8604175f694c",
+        "attempts/mixed_dynamics/reports/readout_validation.json": "09c1c4280b5f1bbc3606c2c4f0987cd01e2430ff6619265da3f8dc8f4669172b"
+      }
+    },
+    "train_width": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.train",
+        "width",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--tag",
+        "shared_width",
+        "--from-tag",
+        "mixed_dynamics",
+        "--width-input",
+        "visual",
+        "--seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rollout-steps",
+        "8"
+      ],
+      "started": 1791239642.4835498,
+      "finished": 1791239835.1084948,
+      "files": {
+        "attempts/shared_width/models/dynamics.pt": "a9403f877af1e0888e3b08aa3ce5a75064b8dd703a2eed953602e6b12fee0acc",
+        "attempts/shared_width/reports/dynamics_training.json": "5396b685ee66f61059c2518f3583ac2a1bd3dfee527ca1a45bb9231f2c4a5e77"
+      }
+    },
+    "offline": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.clutter_pipeline",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--baseline-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+        "--encoder-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+        "--export",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1",
+        "--train-scenes",
+        "12",
+        "--val-scenes",
+        "4",
+        "--test-scenes",
+        "6",
+        "--control-scenes",
+        "5",
+        "--seed",
+        "20464005",
+        "--training-seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rl-steps",
+        "20000",
+        "--bc-epochs",
+        "240",
+        "--critic-warmup",
+        "2000",
+        "--rollout-steps",
+        "8",
+        "--horizon",
+        "20",
+        "--population",
+        "64",
+        "--elites",
+        "8",
+        "--iterations",
+        "3",
+        "--terminal-weight",
+        "0",
+        "--threads",
+        "4",
+        "--stage",
+        "offline"
+      ],
+      "started": 1791239835.1660533,
+      "finished": 1791239873.4632115,
+      "files": {
+        "reports/offline.json": "ee3efec7c432cf147a697bcda9cc84e43a70db52f8d0bda5dce2b2e6b5b4a983",
+        "reports/Q_real_states.csv": "f632d6a9f1c28930bc2f634a2c3e1ead8c2680e612aada1cacbe095cdcf12efd"
+      }
+    },
+    "visual": {
+      "complete": true,
+      "command": [
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/../.venv/bin/python",
+        "-u",
+        "-m",
+        "world_model.vision.clutter_pipeline",
+        "--run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1",
+        "--baseline-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/rl_baseline_v1",
+        "--encoder-run",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/vision_v2",
+        "--export",
+        "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/results/q_clutter_v1",
+        "--train-scenes",
+        "12",
+        "--val-scenes",
+        "4",
+        "--test-scenes",
+        "6",
+        "--control-scenes",
+        "5",
+        "--seed",
+        "20464005",
+        "--training-seed",
+        "0",
+        "--epochs",
+        "60",
+        "--rl-steps",
+        "20000",
+        "--bc-epochs",
+        "240",
+        "--critic-warmup",
+        "2000",
+        "--rollout-steps",
+        "8",
+        "--horizon",
+        "20",
+        "--population",
+        "64",
+        "--elites",
+        "8",
+        "--iterations",
+        "3",
+        "--terminal-weight",
+        "0",
+        "--threads",
+        "4",
+        "--stage",
+        "visual"
+      ],
+      "started": 1791411572.9137628,
+      "finished": 1791423480.0739486,
+      "files": {
+        "reports/visual_complete.json": "ad1ed6243ea081e7d97d9e7bf7443870a40e1ea693c6c7fb4a35354451f1de93"
+      }
+    }
+  },
+  "provenance": {
+    "python": "3.11.9",
+    "platform": "Linux-5.15.0-1085-nvidia-x86_64-with-glibc2.35",
+    "git_commit": "78b38efc144a0e513667456efd4a303e142b89aa",
+    "git_dirty": true
+  }
+}
