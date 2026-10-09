@@ -1,4 +1,9 @@
-"""Train Q, split dynamics, a frozen-D width correction, or the no-vision outcome baseline."""
+"""Train Q, the penalty head, split dynamics, a frozen-D width correction, or the no-vision outcome baseline.
+
+The dynamics stage can add a task-consistency term (--task-weight): plain latent MSE lets D drop the cube, because
+the cube is 1 of 64 grid cells while the arm dominates the latent, so the FROZEN readout Q (trained first, same tag)
+reads every imagined (z, p) and must still give the recorded cube xyz and held label. --robot-sees-z lets the robot
+head read z too, so the predicted finger width can depend on whether a cube is between the fingers."""
 import argparse
 import pathlib
 import shutil
@@ -8,7 +13,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from world_model.train_dynamics import SplitDynamics
+from world_model.train_dynamics import SplitDynamics, SplitDynamicsZ
 from .data import load_run, load_features, state_arrays, digest, write_json, outcome_metrics, provenance
 from .audit import audit
 
@@ -65,6 +70,8 @@ def build_model(ck):
       model = WidthDynamics(ck["z_dim"], ck["width_input"])
     elif architecture == "SplitDynamics":
       model = SplitDynamics(ck["z_dim"], 20, 5, width=512, p_width=128)
+    elif architecture == "SplitDynamicsZ":
+      model = SplitDynamicsZ(ck["z_dim"], 20, 5, width=512, p_width=128)
     else:
       raise ValueError(f"unknown vision dynamics architecture: {architecture}")
   else:
@@ -199,13 +206,17 @@ def fit(root, role, model, train, val, loss_fn, meta, args):
 
 def main():
   p = argparse.ArgumentParser(description=__doc__)
-  p.add_argument("stage", choices=("readout", "dynamics", "baseline", "width"))
+  p.add_argument("stage", choices=("readout", "dynamics", "baseline", "width", "reward"))
   p.add_argument("--run", required=True, type=pathlib.Path)
   p.add_argument("--epochs", type=int, default=60)
   p.add_argument("--batch-size", type=int, default=64)
   p.add_argument("--lr", type=float, default=0.001)
   p.add_argument("--seed", type=int, default=0)
   p.add_argument("--rollout-steps", type=int, default=4)
+  p.add_argument("--robot-sees-z", action="store_true",
+                 help="dynamics only: SplitDynamicsZ, the robot head also reads z (finger width can depend on the cube)")
+  p.add_argument("--task-weight", type=float, default=1.0,
+                 help="dynamics only: weight of the frozen-Q cube xyz/held loss on imagined states")
   p.add_argument("--baseline-horizon", type=int, default=0,
                  help="baseline only: train action windows from varied source states; 0 keeps episode-prefix behavior")
   p.add_argument("--tag", default="", help="optional new model directory, e.g. retry_1; pass the same tag to tests")
@@ -219,7 +230,7 @@ def main():
   p.add_argument("--q-f1", type=float, default=0.8)
   p.add_argument("--q-brier", type=float, default=0.15)
   args = p.parse_args()
-  if args.view != "all" and args.stage != "readout":
+  if args.view != "all" and args.stage not in ("readout", "reward"):
     p.error("--view is only supported for readout training")
   if args.baseline_horizon < 0 or (args.baseline_horizon and args.stage != "baseline"):
     p.error("--baseline-horizon must be nonnegative and is only for baseline")
@@ -281,7 +292,41 @@ def main():
     contact = nn.functional.binary_cross_entropy_with_logits(y[:, 3], g)
     return pose+contact, {"xyz_mse": pose.item(), "grasp_bce": contact.item()}
 
-  if args.stage == "readout":
+  if args.stage == "reward":
+    # penalty head: the recorded unweighted reward components at each state are the targets
+    comps = np.asarray([[s["reward_components"].get(k, 0.0) for k in ("proximity", "collision", "table_hit")]
+                        for s in manifest["states"]], np.float32)
+    targets = torch.from_numpy(np.c_[comps[:, 0], (comps[:, 1] != 0), (comps[:, 2] != 0)].astype(np.float32))
+    x = torch.cat((nz, np_), -1)
+    arrays = {s: [x[i], targets[i]] for s, i in ids.items()}
+
+    def penalty_loss(model, batch):
+      inputs, target = batch
+      y = model(inputs)
+      proximity = (y[:, 0]-target[:, 0]).square().mean()
+      collision = nn.functional.binary_cross_entropy_with_logits(y[:, 1], target[:, 1])
+      table = nn.functional.binary_cross_entropy_with_logits(y[:, 2], target[:, 2])
+      return proximity+collision+table, {"proximity_mse": proximity.item(), "collision_bce": collision.item(),
+                                         "table_bce": table.item()}
+
+    train_role("reward", mlp(x.shape[1], 4), arrays, penalty_loss,
+               {"input_dim": x.shape[1], "outputs": ["proximity", "collision_logit", "table_hit_logit", "unused"]})
+    ck = torch.load(output / "models" / "reward.pt", weights_only=True)
+    r = build_model(ck)
+    v = ids["val"]
+    with torch.inference_mode():
+      y = r(x[v]).numpy()
+    t = targets[v].numpy()
+    report = {"n": len(v), "proximity_mae": float(np.abs(y[:, 0]-t[:, 0]).mean()),
+              "proximity_mae_when_penalised": float(np.abs(y[t[:, 0] != 0, 0]-t[t[:, 0] != 0, 0]).mean()) if (t[:, 0] != 0).any() else None,
+              "penalised_states": int((t[:, 0] != 0).sum())}
+    for j, name in ((1, "collision"), (2, "table_hit")):
+      guess, truth = y[:, j] > 0, t[:, j] > .5
+      tp, fp, fn = int((guess & truth).sum()), int((guess & ~truth).sum()), int((~guess & truth).sum())
+      report[name] = {"positives": int(truth.sum()), "precision": tp/max(tp+fp, 1), "recall": tp/max(tp+fn, 1)}
+    write_json(output / "reports/reward_validation.json", report)
+    print(f"reward real validation: {report}")
+  elif args.stage == "readout":
     limits = {"xyz_cm": args.q_xyz_cm, "height_cm": args.q_height_cm,
               "f1": args.q_f1, "brier": args.q_brier}
     reports = {}
@@ -314,31 +359,53 @@ def main():
       if not windows:
         p.error("rollout-steps is longer than collected sequences")
       windows = np.asarray(windows)
-      arrays[split] = [nz[windows], np_[windows], torch.tensor(actions, dtype=torch.float32)]
+      arrays[split] = [nz[windows], np_[windows], torch.tensor(actions, dtype=torch.float32),
+                       nxyz[windows], ng[windows]]
+    q_frozen = None
+    if args.stage == "dynamics" and args.task_weight > 0:
+      q_frozen, q_ck = load_model(args.run, "readout", args.tag)
+      for name in ("z_mean", "z_std", "p_mean", "p_std", "xyz_mean", "xyz_std"):
+        if not torch.allclose(q_ck[name], stats[name]):
+          raise ValueError("readout normalisation differs from this dynamics run; train readout with the same tag")
+      q_frozen.requires_grad_(False).eval()
+      device = "cuda" if torch.cuda.is_available() else "cpu"
+      q_frozen.to(device)
+      print(f"dynamics: task-consistency through frozen Q, weight {args.task_weight}", flush=True)
 
     def dynamics_loss(model, batch):
-      zz, pp, aa = batch
+      zz, pp, aa, xx, gg = batch
       current_z, current_p = zz[:, 0], pp[:, 0]
-      z_loss, p_loss, width_loss, width_mae = 0, 0, 0, 0
+      z_loss, p_loss, width_loss, width_mae, task_loss = 0, 0, 0, 0, 0
       for t in range(w):
         current_z, current_p = model(current_z, current_p, aa[:, t])
         z_loss += (current_z-zz[:, t+1]).square().mean()/w
         p_loss += (current_p-pp[:, t+1]).square().mean()/w
+        if q_frozen is not None:
+          # the imagined state must still read as the recorded cube position and held label
+          y = q_frozen(torch.cat((current_z, current_p), -1))
+          task_loss += ((y[:, :3]-xx[:, t+1]).square().mean()
+                        + nn.functional.binary_cross_entropy_with_logits(y[:, 3], gg[:, t+1]))/w
         width_error = current_p[:, 18]-pp[:, t+1, 18]
         width_loss += width_error.square().mean()/w
         width_mae += width_error.abs().mean()*stats["p_std"][18].item()*100/w
       if args.stage == "width":
         return width_loss, {"width_mse": width_loss.item(), "width_mae_cm": width_mae.item(),
                             "z_mse": z_loss.item(), "p_mse": p_loss.item()}
+      if q_frozen is not None:
+        return z_loss+p_loss+args.task_weight*task_loss, {"z_mse": z_loss.item(), "p_mse": p_loss.item(),
+                                                          "task": task_loss.item()}
       return z_loss+p_loss, {"z_mse": z_loss.item(), "p_mse": p_loss.item()}
 
     model = SplitDynamics(z.shape[1], 20, 5)
-    extra = {"rollout_steps": w}
+    extra = {"rollout_steps": w, "task_weight": args.task_weight if args.stage == "dynamics" else None}
+    if args.stage == "dynamics" and args.robot_sees_z:
+      model = SplitDynamicsZ(z.shape[1], 20, 5)
+      extra["architecture"] = "SplitDynamicsZ"
     if args.stage == "width":
       model = WidthDynamics(z.shape[1], args.width_input)
       model.robot.load_state_dict(base.robot.state_dict())
       model.visual.load_state_dict(base.visual.state_dict())
-      example = [a[:2, 0] for a in arrays["train"]]
+      example = [a[:2, 0] for a in arrays["train"][:3]]
       with torch.inference_mode():
         original, initial = base(*example), model(*example)
         if any(not torch.allclose(a, b, rtol=0, atol=1e-6) for a, b in zip(original, initial)):

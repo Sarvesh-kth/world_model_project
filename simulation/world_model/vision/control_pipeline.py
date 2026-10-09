@@ -1,12 +1,22 @@
-"""Opt-in live A-to-B control: real-state SAC versus Q-observed SAC and JEPA MPC."""
+"""Opt-in live A-to-B control: real-state SAC versus Q-observed SAC and JEPA MPC.
+
+The online V-JEPA encoder uses the pooling, clip length and PCA basis recorded in the feature cache (encode.py).
+The planner is a CEM anchored to the SAC guide: the guide is candidate 0, the gripper follows it, part of the noise
+is shared over the horizon, the penalty head's imagined contacts are added to the score, and a candidate only
+replaces the guide when it beats the guide's own forecast by --guide-margin."""
 import argparse
 import copy
 import datetime
 import json
+import os
 import pathlib
 import shutil
 import sys
 import time
+
+# cameras render offscreen through EGL; must be set before mujoco is imported
+os.environ.setdefault("MUJOCO_GL", "egl")
+os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
 
 import cv2
 import numpy as np
@@ -22,31 +32,37 @@ METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc")
 
 
 class WorldModels:
-    def __init__(self, root, tag, encoder, dynamics_tag=None):
+    def __init__(self, root, tag, encoder, dynamics_tag=None, blind=False):
         import torch
-        from transformers import AutoModel, AutoVideoProcessor
         from .train import load_model
+        from .encode import Encoder, PINNED_REVISION
         if not torch.cuda.is_available():
-            raise RuntimeError("live JEPA encoding needs the notebook CUDA virtualenv")
+            raise RuntimeError("live JEPA encoding needs CUDA")
         self.torch = torch
         self.d, self.dc = load_model(root, "dynamics", tag if dynamics_tag is None else dynamics_tag)
-        self.q, self.qc = load_model(root, "readout", tag)
-        self.processor = AutoVideoProcessor.from_pretrained(encoder["model"], revision=encoder["model_revision"])
-        self.encoder = AutoModel.from_pretrained(encoder["model"], revision=encoder["model_revision"],
-                                                attn_implementation="sdpa")
-        if self.encoder.config._commit_hash != encoder["model_revision"]:
+        # blind = the proprio-only twin readout_p: a control for how much the image contributes
+        self.q, self.qc = load_model(root, "readout_p" if blind else "readout", tag)
+        # optional learned penalty head R(z,p) -> proximity, collision, table_hit (reward stage of train.py)
+        self.r, self.rc = (load_model(root, "reward", tag) if (pathlib.Path(root) / "attempts" / tag / "models/reward.pt").exists()
+                           else (None, None))
+        self.use_penalties = self.r is not None
+        self.penalty_scale = 1.0
+        self.width_gate = True
+        # same frozen weights, pooling, PCA basis and clip settings as the cached features
+        pooling = encoder["pooling"].split("_pca")[0]
+        pca = np.load(pathlib.Path(root) / "features/pca.npz") if pooling != "mean_all_encoder_tokens" else None
+        if pca is not None and digest(pathlib.Path(root) / "features/pca.npz") != encoder["pca_sha256"]:
+            raise ValueError("PCA basis changed after the features were encoded")
+        # offline HF configs do not expose a commit hash; the weights were loaded with the pinned revision
+        revision = encoder["model_revision"] or PINNED_REVISION
+        self.encoder = Encoder(encoder["model"], revision, "mean_all" if pca is None else pooling,
+                               pca=pca, clip_frames=encoder["clip_frames"], stride=encoder.get("frame_stride", 1),
+                               dtype=encoder.get("dtype", "bf16"), spatial_pool=encoder.get("spatial_pool", 1))
+        if (self.encoder.revision or revision) != revision:
             raise ValueError("encoder revision changed")
-        self.encoder.to("cuda", dtype=torch.bfloat16).eval()
 
     def encode(self, frames):
-        torch = self.torch
-        frames = frames[-64:]
-        frames = [frames[0]]*(64-len(frames))+frames
-        video = torch.from_numpy(np.stack(frames)).permute(0, 3, 1, 2)
-        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-            tokens = self.encoder(**self.processor(video, return_tensors="pt").to("cuda"),
-                                  skip_predictor=True).last_hidden_state
-        z = tokens.float().mean(1).squeeze(0).cpu().numpy()
+        z = self.encoder.encode_frames(frames)
         if z.shape != (self.dc["z_dim"],) or not np.isfinite(z).all():
             raise ValueError("invalid online JEPA vector")
         return z
@@ -61,7 +77,25 @@ class WorldModels:
 
     def read(self, z, p):
         from .train import readout
-        return readout(self.q, self.qc, z, p)
+        xyz, held = readout(self.q, self.qc, z, p)
+        # fingers closed to under 2 cm hold nothing (the cube is 4.5 cm wide); without this Q kept reporting
+        # "held" after a missed grasp and the policy carried air to B in every failed episode
+        if self.width_gate:
+            held = held*(np.asarray(p)[:, 18] > .02)
+        return xyz, held
+
+    def penalty(self, z, p, weights):
+        """Weighted imagined penalty per candidate, same sign convention as the reward formula (<= 0)."""
+        from .train import normalized
+        if self.r is None or not self.use_penalties:
+            return np.zeros(len(z), np.float32)
+        with self.torch.inference_mode():
+            y = self.r(self.torch.cat((normalized(z, self.rc, "z"), normalized(p, self.rc, "p")), -1)).numpy()
+        proximity = np.clip(y[:, 0], -1, 0)
+        collision, table = 1/(1+np.exp(-y[:, 1])), 1/(1+np.exp(-y[:, 2]))
+        # scaled above 1 the planner leaves the guide earlier, before the forecast reaches the wall
+        return (self.penalty_scale*(weights["proximity"]*proximity - weights["collision"]*collision
+                                    - weights["table_hit"]*table)).astype(np.float32)
 
 
 def terminal_values(policy, observations):
@@ -82,6 +116,7 @@ def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, te
     xyzs, grasps = [xyz], [held]
     memories = [copy.deepcopy(memory) for _ in range(n)]
     rewards = np.zeros((n, horizon), np.float32)
+    penalties = np.zeros((n, horizon), np.float32)
     valid = np.ones(n, bool)
     rejected = [set() for _ in range(n)]
 
@@ -100,19 +135,24 @@ def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, te
         xyz, held = models.read(zz, pp)
         finite = np.isfinite(xyz).all(1) & np.isfinite(held)
         require(finite, "Q_nonfinite")
-        require((pp[:, 18] >= -.002) & (pp[:, 18] <= .082), "finger_width")
+        # the open gripper measures up to 0.083; D overshoots it by a few mm during the carry, which is not a fault
+        require((pp[:, 18] >= -.002) & (pp[:, 18] <= .09), "finger_width")
         require((np.abs(pp[:, 14:17]) < 5).all(1), "ee_bounds")
         require((np.abs(xyz) < 5).all(1), "object_bounds")
         require((np.abs(pp) < 100).all(1), "robot_bounds")
         require((np.abs(zz) < 1e4).all(1), "latent_bounds")
         xyz[~finite], held[~finite] = xyzs[-1][~finite], grasps[-1][~finite]
         zs.append(zz); ps.append(pp); xyzs.append(xyz); grasps.append(held)
+        # learned obstacle/table penalties on the imagined state (zero when no penalty head is trained)
+        imagined_penalty = models.penalty(zz, pp, cfg.rewards.weights)
+        penalties[:, t] = imagined_penalty
         for i in range(n):
             if finished[i]:
                 continue
             failed = xyz[i, 2] < cfg.table.height-cfg.episode.fall_margin or step+t+1 >= cfg.episode.max_steps
             rewards[i, t], _ = predicted_reward(memories[i], pp[i], xyz[i], held[i], actions[i, t],
                                                 goal, rest_z, failed)
+            rewards[i, t] += imagined_penalty[i]
             finished[i] = memories[i].task_succeeded or failed
     observations = [policy_observation(ps[-1][i], xyzs[-1][i], grasps[-1][i], memories[i],
                     goal, rest_z, max(0, 1-(step+horizon)/cfg.episode.max_steps)) if valid[i]
@@ -126,7 +166,7 @@ def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, te
     scores[~valid] = -1e9
     return {"actions": actions, "z": np.stack(zs, 1), "p": np.stack(ps, 1),
             "xyz": np.stack(xyzs, 1), "held": np.stack(grasps, 1), "rewards": rewards,
-            "scores": scores, "valid": valid, "terminal_critic": continuation,
+            "scores": scores, "valid": valid, "terminal_critic": continuation, "penalties": penalties,
             "discounted_reward": discounted,
             "invalid_reasons": np.asarray([";".join(sorted(r)) for r in rejected])}
 
@@ -156,24 +196,52 @@ def actor_sequence(models, policy, z, p, memory, goal, rest_z, step, cfg, horizo
 def plan(models, policy, z, p, memory, goal, rest_z, step, cfg, args, rng, previous=None):
     horizon = min(args.horizon, cfg.episode.max_steps-step)
     guide = actor_sequence(models, policy, z, p, memory, goal, rest_z, step, cfg, horizon)
-    mean, std = guide.copy(), np.full_like(guide, .6)
+    # CEM noise around the SAC guide; the original hardcoded 0.6 lets the search leave the policy's support
+    std_floor = np.full(5, min(.1, args.cem_std), np.float32)
+    # the gripper is the policy's call: D and Q never saw a gripper closed on nothing, so a candidate that
+    # closes early looks like a grasp in imagination and the critic rewards it (every 0/5 run failed this way)
+    free_gripper = getattr(args, "free_gripper", False)
+    if not free_gripper:
+        std_floor[-1] = 0
+    gripper = np.where(guide[:, -1] > 0, 1, -1).astype(np.float32)
+    mean, std = guide.copy(), np.full_like(guide, args.cem_std)
+    std[:, -1] = args.cem_std if free_gripper else 0
     best = None
     for iteration in range(args.iterations):
-        actions = np.clip(rng.normal(mean, std, (args.population, horizon, 5)), -1, 1).astype(np.float32)
+        # part of each candidate's noise is shared across its horizon: independent per-step noise averages out
+        # (under 1 cm of lateral spread over 8 steps), so no candidate could ever route around an obstacle
+        noise = rng.normal(size=(args.population, horizon, 5))
+        smooth = getattr(args, "cem_smooth", 0.0)
+        if smooth > 0:
+            noise = np.sqrt(smooth)*rng.normal(size=(args.population, 1, 5)) + np.sqrt(1-smooth)*noise
+        actions = np.clip(mean + std*noise, -1, 1).astype(np.float32)
         actions[..., -1] = np.where(actions[..., -1] > 0, 1, -1)
+        if not free_gripper:
+            actions[..., -1] = gripper
         actions[0] = guide
         if previous is not None:
             shifted = np.concatenate((previous[1:], previous[-1:]), axis=0)
             actions[1] = shifted[:horizon]
+            if not free_gripper:
+                actions[1, :, -1] = gripper
         pool = forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, args.terminal_weight)
         selected = int(np.argmax(pool["scores"]))
         if best is None or pool["scores"][selected] > best["pool"]["scores"][best["selected"]]:
             best = {"pool": pool, "selected": selected, "iteration": iteration}
         elite_ids = np.argsort(pool["scores"])[-args.elites:]
         elites = actions[elite_ids]
-        mean, std = elites.mean(0), np.maximum(elites.std(0), .1)
+        mean, std = elites.mean(0), np.maximum(elites.std(0), std_floor)
     pool, selected = best["pool"], best["selected"]
     best["fallback"] = not bool(pool["valid"][selected])
+    # candidate 0 is always the guide, so its forecast is scored with the same D/Q/critic as everything else;
+    # a candidate only replaces the guide when it beats that forecast by more than the model noise
+    best["guide_score"] = float(pool["scores"][0])
+    best["best_score"] = float(pool["scores"][selected])
+    margin = getattr(args, "guide_margin", 0.0)
+    best["kept_guide"] = best["fallback"] or (bool(pool["valid"][0]) and best["best_score"]-best["guide_score"] <= margin)
+    if best["kept_guide"]:
+        selected = 0
+    best["selected"] = selected
     best["action"] = guide[0] if best["fallback"] else pool["actions"][selected, 0]
     best["sequence"] = guide if best["fallback"] else pool["actions"][selected]
     return best
@@ -189,6 +257,81 @@ def save_frame(session, folder, serial, history):
     # Encode the same JPEG representation used by the existing offline cache.
     history.append(cv2.cvtColor(cv2.imread(str(path)), cv2.COLOR_BGR2RGB))
     del history[:-64]
+
+
+def viewer_process(cfg, layout, queue):
+    """Separate process that owns the MuJoCo window: the episode process renders its cameras with EGL and a window
+    cannot share that context, so this one rebuilds the same scene and mirrors the robot state it is sent."""
+    import mujoco
+    import mujoco.viewer
+    from environment import scene, EpisodeLayout
+    from environment.config import Config
+    model = scene.build_scene(Config.nested(cfg), EpisodeLayout.from_dict(layout))
+    data = mujoco.MjData(model)
+    previous = target = None
+    arrived = time.monotonic()
+    with mujoco.viewer.launch_passive(model, data) as viewer:
+        while viewer.is_running():
+            try:
+                state = queue.get(timeout=1/60)
+                if state is None:
+                    break
+                previous, target, arrived = (target if target is not None else state[0]), state[0], time.monotonic()
+                gap = state[1]
+            except Exception:
+                pass
+            if target is None:
+                continue
+            # the planner delivers 2-3 states a second; glide between the last two so the window moves smoothly
+            alpha = min(1.0, (time.monotonic()-arrived)/max(gap, 1e-3))
+            data.qpos[:] = previous+alpha*(target-previous)
+            mujoco.mj_forward(model, data)
+            viewer.sync()
+            time.sleep(1/60)
+    # the viewer thread can hang or crash on a normal exit (see play.py), so leave the hard way
+    os._exit(0)
+
+
+class LiveViewer:
+    """Mirror of the simulation in a MuJoCo window, unless --headless or there is no display (batch runs)."""
+    def __init__(self, session, args, config):
+        self.queue = self.process = None
+        if getattr(args, "headless", False) or not os.environ.get("DISPLAY"):
+            return
+        import multiprocessing
+        context = multiprocessing.get_context("spawn")
+        self.queue = context.Queue(maxsize=4)
+        self.process = context.Process(target=viewer_process, daemon=True,
+                                       args=(config, session.sim.layout.to_dict(), self.queue))
+        # the child reads these at its first `import mujoco`: no EGL there, and no NVIDIA PRIME offload
+        # variables either (they leave the window blank, see play.py); this process keeps its own values
+        saved = {k: os.environ.pop(k) for k in ("MUJOCO_GL", "PYOPENGL_PLATFORM", "__NV_PRIME_RENDER_OFFLOAD",
+                 "__GLX_VENDOR_LIBRARY_NAME", "__EGL_VENDOR_LIBRARY_FILENAMES") if k in os.environ}
+        try:
+            self.process.start()
+        finally:
+            os.environ.update(saved)
+
+    def sync(self, session):
+        if self.process is None or not self.process.is_alive():
+            return
+        now = time.monotonic()
+        gap, self.last = (now-self.last if getattr(self, "last", None) else .1), now
+        try:
+            # the window glides from its last state to this one over the time the step took
+            self.queue.put_nowait((session.sim.data.qpos.copy(), gap))
+        except Exception:
+            pass   # the window is behind; drop this frame
+
+    def close(self):
+        if self.process is not None and self.process.is_alive():
+            try:
+                self.queue.put(None, timeout=1)
+            except Exception:
+                pass
+            self.process.join(timeout=3)
+            if self.process.is_alive():
+                self.process.terminate()
 
 
 def episode(root, signature, args, *, session_factory=TaskSession, models=None, policy=None):
@@ -212,15 +355,24 @@ def episode(root, signature, args, *, session_factory=TaskSession, models=None, 
         raise ValueError("controller does not use the frozen baseline checkpoint")
     policy = None if args.method == "scripted" else policy if policy is not None else SAC.load(checkpoint, device="cpu")
     visual = args.method in ("rl_q", "jepa_mpc")
-    models = (models if models is not None else WorldModels(args.models_run, args.tag, signature["encoder"])) if visual else None
+    models = (models if models is not None else WorldModels(args.models_run, args.tag, signature["encoder"],
+                                                             blind=getattr(args, "blind", False))) if visual else None
+    if models is not None and getattr(args, "no_penalties", False):
+        models.use_penalties = False
+    if models is not None:
+        models.width_gate = not getattr(args, "no_width_gate", False)
+        models.penalty_scale = getattr(args, "penalty_scale", 1.0)
     goal = np.array([*signature["layout"]["place"], signature["known_rest_z"]], np.float32)
     memory = GoalReward(cfg)
     histories, rows, predictions, candidates = [], [], [], []
     states_p, states_xyz, states_held, states_z, executed_actions = [], [], [], [], []
     previous = None
     started = time.monotonic()
+    viewer = None
     try:
         obs = session.reset(seed)
+        viewer = LiveViewer(session, args, signature["config"])
+        step_time = 1/(cfg.control.hz*max(getattr(args, "speed", 1.0), 1e-3))
         scripted = ScriptedPickPlace(session.sim, np.random.default_rng(seed)) if args.method == "scripted" else None
         save_frame(session, folder, 0, histories)
         z = models.encode(histories) if visual else None
@@ -250,6 +402,10 @@ def episode(root, signature, args, *, session_factory=TaskSession, models=None, 
                 action, previous = decision["action"], decision["sequence"]
             decision_seconds = time.monotonic()-decision_start
             obs, reward, done, timeout, info = session.step(action)
+            if viewer.process is not None:
+                # play at --speed times real time while the window is open
+                viewer.sync(session)
+                time.sleep(max(0, step_time-(time.monotonic()-decision_start)))
             proposed_action = np.asarray(action).copy()
             action = np.asarray(info.get("executed_action", action))
             intervened = bool(info.get("forced_release", False))
@@ -290,7 +446,10 @@ def episode(root, signature, args, *, session_factory=TaskSession, models=None, 
                 if decision is not None:
                     pool, selected = decision["pool"], decision["selected"]
                     row.update({"predicted_score": float(pool["scores"][selected]),
+                                "predicted_penalty_sum": float(pool["penalties"][selected].sum()),
                                 "planner_fallback_to_RL_Q": decision["fallback"],
+                                "guide_score": decision["guide_score"], "best_candidate_score": decision["best_score"],
+                                "kept_guide": decision["kept_guide"],
                                 "valid_candidates": int(pool["valid"].sum())})
                     if not decision["fallback"] and not intervened:
                         predicted_xyz = pool["xyz"][selected, 1]
@@ -354,6 +513,7 @@ def episode(root, signature, args, *, session_factory=TaskSession, models=None, 
                   "SAC_checkpoint_sha256": checkpoint_sha,
                   "seconds": time.monotonic()-started,
                   "model_fallback_steps": sum(bool(r.get("planner_fallback_to_RL_Q")) for r in rows),
+                  "guide_kept_steps": sum(bool(r.get("kept_guide")) for r in rows),
                   "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc"}
         if visual:
             result["Q_on_actual_observations"] = outcome_metrics(
@@ -366,6 +526,8 @@ def episode(root, signature, args, *, session_factory=TaskSession, models=None, 
         write_json(folder / "result.json", result)
         print(f"FINISHED {args.method}: success={result['task_success']} goal={result['final_goal_distance_cm']:.1f}cm", flush=True)
     finally:
+        if viewer is not None:
+            viewer.close()
         session.close()
 
 
@@ -435,9 +597,8 @@ def inputs(args):
     features = json.loads((args.models_run / "features/meta.json").read_text())
     if not manifest.get("complete") or features["manifest_sha256"] != digest(args.models_run / "manifest.json"):
         raise ValueError("source dataset/encoder cache is incomplete or mismatched")
-    if (features.get("camera") != "static" or features.get("clip_frames") != 64
-            or features.get("pooling") != "mean_all_encoder_tokens" or not features.get("model_revision")):
-        raise ValueError("this live experiment requires the pinned static 64-frame encoder")
+    if features.get("camera") != "static" or not features.get("pooling"):
+        raise ValueError("this live experiment requires the pinned static-camera encoder cache")
     cfg = Config.nested(copy.deepcopy(manifest["config"]))
     cfg.episode.terminate_on_success = False
     layout = json.loads(args.layout.read_text())
@@ -451,9 +612,10 @@ def inputs(args):
         raise ValueError("source training data has no resting-cube height calibration")
     options = {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()
                if k not in ("resume", "self_check", "stage", "method", "episode_seed")}
+    options["methods"] = " ".join(options["methods"]) if isinstance(options.get("methods"), list) else options.get("methods")
     code = list((SIMULATION / "environment").glob("*.py"))
     code += [SIMULATION / "world_model/vision" / f"{name}.py" for name in
-             ("task_control", "rl_control", "control_pipeline", "train", "data", "pipeline")]
+             ("task_control", "rl_control", "control_pipeline", "encode", "train", "data", "pipeline")]
     code += [SIMULATION / "world_model/train_dynamics.py", SIMULATION / "data_collection/scripted_policy.py"]
     baseline = frozen_baseline(args.baseline_run, cfg, layout, args.position_jitter) if args.baseline_run else None
     if baseline:
@@ -466,7 +628,8 @@ def inputs(args):
             raise ValueError("comparison seeds overlap baseline training/validation/evaluation; use a fresh --seed")
     return {"options": options, "config": cfg, "layout": layout, "frozen_baseline": baseline,
             "known_rest_z": float(np.median(training_rest)),
-            "encoder": {k: features[k] for k in ("model", "model_revision", "camera", "clip_frames", "pooling")},
+            "encoder": {k: features.get(k) for k in ("model", "model_revision", "camera", "clip_frames",
+                                                      "frame_stride", "pooling", "pca_sha256", "dtype", "spatial_pool")},
             "source_manifest_sha256": digest(args.models_run / "manifest.json"),
             "source_features_sha256": digest(args.models_run / "features/meta.json"),
             "source_dynamics_sha256": digest(args.models_run / "attempts" / args.tag / "models/dynamics.pt"),
@@ -598,14 +761,16 @@ def check():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("data/vision_v2"))
-    parser.add_argument("--baseline-run", type=pathlib.Path,
-                        help="reuse a completed, passing rl_baseline run; skip all RL training")
-    parser.add_argument("--tag", default="width_visual_seed_0")
+    parser.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("data/combined_test1"),
+                        help="run folder holding features/ (PCA basis) and attempts/<tag>/models/ (Q, R, D)")
+    parser.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("data/rl_baseline_v1"),
+                        help="completed rl_baseline run with the frozen SAC (models/sac_best.zip); no RL training")
+    parser.add_argument("--tag", default="combined")
     parser.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/grade_e_layout.json"))
-    parser.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/control_v1"))
-    parser.add_argument("--export-dir", type=pathlib.Path)
-    parser.add_argument("--seed", type=int, default=20261005)
+    parser.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/control"),
+                        help="run folder (episodes, frames, gifs); overwritten unless --resume")
+    parser.add_argument("--export-dir", type=pathlib.Path, help="default: results/<out name>")
+    parser.add_argument("--seed", type=int, default=20474010)
     parser.add_argument("--rl-steps", type=int, default=10000)
     parser.add_argument("--demos", type=int, default=20)
     parser.add_argument("--bc-epochs", type=int, default=120)
@@ -619,9 +784,23 @@ def main():
     parser.add_argument("--population", type=int, default=64)
     parser.add_argument("--elites", type=int, default=8)
     parser.add_argument("--iterations", type=int, default=3)
-    parser.add_argument("--terminal-weight", type=float, default=1.0)
+    parser.add_argument("--terminal-weight", type=float, default=0.0,
+                        help="weight of the SAC critic as terminal value; 0 because D errors exploit it (team value 1)")
+    parser.add_argument("--cem-std", type=float, default=0.3, help="CEM sampling std around the SAC guide (team value was 0.6)")
+    parser.add_argument("--no-penalties", action="store_true", help="ignore a trained penalty head when scoring candidates")
+    parser.add_argument("--penalty-scale", type=float, default=2.0, help="multiply the imagined contact penalties; 2 leaves the guide earlier near obstacles (1 = recorded weights)")
+    parser.add_argument("--guide-margin", type=float, default=0.25,
+                        help="a CEM candidate replaces the SAC guide only if its imagined score beats the guide's by this much")
+    parser.add_argument("--free-gripper", action="store_true", help="let CEM also sample the gripper (team behaviour)")
+    parser.add_argument("--blind", action="store_true", help="control: use the proprio-only readout_p instead of Q(z, p)")
+    parser.add_argument("--methods", nargs="+", default=list(METHODS), choices=METHODS, help="which controllers to run")
+    parser.add_argument("--no-width-gate", action="store_true", help="do not zero Q's held reading when the fingers are closed on nothing")
+    parser.add_argument("--cem-smooth", type=float, default=0.5,
+                        help="share of each candidate's noise variance that is constant over the horizon (0 = independent per step)")
+    parser.add_argument("--headless", action="store_true", help="no MuJoCo window (the default when there is no display)")
+    parser.add_argument("--speed", type=float, default=1.0, help="playback speed of the window, times real time")
     parser.add_argument("--threads", type=int, default=4)
-    parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--resume", action="store_true", help="continue an interrupted run instead of overwriting it")
     parser.add_argument("--self-check", action="store_true")
     parser.add_argument("--stage", choices=("rl", "episode"), help=argparse.SUPPRESS)
     parser.add_argument("--method", choices=METHODS, help=argparse.SUPPRESS)
@@ -633,7 +812,7 @@ def main():
             args.test_episodes, args.horizon, args.iterations, args.threads) < 1
             or not 2 <= args.elites < args.population or not 0 <= args.position_jitter <= .03
             or args.seed < 0 or args.critic_warmup < 0 or not 0 <= args.bc_weight <= 1000
-            or not 0 <= args.terminal_weight <= 2):
+            or not 0 <= args.terminal_weight <= 2 or not 0 <= args.cem_smooth <= 1):
         parser.error("invalid training/planning/scene settings")
     args.models_run, args.out, args.layout = [p.resolve() for p in (args.models_run, args.out, args.layout)]
     if args.baseline_run:
@@ -652,7 +831,7 @@ def main():
     if args.stage:
         state = json.loads(path.read_text())
         if state["inputs"] != signature:
-            raise ValueError("stage settings differ from parent pipeline")
+            raise ValueError("code or settings changed while this run was active; start the run again")
         if args.stage == "rl":
             if signature["frozen_baseline"]:
                 reuse_baseline(args.out, signature["frozen_baseline"])
@@ -664,34 +843,37 @@ def main():
                 parser.error("episode stage requires method and seed")
             episode(args.out, signature, args)
         return
-    if path.exists():
-        if not args.resume:
-            parser.error("run exists; repeat with --resume or choose a new --out")
+    if path.exists() and args.resume:
         state = json.loads(path.read_text())
         if state["inputs"] != signature:
-            parser.error("inputs/code/settings changed; preserve run and choose a new --out")
+            parser.error("inputs/code/settings changed since this run; drop --resume to start over")
     else:
-        if args.out.exists() and any(args.out.iterdir()):
-            parser.error("output is not empty")
-        if args.export_dir.exists() and any(args.export_dir.iterdir()):
-            parser.error("export is not empty; choose a new output/export name")
+        # a fresh run replaces whatever is in the folder; --resume continues one instead
+        for folder in (args.out, args.export_dir):
+            if folder.exists():
+                print(f"overwriting {folder}", flush=True)
+                shutil.rmtree(folder)
         state = {"inputs": signature, "provenance": provenance(), "complete": False, "stages": {},
                  "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat()}
         write_json(path, state)
     command = [sys.executable, "-u", "-m", "world_model.vision.control_pipeline"]
     for name, value in signature["options"].items():
-        if value is not None:
+        if value is True:
+            command += ["--"+name.replace("_", "-")]
+        elif name == "methods":
+            command += ["--methods", *str(value).split()]
+        elif value is not None and value is not False:
             command += ["--"+name.replace("_", "-"), str(value)]
     rl_stage = "reuse_rl" if signature["frozen_baseline"] else "train_rl"
     jobs = [(rl_stage, command+["--stage", "rl"], args.out / "models/rl_training.json")]
-    for method in METHODS:
+    for method in args.methods:
         for i in range(args.test_episodes):
             seed = args.seed+20000+i
             jobs.append((f"{method}_{seed}", command+["--stage", "episode", "--method", method,
                 "--episode-seed", str(seed)], args.out / "episodes" / method / f"seed_{seed}" / "result.json"))
     try:
         run_command([sys.executable, "-c", "import torch, stable_baselines3, transformers, mujoco; "
-            "assert torch.cuda.is_available(), 'Run on the CUDA notebook'; "
+            "assert torch.cuda.is_available(), 'CUDA required'; "
             "print('GPU:', torch.cuda.get_device_name(0), 'SB3:', stable_baselines3.__version__)"], args.out / "logs/preflight.txt")
         for i, (name, cmd, artifact) in enumerate(jobs, 1):
             old = state["stages"].get(name, {})

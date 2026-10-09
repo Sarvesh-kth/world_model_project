@@ -43,6 +43,23 @@ class SplitDynamics(nn.Module):
     return next_z, next_p
 
 
+class SplitDynamicsZ(SplitDynamics):
+  """Same two heads, but the robot head also sees the visual vector, so the finger width it
+  predicts can depend on whether a cube is between the fingers (the plain robot head cannot know)."""
+
+  def __init__(self, z_dim, p_dim, a_dim, width=512, p_width=128):
+    super().__init__(z_dim, p_dim, a_dim, width=width, p_width=p_width)
+    self.robot = nn.Sequential(nn.Linear(z_dim + p_dim + a_dim, p_width), nn.LayerNorm(p_width),
+                               nn.GELU(), nn.Linear(p_width, p_width), nn.GELU(),
+                               nn.Linear(p_width, p_dim))
+
+  def forward(self, z, p, action):
+    # z is detached here so the robot loss does not reshape the visual head
+    next_p = p + self.robot(torch.cat((z.detach(), p, action), dim=-1))
+    next_z = z + self.visual(torch.cat((z, p.detach(), action, next_p.detach()), dim=-1))
+    return next_z, next_p
+
+
 def model_from_checkpoint(checkpoint):
   """Load either dynamics architecture without changing old checkpoints."""
   architecture = checkpoint.get("architecture", "Dynamics")
@@ -53,6 +70,10 @@ def model_from_checkpoint(checkpoint):
     model = SplitDynamics(checkpoint["z_dim"], checkpoint["p_dim"],
                           checkpoint["a_dim"], width=checkpoint["width"],
                           p_width=checkpoint["p_width"])
+  elif architecture == "SplitDynamicsZ":
+    model = SplitDynamicsZ(checkpoint["z_dim"], checkpoint["p_dim"],
+                           checkpoint["a_dim"], width=checkpoint["width"],
+                           p_width=checkpoint["p_width"])
   else:
     raise ValueError(f"unknown dynamics architecture: {architecture}")
   model.load_state_dict(checkpoint["model"])

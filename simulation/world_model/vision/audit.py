@@ -59,6 +59,8 @@ def audit(root, manifest, images=True):
   if manifest.get("campaign") == "full_task_clutter_v1":
     from .full_task import audit_pairs
     contrasts, p_errors = audit_pairs(manifest, problems)
+  elif manifest.get("campaign") in ("full_task_obstacles_test1", "episodes_test1", "combined_test1"):
+    contrasts, p_errors = [], []   # blocking obstacles: contacts are the point, pairs are checked by the collector
   else:
     contrasts, p_errors = [], []
     for (scene, placement), pair in pairs.items():
@@ -89,7 +91,7 @@ def audit(root, manifest, images=True):
     labels = [s["held"] for s in states if s["split"] == split]
     if not labels or not any(labels) or all(labels):
       problems.append(f"{split} needs both held and not-held labels; grasp setup may have failed")
-    if manifest.get("campaign") != "full_task_clutter_v1":
+    if manifest.get("campaign") not in ("full_task_clutter_v1", "full_task_obstacles_test1", "episodes_test1", "combined_test1"):
       eligible = [c for c in contrasts if c["split"] == split and c["placement"] == "under"
                   and abs(c["height_effect_cm"]) >= 2]
       if not eligible:

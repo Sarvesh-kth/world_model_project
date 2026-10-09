@@ -1,0 +1,100 @@
+<svg viewBox="0 0 1180 700" width="2360" height="1400" role="img" aria-label="New architecture: spatial V-JEPA latent, gated readout, task-consistent dynamics, penalty head and a guide-anchored CEM planner, with the eight changes marked" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="1180" height="700" fill="#f3f5f6"/><style>
+svg{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif}
+.blk{fill:#ffffff;stroke:#cfd6dc;stroke-width:1.2}
+.blk.bad{stroke:#b4462f;stroke-width:1.6;fill:#f7e3dd}
+.blk.chg{stroke:#1a8f8f;stroke-width:1.6;fill:#dcf1f1}
+.blk.new{stroke:#1a8f8f;stroke-width:1.6;stroke-dasharray:5 3;fill:#e4f3e9}
+.t{font-family:"IBM Plex Sans Condensed","DejaVu Sans Condensed","DejaVu Sans",Arial,sans-serif;font-weight:700;font-size:13px;fill:#1c2328}
+.m{font-family:"IBM Plex Mono","DejaVu Sans Mono",monospace;font-size:10.5px;fill:#5d6873}
+.ar{fill:none;stroke:#1c2328;stroke-width:1.3}
+.ar.dash{stroke-dasharray:4 3;opacity:.7}
+.al{font-family:"IBM Plex Mono","DejaVu Sans Mono",monospace;font-size:10.5px;fill:#1c2328}
+.mk.bad{fill:#b4462f} .mk.good{fill:#1a8f8f}
+.mt{font-family:"IBM Plex Sans Condensed","DejaVu Sans Condensed","DejaVu Sans",Arial,sans-serif;font-weight:700;font-size:11px;fill:#ffffff}
+text.mt.bad{fill:#b4462f;font-size:11.5px} text.mt.good{fill:#1a8f8f;font-size:11.5px}
+.h{font-family:"IBM Plex Sans Condensed","DejaVu Sans Condensed","DejaVu Sans",Arial,sans-serif;font-weight:700;font-size:20px;fill:#1c2328}
+.s{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif;font-size:12px;fill:#5d6873}
+.lg{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif;font-size:11px;fill:#5d6873}
+</style><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1c2328"/></marker></defs><text class="h" x="20" y="30">New architecture (world_model_testing)</text><text class="s" x="20" y="50">spatial latent, gated Q, task-consistent D, penalty head, guide-anchored CEM · empty table 19/20, obstacles 3/6</text><rect x="820" y="18" width="14" height="10" fill="#dcf1f1" stroke="#1a8f8f" stroke-width="1.5"/><text class="lg" x="840" y="27">changed block</text><rect x="940" y="18" width="14" height="10" fill="#e4f3e9" stroke="#1a8f8f" stroke-width="1.5" stroke-dasharray="4 2"/><text class="lg" x="960" y="27">new block · C1–C8 = changes</text><text class="lg" x="820" y="45">solid arrow = run-time data · dashed = feedback / training</text><g transform="translate(0,60)">
+<rect class="blk" x="20" y="50" width="165" height="110" rx="6"/>
+<text class="t" x="32" y="72">MuJoCo sim</text>
+<text class="m" x="32" y="92">Panda + static cam</text>
+<text class="m" x="32" y="107">10 Hz, 5-dim actions</text>
+<text class="m" x="32" y="122">out: frames 256², p (20)</text>
+<rect class="blk chg" x="215" y="50" width="190" height="110" rx="6"/>
+<text class="t" x="227" y="72">V-JEPA 2 ViT-L (frozen)</text>
+<text class="m" x="227" y="92">in: last 16 frames (1.6 s)</text>
+<text class="m" x="227" y="107">fp16, GPU preprocessing</text>
+<text class="m" x="227" y="122">0.15 s per clip</text>
+<circle class="mk good" cx="391" cy="64" r="11"/>
+<text class="mt" x="391" y="68" text-anchor="middle">C1</text>
+<rect class="blk chg" x="435" y="50" width="190" height="110" rx="6"/>
+<text class="t" x="447" y="72">Spatial pooling + PCA</text>
+<text class="m" x="447" y="92">time-mean -> 2×2 avg -> 8×8 grid</text>
+<text class="m" x="447" y="107">PCA 1024->16 per cell (shared basis)</text>
+<text class="m" x="447" y="122">out: z = 8×8×16 = 1024</text>
+<circle class="mk good" cx="611" cy="64" r="11"/>
+<text class="mt" x="611" y="68" text-anchor="middle">C2</text>
+<rect class="blk new" x="885" y="50" width="190" height="110" rx="6"/>
+<text class="t" x="897" y="72">Combined data (new)</text>
+<text class="m" x="897" y="92">full task ±3 cm · obstacles ·</text>
+<text class="m" x="897" y="107">full mix (random, drop, collide)</text>
+<text class="m" x="897" y="122">58,010 states, one PCA basis</text>
+<circle class="mk good" cx="1061" cy="64" r="11"/>
+<text class="mt" x="1061" y="68" text-anchor="middle">C3</text>
+<rect class="blk chg" x="435" y="235" width="190" height="110" rx="6"/>
+<text class="t" x="447" y="257">Q readout + width gate</text>
+<text class="m" x="447" y="277">in: [z, p]  out: xyz, P(held)</text>
+<text class="m" x="447" y="292">held := 0 if finger width &lt; 2 cm</text>
+<text class="m" x="447" y="307">(closed on nothing holds nothing)</text>
+<circle class="mk good" cx="611" cy="249" r="11"/>
+<text class="mt" x="611" y="253" text-anchor="middle">C4</text>
+<rect class="blk chg" x="660" y="235" width="190" height="110" rx="6"/>
+<text class="t" x="672" y="257">D: SplitDynamicsZ</text>
+<text class="m" x="672" y="277">robot head also sees z</text>
+<text class="m" x="672" y="292">loss: + frozen Q must read the</text>
+<text class="m" x="672" y="307">recorded cube on imagined states</text>
+<circle class="mk good" cx="836" cy="249" r="11"/>
+<text class="mt" x="836" y="253" text-anchor="middle">C5</text>
+<rect class="blk new" x="885" y="235" width="190" height="110" rx="6"/>
+<text class="t" x="897" y="257">R penalty head (new)</text>
+<text class="m" x="897" y="277">in: [z, p]</text>
+<text class="m" x="897" y="292">out: proximity, P(collision),</text>
+<text class="m" x="897" y="307">P(table hit) -> added to r_t</text>
+<circle class="mk good" cx="1061" cy="249" r="11"/>
+<text class="mt" x="1061" y="253" text-anchor="middle">C6</text>
+<rect class="blk" x="215" y="430" width="190" height="110" rx="6"/>
+<text class="t" x="227" y="452">SAC prior (frozen)</text>
+<text class="m" x="227" y="472">in: 41-dim obs from gated Q</text>
+<text class="m" x="227" y="487">out: guide = candidate 0</text>
+<text class="m" x="227" y="502">also decides the gripper</text>
+<rect class="blk chg" x="435" y="430" width="415" height="130" rx="6"/>
+<text class="t" x="447" y="452">Guide-anchored CEM planner</text>
+<text class="m" x="447" y="472">64 candidates × 8 steps, 3 iterations, 8 elites (unchanged loop)</text>
+<text class="m" x="447" y="487">noise: std 0.3, half shared over the horizon; gripper = guide&#x27;s</text>
+<text class="m" x="447" y="502">score = Σ γᵗ (r_t + R penalties); guide scored the same way</text>
+<text class="m" x="447" y="517">execute argmax only if score - score(guide) &gt; 0.25, else guide</text>
+<circle class="mk good" cx="836" cy="444" r="11"/>
+<text class="mt" x="836" y="448" text-anchor="middle">C7</text>
+<rect class="blk" x="885" y="430" width="190" height="110" rx="6"/>
+<text class="t" x="897" y="452">Execute</text>
+<text class="m" x="897" y="472">first action via IK</text>
+<text class="m" x="897" y="487">re-observe, replan</text>
+<text class="m" x="897" y="502">0.35 s (0.45 s with R)</text>
+<polyline class="ar" points="185,105 215,105" marker-end="url(#ah)"/><text class="al" x="200" y="96" text-anchor="middle">frames</text>
+<polyline class="ar" points="405,105 435,105" marker-end="url(#ah)"/><text class="al" x="420" y="96" text-anchor="middle">tokens</text>
+<polyline class="ar" points="530,160 530,235" marker-end="url(#ah)"/><text class="al" x="540" y="205" text-anchor="start">z</text>
+<polyline class="ar" points="100,160 100,290 435,290" marker-end="url(#ah)"/><text class="al" x="260" y="282" text-anchor="middle">p (20): joints, ee, width</text>
+<polyline class="ar" points="625,290 660,290" marker-end="url(#ah)"/>
+<polyline class="ar" points="850,290 885,290" marker-end="url(#ah)"/><text class="al" x="867" y="280" text-anchor="middle">z&#x27;, p&#x27;</text>
+<polyline class="ar dash" points="980,160 980,235" marker-end="url(#ah)"/><text class="al" x="990" y="205" text-anchor="start">trains Q, D, R</text>
+<polyline class="ar" points="750,345 750,400 640,400 640,430" marker-end="url(#ah)"/><text class="al" x="700" y="392" text-anchor="middle">z&#x27;, p&#x27; per candidate</text>
+<polyline class="ar" points="980,345 980,400 700,400 700,430" marker-end="url(#ah)"/><text class="al" x="985" y="380" text-anchor="start">penalties</text>
+<polyline class="ar" points="530,345 530,380 310,380 310,430" marker-end="url(#ah)"/><text class="al" x="420" y="372" text-anchor="middle">xyz, gated held</text>
+<polyline class="ar" points="405,495 435,495" marker-end="url(#ah)"/><text class="al" x="420" y="486" text-anchor="middle">guide</text>
+<polyline class="ar" points="850,495 885,495" marker-end="url(#ah)"/><text class="al" x="867" y="486" text-anchor="middle">a₀</text>
+<polyline class="ar dash" points="980,540 980,600 100,600 100,160" marker-end="url(#ah)"/><text class="al" x="540" y="616" text-anchor="middle">action -> sim</text>
+<polyline class="ar dash" points="530,560 530,585 850,585 850,345" marker-end="url(#ah)"/><text class="al" x="690" y="578" text-anchor="middle">candidate (z,p,a) -> D</text>
+<text class="mt good" x="20" y="630">C8 · validity bound for predicted finger width .082 -> .09 m; boolean flags forwarded to stage subprocesses; one model set (tag combined) for empty and obstacle scenes</text>
+</g></svg>

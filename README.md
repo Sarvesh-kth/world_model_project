@@ -1,30 +1,114 @@
 # JEPA World Model Pick and Place
 
-This repository contains a MuJoCo Franka Panda simulation, scripted demonstrations,
-data collection, frozen V-JEPA 2 features, learned dynamics/readouts, a trained SAC
-baseline and experimental visual control. The `success` demo uses a scripted
-policy that reads simulator state. The live comparison uses a fixed reward
-formula; a separate learned immediate reward network remains planned work.
+A MuJoCo Franka Panda picks an object and places it at a target while routing around
+obstacles. A frozen V-JEPA 2 encoder with a spatial latent is the perception; small
+readouts Q (object position, held), D (latent dynamics) and R (contact penalties) are
+trained on recorded episodes; a SAC policy trained on exact state is the prior; and the
+controller is a CEM planner anchored to that prior.
 
-**Sharing with teammates:** code/report exports do not include notebook-trained
-weights or recordings. See [Share trained runs and videos with Calle](#share-trained-runs-and-videos-with-calle)
-for Git LFS upload/download commands and video instructions.
+- What changed from M2_Kuba and why, with numbers: [CHANGES_FROM_M2.md](CHANGES_FROM_M2.md)
+- Diagrams: `diagrams/jepa_architecture_old.png`, `diagrams/jepa_architecture_new.png`
+- Every run and log path: `simulation/world_model/vision/STATUS.txt`
+- Sharing weights with teammates (Git LFS): [see below](#share-trained-runs-and-videos-with-calle)
 
-## Install (macOS and Linux)
-
-Clone the repository if you do not already have it, then create a Python virtual
-environment and install the dependencies:
+## Setup
 
 ```bash
 git clone https://github.com/Sarvesh-kth/world_model_project.git
 cd world_model_project
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+python3 -m venv .venv && source .venv/bin/activate
+pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
+pip install -r requirements.txt -r requirements-model.txt -r requirements-control.txt
+cd simulation
 ```
 
-If you already have the repository, start with `cd world_model_project`. The
-virtual environment and most generated runs are ignored by Git. Explicitly shared
-run folders are allowed and configured for Git LFS; see the sharing section.
+Everything below runs from `simulation/` with the venv active. Linux with an NVIDIA GPU
+for anything that touches V-JEPA (encoding, the rl_q and jepa_mpc controllers). The
+notebook image needs the OSMesa setup in [Grade E notebook run](#grade-e-notebook-run-linux-with-an-nvidia-gpu).
+
+## Trained models
+
+The controllers load everything from two folders, which are the defaults:
+
+| what | where |
+|---|---|
+| Q, R, D weights | `data/combined_test1/attempts/combined/models/{readout,reward,dynamics}.pt` |
+| PCA basis for the latent (used online too) | `data/combined_test1/features/pca.npz` |
+| run manifest and feature cache the weights are tied to | `data/combined_test1/manifest.json`, `features/meta.json` |
+| frozen SAC policy | `data/rl_baseline_v1/models/sac_best.zip` |
+| V-JEPA 2 weights | Hugging Face cache (`facebook/vjepa2-vitl-fpc64-256`, downloaded on first use) |
+
+`data/` is git-ignored; get the two folders through Git LFS (section below) or retrain (bottom of this section).
+
+## Run
+
+```bash
+python -m world_model.vision.control_pipeline --methods jepa_mpc
+```
+
+Five fresh empty-table scenes with the planner, each playing live in a MuJoCo window
+(the window opens after about 20 s of model loading; on this laptop a planner step takes
+about 0.3 s of wall time, so the motion is roughly a third of real time and `--speed` cannot
+make it faster than that). Scenes 19 and 21 are the obstacle layouts where the planner
+routes around a wall that the plain policy hits.
+Results land in `results/control/summary.txt` (placements, final distance), per-episode
+`steps.csv`, `candidates.csv`, `forecasts/` and `actual.gif` under `data/control/episodes/jepa_mpc/seed_*/`.
+A run overwrites `data/control` and `results/control`; add `--resume` to continue an interrupted one.
+
+```bash
+python -m world_model.vision.control_pipeline                       # all four: scripted, rl_true, rl_q, jepa_mpc
+python -m world_model.vision.control_pipeline --test-episodes 20    # the numbers in CHANGES_FROM_M2.md
+python -m world_model.vision.control_pipeline --headless --speed 4  # no window / faster playback
+python -m world_model.vision.control_clutter --methods jepa_mpc --only scene_0019 scene_0021   # obstacle avoidance demo
+python -m world_model.vision.control_clutter --methods rl_q jepa_mpc   # all six held-out obstacle scenes
+python -m world_model.vision.control_clutter --methods jepa_mpc --no-penalties   # same, penalty head off
+bash world_model/vision/run_final.sh 20                             # all of the above, headless
+```
+
+Planner options, only when testing something different: `--guide-margin 0.25`
+(a candidate replaces the SAC guide only if it beats the guide's forecast by this much),
+`--cem-std 0.3`, `--cem-smooth 0.5` (share of the noise shared over the horizon), `--horizon 8`,
+`--penalty-scale 2` (imagined contact penalties times this; higher avoids earlier but may refuse to approach a cube beside a wall),
+`--terminal-weight 0` (SAC critic as terminal value), `--free-gripper`, `--no-width-gate`,
+`--no-penalties`, `--blind` (proprio-only readout, a control for what the image does).
+The team's original planner is `--cem-std 0.6 --cem-smooth 0 --free-gripper --no-width-gate --guide-margin 0 --terminal-weight 1`.
+`--models-run` and `--tag` point at other trained models.
+
+Do not edit `control_pipeline.py`, `encode.py` or `train.py` while a run is active: each
+episode is a subprocess that re-hashes the code and stops on a mismatch.
+
+## Train from scratch
+
+Needs the frozen SAC in `data/rl_baseline_v1` ([Establish the exact-state RL baseline first](#establish-the-exact-state-rl-baseline-first)).
+
+```bash
+# 1. data: full task at +-3 cm, paired obstacle scenes, the collector's full mix (about 1 h with workers)
+python -m world_model.vision.collect_full --out data/full_test1
+python -m world_model.vision.collect_obstacles --out data/obstacles_test1
+python -m data_collection.collect --config configs/full_mix.yml --episodes 120 --out data/episodes_test1/episodes_raw
+python -m world_model.vision.prepare_episodes --episodes data/episodes_test1/episodes_raw --run data/episodes_test1
+
+# 2. encode: fit the PCA basis on the first run, reuse it for the other two (about 0.17 s per state)
+python -m world_model.vision.encode --run data/full_test1
+for r in obstacles_test1 episodes_test1; do
+  d=data/${r}_fullpca; mkdir -p $d
+  for f in manifest.json collection.json scene_settings.json observations episodes_raw; do [ -e data/$r/$f ] && ln -sfn ../$r/$f $d/$f; done
+  [ -e data/$r/episodes_raw ] && ln -sfn ../$r/episodes_raw $d/episodes
+  python -m world_model.vision.encode --run $d --pca data/full_test1/features/pca.npz
+done
+
+# 3. merge and train Q, R, D (about 15 min), then score the penalty head on imagined latents
+bash world_model/vision/run_combined.sh
+```
+
+`train.py` stages one at a time: `readout`, `reward`, `dynamics --rollout-steps 8 --task-weight 1.0 --robot-sees-z`,
+all with `--run data/combined_test1 --tag combined`. Encoder defaults are the spatial latent
+(`--pooling spatial_mean --spatial-pool 2 --pca-dims 16 --clip-frames 16 --dtype fp16`); the
+original mean-pooled latent is `--pooling mean_all --clip-frames 64 --dtype bf16`.
+
+---
+
+Everything below is the earlier experiment log of the M2_Kuba branch, kept for reference.
 
 ## Watch the robot
 
