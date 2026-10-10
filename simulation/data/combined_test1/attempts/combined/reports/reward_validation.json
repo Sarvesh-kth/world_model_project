@@ -1,0 +1,16 @@
+{
+  "n": 9866,
+  "proximity_mae": 0.08395924419164658,
+  "proximity_mae_when_penalised": 0.3415071368217468,
+  "penalised_states": 1233,
+  "collision": {
+    "positives": 430,
+    "precision": 0.6612244897959184,
+    "recall": 0.3767441860465116
+  },
+  "table_hit": {
+    "positives": 0,
+    "precision": 0.0,
+    "recall": 0.0
+  }
+}

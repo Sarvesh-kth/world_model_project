@@ -1,0 +1,359 @@
+{
+  "inputs": {
+    "config": {
+      "seed": 0,
+      "sim": {
+        "timestep": 0.002,
+        "impratio": 10
+      },
+      "control": {
+        "hz": 10,
+        "max_delta": 0.04,
+        "yaw": {
+          "enabled": true,
+          "max_delta": 0.15
+        },
+        "workspace": {
+          "low": [
+            -0.12,
+            -0.42,
+            0.755
+          ],
+          "high": [
+            0.45,
+            0.42,
+            0.97
+          ]
+        },
+        "ik": {
+          "hz": 250,
+          "damping": 0.02,
+          "pos_gain": 10.0,
+          "ori_gain": 6.0,
+          "posture_gain": 2.0,
+          "max_lin_vel": 0.7,
+          "max_ang_vel": 2.0,
+          "max_joint_vel": 2.5,
+          "max_lead": 0.05
+        }
+      },
+      "cameras": {
+        "record_hz": 10,
+        "width": 256,
+        "height": 256,
+        "static": {
+          "pos": [
+            1.25,
+            0.0,
+            1.42
+          ],
+          "lookat": [
+            0.1,
+            0.0,
+            0.82
+          ],
+          "fovy": 52
+        },
+        "wrist": {
+          "fovy": 75,
+          "tilt_deg": 30
+        },
+        "pointcloud": {
+          "enabled": false,
+          "frame": "base",
+          "stride": 2,
+          "max_depth": 2.5
+        }
+      },
+      "robot": {
+        "base_pos": [
+          -0.4,
+          0.0,
+          0.75
+        ],
+        "home_qpos": [
+          0.0,
+          -0.6,
+          0.0,
+          -2.8,
+          0.0,
+          2.2,
+          -0.7853
+        ],
+        "posture_noise": 0.0,
+        "grip_scale": 2.0
+      },
+      "table": {
+        "center": [
+          0.15,
+          0.0
+        ],
+        "half_size": [
+          0.32,
+          0.46
+        ],
+        "height": 0.75,
+        "top_thickness": 0.04
+      },
+      "task": {
+        "pick_end": "random",
+        "place_end": "opposite",
+        "ends": {
+          "left": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              -0.38,
+              -0.18
+            ]
+          },
+          "right": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              0.18,
+              0.38
+            ]
+          },
+          "near": {
+            "x": [
+              -0.08,
+              0.04
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          },
+          "far": {
+            "x": [
+              0.2,
+              0.3
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          }
+        },
+        "reach_range": [
+          0.3,
+          0.65
+        ],
+        "min_pick_place_dist": 0.35,
+        "object": {
+          "pool": [
+            "cube",
+            "cuboid",
+            "cylinder",
+            "hex_prism",
+            "tri_prism",
+            "frustum"
+          ],
+          "holdout": [
+            "bottle"
+          ],
+          "scale": [
+            0.9,
+            1.1
+          ],
+          "mass": [
+            0.05,
+            0.2
+          ],
+          "friction": [
+            0.8,
+            1.5
+          ],
+          "randomize_color": true
+        },
+        "obstacles": {
+          "count": [
+            3,
+            5
+          ],
+          "extra_height": [
+            0.04,
+            0.19
+          ],
+          "clearance": 0.2,
+          "spacing": 0.1,
+          "corridor_span": [
+            0.25,
+            0.75
+          ],
+          "lateral_offset": 0.16,
+          "kinds": {
+            "wall": {
+              "length": [
+                0.08,
+                0.16
+              ],
+              "thickness": 0.02,
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "box": {
+              "width": [
+                0.03,
+                0.06
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "cylinder": {
+              "radius": [
+                0.015,
+                0.03
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            }
+          }
+        }
+      },
+      "episode": {
+        "max_steps": 300,
+        "success_radius": 0.07,
+        "settle_steps": 15,
+        "fall_margin": 0.05,
+        "terminate_on_success": false
+      },
+      "rewards": {
+        "lift_height": 0.04,
+        "safe_distance": 0.06,
+        "weights": {
+          "reach": 0.5,
+          "grasp": 0.5,
+          "lift": 0.5,
+          "transport": 1.0,
+          "place": 5.0,
+          "success": 10.0,
+          "fail": 10.0,
+          "collision": 0.5,
+          "proximity": 0.3,
+          "table_hit": 0.2,
+          "drop": 1.0,
+          "action": 0.01
+        }
+      },
+      "data": {
+        "root": "data",
+        "jpeg_quality": 90,
+        "workers": 4,
+        "mix": {
+          "success": 0.5,
+          "scripted": 0.3,
+          "drop": 0.1,
+          "collide": 0.0,
+          "random": 0.1
+        },
+        "success_attempts": 1,
+        "scripted": {
+          "noise": 0.1,
+          "noise_correlation": 0.8,
+          "speed_range": [
+            0.6,
+            1.0
+          ],
+          "carry_height": 0.1,
+          "route_margin": 0.16
+        }
+      }
+    },
+    "layout": {
+      "object": "cube",
+      "scale": 1.0,
+      "mass": 0.1,
+      "friction": 1.0,
+      "color": [
+        0.2,
+        0.7,
+        0.7,
+        1.0
+      ],
+      "pick_end": "left",
+      "place_end": "right",
+      "pick": [
+        0.18,
+        -0.23
+      ],
+      "place": [
+        0.1,
+        0.27
+      ],
+      "obstacles": []
+    },
+    "options": {
+      "out": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/rl_obstacles_v3",
+      "config": "/home/serweshh/robot_learning_lab/world_model_project/simulation/configs/grade_e.yml",
+      "layout": "/home/serweshh/robot_learning_lab/world_model_project/simulation/configs/grade_e_layout.json",
+      "seed": 20263005,
+      "demos": 100,
+      "bc_epochs": 240,
+      "bc_weight": 100,
+      "critic_warmup": 2000,
+      "rl_steps": 10000,
+      "learning_rate": 3e-05,
+      "ent_coef": "auto_0.005",
+      "eval_every": 2500,
+      "validation_episodes": 20,
+      "test_episodes": 100,
+      "video_episodes": 5,
+      "position_jitter": 0.01,
+      "obstacles": [
+        1,
+        3
+      ],
+      "grid_from": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/combined_test1",
+      "grid_tag": "combined",
+      "grid_noise": 0.02,
+      "gate_rate": 0.5,
+      "threads": 4
+    },
+    "code_sha256": {
+      "environment/__init__.py": "94a4334305b3eb50b5427827354a2f5e888cf7e156d0898354b5045198d35b3b",
+      "environment/rewards.py": "9d13d03b2c202b4bef9c22733303501e653f31aff55b1d500c254ec1e83a39f6",
+      "environment/scene.py": "e141978f149435c725d887d452cb769e55f9d72795fd54a54706fb0bff120ddf",
+      "environment/env.py": "f837388906cd8df6c9fb89abfd95a429686bb79e7c6c25708733c4b517197e7d",
+      "environment/control.py": "2335542725df0db1806c04dcf54926fefa3e05a955b51df8c95556f4134d1e02",
+      "environment/obstacles.py": "999e42ce22579860fdaf74ec08663a509ff4a27593a3b5ba7c18aad4b2cf4fcf",
+      "environment/config.py": "310b006e8ecfc0c8d6faf1996f0048acef48f7d79b166f77eefa75f931b85bd4",
+      "world_model/vision/rl_baseline.py": "1167cfd23416e2f4cba1be879af5985f84e0b30b5b7ee22b914937df357691bf",
+      "world_model/vision/rl_control.py": "76caa6a033680958f79096f39b0ef867796f364926abf51da8884e9cf95f87e9",
+      "world_model/vision/task_control.py": "47877d8da883811f5c74668b5721a8060299fedb15a821c64a7cde62689ab500",
+      "world_model/vision/control_pipeline.py": "ff7cbd4ea8021b0d38c954c8e1d7c3161dbfc0e0707ffa23d3ba952a7e814324",
+      "world_model/vision/data.py": "01bddc46d47391157cc74a0612944597c89620e25335602fa3a0f3ef40713feb",
+      "world_model/vision/pipeline.py": "f70cffdaf143ef582d0f63c056a11166e58045cd7c9f1fee8176a7962c02743e",
+      "data_collection/scripted_policy.py": "096a13c395f222c817e193c75244ea82d3747378463853fd53b0fde13b213c76",
+      "data_collection/route.py": "db7ed06fa3dbffcd740a01b8129f656593cd6389c2411b19c6888257bcf438b1"
+    },
+    "gate": "SAC placement >=90% over >=100 fresh episodes; >=20 validation episodes; no JEPA",
+    "test_seed_start": 21263005,
+    "training": "Demonstration-assisted SB3 SAC; real reward-based updates; not from scratch"
+  },
+  "provenance": {
+    "python": "3.12.3",
+    "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+    "git_commit": "b4b0e93e996dbec35ff55da5abdb891f5347c7dc",
+    "git_dirty": true
+  },
+  "complete": true,
+  "trained": {
+    "sac_best.zip": "dc3fcfcb15b9e4b6ac297a306a02f28d19e9c6e765246e5136531a26001e3ccd",
+    "bc_initial.zip": "37f87cd3f1fc68114a7b53db354d81eb262445294657f06a0ffa6edd6a269016",
+    "rl_training.json": "3e99df473990a91bdb47b9547417e714a5807a3365ad022fe44179c25906b87f"
+  },
+  "evaluations_sha256": "fc3fa6f8f686d70bc1489818e5555d50b0d205ee37012803d3fdcb016e832f6d",
+  "last_error": "video outcome differs from frozen evaluation"
+}

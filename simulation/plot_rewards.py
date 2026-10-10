@@ -1,7 +1,9 @@
 import argparse
 import csv
 import pathlib
+
 import matplotlib.pyplot as plt
+
 from environment.rewards import COMPONENTS, BONUSES, PENALTIES
 
 # One fixed colour per component so the same thing always looks the same
@@ -17,6 +19,7 @@ COLORS = {
 #   python plot_rewards.py data/smoke/episode_000003 --save     write rewards.png into the folder
 # play.py uses LivePlot to show the same thing while the episode runs
 
+
 def _make_figure(title):
   fig, (top, mid, bottom) = plt.subplots(3, 1, figsize=(9, 9), sharex=True)
   top.set_title(title)
@@ -30,12 +33,14 @@ def _make_figure(title):
     ax.grid(alpha=0.3)
   return fig, top, cum, mid, bottom
 
+
 def _running(totals):
   out, s = [], 0.0
   for v in totals:
     s += v
     out.append(s)
   return out
+
 
 def plot_rewards(times, totals, components, title="", save=None):
   fig, top, cum, mid, bottom = _make_figure(title)
@@ -55,8 +60,10 @@ def plot_rewards(times, totals, components, title="", save=None):
     plt.show()
   plt.close(fig)
 
+
 # Same plot but updated step by step while an episode plays
 class LivePlot:
+
   def __init__(self, title=""):
     plt.ion()
     self.fig, self.top, self.cum, self.mid, self.bottom = _make_figure(title)
@@ -96,6 +103,7 @@ class LivePlot:
   def close(self):
     plt.close(self.fig)
 
+
 # Read the rewards back out of an episode's data.csv
 def load_rewards(ep_dir):
   times, totals = [], []
@@ -108,6 +116,7 @@ def load_rewards(ep_dir):
         components[k].append(float(row[f"reward_{k}"]))
   return times, totals, components
 
+
 def main():
   p = argparse.ArgumentParser()
   p.add_argument("episode", help="episode folder, e.g. data/smoke/episode_000003")
@@ -117,6 +126,7 @@ def main():
   times, totals, components = load_rewards(ep_dir)
   save = ep_dir / "rewards.png" if args.save else None
   plot_rewards(times, totals, components, title=ep_dir.name, save=save)
+
 
 if __name__ == "__main__":
   main()

@@ -1,8 +1,10 @@
 import pathlib
+
 import yaml
 
 CONFIG_DIR = pathlib.Path(__file__).resolve().parents[1] / "configs"
 DEFAULT_CONFIG = CONFIG_DIR / "default.yml"
+
 
 class Config(dict):
   # get and set attr to make config like namespace, instead of config["sim"]["num"] , config.sim.num is possible
@@ -24,6 +26,7 @@ class Config(dict):
       return [cls.nested(v) for v in obj]
     return obj
 
+
 # loads default.yml , else can also take path and update, or a dict of overrides and update
 def load_config(path=None, overrides=None):
   with open(DEFAULT_CONFIG) as f:
@@ -37,6 +40,7 @@ def load_config(path=None, overrides=None):
   _validate(cfg)
   return cfg
 
+
 # Present so it updates only the yaml block that we pass
 def _update_yaml(base, override):
   for k, v in override.items():
@@ -44,6 +48,7 @@ def _update_yaml(base, override):
       _update_yaml(base[k], v)
     else:
       base[k] = v
+
 
 # Validate the config, the rates have to divide each other cleanly
 def _validate(cfg):

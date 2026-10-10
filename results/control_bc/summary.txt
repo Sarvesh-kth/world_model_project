@@ -1,0 +1,5 @@
+Live A-to-B control comparison
+complete=False
+Frozen SAC: 100/100 source placements; sha256=b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248; no retraining
+bc_z: full placements 2/3; final goal distance=20.72cm; model fallbacks=0
+Actual GIFs/JPEGs and candidate NPZ forecasts remain in the notebook data run. No model success is implied by pipeline completion.

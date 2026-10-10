@@ -1,0 +1,17 @@
+{
+  "states": 108,
+  "actions": 107,
+  "alignment": "state[t] -> actions[t] -> state[t+1]; frame serial is state index; pad first frame to 64",
+  "encoder": {
+    "model": "facebook/vjepa2-vitl-fpc64-256",
+    "model_revision": null,
+    "camera": "static",
+    "clip_frames": 16,
+    "frame_stride": 1,
+    "pooling": "spatial_mean_pca16_grid8",
+    "pca_sha256": "4fa15856d2022be1400bd07032663e7b2df31621f978dd032e28d8b41066f423",
+    "dtype": "fp16",
+    "spatial_pool": 2
+  },
+  "inputs": "p, action, camera-derived z; object xyz/held are evaluator/training labels only for JEPA methods"
+}

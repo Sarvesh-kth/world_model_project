@@ -6,3 +6,5 @@ simulation/data/control_v1/** filter=lfs diff=lfs merge=lfs -text
 simulation/data/control_frozen_v1/** filter=lfs diff=lfs merge=lfs -text
 simulation/data/control_frozen_v2/** filter=lfs diff=lfs merge=lfs -text
 simulation/data/q_clutter_v1/** filter=lfs diff=lfs merge=lfs -text
+simulation/data/combined_test1/**/*.pt filter=lfs diff=lfs merge=lfs -text
+simulation/data/combined_test1/**/*.npz filter=lfs diff=lfs merge=lfs -text

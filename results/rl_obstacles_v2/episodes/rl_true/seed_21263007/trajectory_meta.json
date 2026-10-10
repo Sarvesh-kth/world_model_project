@@ -1,0 +1,7 @@
+{
+  "states": 128,
+  "actions": 127,
+  "alignment": "state[t] -> actions[t] -> state[t+1]; frame serial is state index; pad first frame to 64",
+  "encoder": null,
+  "inputs": "p, action, camera-derived z; object xyz/held are evaluator/training labels only for JEPA methods"
+}

@@ -1,0 +1,44 @@
+{
+  "method": "scripted",
+  "seed": 20494005,
+  "task_success": true,
+  "steps": 117,
+  "true_original_return": 107.22007102261686,
+  "control_return": 12.521431399937565,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 10.835647583007812,
+  "minimum_goal_distance_cm": 0.13126094127073884,
+  "final_goal_distance_cm": 0.13265495002269745,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.1817314044088756,
+      -0.2376446878915608
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": []
+  },
+  "SAC_checkpoint_sha256": null,
+  "seconds": 4.643595459001517,
+  "model_fallback_steps": 0,
+  "guide_kept_steps": 0,
+  "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc"
+}

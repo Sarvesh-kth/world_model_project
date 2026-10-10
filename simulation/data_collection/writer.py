@@ -1,8 +1,10 @@
 import csv
 import json
 import pathlib
+
 import cv2
 import numpy as np
+
 from environment.control import action_names
 from environment.rewards import COMPONENTS
 
@@ -10,6 +12,7 @@ INDEX_FIELDS = ["episode", "folder", "policy", "object", "pick_end", "place_end"
                 "steps", "success", "collisions", "seed"]
 CAMERAS = ("static", "wrist")
 POSE_AXES = ("x", "y", "z", "qw", "qx", "qy", "qz")
+
 
 # Buffers one episode and writes it out as one folder
 # episode_XXXXXX/
@@ -64,6 +67,7 @@ class EpisodeWriter:
       writer = csv.DictWriter(f, fieldnames=list(self.rows[0].keys()))
       writer.writeheader()
       writer.writerows(self.rows)
+
     for cam in CAMERAS:
       for i, jpeg in enumerate(self.images[cam]):
         (img_dir / f"{cam}_{i + 1}.jpg").write_bytes(jpeg.tobytes())
@@ -72,6 +76,7 @@ class EpisodeWriter:
         pcl_dir.mkdir(exist_ok=True)
         for i, pc in enumerate(self.pointclouds[cam]):
           np.save(pcl_dir / f"{cam}_{i + 1}.npy", pc)
+
     meta = {
       "episode": episode_id,
       "policy": self.policy,
@@ -86,6 +91,7 @@ class EpisodeWriter:
     }
     with open(ep_dir / "meta.json", "w") as f:
       json.dump(meta, f, indent=1, default=str)
+
     row = {
       "episode": episode_id, "folder": folder, "policy": self.policy,
       "object": self.layout.object_name,
@@ -122,6 +128,7 @@ class EpisodeWriter:
                   for a, v in zip(POSE_AXES, [*pos, *quat])})
     return row
 
+
 # Append rows to index.csv, writing the header if the file is new
 def append_index(out_dir, rows):
   path = pathlib.Path(out_dir) / "index.csv"
@@ -133,12 +140,14 @@ def append_index(out_dir, rows):
     for row in rows:
       w.writerow([row[k] for k in INDEX_FIELDS])
 
+
 # Next free episode id in a folder, so re-running appends instead of overwriting
 def next_episode_id(out_dir):
   folders = sorted(pathlib.Path(out_dir).glob("episode_*"))
   if not folders:
     return 0
   return max(int(p.name.split("_")[1]) for p in folders) + 1
+
 
 # Read one episode folder back, rows as dicts of floats, images and point clouds as sorted paths
 def read_episode(ep_dir):
@@ -157,8 +166,10 @@ def read_episode(ep_dir):
       out["pointclouds"][cam] = sorted((ep_dir / "pcl").glob(f"{cam}_*.npy"), key=by_serial)
   return out
 
+
 def load_image(path):
   return cv2.imread(str(path))[..., ::-1]
+
 
 def load_pointcloud(path):
   return np.load(path).astype(np.float32)

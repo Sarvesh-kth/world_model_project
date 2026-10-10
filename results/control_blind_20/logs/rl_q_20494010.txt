@@ -1,0 +1,37 @@
+
+COMMAND ["/home/serweshh/robot_learning_lab/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.control_pipeline_test1", "--models-run", "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/combined_test1", "--baseline-run", "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/rl_baseline_v1", "--tag", "combined", "--layout", "/home/serweshh/robot_learning_lab/world_model_project/simulation/configs/grade_e_layout.json", "--out", "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_blind_20", "--export-dir", "/home/serweshh/robot_learning_lab/world_model_project/results/control_blind_20", "--seed", "20474010", "--rl-steps", "10000", "--demos", "20", "--bc-epochs", "120", "--bc-weight", "100.0", "--critic-warmup", "1000", "--eval-every", "2500", "--validation-episodes", "5", "--test-episodes", "20", "--position-jitter", "0.01", "--horizon", "8", "--population", "64", "--elites", "8", "--iterations", "3", "--terminal-weight", "0.0", "--cem-std", "0.3", "--guide-margin", "0.25", "--blind", "--methods", "rl_q", "--cem-smooth", "0.5", "--threads", "4", "--stage", "episode", "--method", "rl_q", "--episode-seed", "20494010"]
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|█████████▉| 585/587 [00:00<00:00, 5848.12it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 5840.90it/s]
+rl_q seed=20494010 step=10: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=20: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=30: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=40: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=50: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=60: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=70: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=80: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=90: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=100: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=110: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=120: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=130: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=140: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=150: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=160: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=170: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=180: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=190: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=200: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=210: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=220: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=230: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=240: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=250: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=260: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=270: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=280: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=290: held=False goal_distance=51.1cm lift=0.0cm success=False
+rl_q seed=20494010 step=300: held=False goal_distance=51.1cm lift=0.0cm success=False
+FINISHED rl_q: success=False goal=51.1cm

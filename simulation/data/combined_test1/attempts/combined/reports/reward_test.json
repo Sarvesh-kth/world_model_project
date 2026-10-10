@@ -1,0 +1,159 @@
+{
+  "split": "test",
+  "tag": "combined",
+  "real_empty": {
+    "n": 4335,
+    "penalised_states": 0,
+    "contact_states": 0,
+    "proximity_mae": 0.032116953283548355,
+    "proximity_mae_when_penalised": null,
+    "proximity_mean_pred_penalised_vs_clear": [
+      null,
+      -0.032116953283548355
+    ],
+    "collision": {
+      "positives": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auc": null,
+      "mean_prob_contact_vs_clear": [
+        null,
+        0.0003352986532263458
+      ]
+    },
+    "table_hit": {
+      "positives": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auc": null,
+      "mean_prob_contact_vs_clear": [
+        null,
+        1.702190456853714e-05
+      ]
+    }
+  },
+  "real_obstacles": {
+    "n": 4113,
+    "penalised_states": 751,
+    "contact_states": 242,
+    "proximity_mae": 0.07278354465961456,
+    "proximity_mae_when_penalised": 0.22480210661888123,
+    "proximity_mean_pred_penalised_vs_clear": [
+      -0.3469679057598114,
+      -0.038825809955596924
+    ],
+    "collision": {
+      "positives": 242,
+      "precision": 0.9702380952380952,
+      "recall": 0.6735537190082644,
+      "auc": 0.9948408487780508,
+      "mean_prob_contact_vs_clear": [
+        0.6598929166793823,
+        0.0075925239361822605
+      ]
+    },
+    "table_hit": {
+      "positives": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auc": null,
+      "mean_prob_contact_vs_clear": [
+        null,
+        0.00017424789257347584
+      ]
+    }
+  },
+  "imagined_h1_obstacles": {
+    "n": 600,
+    "penalised_states": 107,
+    "contact_states": 38,
+    "proximity_mae": 0.0713050365447998,
+    "proximity_mae_when_penalised": 0.23561544716358185,
+    "proximity_mean_pred_penalised_vs_clear": [
+      -0.33038926124572754,
+      -0.03564334660768509
+    ],
+    "collision": {
+      "positives": 38,
+      "precision": 1.0,
+      "recall": 0.6578947368421053,
+      "auc": 0.9946150964600112,
+      "mean_prob_contact_vs_clear": [
+        0.6329594254493713,
+        0.005928785540163517
+      ]
+    },
+    "table_hit": {
+      "positives": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auc": null,
+      "mean_prob_contact_vs_clear": [
+        null,
+        0.00014861050294712186
+      ]
+    }
+  },
+  "imagined_h4_obstacles": {
+    "n": 600,
+    "penalised_states": 110,
+    "contact_states": 39,
+    "proximity_mae": 0.07405611127614975,
+    "proximity_mae_when_penalised": 0.24145445227622986,
+    "proximity_mean_pred_penalised_vs_clear": [
+      -0.3398244082927704,
+      -0.03647689148783684
+    ],
+    "collision": {
+      "positives": 39,
+      "precision": 1.0,
+      "recall": 0.6410256410256411,
+      "auc": 0.9945152886329357,
+      "mean_prob_contact_vs_clear": [
+        0.6423022747039795,
+        0.0067091635428369045
+      ]
+    },
+    "table_hit": {
+      "positives": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auc": null,
+      "mean_prob_contact_vs_clear": [
+        null,
+        0.00015547516522929072
+      ]
+    }
+  },
+  "imagined_h8_obstacles": {
+    "n": 600,
+    "penalised_states": 115,
+    "contact_states": 40,
+    "proximity_mae": 0.08023333549499512,
+    "proximity_mae_when_penalised": 0.2625181972980499,
+    "proximity_mean_pred_penalised_vs_clear": [
+      -0.3111809492111206,
+      -0.037011150270700455
+    ],
+    "collision": {
+      "positives": 40,
+      "precision": 0.96,
+      "recall": 0.6,
+      "auc": 0.9916964285714286,
+      "mean_prob_contact_vs_clear": [
+        0.5847822427749634,
+        0.006610486190766096
+      ]
+    },
+    "table_hit": {
+      "positives": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "auc": null,
+      "mean_prob_contact_vs_clear": [
+        null,
+        0.00014631285739596933
+      ]
+    }
+  }
+}

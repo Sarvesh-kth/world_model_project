@@ -1,0 +1,17 @@
+{
+  "gate_passed": true,
+  "gate_rate": 0.5,
+  "obstacles": [
+    1,
+    3
+  ],
+  "complete": true,
+  "inputs": "exact current simulator state + B + occupancy grid",
+  "BC_test_successes": 57,
+  "SAC_test_successes": 61,
+  "test_episodes": 100,
+  "SAC_checkpoint_sha256": "dc3fcfcb15b9e4b6ac297a306a02f28d19e9c6e765246e5136531a26001e3ccd",
+  "selected_rl_steps": 5000,
+  "selected_validation_success_rate": 0.75,
+  "note": "Imitation and RL are reported separately. Passing does not prove an RL gain or broad robustness."
+}

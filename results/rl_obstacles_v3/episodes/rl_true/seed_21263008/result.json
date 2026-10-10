@@ -1,0 +1,70 @@
+{
+  "method": "rl_true",
+  "seed": 21263008,
+  "task_success": true,
+  "steps": 132,
+  "true_original_return": 121.4279036220811,
+  "control_return": 6.570841446920621,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 11.721193790435791,
+  "minimum_goal_distance_cm": 0.1104411669075489,
+  "final_goal_distance_cm": 0.40481066703796387,
+  "final_held": false,
+  "obstacle_contact_steps": 5,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.17309632490835444,
+      -0.23731427458176932
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": [
+      {
+        "kind": "wall",
+        "pos": [
+          0.11246274082179425,
+          0.052849194051110215
+        ],
+        "yaw": 3.2501531958774046,
+        "size": [
+          0.04150629728117463,
+          0.01,
+          0.08477443941192853
+        ]
+      },
+      {
+        "kind": "cylinder",
+        "pos": [
+          0.2784905209449674,
+          0.024941778844404086
+        ],
+        "yaw": 0.0,
+        "size": [
+          0.029665127826014367,
+          0.07398935068153611
+        ]
+      }
+    ]
+  },
+  "SAC_checkpoint_sha256": "dc3fcfcb15b9e4b6ac297a306a02f28d19e9c6e765246e5136531a26001e3ccd",
+  "seconds": 1.937098710999635,
+  "model_fallback_steps": 0,
+  "guide_kept_steps": 0,
+  "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc"
+}

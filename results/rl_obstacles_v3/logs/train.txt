@@ -1,0 +1,315 @@
+
+COMMAND ["/home/serweshh/robot_learning_lab/world_model_project/simulation/../.venv/bin/python", "-u", "-m", "world_model.vision.rl_baseline", "--stage", "train", "--out", "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/rl_obstacles_v3", "--config", "/home/serweshh/robot_learning_lab/world_model_project/simulation/configs/grade_e.yml", "--layout", "/home/serweshh/robot_learning_lab/world_model_project/simulation/configs/grade_e_layout.json", "--seed", "20263005", "--demos", "100", "--bc-epochs", "240", "--bc-weight", "100", "--critic-warmup", "2000", "--rl-steps", "10000", "--learning-rate", "3e-05", "--ent-coef", "auto_0.005", "--eval-every", "2500", "--validation-episodes", "20", "--test-episodes", "100", "--video-episodes", "5", "--position-jitter", "0.01", "--obstacles", "1", "3", "--grid-from", "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/combined_test1", "--grid-tag", "combined", "--grid-noise", "0.02", "--gate-rate", "0.5", "--threads", "4"]
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 7387.11it/s]
+demo 1: success=True steps=128
+demo 2: success=True steps=137
+demo 3: success=True steps=152
+demo 4: success=True steps=128
+demo 5: success=True steps=131
+demo 6: success=True steps=113
+demo 7: success=True steps=156
+demo 8: success=True steps=122
+demo 9: success=True steps=121
+demo 10: success=True steps=151
+demo 11: success=True steps=113
+demo 12: success=True steps=113
+demo 13: success=True steps=130
+demo 14: success=True steps=138
+demo 15: success=True steps=136
+demo 16: success=True steps=136
+demo 17: success=True steps=113
+demo 18: success=True steps=135
+demo 19: success=True steps=135
+demo 20: success=True steps=126
+demo 21: success=True steps=146
+demo 22: success=True steps=129
+demo 23: success=True steps=117
+demo 24: success=True steps=119
+demo 25: success=True steps=151
+demo 26: success=True steps=125
+demo 27: success=True steps=120
+demo 28: success=True steps=124
+demo 29: success=True steps=143
+demo 30: success=True steps=144
+demo 31: success=True steps=110
+demo 32: success=True steps=145
+demo 33: success=True steps=146
+demo 34: success=True steps=120
+demo 35: success=True steps=117
+demo 36: success=True steps=123
+demo 37: success=True steps=137
+demo 38: success=True steps=146
+demo 39: success=True steps=124
+demo 40: success=True steps=123
+demo 41: success=True steps=130
+demo 42: success=True steps=146
+demo 43: success=True steps=119
+demo 44: success=True steps=116
+demo 45: success=True steps=146
+demo 46: success=True steps=110
+demo 47: success=True steps=110
+demo 48: success=True steps=145
+demo 49: success=True steps=132
+demo 50: success=True steps=119
+demo 51: success=True steps=116
+demo 52: success=True steps=122
+demo 53: success=True steps=139
+demo 54: success=True steps=125
+demo 55: success=True steps=119
+demo 56: success=True steps=113
+demo 57: success=True steps=146
+demo 58: success=True steps=120
+demo 59: success=True steps=152
+demo 60: success=True steps=113
+demo 61: success=True steps=113
+demo 62: success=True steps=119
+demo 63: success=True steps=153
+demo 64: success=True steps=120
+demo 65: success=True steps=153
+demo 66: success=True steps=152
+demo 67: success=True steps=121
+demo 68: success=True steps=137
+demo 69: success=True steps=115
+demo 70: success=True steps=139
+demo 71: success=True steps=146
+demo 72: success=True steps=150
+demo 73: success=True steps=119
+demo 74: success=True steps=116
+demo 75: success=True steps=139
+demo 76: success=True steps=129
+demo 77: success=True steps=143
+demo 78: success=True steps=116
+demo 79: success=True steps=117
+demo 80: success=True steps=117
+demo 81: success=True steps=134
+demo 82: success=True steps=150
+demo 83: success=True steps=114
+demo 84: success=True steps=113
+demo 85: success=True steps=159
+demo 86: success=True steps=117
+demo 87: success=True steps=109
+demo 88: success=True steps=125
+demo 89: success=True steps=156
+demo 90: success=True steps=143
+demo 91: success=True steps=115
+demo 92: success=True steps=149
+demo 93: success=True steps=119
+demo 94: success=True steps=152
+demo 95: success=True steps=116
+demo 96: success=True steps=118
+demo 97: success=True steps=136
+demo 98: success=True steps=117
+demo 99: success=True steps=120
+demo 100: success=True steps=114
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 14515.90it/s]
+Using cpu device
+Wrapping the env in a DummyVecEnv.
+BC warm start epoch 20: action MSE=0.08813
+BC warm start epoch 40: action MSE=0.05593
+BC warm start epoch 60: action MSE=0.03824
+BC warm start epoch 80: action MSE=0.02841
+BC warm start epoch 100: action MSE=0.02310
+BC warm start epoch 120: action MSE=0.03523
+BC warm start epoch 140: action MSE=0.01969
+BC warm start epoch 160: action MSE=0.01670
+BC warm start epoch 180: action MSE=0.02107
+BC warm start epoch 200: action MSE=0.01629
+BC warm start epoch 220: action MSE=0.07555
+BC warm start epoch 240: action MSE=0.07764
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 10699.52it/s]
+BC ONLY validation: 13/20; not an RL result
+Logging to /home/serweshh/robot_learning_lab/world_model_project/simulation/data/rl_obstacles_v3/rl_logs
+Critic warmup: 2000 demonstration Bellman updates; actor frozen
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 300      |
+|    ep_rew_mean        | -87      |
+|    success_rate       | 0        |
+| time/                 |          |
+|    episodes           | 4        |
+|    fps                | 136      |
+|    time_elapsed       | 8        |
+|    total_timesteps    | 1200     |
+| train/                |          |
+|    actor_loss         | 1.11     |
+|    critic_loss        | 0.357    |
+|    demonstration_loss | 10.5     |
+|    ent_coef           | 0.00534  |
+|    ent_coef_loss      | 66.8     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 2199     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 282      |
+|    ep_rew_mean        | -70.3    |
+|    success_rate       | 0.125    |
+| time/                 |          |
+|    episodes           | 8        |
+|    fps                | 87       |
+|    time_elapsed       | 25       |
+|    total_timesteps    | 2253     |
+| train/                |          |
+|    actor_loss         | 0.705    |
+|    critic_loss        | 0.176    |
+|    demonstration_loss | 4.07     |
+|    ent_coef           | 0.00547  |
+|    ent_coef_loss      | 46.9     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 3252     |
+------------------------------------
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 12714.61it/s]
+SAC validation at 2500: 3/20 full placements; best=15.0%
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 288      |
+|    ep_rew_mean        | -70.4    |
+|    success_rate       | 0.0833   |
+| time/                 |          |
+|    episodes           | 12       |
+|    fps                | 38       |
+|    time_elapsed       | 88       |
+|    total_timesteps    | 3453     |
+| train/                |          |
+|    actor_loss         | 0.823    |
+|    critic_loss        | 0.131    |
+|    demonstration_loss | 1.26     |
+|    ent_coef           | 0.00564  |
+|    ent_coef_loss      | 41.2     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 4452     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 291      |
+|    ep_rew_mean        | -79.8    |
+|    success_rate       | 0.0625   |
+| time/                 |          |
+|    episodes           | 16       |
+|    fps                | 43       |
+|    time_elapsed       | 106      |
+|    total_timesteps    | 4653     |
+| train/                |          |
+|    actor_loss         | 1.49     |
+|    critic_loss        | 0.116    |
+|    demonstration_loss | 1.15     |
+|    ent_coef           | 0.00582  |
+|    ent_coef_loss      | 38.9     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 5652     |
+------------------------------------
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 16032.56it/s]
+SAC validation at 5000: 15/20 full placements; best=75.0%
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 293      |
+|    ep_rew_mean        | -77.5    |
+|    success_rate       | 0.05     |
+| time/                 |          |
+|    episodes           | 20       |
+|    fps                | 36       |
+|    time_elapsed       | 159      |
+|    total_timesteps    | 5853     |
+| train/                |          |
+|    actor_loss         | 2        |
+|    critic_loss        | 0.111    |
+|    demonstration_loss | 1.4      |
+|    ent_coef           | 0.00602  |
+|    ent_coef_loss      | 43.1     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 6852     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 287      |
+|    ep_rew_mean        | -67.5    |
+|    success_rate       | 0.125    |
+| time/                 |          |
+|    episodes           | 24       |
+|    fps                | 39       |
+|    time_elapsed       | 175      |
+|    total_timesteps    | 6895     |
+| train/                |          |
+|    actor_loss         | 2.49     |
+|    critic_loss        | 0.154    |
+|    demonstration_loss | 0.886    |
+|    ent_coef           | 0.0062   |
+|    ent_coef_loss      | 38.3     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 7894     |
+------------------------------------
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 12042.99it/s]
+SAC validation at 7500: 11/20 full placements; best=75.0%
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 282      |
+|    ep_rew_mean        | -60.2    |
+|    success_rate       | 0.179    |
+| time/                 |          |
+|    episodes           | 28       |
+|    fps                | 34       |
+|    time_elapsed       | 227      |
+|    total_timesteps    | 7909     |
+| train/                |          |
+|    actor_loss         | 4.13     |
+|    critic_loss        | 0.131    |
+|    demonstration_loss | 1.09     |
+|    ent_coef           | 0.00639  |
+|    ent_coef_loss      | 37.4     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 8908     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 279      |
+|    ep_rew_mean        | -58.9    |
+|    success_rate       | 0.219    |
+| time/                 |          |
+|    episodes           | 32       |
+|    fps                | 36       |
+|    time_elapsed       | 243      |
+|    total_timesteps    | 8923     |
+| train/                |          |
+|    actor_loss         | 3.53     |
+|    critic_loss        | 0.199    |
+|    demonstration_loss | 1.05     |
+|    ent_coef           | 0.00658  |
+|    ent_coef_loss      | 32.6     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 9922     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 272      |
+|    ep_rew_mean        | -54.5    |
+|    success_rate       | 0.25     |
+| time/                 |          |
+|    episodes           | 36       |
+|    fps                | 38       |
+|    time_elapsed       | 256      |
+|    total_timesteps    | 9787     |
+| train/                |          |
+|    actor_loss         | 3.61     |
+|    critic_loss        | 0.0907   |
+|    demonstration_loss | 0.879    |
+|    ent_coef           | 0.00676  |
+|    ent_coef_loss      | 35.4     |
+|    learning_rate      | 3e-05    |
+|    n_updates          | 10786    |
+------------------------------------
+
+Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 587/587 [00:00<00:00, 13215.12it/s]
+SAC validation at 10000: 10/20 full placements; best=75.0%

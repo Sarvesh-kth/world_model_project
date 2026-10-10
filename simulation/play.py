@@ -3,14 +3,17 @@ import json
 import os
 import sys
 import time
+
 import numpy as np
 
-# NVIDIA PRIME offload variables (often in ~/.bashrc on hybrid laptops) leave the viewer window blank,
-# the viewer renders fine on the default GPU, so drop them for this process only
-for var in ("__NV_PRIME_RENDER_OFFLOAD", "__GLX_VENDOR_LIBRARY_NAME", "__EGL_VENDOR_LIBRARY_FILENAMES"):
-  os.environ.pop(var, None)
+# pick an OpenGL setup that can open a window (drops the NVIDIA PRIME variables, falls back to Mesa when
+# the NVIDIA GLX is broken), has to happen before mujoco is imported
+from window import use_window_environment
+if not use_window_environment():
+  sys.exit(1)
 
 import mujoco.viewer
+
 from environment import EpisodeLayout, PickPlaceEnv, load_config
 from environment.rewards import COMPONENTS
 from data_collection.scripted_policy import make_policy
@@ -27,6 +30,7 @@ SCENARIOS = {"success": "success", "fail": "drop", "collide": "collide", "random
 # One off bonuses and penalties worth a line in the terminal, the shaped terms just show in the plot
 EVENTS = ("place", "success", "fail", "collision", "table_hit", "drop")
 
+
 # Step the env in real time (times speed) until the episode ends or the window is closed
 def play(env, policy, speed, plot):
   cfg = env.cfg
@@ -39,6 +43,7 @@ def play(env, policy, speed, plot):
       action = policy.act()
       _, reward, terminated, truncated, info = env.step(action, give_up=policy.done)
       viewer.sync()
+
       c = info["reward_components"]
       t = env.step_count / cfg.control.hz
       total += reward
@@ -49,12 +54,14 @@ def play(env, policy, speed, plot):
       for k in EVENTS:
         if c[k] != 0:
           print(f"  t={t:5.1f}s  {k:10s} {cfg.rewards.weights[k] * c[k]:+.2f}   stage={info['stage']}")
+
       if terminated or truncated:
         print(f"  episode over: success={info['success']} failed={info['failed']} steps={env.step_count} return={total:.2f}")
         print("  weighted sum per component:", {k: round(v, 2) for k, v in sums.items() if v != 0})
         return info
       time.sleep(max(0.0, step_time - (time.time() - t0)))
   return None
+
 
 def main():
   p = argparse.ArgumentParser()
@@ -75,10 +82,12 @@ def main():
       d = json.load(f)
     layout = EpisodeLayout.from_dict(d.get("layout", d))
   base_seed = cfg.seed if args.seed is None else args.seed
+
   # mjpython runs this script off the macOS UI thread; Matplotlib cannot open a window there.
   plot = None if sys.platform == "darwin" else LivePlot()
   if plot is None:
     print("live reward plot unavailable on macOS; use plot_rewards.py for recorded episodes")
+
   for ep in range(args.episodes):
     seed = base_seed + ep
     _, info = env.reset(seed=seed, holdout=args.holdout, layout=layout)
@@ -89,6 +98,7 @@ def main():
     if play(env, policy, args.speed, plot) is None:
       # window was closed
       break
+
   if plot is not None:
     print("close the plot window to exit")
     import matplotlib.pyplot as plt
@@ -98,6 +108,7 @@ def main():
   # The viewer thread can hang on exit, so leave the hard way
   sys.stdout.flush()
   os._exit(0)
+
 
 if __name__ == "__main__":
   main()

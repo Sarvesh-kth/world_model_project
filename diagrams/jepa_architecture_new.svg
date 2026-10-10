@@ -96,5 +96,5 @@ text.mt.bad{fill:#b4462f;font-size:11.5px} text.mt.good{fill:#1a8f8f;font-size:1
 <polyline class="ar" points="850,495 885,495" marker-end="url(#ah)"/><text class="al" x="867" y="486" text-anchor="middle">a₀</text>
 <polyline class="ar dash" points="980,540 980,600 100,600 100,160" marker-end="url(#ah)"/><text class="al" x="540" y="616" text-anchor="middle">action -> sim</text>
 <polyline class="ar dash" points="530,560 530,585 850,585 850,345" marker-end="url(#ah)"/><text class="al" x="690" y="578" text-anchor="middle">candidate (z,p,a) -> D</text>
-<text class="mt good" x="20" y="630">C8 · validity bound for predicted finger width .082 -> .09 m; boolean flags forwarded to stage subprocesses; one model set (tag combined) for empty and obstacle scenes</text>
+<text class="mt good" x="20" y="630">C8 · validity bound for predicted finger width .082 -> .09 m; one model set (tag combined) for empty and obstacle scenes</text>
 </g></svg>

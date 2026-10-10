@@ -5,6 +5,7 @@ COMPONENTS = ("reach", "grasp", "lift", "transport", "place", "success",
 BONUSES = COMPONENTS[:6]
 PENALTIES = COMPONENTS[6:]
 
+
 # Staged reward from the privileged sim state, each component is stored unweighted
 # so training can pick any subset later, the weights only decide the logged total
 class Rewards:
@@ -56,6 +57,7 @@ class Rewards:
       c["transport"] = 1.0 - float(np.tanh(3.0 * dist_to_place))
     elif not self.placed:
       c["reach"] = 1.0 - float(np.tanh(5.0 * dist_to_obj))
+
     # One time penalty when the object is released away from the target
     if self.prev_grasped and not grasped and not self.placed and dist_to_place > 2 * self.success_radius:
       c["drop"] = -1.0
@@ -71,6 +73,7 @@ class Rewards:
     if success and not self.succeeded:
       self.succeeded = True
       c["success"] = 1.0
+
     # One time penalty when the episode ends without success (gave up, object fell off, ran out of time)
     if state["failed"]:
       c["fail"] = -1.0

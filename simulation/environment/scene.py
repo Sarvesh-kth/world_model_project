@@ -1,7 +1,9 @@
 import dataclasses
 import pathlib
+
 import mujoco
 import numpy as np
+
 from .obstacles import Obstacle, add_obstacle, sample_obstacles
 
 ASSETS = pathlib.Path(__file__).resolve().parent / "assets"
@@ -19,6 +21,7 @@ END_NAMES = ("left", "right", "near", "far")
 
 # Have drop location on opposite end of spawn points
 OPPOSITE_END = {"left": "right", "right": "left", "near": "far", "far": "near"}
+
 
 # Everything that changes between episodes, to_dict / from_dict so a layout can be saved and replayed
 @dataclasses.dataclass
@@ -69,12 +72,14 @@ class EpisodeLayout:
                np.asarray(d["pick"], dtype=float), np.asarray(d["place"], dtype=float),
                [Obstacle.from_dict(o) for o in d["obstacles"]])
 
+
 # Sample an object color
 def _sample_color(rng):
   hue = rng.uniform(0, 1)
   c = np.array([abs(hue * 6 - 3) - 1, 2 - abs(hue * 6 - 2), 2 - abs(hue * 6 - 4)])
   c = np.clip(c, 0, 1) * 0.7 + 0.2
   return (*c, 1.0)
+
 
 # Sample a layout for the episode, have an rng to generate random scenarios
 def sample_layout(cfg, rng, holdout=False):
@@ -110,6 +115,7 @@ def sample_layout(cfg, rng, holdout=False):
   return EpisodeLayout(name, scale, mass, friction, color, pick_end, place_end,
                        pick, place, obstacles)
 
+
 # Sample a position for pick or place near the end
 def _sample_in_end(cfg, rng, end):
   zone = cfg.task.ends[end]
@@ -122,6 +128,7 @@ def _sample_in_end(cfg, rng, end):
     if lo <= np.linalg.norm(p - base) <= hi:
       return p
   raise RuntimeError(f"end zone '{end}' unreachable with reach_range {cfg.task.reach_range}")
+
 
 # This creates the Mujoco model for one layout
 def build_scene(cfg, layout):
@@ -148,6 +155,7 @@ def build_scene(cfg, layout):
 
   return spec.compile()
 
+
 # Add textures and materials that the geoms below refer to by name
 def _add_assets(spec):
   spec.add_texture(name="skybox", type=mujoco.mjtTexture.mjTEXTURE_SKYBOX,
@@ -170,6 +178,7 @@ def _add_assets(spec):
   spec.add_material(name="steel", rgba=[0.45, 0.47, 0.50, 1], reflectance=0.4,
                     specular=0.6, shininess=0.5)
 
+
 # Add the arena to the scene, the floor, table, pedestal
 def _add_arena(spec, cfg):
   w = spec.worldbody
@@ -188,16 +197,19 @@ def _add_arena(spec, cfg):
   w.add_geom(name="table", type=mujoco.mjtGeom.mjGEOM_BOX,
              pos=[cx, cy, top_z - t / 2], size=[hx, hy, t / 2],
              material="wood", friction=[1.0, 0.005, 0.0001])
+
   # Four legs
   leg_h = (top_z - t) / 2
   for i, (sx, sy) in enumerate([(1, 1), (1, -1), (-1, 1), (-1, -1)]):
     w.add_geom(name=f"table_leg_{i}", type=mujoco.mjtGeom.mjGEOM_BOX,
                pos=[cx + sx * (hx - 0.05), cy + sy * (hy - 0.05), leg_h],
                size=[0.025, 0.025, leg_h], material="steel")
+
   # Add the pedestal, the base of the robot
   bx, by, bz = cfg.robot.base_pos
   w.add_geom(name="pedestal", type=mujoco.mjtGeom.mjGEOM_BOX,
              pos=[bx, by, bz / 2], size=[0.13, 0.13, bz / 2], material="steel")
+
 
 # Add the place marker to the scene, the green disc that shows the place position, no collisions
 def _add_place_marker(spec, cfg, layout):
@@ -208,6 +220,7 @@ def _add_place_marker(spec, cfg, layout):
     rgba=[0.1, 0.8, 0.15, 0.9], contype=0, conaffinity=0)
   spec.worldbody.add_site(name="place_site", pos=[x, y, cfg.table.height],
                           size=[0.005, 0.005, 0.005], group=4)
+
 
 # Adds the object by loading its mesh, it falls onto the table during settle
 def _add_object(spec, cfg, layout):
@@ -224,6 +237,7 @@ def _add_object(spec, cfg, layout):
                 mass=layout.object_mass,
                 friction=[layout.object_friction, 0.01, 0.002],
                 condim=4, solimp=[0.95, 0.99, 0.001, 0.5, 2], solref=[0.004, 1])
+
 
 # Adds the robot to the scene, the panda arm and gripper, plus the wrist camera
 def _add_robot(spec, cfg):
@@ -259,6 +273,7 @@ def _add_robot(spec, cfg):
   frame = spec.worldbody.add_frame(pos=cfg.robot.base_pos)
   frame.attach_body(panda.body("link0"), "", "")
 
+
 # Adds the static camera to the scene, the camera that is looking at the table
 def _add_static_camera(spec, cfg):
   cam = cfg.cameras.static
@@ -271,15 +286,18 @@ def _add_static_camera(spec, cfg):
   y = np.cross(z, x)
   spec.worldbody.add_camera(name="static", pos=pos, fovy=cam.fovy, xyaxes=[*x, *y])
 
+
 # define rotation matrix for y axis
 def _rot_y(a):
   c, s = np.cos(a), np.sin(a)
   return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
 
+
 # define rotation matrix for z axis
 def _rot_z(a):
   c, s = np.cos(a), np.sin(a)
   return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+
 
 # convert rotation matrix to quaternion
 def _mat_to_quat(mat):

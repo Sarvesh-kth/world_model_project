@@ -1,0 +1,2 @@
+episodes,mean_control_return,mean_final_goal_distance_cm,mean_maximum_lift_cm,mean_original_return,method,model_fallback_steps,success_rate,successes,table_contact_steps
+5,-14.076366038184611,51.1419563293457,0.0,6.55745723459029,rl_q,0,0.0,0,0

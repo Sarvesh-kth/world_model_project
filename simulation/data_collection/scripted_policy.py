@@ -1,8 +1,11 @@
 import numpy as np
+
 from .route import plan_route, segment_depth
+
 
 def wrap_angle(a):
   return (a + np.pi) % (2 * np.pi) - np.pi
+
 
 # Waypoint state machine for pick / carry / place demos
 # approach -> hover -> descend -> grasp -> lift -> transport -> lower -> release -> retreat -> done
@@ -92,12 +95,14 @@ class ScriptedPickPlace:
           self.route.pop(0)
         else:
           self.phase = "hover"
+
     elif self.phase == "hover":
       # Hover to a pose above the object
       target = np.array([obj[0], obj[1], obj[2] + self.HOVER_HEIGHT])
       # Go down once we are above it and the fingers are turned the right way
       if self._near(ee, target, self.XY_TOL) and abs(self._yaw_action()) < 0.5:
         self.phase = "descend"
+
     elif self.phase == "descend":
       # Descend onto the object, but not into the table and not with the palm onto a tall object
       z = max(obj[2] - self.GRASP_DEPTH, table + self.MIN_EE_HEIGHT,
@@ -106,12 +111,14 @@ class ScriptedPickPlace:
       if np.linalg.norm(ee[:2] - target[:2]) < self.GRASP_TOL and abs(ee[2] - target[2]) < 0.01:
         self.phase = "grasp"
         self.hold = 0
+
     elif self.phase == "grasp":
       # Close the gripper and hold for a few steps
       gripper = -1.0
       self.hold += 1
       if self.hold >= self.HOLD_STEPS:
         self.phase = "lift"
+
     elif self.phase == "lift":
       # Lift straight up to the carry height
       target = np.array([ee[0], ee[1], self.carry_z])
@@ -127,6 +134,7 @@ class ScriptedPickPlace:
           self.phase = "hover"
         else:
           self.phase = "done"
+
     elif self.phase == "transport":
       # Follow the waypoints, then head for the place spot, rising over any low obstacle on the way
       wp = self.route[0] if self.route else place[:2]
@@ -147,6 +155,7 @@ class ScriptedPickPlace:
           self.route.pop(0)
         else:
           self.phase = "lower"
+
     elif self.phase == "lower":
       # Lower to just above the table
       target = np.array([place[0], place[1], table + self.half_h + 0.03])
@@ -154,12 +163,14 @@ class ScriptedPickPlace:
       if abs(ee[2] - target[2]) < 0.015:
         self.phase = "release"
         self.hold = 0
+
     elif self.phase == "release":
       # Open the gripper and hold
       self.hold += 1
       if self.hold >= self.HOLD_STEPS:
         self.phase = "retreat"
         self.hold = 0
+
     elif self.phase == "retreat":
       # Move back up out of the way, wait a bit so the object settles, then we are done
       target = np.array([ee[0], ee[1], self.carry_z + 0.05])
@@ -234,8 +245,10 @@ class ScriptedPickPlace:
   def _near(ee, target, tol):
     return np.linalg.norm(ee[:2] - target[:2]) < tol and abs(ee[2] - target[2]) < 0.025
 
+
 # Random actions with some momentum and a downward drift so the arm actually reaches the table
 class RandomPolicy:
+
   def __init__(self, env, rng):
     self.env = env
     self.rng = rng
@@ -259,6 +272,7 @@ class RandomPolicy:
 
   def describe(self):
     return {"mode": "random"}
+
 
 # The policy kinds used in data.mix
 def make_policy(kind, env, rng, cfg):

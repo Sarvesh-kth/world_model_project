@@ -1,0 +1,285 @@
+{
+  "device": "cuda",
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.07544423383822499,
+      "val_loss": 0.13975014087147278,
+      "proximity_mse": 0.030283713027256805,
+      "collision_bce": 0.10927463567460977,
+      "table_bce": 0.00019179298166385172
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.028446622146401444,
+      "val_loss": 0.12975854034883536,
+      "proximity_mse": 0.029966889939407035,
+      "collision_bce": 0.09970340621473595,
+      "table_bce": 8.82461446593289e-05
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.021939259221874553,
+      "val_loss": 0.13748243529996754,
+      "proximity_mse": 0.026893571248746608,
+      "collision_bce": 0.11053274979390525,
+      "table_bce": 5.611352593886008e-05
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.016523506457943808,
+      "val_loss": 0.16799027758491233,
+      "proximity_mse": 0.02780887609364787,
+      "collision_bce": 0.1401495759298147,
+      "table_bce": 3.1824457991722935e-05
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.014020063426753021,
+      "val_loss": 0.1811750907980105,
+      "proximity_mse": 0.0290694784665865,
+      "collision_bce": 0.15208818431367896,
+      "table_bce": 1.7429833573965877e-05
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.011461584252434733,
+      "val_loss": 0.20633758433738422,
+      "proximity_mse": 0.03084217831281918,
+      "collision_bce": 0.17548037340161682,
+      "table_bce": 1.5032453322764824e-05
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.010286994701989478,
+      "val_loss": 0.17466137533508636,
+      "proximity_mse": 0.030835641217081017,
+      "collision_bce": 0.14379550511470135,
+      "table_bce": 3.0231166509952892e-05
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.009676796467359108,
+      "val_loss": 0.15772677427327203,
+      "proximity_mse": 0.028131806150775613,
+      "collision_bce": 0.1295484902891234,
+      "table_bce": 4.647572190794631e-05
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.007137663833671171,
+      "val_loss": 0.2177307748360791,
+      "proximity_mse": 0.030596730747137816,
+      "collision_bce": 0.18712003065997004,
+      "table_bce": 1.4009761829819646e-05
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.007086653297265408,
+      "val_loss": 0.24679413176737183,
+      "proximity_mse": 0.031137345081591043,
+      "collision_bce": 0.21564885672463543,
+      "table_bce": 7.926294051468911e-06
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.006959374823373723,
+      "val_loss": 0.19466169932530542,
+      "proximity_mse": 0.030874474813299625,
+      "collision_bce": 0.1637724990320822,
+      "table_bce": 1.4723519295272994e-05
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.0059974250336805755,
+      "val_loss": 0.21535350084788124,
+      "proximity_mse": 0.03325124717750427,
+      "collision_bce": 0.18208939723931775,
+      "table_bce": 1.2858508929985602e-05
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.005859171963404651,
+      "val_loss": 0.2299975547405605,
+      "proximity_mse": 0.031199421995510956,
+      "collision_bce": 0.19879130044332413,
+      "table_bce": 6.834682044696788e-06
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.0052451514001123625,
+      "val_loss": 0.21656566591862667,
+      "proximity_mse": 0.03363692688468441,
+      "collision_bce": 0.1829132123975433,
+      "table_bce": 1.5525529819161957e-05
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.005285927940409235,
+      "val_loss": 0.22432021070184885,
+      "proximity_mse": 0.028138540172222577,
+      "collision_bce": 0.19617616105654803,
+      "table_bce": 5.511756168660736e-06
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.005863896786701294,
+      "val_loss": 0.24394301035425034,
+      "proximity_mse": 0.030934436221525093,
+      "collision_bce": 0.21299571359517558,
+      "table_bce": 1.2863390396986743e-05
+    },
+    {
+      "epoch": 17,
+      "train_loss": 0.0040415822502838025,
+      "val_loss": 0.2640376550007934,
+      "proximity_mse": 0.033884824208131076,
+      "collision_bce": 0.2301484163938901,
+      "table_bce": 4.41371609178385e-06
+    },
+    {
+      "epoch": 18,
+      "train_loss": 0.002870012013231473,
+      "val_loss": 0.23745388749555207,
+      "proximity_mse": 0.029925967792419843,
+      "collision_bce": 0.20752471408108386,
+      "table_bce": 3.208622061508809e-06
+    },
+    {
+      "epoch": 19,
+      "train_loss": 0.0013469070448459877,
+      "val_loss": 0.31664475487670823,
+      "proximity_mse": 0.03336716544237971,
+      "collision_bce": 0.28327690984713194,
+      "table_bce": 6.793455398036818e-07
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.0039648875542516015,
+      "val_loss": 0.2902406576817741,
+      "proximity_mse": 0.03214820917665931,
+      "collision_bce": 0.25808809824800344,
+      "table_bce": 4.347357139997252e-06
+    },
+    {
+      "epoch": 21,
+      "train_loss": 0.0042732719465290135,
+      "val_loss": 0.23461299537942382,
+      "proximity_mse": 0.03126151240596203,
+      "collision_bce": 0.20334586814671213,
+      "table_bce": 5.617746832212695e-06
+    },
+    {
+      "epoch": 22,
+      "train_loss": 0.003013111771380488,
+      "val_loss": 0.28928370538903764,
+      "proximity_mse": 0.03357278896339378,
+      "collision_bce": 0.2557088441281345,
+      "table_bce": 2.0737534914880887e-06
+    },
+    {
+      "epoch": 23,
+      "train_loss": 0.0033208559330666085,
+      "val_loss": 0.30003931946948076,
+      "proximity_mse": 0.032354104393936836,
+      "collision_bce": 0.2676842664816837,
+      "table_bce": 9.462312875836996e-07
+    },
+    {
+      "epoch": 24,
+      "train_loss": 0.003393699044293925,
+      "val_loss": 0.2965692649733259,
+      "proximity_mse": 0.030951843928045786,
+      "collision_bce": 0.26561659978075497,
+      "table_bce": 8.190231586164765e-07
+    },
+    {
+      "epoch": 25,
+      "train_loss": 0.0008396555631235313,
+      "val_loss": 0.3034842661710255,
+      "proximity_mse": 0.030502244083915924,
+      "collision_bce": 0.2729818408566074,
+      "table_bce": 1.8578573242781395e-07
+    },
+    {
+      "epoch": 26,
+      "train_loss": 0.0006047101528607345,
+      "val_loss": 0.3151635971749155,
+      "proximity_mse": 0.031453408737734966,
+      "collision_bce": 0.2837100511701117,
+      "table_bce": 1.3880765440496401e-07
+    },
+    {
+      "epoch": 27,
+      "train_loss": 0.0006233883234111564,
+      "val_loss": 0.30774962104083126,
+      "proximity_mse": 0.030147433795320956,
+      "collision_bce": 0.2776020365966737,
+      "table_bce": 1.5417702560997048e-07
+    },
+    {
+      "epoch": 28,
+      "train_loss": 0.0064254524871435,
+      "val_loss": 0.20736517611110697,
+      "proximity_mse": 0.031227875376537352,
+      "collision_bce": 0.17613505737162843,
+      "table_bce": 2.2417049535568167e-06
+    },
+    {
+      "epoch": 29,
+      "train_loss": 0.0034525598048180794,
+      "val_loss": 0.22925064599254943,
+      "proximity_mse": 0.03089605536954332,
+      "collision_bce": 0.19835434804793114,
+      "table_bce": 2.4136679181698827e-07
+    },
+    {
+      "epoch": 30,
+      "train_loss": 0.0039595552528335215,
+      "val_loss": 0.1978825924020055,
+      "proximity_mse": 0.02941898657629195,
+      "collision_bce": 0.1684605695764896,
+      "table_bce": 3.0371424104484468e-06
+    }
+  ],
+  "training_examples": 36244,
+  "validation_examples": 9866,
+  "best_validation_loss": 0.12975854034883536,
+  "best_epoch": 2,
+  "checkpoint": "data/combined_test1/attempts/combined/models/reward.pt",
+  "checkpoint_sha256": "95172d5aad8d9e892c8b0eed304a1dfe317b02aa894cb9cd674bc82ec2811279",
+  "seed": 0,
+  "architecture": "reward",
+  "width_input": null,
+  "parent_checkpoint_sha256": null,
+  "frozen_companions": {},
+  "settings": {
+    "stage": "reward",
+    "run": "data/combined_test1",
+    "epochs": 30,
+    "batch_size": 64,
+    "lr": 0.001,
+    "seed": 0,
+    "rollout_steps": 4,
+    "robot_sees_z": false,
+    "task_weight": 1.0,
+    "baseline_horizon": 0,
+    "tag": "combined",
+    "view": "all",
+    "from_tag": "",
+    "width_input": "visual",
+    "q_xyz_cm": 2.0,
+    "q_height_cm": 1.0,
+    "q_f1": 0.8,
+    "q_brier": 0.15
+  },
+  "provenance": {
+    "python": "3.12.3",
+    "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+    "git_commit": "78c4e7f687325200f76d20398e2df59966291a46",
+    "git_dirty": true,
+    "torch": "2.6.0+cu124",
+    "cuda": "12.4",
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU"
+  }
+}

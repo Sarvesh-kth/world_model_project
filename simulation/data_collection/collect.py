@@ -1,11 +1,17 @@
+# the collector never opens a window: offscreen camera rendering (EGL), imported before mujoco
+import offscreen
+
 import argparse
 import json
 import multiprocessing as mp
 import time
+
 import numpy as np
+
 from environment import EpisodeLayout, PickPlaceEnv, load_config
 from .scripted_policy import make_policy
 from .writer import EpisodeWriter, append_index, next_episode_id
+
 
 # Run one episode with the policy, recording frames into the writer if given
 # stops when the env says so or when the policy has nothing left to do
@@ -33,12 +39,14 @@ def run_episode(env, policy, writer=None, realtime=False):
     if realtime:
       time.sleep(max(0.0, step_time - (time.time() - t0)))
 
+
 # Turn data.mix fractions into a shuffled list of policy kinds, one per episode
 def allocate_kinds(mix, episodes, rng):
   kinds = sorted(mix)
   fracs = np.array([mix[k] for k in kinds], dtype=float)
   fracs /= fracs.sum()
   counts = np.floor(fracs * episodes).astype(int)
+
   # Hand the leftover episodes to the kinds that were rounded down the most
   for i in np.argsort(-(fracs * episodes - counts)):
     if counts.sum() >= episodes:
@@ -47,6 +55,7 @@ def allocate_kinds(mix, episodes, rng):
   out = [k for k, c in zip(kinds, counts) for _ in range(int(c))]
   rng.shuffle(out)
   return out
+
 
 # Collect one episode, success episodes get retried on fresh layouts until they actually succeed
 def collect_one(env, writer, cfg, episode_id, seed, kind, holdout=False, realtime=False, layout=None):
@@ -64,8 +73,10 @@ def collect_one(env, writer, cfg, episode_id, seed, kind, holdout=False, realtim
   _, row = writer.finish_episode(episode_id)
   return row
 
+
 # Each worker process owns one env and one writer
 _worker = {}
+
 
 def _init_worker(cfg, out_dir, holdout, realtime, layout):
   _worker["env"] = PickPlaceEnv(cfg)
@@ -75,10 +86,12 @@ def _init_worker(cfg, out_dir, holdout, realtime, layout):
   _worker["realtime"] = realtime
   _worker["layout"] = layout
 
+
 def _run_task(task):
   episode_id, seed, kind = task
   return collect_one(_worker["env"], _worker["writer"], _worker["cfg"],
                      episode_id, seed, kind, _worker["holdout"], _worker["realtime"], _worker["layout"])
+
 
 # Collect a dataset, appends to out_dir if it already has episodes
 def collect(cfg, episodes, out_dir, seed=None, workers=None, holdout=False, realtime=False, layout=None):
@@ -129,6 +142,7 @@ def collect(cfg, episodes, out_dir, seed=None, workers=None, holdout=False, real
     print(f"  {kind}: {stats[kind][0]}/{stats[kind][1]} successful")
   return rows
 
+
 def main():
   p = argparse.ArgumentParser(description="Collect pick-and-place episodes")
   p.add_argument("--config", default=None)
@@ -153,6 +167,7 @@ def main():
     layout = EpisodeLayout.from_dict(d.get("layout", d))
   collect(cfg, args.episodes, out, seed=args.seed, workers=args.workers, holdout=args.holdout,
           realtime=args.realtime, layout=layout)
+
 
 if __name__ == "__main__":
   main()

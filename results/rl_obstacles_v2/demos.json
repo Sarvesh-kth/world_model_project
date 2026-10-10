@@ -1,0 +1,6594 @@
+{
+  "attempts": [
+    {
+      "seed": 20263005,
+      "task_success": true,
+      "steps": 128,
+      "true_original_return": 114.77117261641136,
+      "control_return": 10.568954075493405,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 18.76385807991028,
+      "minimum_goal_distance_cm": 0.18729951698333025,
+      "final_goal_distance_cm": 0.21134337782859802,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17082450769681867,
+          -0.22646103689856906
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.04676092100427562,
+              0.04391703610037637
+            ],
+            "yaw": 3.52181989078182,
+            "size": [
+              0.07136686194460776,
+              0.01,
+              0.09228373613413206
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.19332615228437267,
+              0.014825447351724686
+            ],
+            "yaw": 1.56402189068526,
+            "size": [
+              0.021899793479861474,
+              0.021521488762203663,
+              0.05702360496463234
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263006,
+      "task_success": true,
+      "steps": 137,
+      "true_original_return": 125.81724450447656,
+      "control_return": 11.411237731340586,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 12.51002550125122,
+      "minimum_goal_distance_cm": 0.06943850312381983,
+      "final_goal_distance_cm": 0.07403497397899628,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18885444861461367,
+          -0.22712889541346354
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.23495195905189695,
+              0.040574284886298294
+            ],
+            "yaw": 3.274155477098088,
+            "size": [
+              0.05859760225533588,
+              0.01,
+              0.08201473877718811
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.11121789863280547,
+              0.05636120169594185
+            ],
+            "yaw": 1.3218344687171282,
+            "size": [
+              0.020273825414045397,
+              0.023273031388490364,
+              0.08893314167643537
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.02548437603224568,
+              -0.03701053685231222
+            ],
+            "yaw": 1.3821291905878006,
+            "size": [
+              0.02942305720877637,
+              0.015589074271484642,
+              0.0428094608186131
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263007,
+      "task_success": true,
+      "steps": 152,
+      "true_original_return": 134.0738902799959,
+      "control_return": -5.293083764279777,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.176265239715576,
+      "minimum_goal_distance_cm": 0.33430643379688263,
+      "final_goal_distance_cm": 0.3463527262210846,
+      "final_held": false,
+      "obstacle_contact_steps": 18,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17346191953952553,
+          -0.23022929424433294
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              -5.974127032570831e-05,
+              0.01489580895632786
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02587834146301158,
+              0.09147367581049781
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.28657045366648837,
+              0.04838581898908766
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.022961448445508063,
+              0.05928859766046382
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.12226488974860203,
+              -0.02046830838395262
+            ],
+            "yaw": -0.7968957011683635,
+            "size": [
+              0.02327297085606042,
+              0.01635295943063915,
+              0.08165833638497522
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263008,
+      "task_success": true,
+      "steps": 128,
+      "true_original_return": 105.76081191652092,
+      "control_return": 9.344702860480577,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.618012189865112,
+      "minimum_goal_distance_cm": 0.17112705390900373,
+      "final_goal_distance_cm": 0.17180263996124268,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17980825169213147,
+          -0.23992131729332491
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.0602444925800982,
+              -0.02958894254298828
+            ],
+            "yaw": 3.3729572616812282,
+            "size": [
+              0.043782627370698414,
+              0.01,
+              0.09296417854502535
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.21754800976795063,
+              -0.021736751751907583
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.028134452492008202,
+              0.04186016923353267
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263009,
+      "task_success": true,
+      "steps": 131,
+      "true_original_return": 108.51258587463379,
+      "control_return": 7.854718496740144,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 14.115738868713379,
+      "minimum_goal_distance_cm": 0.140559661667794,
+      "final_goal_distance_cm": 0.15946310758590698,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1810179565050882,
+          -0.23923717872271202
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.07526667517718144,
+              -0.061236933436604656
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.023639262526931215,
+              0.08905072246982802
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.12392787801032225,
+              0.030864643345329196
+            ],
+            "yaw": -2.38742123444396,
+            "size": [
+              0.019789160636094448,
+              0.02046401528124149,
+              0.05450240779287849
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.02319903178221537,
+              0.08088427036077185
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027428102514205188,
+              0.08291567902398492
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263010,
+      "task_success": true,
+      "steps": 113,
+      "true_original_return": 104.2798155637284,
+      "control_return": 11.839316965870099,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.533568620681763,
+      "minimum_goal_distance_cm": 0.18109477823600173,
+      "final_goal_distance_cm": 0.18109478056430817,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18779665441602847,
+          -0.2282813368813492
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.15763608631493436,
+              0.03028086711443748
+            ],
+            "yaw": -2.910581759391705,
+            "size": [
+              0.023016982351811224,
+              0.018286484962601254,
+              0.08052368523993991
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.0160325844807208,
+              0.03950293911146358
+            ],
+            "yaw": 3.488594413753556,
+            "size": [
+              0.05400979091377759,
+              0.01,
+              0.02611427657195584
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.2661996633774995,
+              -0.025447788201160174
+            ],
+            "yaw": -1.3192917580295758,
+            "size": [
+              0.024190103172009283,
+              0.02433474745858705,
+              0.08146416073877316
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263011,
+      "task_success": true,
+      "steps": 156,
+      "true_original_return": 134.33533363649673,
+      "control_return": 10.680323677215561,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.210615396499634,
+      "minimum_goal_distance_cm": 0.27904994785785675,
+      "final_goal_distance_cm": 0.29865020513534546,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17163368900683498,
+          -0.22341126879125703
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.10164385605437506,
+              -0.017917087539649892
+            ],
+            "yaw": -0.12870452587556658,
+            "size": [
+              0.017622299660338393,
+              0.029162302802754135,
+              0.0848174041004515
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263012,
+      "task_success": true,
+      "steps": 122,
+      "true_original_return": 111.41592846834423,
+      "control_return": 12.379937658298445,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.628551244735718,
+      "minimum_goal_distance_cm": 0.16169813461601734,
+      "final_goal_distance_cm": 0.16169841587543488,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.175535872820324,
+          -0.23002111511233775
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.2782657033968675,
+              0.11086933692829856
+            ],
+            "yaw": 3.4628781533825124,
+            "size": [
+              0.05317430412287959,
+              0.01,
+              0.08780972937336101
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263013,
+      "task_success": true,
+      "steps": 121,
+      "true_original_return": 107.46350837748695,
+      "control_return": 10.768292534607923,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.730257987976074,
+      "minimum_goal_distance_cm": 0.15453121159225702,
+      "final_goal_distance_cm": 0.1791010946035385,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1895942258594744,
+          -0.2252423673148366
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.18668661338953357,
+              0.05424688080916172
+            ],
+            "yaw": 3.0568710264683654,
+            "size": [
+              0.047035006667877424,
+              0.01,
+              0.09238129647538813
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.039067833890234716,
+              -0.07201682270466271
+            ],
+            "yaw": 1.7992754678020084,
+            "size": [
+              0.016077246790311642,
+              0.02178209494751604,
+              0.06408452225327808
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.002014923242511596,
+              0.057171157877194775
+            ],
+            "yaw": 3.5268930057264924,
+            "size": [
+              0.0784650083461605,
+              0.01,
+              0.08288439637860201
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263014,
+      "task_success": true,
+      "steps": 151,
+      "true_original_return": 115.54769068028176,
+      "control_return": 11.474655888393555,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 16.568291187286377,
+      "minimum_goal_distance_cm": 0.1794294803403318,
+      "final_goal_distance_cm": 0.17942948639392853,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17140870673207503,
+          -0.22218199438180164
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.0007513847704219423,
+              -0.012980073492689023
+            ],
+            "yaw": 0.44393036435510647,
+            "size": [
+              0.018907980244660307,
+              0.019906031693399925,
+              0.09178403481505548
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.3093875104690562,
+              -0.06749522850415177
+            ],
+            "yaw": 3.2635993524186775,
+            "size": [
+              0.06813104161849359,
+              0.01,
+              0.06786650152111506
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263015,
+      "task_success": true,
+      "steps": 113,
+      "true_original_return": 107.10004661233138,
+      "control_return": 11.618827405112171,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 12.339705228805542,
+      "minimum_goal_distance_cm": 0.28757976833730936,
+      "final_goal_distance_cm": 0.2875797748565674,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17298399427657846,
+          -0.2200539074199471
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.22675552019532347,
+              0.0466397348618073
+            ],
+            "yaw": -1.1375449901126018,
+            "size": [
+              0.01931850859572652,
+              0.019374852068339846,
+              0.09050537120076604
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.03830770272514103,
+              -0.031118202680479497
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.022714839696313483,
+              0.046513363877283
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263016,
+      "task_success": true,
+      "steps": 113,
+      "true_original_return": 104.79119335060042,
+      "control_return": 11.552716535992023,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 14.866042137145996,
+      "minimum_goal_distance_cm": 0.11379880597814918,
+      "final_goal_distance_cm": 0.1486353725194931,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18794659378801937,
+          -0.23146923472893383
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.26756451249159885,
+              0.04625655817321008
+            ],
+            "yaw": -1.415030977470748,
+            "size": [
+              0.027351995087325137,
+              0.02817017257180207,
+              0.08849747484795253
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.02243381721912771,
+              -0.03199004863402763
+            ],
+            "yaw": 1.13718729043506,
+            "size": [
+              0.029446081710370206,
+              0.023965580421807908,
+              0.05707562605647554
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.1363809454788044,
+              -0.003867493743464829
+            ],
+            "yaw": -0.7281940321726244,
+            "size": [
+              0.023429057711450388,
+              0.018773021405287672,
+              0.038763482523938575
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263017,
+      "task_success": true,
+      "steps": 130,
+      "true_original_return": 117.23010740455395,
+      "control_return": 11.72537269584539,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.979324579238892,
+      "minimum_goal_distance_cm": 0.1642310875467956,
+      "final_goal_distance_cm": 0.1642310917377472,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18295745372218059,
+          -0.2342576330543347
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.13290096938912643,
+              0.005666761995553383
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.023945718168133887,
+              0.09032588689577901
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.23398319551217028,
+              0.08584107531482886
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.026441553932002704,
+              0.07532081143690737
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263018,
+      "task_success": true,
+      "steps": 138,
+      "true_original_return": 103.81369070386852,
+      "control_return": 4.447251074106001,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.099732875823975,
+      "minimum_goal_distance_cm": 0.35771073307842016,
+      "final_goal_distance_cm": 0.3585793673992157,
+      "final_held": false,
+      "obstacle_contact_steps": 6,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18174018404692927,
+          -0.22837286623288042
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.05130561489419279,
+              -0.05080956332788191
+            ],
+            "yaw": 3.568902613200897,
+            "size": [
+              0.05561825193907725,
+              0.01,
+              0.08969644486124641
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263019,
+      "task_success": true,
+      "steps": 136,
+      "true_original_return": 116.09955243835697,
+      "control_return": 10.07615371762273,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 18.390727043151855,
+      "minimum_goal_distance_cm": 0.28917649760842323,
+      "final_goal_distance_cm": 0.28917649388313293,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1879982510781422,
+          -0.2233000211497767
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.17074222109420759,
+              -0.006197343849599
+            ],
+            "yaw": 0.4718555084096825,
+            "size": [
+              0.01980421129883236,
+              0.0170855966038922,
+              0.08504266224752223
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.000851536034424949,
+              -0.06601878017168386
+            ],
+            "yaw": -2.023496053271266,
+            "size": [
+              0.02217462596768189,
+              0.024216628509242805,
+              0.025817419530564694
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              -0.008698299547105492,
+              0.057215267515444965
+            ],
+            "yaw": 3.417940968660883,
+            "size": [
+              0.07927832637915422,
+              0.01,
+              0.07554784725676593
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263020,
+      "task_success": true,
+      "steps": 136,
+      "true_original_return": 133.8567513688296,
+      "control_return": 9.660197834552616,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.675925016403198,
+      "minimum_goal_distance_cm": 0.13599592493847013,
+      "final_goal_distance_cm": 0.1363784670829773,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1798450914835844,
+          -0.22255406554298338
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.03954474298808894,
+              0.039269384225748966
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02459313359413373,
+              0.08219325113357039
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.290686046495788,
+              0.04472537838677359
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.024149433518299623,
+              0.06690725003325279
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.15886665939965097,
+              0.06635671246877563
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.015846992776969875,
+              0.08597932225609485
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263021,
+      "task_success": true,
+      "steps": 113,
+      "true_original_return": 103.71503841473367,
+      "control_return": 11.981518918144932,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 15.504032373428345,
+      "minimum_goal_distance_cm": 0.1855416689068079,
+      "final_goal_distance_cm": 0.18554167449474335,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18293158854535596,
+          -0.2253349217339392
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.28136258863114216,
+              0.08484824566448716
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01756938873506339,
+              0.08081862824847122
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.12729991225910958,
+              -0.025310270306905892
+            ],
+            "yaw": -1.8024620074484359,
+            "size": [
+              0.024093153328458725,
+              0.023022717735254862,
+              0.060614410230495644
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263022,
+      "task_success": true,
+      "steps": 135,
+      "true_original_return": 105.8027529020538,
+      "control_return": 12.264896842920173,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 15.620535612106323,
+      "minimum_goal_distance_cm": 0.04142776888329536,
+      "final_goal_distance_cm": 0.07998213171958923,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18912320529412427,
+          -0.23412891252689375
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              -0.00400086294743876,
+              -0.030957510190558916
+            ],
+            "yaw": 1.0394461896939022,
+            "size": [
+              0.023650206291257737,
+              0.01994577317465179,
+              0.08964598174645934
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2697256260336766,
+              0.08937271720675852
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.022114713121113672,
+              0.06065117181264475
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.010485656889814052,
+              0.06885898644437216
+            ],
+            "yaw": 1.180340340208823,
+            "size": [
+              0.015200490011777439,
+              0.026636589044777392,
+              0.06762185639395892
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263023,
+      "task_success": true,
+      "steps": 135,
+      "true_original_return": 106.71758360426541,
+      "control_return": 11.997800099694917,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 14.758270978927612,
+      "minimum_goal_distance_cm": 0.15602806815877557,
+      "final_goal_distance_cm": 0.15602806210517883,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18201136041089724,
+          -0.22239003512312203
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.006426890850954214,
+              -0.09038159043747494
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.018316817533058638,
+              0.09021575850118739
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.24328164184049414,
+              0.09535093281626952
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.015214908259897639,
+              0.05726720201485376
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263024,
+      "task_success": true,
+      "steps": 126,
+      "true_original_return": 109.47369053026866,
+      "control_return": 9.951360822627418,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 17.32068657875061,
+      "minimum_goal_distance_cm": 0.1619931193999946,
+      "final_goal_distance_cm": 0.1619931161403656,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17058492326140662,
+          -0.23539315286502965
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              -0.02415774457644354,
+              0.09165978465944873
+            ],
+            "yaw": -2.4519357276597518,
+            "size": [
+              0.02295622111525184,
+              0.029845978943638142,
+              0.09081732821383781
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.2001632562827777,
+              0.06007333023622692
+            ],
+            "yaw": 3.0858331274642934,
+            "size": [
+              0.0441429784980863,
+              0.01,
+              0.05682486766880361
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.032369985371591664,
+              -0.0896076967828829
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.024074767593760628,
+              0.0734122874681875
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263025,
+      "task_success": true,
+      "steps": 146,
+      "true_original_return": 107.80362022938158,
+      "control_return": 9.40825588292762,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 12.889999151229858,
+      "minimum_goal_distance_cm": 0.17133255023509264,
+      "final_goal_distance_cm": 0.17133283615112305,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17489530071210563,
+          -0.23520040216397436
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.0468136393491721,
+              -0.06780239300189624
+            ],
+            "yaw": 1.1003994021683567,
+            "size": [
+              0.024331438746283615,
+              0.02382444497483206,
+              0.09062163944899727
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.20561396597087084,
+              -0.002744299313487285
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01967856497188757,
+              0.045377057792041015
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              -0.02078680611443373,
+              0.03831165544515895
+            ],
+            "yaw": -2.1043188472733396,
+            "size": [
+              0.021741768884524105,
+              0.019095333926933362,
+              0.05536579937276673
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263026,
+      "task_success": true,
+      "steps": 129,
+      "true_original_return": 110.12594907521907,
+      "control_return": 12.3730818250306,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.061144828796387,
+      "minimum_goal_distance_cm": 0.0333787378622219,
+      "final_goal_distance_cm": 0.03751548007130623,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18401638424829952,
+          -0.23875024875033118
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.0216337280586828,
+              0.012145493821205573
+            ],
+            "yaw": 1.4509877400912883,
+            "size": [
+              0.02758392246990788,
+              0.018815296009924033,
+              0.08747446419107188
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263027,
+      "task_success": true,
+      "steps": 117,
+      "true_original_return": 102.39588402124315,
+      "control_return": 10.932026679527294,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.372272491455078,
+      "minimum_goal_distance_cm": 0.19101641373708844,
+      "final_goal_distance_cm": 0.19101642072200775,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1874115250131555,
+          -0.23334436294237376
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.01897488222720567,
+              -0.10472941128842907
+            ],
+            "yaw": 1.7759655588002001,
+            "size": [
+              0.018265638754501837,
+              0.0190347864139109,
+              0.08052257852214931
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.025665109089692745,
+              0.07013676591201959
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.022734502242312805,
+              0.07575463631642722
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263028,
+      "task_success": true,
+      "steps": 119,
+      "true_original_return": 113.16945386727356,
+      "control_return": 11.18638761251652,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 16.714471578598022,
+      "minimum_goal_distance_cm": 0.1609868137165904,
+      "final_goal_distance_cm": 0.16192056238651276,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1770937484645876,
+          -0.23783441047562384
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.2647470081406516,
+              0.14231847653203344
+            ],
+            "yaw": 0.6971605644544012,
+            "size": [
+              0.017206406873684195,
+              0.02908384261053957,
+              0.0823419713668592
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.06880307422770568,
+              -0.02226689781974385
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027315236501149785,
+              0.06764663751845039
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263029,
+      "task_success": true,
+      "steps": 151,
+      "true_original_return": 132.29807753577643,
+      "control_return": 11.633367115340224,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.250234603881836,
+      "minimum_goal_distance_cm": 0.2799898386001587,
+      "final_goal_distance_cm": 0.29200509190559387,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17215405874249848,
+          -0.23645722632210528
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.22550915828720952,
+              0.042917061240351224
+            ],
+            "yaw": 3.313270402616012,
+            "size": [
+              0.05613976613630592,
+              0.01,
+              0.09058247364532322
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.02311094498795563,
+              -0.09370743839708737
+            ],
+            "yaw": 3.138577743175118,
+            "size": [
+              0.04204591140025532,
+              0.01,
+              0.020273560091358042
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.12400691078879987,
+              0.008937661617044686
+            ],
+            "yaw": 2.4527406134092997,
+            "size": [
+              0.029398391956672758,
+              0.028408985356216755,
+              0.08143955232974186
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263030,
+      "task_success": true,
+      "steps": 125,
+      "true_original_return": 116.4216274900596,
+      "control_return": 10.776166366209356,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 14.53312635421753,
+      "minimum_goal_distance_cm": 0.23014771286398172,
+      "final_goal_distance_cm": 0.23014771938323975,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17536006567201057,
+          -0.23568682382178363
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.16244600882730328,
+              0.059455985031845286
+            ],
+            "yaw": 2.99579610203744,
+            "size": [
+              0.02537223006070758,
+              0.02981805138258499,
+              0.08559288753798704
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.013049106620275974,
+              -0.10775447780639838
+            ],
+            "yaw": 2.345521389582248,
+            "size": [
+              0.029479127759659468,
+              0.01723333637921741,
+              0.057910177945512606
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263031,
+      "task_success": true,
+      "steps": 120,
+      "true_original_return": 112.28346957078256,
+      "control_return": 12.098072299752573,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.217532873153687,
+      "minimum_goal_distance_cm": 0.20832454320043325,
+      "final_goal_distance_cm": 0.20832453668117523,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.177725448301839,
+          -0.2305227879331698
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.02403340730567166,
+              0.06839941611122352
+            ],
+            "yaw": 3.1718235198629916,
+            "size": [
+              0.07326552822971161,
+              0.01,
+              0.08061594794537894
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.24099903125541478,
+              0.10600153192410038
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.019018800781076994,
+              0.06517296108356146
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.10557118712607264,
+              -0.010067195974206494
+            ],
+            "yaw": 3.2295813900656776,
+            "size": [
+              0.06137507633726483,
+              0.01,
+              0.05675802700478258
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263032,
+      "task_success": true,
+      "steps": 124,
+      "true_original_return": 108.45134611692399,
+      "control_return": 12.452528700671522,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 9.795761108398438,
+      "minimum_goal_distance_cm": 0.14316117158159614,
+      "final_goal_distance_cm": 0.14316117763519287,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18294958007977563,
+          -0.2313387162968717
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.0007281489033097444,
+              0.014227792302409142
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01659590900066733,
+              0.0926635254185598
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263033,
+      "task_success": true,
+      "steps": 143,
+      "true_original_return": 108.09921715717019,
+      "control_return": 10.980297304350819,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.278517007827759,
+      "minimum_goal_distance_cm": 0.11350607965141535,
+      "final_goal_distance_cm": 0.11350607872009277,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18155258247910666,
+          -0.22008640682371614
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.03374749843706813,
+              -0.07271030095821952
+            ],
+            "yaw": 3.0004727598887255,
+            "size": [
+              0.021809299148095904,
+              0.029282887909169726,
+              0.09035950009504308
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263034,
+      "task_success": true,
+      "steps": 144,
+      "true_original_return": 125.33895549557884,
+      "control_return": 11.540964669239756,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.657495260238647,
+      "minimum_goal_distance_cm": 0.09657731279730797,
+      "final_goal_distance_cm": 0.09750622510910034,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18258161228380876,
+          -0.2273499002088889
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.132316916276556,
+              -0.004637170411731269
+            ],
+            "yaw": 0.10476182101951448,
+            "size": [
+              0.019007415899135308,
+              0.022892571530920933,
+              0.08724799622692846
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263035,
+      "task_success": true,
+      "steps": 110,
+      "true_original_return": 104.52324087691363,
+      "control_return": 12.345333090979869,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.99183464050293,
+      "minimum_goal_distance_cm": 0.1900543225929141,
+      "final_goal_distance_cm": 0.19005432724952698,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17833882285972022,
+          -0.22784372156332156
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.29290111213924375,
+              0.04283209983311769
+            ],
+            "yaw": -2.266725395976256,
+            "size": [
+              0.028707479105329642,
+              0.02505414370816081,
+              0.08098608255304583
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              -0.0053734729908083145,
+              0.06144632834020594
+            ],
+            "yaw": -1.5237701586083416,
+            "size": [
+              0.015880035786922486,
+              0.015672918489501975,
+              0.021606258178269586
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.09101534054111024,
+              0.032265757970415636
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01759948118811185,
+              0.04402063763158579
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263036,
+      "task_success": true,
+      "steps": 145,
+      "true_original_return": 108.97204936329251,
+      "control_return": 11.023318306137247,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.04650330543518,
+      "minimum_goal_distance_cm": 0.1418652944266796,
+      "final_goal_distance_cm": 0.14248189330101013,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17261873710228345,
+          -0.23262927794355978
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              -0.010424690627433675,
+              -0.05379812391354298
+            ],
+            "yaw": 3.2584740463975317,
+            "size": [
+              0.0453515211397878,
+              0.01,
+              0.08421912672053788
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2691984191136207,
+              -0.04345779824591144
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.023352655264269565,
+              0.0797733363783871
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263037,
+      "task_success": true,
+      "steps": 146,
+      "true_original_return": 126.29141131246033,
+      "control_return": 11.978930053470112,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.647064447402954,
+      "minimum_goal_distance_cm": 0.09095565765164793,
+      "final_goal_distance_cm": 0.11710172146558762,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18765114565661967,
+          -0.23824605540740773
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.27672225929615674,
+              -0.04625332725829888
+            ],
+            "yaw": 0.5738575998178779,
+            "size": [
+              0.021665752098731075,
+              0.023802937645925334,
+              0.08390063079159954
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.16390240442159354,
+              -0.012620256302173775
+            ],
+            "yaw": 3.215715254219017,
+            "size": [
+              0.06592744502658662,
+              0.01,
+              0.09231719442517834
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263038,
+      "task_success": true,
+      "steps": 120,
+      "true_original_return": 105.88802398886014,
+      "control_return": 12.48067249459738,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 9.937864542007446,
+      "minimum_goal_distance_cm": 0.028611693414859474,
+      "final_goal_distance_cm": 0.06944381445646286,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18939370068852968,
+          -0.2250639014874068
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.022485675825410195,
+              0.06295732503188821
+            ],
+            "yaw": 1.3351400373507554,
+            "size": [
+              0.024952732858616995,
+              0.021676202233912138,
+              0.09479152374943166
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263039,
+      "task_success": true,
+      "steps": 117,
+      "true_original_return": 109.33586870273977,
+      "control_return": 12.326682415755142,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.81920862197876,
+      "minimum_goal_distance_cm": 0.15393102075904608,
+      "final_goal_distance_cm": 0.15583248436450958,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18040429889046794,
+          -0.23749246358033843
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.2964036507181126,
+              -0.0188038063886615
+            ],
+            "yaw": 3.2982741109330043,
+            "size": [
+              0.05346719552023923,
+              0.01,
+              0.0934539617656935
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263040,
+      "task_success": true,
+      "steps": 123,
+      "true_original_return": 109.30269170183114,
+      "control_return": 12.089774693179042,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.733478307723999,
+      "minimum_goal_distance_cm": 0.17416675109416246,
+      "final_goal_distance_cm": 0.20054277777671814,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1780232546581446,
+          -0.23671180472213313
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2717311659260305,
+              0.030385439991297888
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027250162347649223,
+              0.09136194669788136
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.014715262660835088,
+              -0.12003705553337747
+            ],
+            "yaw": 0.33370583577567103,
+            "size": [
+              0.027865491429492992,
+              0.01887918812681644,
+              0.04307410581333373
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263041,
+      "task_success": true,
+      "steps": 137,
+      "true_original_return": 105.97280294886683,
+      "control_return": 8.916662849307755,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.609263181686401,
+      "minimum_goal_distance_cm": 0.2011216478422284,
+      "final_goal_distance_cm": 0.20112164318561554,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17463747400752255,
+          -0.2371187175935961
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.030664456512510763,
+              -0.08478805126417527
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01541239573491261,
+              0.0901924639416616
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.23743760713132553,
+              0.05090353286903358
+            ],
+            "yaw": 3.053267766625869,
+            "size": [
+              0.051324184801188756,
+              0.01,
+              0.03324770006541182
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263042,
+      "task_success": true,
+      "steps": 146,
+      "true_original_return": 109.25030091310406,
+      "control_return": 8.519880179336486,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 14.415127038955688,
+      "minimum_goal_distance_cm": 0.16177297802641988,
+      "final_goal_distance_cm": 0.1617729812860489,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17396615176700045,
+          -0.23950531248592702
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.041612175991115746,
+              -0.06642218047806756
+            ],
+            "yaw": 1.4605654839253308,
+            "size": [
+              0.027120593867920303,
+              0.019246400337036777,
+              0.08943996592604067
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.0674780760837714,
+              0.052063620836718484
+            ],
+            "yaw": 1.961062205361598,
+            "size": [
+              0.021880971834632026,
+              0.01931310387057199,
+              0.06213387544310006
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263043,
+      "task_success": true,
+      "steps": 124,
+      "true_original_return": 109.36462262308463,
+      "control_return": 11.985398016235322,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 13.236415386199951,
+      "minimum_goal_distance_cm": 0.08979638223536313,
+      "final_goal_distance_cm": 0.09223493933677673,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1750519502690792,
+          -0.23267331273185454
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.028069425883158028,
+              0.053588220230230306
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.022182288735646014,
+              0.09417110916723048
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.2445363688187983,
+              0.08886898673711864
+            ],
+            "yaw": 1.2336491183180929,
+            "size": [
+              0.020356433091529246,
+              0.017076837414906808,
+              0.02454223709514398
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.18599770189754242,
+              -0.021870549290297307
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02637111971616435,
+              0.049905784636200545
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263044,
+      "task_success": true,
+      "steps": 123,
+      "true_original_return": 110.56160598340453,
+      "control_return": 11.104687974772482,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.1389262676239,
+      "minimum_goal_distance_cm": 0.23860018700361252,
+      "final_goal_distance_cm": 0.23860019445419312,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17231068057432117,
+          -0.22938912349908117
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.015697191816261474,
+              0.043927377844924974
+            ],
+            "yaw": 3.302621077727333,
+            "size": [
+              0.07036539749800602,
+              0.01,
+              0.08955016218659935
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.21039458385733484,
+              -0.020920167452001974
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01712180853518751,
+              0.037679176653120226
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.24302440414068677,
+              0.09158699867172396
+            ],
+            "yaw": 2.4620105211586454,
+            "size": [
+              0.01881675949566014,
+              0.023013107558960143,
+              0.08883376078192183
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263045,
+      "task_success": true,
+      "steps": 130,
+      "true_original_return": 110.6451169090973,
+      "control_return": 11.754478801056681,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 14.492785930633545,
+      "minimum_goal_distance_cm": 0.14415830373764038,
+      "final_goal_distance_cm": 0.14429505169391632,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17400082030394354,
+          -0.2250251327480609
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.01787399861346098,
+              -0.0044390488989468485
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02285891764210942,
+              0.08403179624187623
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.1957084280087038,
+              0.0251277461088266
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.028912044685381298,
+              0.056583365426245064
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              -0.021403314763129677,
+              0.11052430381287318
+            ],
+            "yaw": 1.3051901559544916,
+            "size": [
+              0.015766407159788318,
+              0.019222204856279897,
+              0.08069103154438836
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263046,
+      "task_success": true,
+      "steps": 146,
+      "true_original_return": 134.6190705782568,
+      "control_return": 11.682856914919263,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.49966812133789,
+      "minimum_goal_distance_cm": 0.16568591818213463,
+      "final_goal_distance_cm": 0.1691819280385971,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17599954365289477,
+          -0.23556249598305157
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.08607655214930422,
+              0.004952870259645727
+            ],
+            "yaw": -1.065487199515518,
+            "size": [
+              0.017262016141199227,
+              0.01813693726377654,
+              0.08558013853415503
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263047,
+      "task_success": true,
+      "steps": 119,
+      "true_original_return": 104.4281110070395,
+      "control_return": 12.339386289083883,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 9.933608770370483,
+      "minimum_goal_distance_cm": 0.13339933939278126,
+      "final_goal_distance_cm": 0.1333993375301361,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18791249029822157,
+          -0.23191813595731897
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              -0.008924805072973135,
+              0.0958301550369059
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.017812410326761546,
+              0.08284044561548955
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263048,
+      "task_success": true,
+      "steps": 116,
+      "true_original_return": 110.10245430460765,
+      "control_return": 12.376222575578327,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.219137907028198,
+      "minimum_goal_distance_cm": 0.09284537518396974,
+      "final_goal_distance_cm": 0.12275926023721695,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18942028599820748,
+          -0.23648167863641875
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.21414503610794308,
+              0.052474878740759
+            ],
+            "yaw": 3.37365127648155,
+            "size": [
+              0.05147421034653107,
+              0.01,
+              0.0942623011112287
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263049,
+      "task_success": true,
+      "steps": 146,
+      "true_original_return": 125.22088896338708,
+      "control_return": 10.32467305034601,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.839635133743286,
+      "minimum_goal_distance_cm": 0.24937696289271116,
+      "final_goal_distance_cm": 0.2623319923877716,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18672928130333125,
+          -0.23728991517594653
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.09129724641285439,
+              -0.05998915690690645
+            ],
+            "yaw": 1.2180783753367175,
+            "size": [
+              0.019940486730189496,
+              0.020752184613055925,
+              0.08187579488815248
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.25802768420342204,
+              0.013116671137013168
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01874196767570052,
+              0.05775307073857715
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263050,
+      "task_success": true,
+      "steps": 110,
+      "true_original_return": 103.90158596149695,
+      "control_return": 12.173496473616039,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.195055961608887,
+      "minimum_goal_distance_cm": 0.1805706648156047,
+      "final_goal_distance_cm": 0.18069499731063843,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17817808232477433,
+          -0.23619004955779926
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.05958965551525748,
+              -0.009333128606510716
+            ],
+            "yaw": 3.303798639630779,
+            "size": [
+              0.04340893408579455,
+              0.01,
+              0.08012799725425068
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.30728145047643574,
+              -0.04888838232611406
+            ],
+            "yaw": 0.18032562750101677,
+            "size": [
+              0.02292786352594222,
+              0.02414837242615254,
+              0.055009405603995434
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263051,
+      "task_success": true,
+      "steps": 110,
+      "true_original_return": 102.66009991186962,
+      "control_return": 12.06222756838166,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.054551601409912,
+      "minimum_goal_distance_cm": 0.08375340839847922,
+      "final_goal_distance_cm": 0.11353540420532227,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1884324741683632,
+          -0.2206472329622956
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.26672783881071305,
+              0.14250874991053472
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.025560045977909004,
+              0.08567564912069098
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263052,
+      "task_success": true,
+      "steps": 145,
+      "true_original_return": 133.43571274675443,
+      "control_return": 11.648319353039538,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.588014125823975,
+      "minimum_goal_distance_cm": 0.20427070558071136,
+      "final_goal_distance_cm": 0.20427070558071136,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17554523115709347,
+          -0.22058266700774584
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.27856179279733856,
+              0.012319696920698512
+            ],
+            "yaw": 3.4787073337644303,
+            "size": [
+              0.06465769708057507,
+              0.01,
+              0.08690101790048035
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.11020425264393043,
+              0.03610603530577203
+            ],
+            "yaw": -1.867287425316332,
+            "size": [
+              0.018733093077250296,
+              0.029451781322094507,
+              0.09319379786475897
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.2815832474171218,
+              0.13537853854579396
+            ],
+            "yaw": -1.157318316424774,
+            "size": [
+              0.023301672134687833,
+              0.016066973309339674,
+              0.028758860001161006
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263053,
+      "task_success": true,
+      "steps": 132,
+      "true_original_return": 130.9563182576013,
+      "control_return": 10.221113482759943,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.969120264053345,
+      "minimum_goal_distance_cm": 0.11383319506421685,
+      "final_goal_distance_cm": 0.11450213193893433,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18349286504522994,
+          -0.23291352724064301
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.07235688319340491,
+              0.06374474714285874
+            ],
+            "yaw": 0.48328662729131455,
+            "size": [
+              0.01663892964102384,
+              0.019929116598222038,
+              0.09392097626479887
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.3030769294926812,
+              0.021420517277858424
+            ],
+            "yaw": -1.1742017712191617,
+            "size": [
+              0.028623040750178016,
+              0.01968092454724619,
+              0.05582781020658213
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263054,
+      "task_success": true,
+      "steps": 119,
+      "true_original_return": 116.35849513256767,
+      "control_return": 9.72389103840001,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.217580556869507,
+      "minimum_goal_distance_cm": 0.16524685779586434,
+      "final_goal_distance_cm": 0.19239799678325653,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17040529459438147,
+          -0.2369819060489147
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.15957645411628585,
+              0.07506371842850898
+            ],
+            "yaw": -0.5204619829566499,
+            "size": [
+              0.029764958846766054,
+              0.02442645456833089,
+              0.08177280622887577
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              -0.015219647112015455,
+              0.00875852377785604
+            ],
+            "yaw": 3.2381205719460677,
+            "size": [
+              0.0772146089392646,
+              0.01,
+              0.08116898348710169
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263055,
+      "task_success": true,
+      "steps": 116,
+      "true_original_return": 106.37382732931066,
+      "control_return": 12.535705331106014,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.181241273880005,
+      "minimum_goal_distance_cm": 0.07029136177152395,
+      "final_goal_distance_cm": 0.11104987561702728,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18913693890199815,
+          -0.23371413097858598
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.2929461905652295,
+              -0.03441386477321418
+            ],
+            "yaw": -1.3785766450897012,
+            "size": [
+              0.016954370739914754,
+              0.027516053365620102,
+              0.08108013071095628
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263056,
+      "task_success": true,
+      "steps": 122,
+      "true_original_return": 114.27898218738947,
+      "control_return": 11.437527806850643,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.56782341003418,
+      "minimum_goal_distance_cm": 0.05084623699076474,
+      "final_goal_distance_cm": 0.06771988421678543,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18600845948154363,
+          -0.23436344352929522
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.22433464729149347,
+              0.07621818871964989
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02413524489898555,
+              0.0829996574043014
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.018415713389418206,
+              0.07793560525201529
+            ],
+            "yaw": 3.380451490501175,
+            "size": [
+              0.07863346889539216,
+              0.01,
+              0.09427253049931952
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.057974928556000296,
+              -0.05860193080449559
+            ],
+            "yaw": -2.38572418468483,
+            "size": [
+              0.015445323006286147,
+              0.01899490180077683,
+              0.020589853260230367
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263057,
+      "task_success": true,
+      "steps": 139,
+      "true_original_return": 127.64379826910431,
+      "control_return": 11.47235560578754,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.944527387619019,
+      "minimum_goal_distance_cm": 0.16085566021502018,
+      "final_goal_distance_cm": 0.16085566580295563,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18488443536713745,
+          -0.23676680469474726
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.09141044800623749,
+              0.03628870443311743
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.018051625660778045,
+              0.0855655808013729
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263058,
+      "task_success": true,
+      "steps": 125,
+      "true_original_return": 117.8661947373597,
+      "control_return": 12.05197487201316,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.9846830368042,
+      "minimum_goal_distance_cm": 0.14262765180319548,
+      "final_goal_distance_cm": 0.14262765645980835,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1844244225357757,
+          -0.2267178404455747
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.1509686882333946,
+              0.06432813830081051
+            ],
+            "yaw": 0.15133641920606777,
+            "size": [
+              0.02613609840627394,
+              0.021519258554191404,
+              0.08458103777644377
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2844094772771342,
+              0.04392994504317228
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01773491263716172,
+              0.038952794466457275
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263059,
+      "task_success": true,
+      "steps": 119,
+      "true_original_return": 115.09474280133038,
+      "control_return": 11.044183348542,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 15.354901552200317,
+      "minimum_goal_distance_cm": 0.13379533775150776,
+      "final_goal_distance_cm": 0.1337953358888626,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17423192723525874,
+          -0.22943882916223016
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.052149860503566375,
+              0.067713293161097
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01788749784659816,
+              0.08953590346082958
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.273800523084362,
+              0.1360282375671448
+            ],
+            "yaw": 1.6439215886423932,
+            "size": [
+              0.021336897000821857,
+              0.015275870510874909,
+              0.061310723298437786
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263060,
+      "task_success": true,
+      "steps": 113,
+      "true_original_return": 103.28327249341318,
+      "control_return": 11.915265845874112,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.005192995071411,
+      "minimum_goal_distance_cm": 0.14966285089030862,
+      "final_goal_distance_cm": 0.14966285228729248,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18853622975076406,
+          -0.22554768409320894
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.29478042567845164,
+              0.003757359754198001
+            ],
+            "yaw": 3.3629700202926687,
+            "size": [
+              0.07316474264032943,
+              0.01,
+              0.08750197927447559
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263061,
+      "task_success": true,
+      "steps": 146,
+      "true_original_return": 125.58097682528663,
+      "control_return": 11.322749725581431,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.682278871536255,
+      "minimum_goal_distance_cm": 0.07184756686910987,
+      "final_goal_distance_cm": 0.07184756547212601,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18170187980625557,
+          -0.23436931199515212
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.11405966595491347,
+              -0.013553091919768568
+            ],
+            "yaw": 1.8268799848638126,
+            "size": [
+              0.015877658885368576,
+              0.018228053873492862,
+              0.08358348433055968
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263062,
+      "task_success": true,
+      "steps": 120,
+      "true_original_return": 107.78141317826028,
+      "control_return": 12.470320178153989,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.056137084960938,
+      "minimum_goal_distance_cm": 0.04767117789015174,
+      "final_goal_distance_cm": 0.09292846918106079,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18816925444530927,
+          -0.22934246234405992
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2900854334648701,
+              0.07828367763154823
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.019656008734545944,
+              0.09194299670243627
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263063,
+      "task_success": true,
+      "steps": 152,
+      "true_original_return": 136.07312105945982,
+      "control_return": 10.882889998006037,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.104106903076172,
+      "minimum_goal_distance_cm": 0.2220358932390809,
+      "final_goal_distance_cm": 0.22665295004844666,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18805664443853234,
+          -0.23916533705442708
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.06504483083386883,
+              0.01235814871332749
+            ],
+            "yaw": 3.4796304007394454,
+            "size": [
+              0.041387446437860714,
+              0.01,
+              0.09062294974170962
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              -0.017578179278550737,
+              0.09933606183762614
+            ],
+            "yaw": 1.456597080550572,
+            "size": [
+              0.025337711431712463,
+              0.021012757182338065,
+              0.03568245759568357
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.1622951492128791,
+              -0.015674438605101686
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027791776125638754,
+              0.06211292077542707
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263064,
+      "task_success": true,
+      "steps": 113,
+      "true_original_return": 101.39592591579147,
+      "control_return": 6.657461203773668,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 18.84976029396057,
+      "minimum_goal_distance_cm": 1.8260536715388298,
+      "final_goal_distance_cm": 3.970750093460083,
+      "final_held": false,
+      "obstacle_contact_steps": 4,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17077247955138505,
+          -0.2321593171785178
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.09048978616257569,
+              -0.048698149641225846
+            ],
+            "yaw": -1.5807993379929934,
+            "size": [
+              0.02558528341856101,
+              0.025469772254303743,
+              0.08050592543551224
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2712875410840371,
+              0.02979847402265139
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.016598477921843133,
+              0.061510293565278415
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.01077601663180977,
+              0.0797809924959503
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.023357836672389436,
+              0.03671478301255543
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263065,
+      "task_success": true,
+      "steps": 113,
+      "true_original_return": 108.34495636953443,
+      "control_return": 12.318768336114935,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.679984092712402,
+      "minimum_goal_distance_cm": 0.17746654339134693,
+      "final_goal_distance_cm": 0.17746654152870178,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17767105638731862,
+          -0.23279282506814283
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.28777839263487665,
+              -0.026087368836776988
+            ],
+            "yaw": -0.5998803832366022,
+            "size": [
+              0.02910328712824413,
+              0.02695370072657588,
+              0.08736427634201681
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.15461861006254202,
+              -0.030409147044548814
+            ],
+            "yaw": 3.214524687575858,
+            "size": [
+              0.06851388289967283,
+              0.01,
+              0.03102807121779828
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.22503793402417166,
+              0.09152266364665573
+            ],
+            "yaw": 1.513454862260117,
+            "size": [
+              0.026097011500339932,
+              0.029745098119134346,
+              0.02989537202928618
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263066,
+      "task_success": true,
+      "steps": 119,
+      "true_original_return": 107.08247584804529,
+      "control_return": 12.029681077667771,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 15.071076154708862,
+      "minimum_goal_distance_cm": 0.1648338744416833,
+      "final_goal_distance_cm": 0.16483387351036072,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17973775476182297,
+          -0.22236471275948885
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.05658234416749827,
+              0.029068818938503223
+            ],
+            "yaw": 2.5565322638573864,
+            "size": [
+              0.02344747674855456,
+              0.026071089013540313,
+              0.09101670420131433
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.277166933730035,
+              0.01142039435747495
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027852940344012284,
+              0.0592907846771656
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263067,
+      "task_success": true,
+      "steps": 153,
+      "true_original_return": 135.65692011525417,
+      "control_return": 9.351066461915249,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.75846552848816,
+      "minimum_goal_distance_cm": 0.18212314462289214,
+      "final_goal_distance_cm": 0.18212313950061798,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18269995979117504,
+          -0.22869804774039013
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.18568434359530564,
+              0.025623514524226447
+            ],
+            "yaw": 0.9185014396453273,
+            "size": [
+              0.020022503490299666,
+              0.029921937067933085,
+              0.0813561143763731
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.07081414368127706,
+              -0.03456086642357404
+            ],
+            "yaw": 3.5594428518998424,
+            "size": [
+              0.04593598786054853,
+              0.01,
+              0.08336990116384815
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.28360152461348687,
+              0.08919337786933909
+            ],
+            "yaw": 3.043714255979098,
+            "size": [
+              0.07605769982777136,
+              0.01,
+              0.057349336243508145
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263068,
+      "task_success": true,
+      "steps": 120,
+      "true_original_return": 108.11568870208113,
+      "control_return": 11.970411066427973,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.986250638961792,
+      "minimum_goal_distance_cm": 0.12312362669035792,
+      "final_goal_distance_cm": 0.14592592418193817,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1840143830856182,
+          -0.23900241857097476
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.2529118149241295,
+              0.05495770126513315
+            ],
+            "yaw": 0.29828631458474186,
+            "size": [
+              0.029573307221379734,
+              0.02596400233413772,
+              0.08700368912390544
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263069,
+      "task_success": true,
+      "steps": 153,
+      "true_original_return": 129.15578667922196,
+      "control_return": 7.135842715960961,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 18.414407968521118,
+      "minimum_goal_distance_cm": 0.1854673377238214,
+      "final_goal_distance_cm": 0.18626558780670166,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1701754467549218,
+          -0.22005990327212532
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              -0.00790965409746655,
+              -0.00825154862853588
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.028963555499050293,
+              0.09202581485066899
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.23294896662415304,
+              -0.01228943035836147
+            ],
+            "yaw": 3.236210230801916,
+            "size": [
+              0.06414604764653617,
+              0.01,
+              0.024670108770454946
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.1575747959996627,
+              0.06290133224514191
+            ],
+            "yaw": 0.12088185035356425,
+            "size": [
+              0.023219913755993984,
+              0.025025909338077953,
+              0.0880570054133978
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263070,
+      "task_success": true,
+      "steps": 152,
+      "true_original_return": 136.11303397910368,
+      "control_return": 10.762418542022257,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.020976305007935,
+      "minimum_goal_distance_cm": 0.23554298095405102,
+      "final_goal_distance_cm": 0.23554298281669617,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1863263948519001,
+          -0.22902274512668486
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.06799662764707684,
+              0.033196086466408835
+            ],
+            "yaw": 0.456523544250965,
+            "size": [
+              0.02894640951330426,
+              0.016388362280224195,
+              0.0934187950610814
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263071,
+      "task_success": true,
+      "steps": 121,
+      "true_original_return": 114.05895391916965,
+      "control_return": 12.396099803622192,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.767287015914917,
+      "minimum_goal_distance_cm": 0.13929447159171104,
+      "final_goal_distance_cm": 0.14072288572788239,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18000833155806278,
+          -0.22676914545314972
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.2362179702171655,
+              0.009183374021046974
+            ],
+            "yaw": 3.189850141494262,
+            "size": [
+              0.0561318831856792,
+              0.01,
+              0.09380574608042962
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.31195902519851787,
+              -0.0726286717016838
+            ],
+            "yaw": -3.122148637130406,
+            "size": [
+              0.024948354532688462,
+              0.016602495446803367,
+              0.06159040948308149
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263072,
+      "task_success": true,
+      "steps": 137,
+      "true_original_return": 123.88907487395038,
+      "control_return": 11.506655907342427,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 18.957167863845825,
+      "minimum_goal_distance_cm": 0.05713457940146327,
+      "final_goal_distance_cm": 0.05932009220123291,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18400371514796574,
+          -0.23683688514656914
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.15648116497784226,
+              0.05595773284550279
+            ],
+            "yaw": 3.0800329517096907,
+            "size": [
+              0.05559205140330736,
+              0.01,
+              0.09058911566036834
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.00904183398919621,
+              0.08617165820073835
+            ],
+            "yaw": -1.0577553948743095,
+            "size": [
+              0.026415069864130065,
+              0.015635635794996036,
+              0.07849499087046526
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.28812860771645477,
+              0.10587525396395844
+            ],
+            "yaw": 3.4494854772815664,
+            "size": [
+              0.056539099345766786,
+              0.01,
+              0.0456317683515177
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263073,
+      "task_success": true,
+      "steps": 115,
+      "true_original_return": 103.89616732862963,
+      "control_return": 12.241192921109707,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.225366592407227,
+      "minimum_goal_distance_cm": 0.11083831777796149,
+      "final_goal_distance_cm": 0.1370486170053482,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18698137602112747,
+          -0.2244555457484443
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.2778443790299415,
+              0.11107386650774265
+            ],
+            "yaw": 0.1929936518808959,
+            "size": [
+              0.017898533057979924,
+              0.024324038471347176,
+              0.08523875576970842
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.11605011483858477,
+              -0.03585265628361385
+            ],
+            "yaw": 3.5220946271695763,
+            "size": [
+              0.04077528489505308,
+              0.01,
+              0.03366614102069314
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263074,
+      "task_success": true,
+      "steps": 139,
+      "true_original_return": 126.56755064747502,
+      "control_return": 11.117407754460087,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.212594270706177,
+      "minimum_goal_distance_cm": 0.30526346527040005,
+      "final_goal_distance_cm": 0.3052634596824646,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17175426130421473,
+          -0.23192762019243665
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.11036548447308836,
+              -0.0017317526700023527
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.01878635840595165,
+              0.08397378199444414
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.2309521474654621,
+              0.08491401066823015
+            ],
+            "yaw": -1.0956739044974406,
+            "size": [
+              0.024664449368238934,
+              0.01637567287808241,
+              0.08356173737615263
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.29525595721371073,
+              0.008144995065589689
+            ],
+            "yaw": 3.349530342931423,
+            "size": [
+              0.04952986510624305,
+              0.01,
+              0.0928520196767753
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263075,
+      "task_success": true,
+      "steps": 146,
+      "true_original_return": 135.87273688445637,
+      "control_return": 11.939500717721483,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.257261991500854,
+      "minimum_goal_distance_cm": 0.2594368997961283,
+      "final_goal_distance_cm": 0.2594369053840637,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17146016366301126,
+          -0.2216400197112953
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.1517189442390146,
+              0.04632035025669769
+            ],
+            "yaw": 3.2592157168441247,
+            "size": [
+              0.07333835484836995,
+              0.01,
+              0.08937792968209034
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263076,
+      "task_success": true,
+      "steps": 150,
+      "true_original_return": 132.62551530119256,
+      "control_return": 11.316811533291984,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.428088903427124,
+      "minimum_goal_distance_cm": 0.18621180206537247,
+      "final_goal_distance_cm": 0.19091002643108368,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17239759605022786,
+          -0.22982799647321142
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.1680535450724547,
+              -0.014270715974347368
+            ],
+            "yaw": 3.1144072072611295,
+            "size": [
+              0.07718158459967092,
+              0.01,
+              0.08719942435271022
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.011737251370991617,
+              0.0759495539279604
+            ],
+            "yaw": -2.6943385650866345,
+            "size": [
+              0.025373648979793897,
+              0.01899812008487665,
+              0.03705936050647776
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263077,
+      "task_success": true,
+      "steps": 119,
+      "true_original_return": 115.38854365969736,
+      "control_return": 10.741980212607967,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 14.600127935409546,
+      "minimum_goal_distance_cm": 0.18324828706681728,
+      "final_goal_distance_cm": 0.18324849009513855,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17527278781521788,
+          -0.23569284629904397
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.21275134839780593,
+              0.050574320355501495
+            ],
+            "yaw": 3.0747442596023533,
+            "size": [
+              0.05376315323587206,
+              0.01,
+              0.08377067171644303
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              -0.011727913928696446,
+              0.09354758555174471
+            ],
+            "yaw": 2.3801430199233735,
+            "size": [
+              0.021358146192748968,
+              0.018845237832903143,
+              0.05729986727378282
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263078,
+      "task_success": true,
+      "steps": 116,
+      "true_original_return": 106.44819368464606,
+      "control_return": 11.84526980028103,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 16.075414419174194,
+      "minimum_goal_distance_cm": 0.22270390763878822,
+      "final_goal_distance_cm": 0.22270390391349792,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.177028582132604,
+          -0.23688800799957738
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              -0.004043690051111826,
+              0.037484451109997055
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.015014507514496555,
+              0.09437302919566058
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.28032044452273935,
+              0.14563455544229018
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027532735335122637,
+              0.09425839743662728
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.1200080106685266,
+              0.028946501798707665
+            ],
+            "yaw": -2.1701518677595066,
+            "size": [
+              0.01850234750410181,
+              0.02437088185608928,
+              0.06482498128066323
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263079,
+      "task_success": true,
+      "steps": 139,
+      "true_original_return": 126.01035069876356,
+      "control_return": 10.985684912400385,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.343680143356323,
+      "minimum_goal_distance_cm": 0.3334320615977049,
+      "final_goal_distance_cm": 0.33343204855918884,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17577977077789056,
+          -0.23761621181852932
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.19766300819807842,
+              0.08798121337951681
+            ],
+            "yaw": 1.352475239037532,
+            "size": [
+              0.021975194746792333,
+              0.019219318361044943,
+              0.08999088203076608
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.008257027081145923,
+              0.0014062719265416045
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02861880628821465,
+              0.08400757327159437
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.25057810525249147,
+              -0.013909389950983501
+            ],
+            "yaw": 3.3824912352754097,
+            "size": [
+              0.07207022404908578,
+              0.01,
+              0.05238233095079056
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263080,
+      "task_success": true,
+      "steps": 129,
+      "true_original_return": 117.85537661842298,
+      "control_return": 7.0549503302157195,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 16.879194974899292,
+      "minimum_goal_distance_cm": 1.7596486955881119,
+      "final_goal_distance_cm": 3.599982976913452,
+      "final_held": false,
+      "obstacle_contact_steps": 3,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18692699598687454,
+          -0.23254563374338424
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.15409729266603914,
+              0.07073894805534386
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.0268170238755822,
+              0.08370082085863838
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.26641602860936253,
+              0.02476117060056129
+            ],
+            "yaw": -1.3536875592163342,
+            "size": [
+              0.01629493075973272,
+              0.025170523453139693,
+              0.04969305091972823
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.030017300771269684,
+              -0.003820590359608543
+            ],
+            "yaw": 3.221958764935814,
+            "size": [
+              0.06261304304024858,
+              0.01,
+              0.06605907975504381
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263081,
+      "task_success": true,
+      "steps": 143,
+      "true_original_return": 108.60719901928168,
+      "control_return": 9.678844916632453,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.589534044265747,
+      "minimum_goal_distance_cm": 0.17237969441339374,
+      "final_goal_distance_cm": 0.17237968742847443,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1778556881711928,
+          -0.22750989981556607
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.03423520170730153,
+              -0.07055231849506598
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02690149877432951,
+              0.08130417503390806
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263082,
+      "task_success": true,
+      "steps": 116,
+      "true_original_return": 107.38658624023098,
+      "control_return": 12.511549360206466,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.585266351699829,
+      "minimum_goal_distance_cm": 0.16053755534812808,
+      "final_goal_distance_cm": 0.16053755581378937,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17779267759174872,
+          -0.22422657094344695
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.27738509238235237,
+              0.12463871420005648
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.026343713979813478,
+              0.08751487360576544
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263083,
+      "task_success": true,
+      "steps": 117,
+      "true_original_return": 113.16009583901742,
+      "control_return": 11.965177733452888,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 17.699915170669556,
+      "minimum_goal_distance_cm": 0.09960620664060116,
+      "final_goal_distance_cm": 0.10985881090164185,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18393215185588613,
+          -0.2201897072593141
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.017054665774711764,
+              0.04910181177697929
+            ],
+            "yaw": 3.207927689738676,
+            "size": [
+              0.07200299373140545,
+              0.01,
+              0.09424287452969086
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.2756304087750963,
+              0.00301773613202529
+            ],
+            "yaw": -0.2880045459156966,
+            "size": [
+              0.023522169068887603,
+              0.02167687470428648,
+              0.07166703793956014
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263084,
+      "task_success": true,
+      "steps": 117,
+      "true_original_return": 103.61336521744286,
+      "control_return": 10.84105321317279,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 12.504452466964722,
+      "minimum_goal_distance_cm": 0.1159598701633513,
+      "final_goal_distance_cm": 0.11891677230596542,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18403366564341037,
+          -0.22064859680474916
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.21638160051689553,
+              0.08740874811709701
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.026628726881082226,
+              0.09367866072672218
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.269802410023037,
+              -0.009662468522836108
+            ],
+            "yaw": -1.6607093522584517,
+            "size": [
+              0.02119479580646011,
+              0.016912283159738743,
+              0.07030023475188835
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.1477213090788898,
+              -0.0133294289697448
+            ],
+            "yaw": -0.48700878969727013,
+            "size": [
+              0.02707484478301972,
+              0.027169344940957834,
+              0.06544386820733868
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263085,
+      "task_success": true,
+      "steps": 134,
+      "true_original_return": 119.03291017805061,
+      "control_return": 10.408349059377144,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 18.847376108169556,
+      "minimum_goal_distance_cm": 0.2713083755224943,
+      "final_goal_distance_cm": 0.27130836248397827,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18334169392945135,
+          -0.2258136283813124
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.15630288651811866,
+              -0.01915550888327365
+            ],
+            "yaw": 1.9155285850057417,
+            "size": [
+              0.01672756344975014,
+              0.022953966728633125,
+              0.09222153404597051
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.048714648003051225,
+              -0.05932151097056619
+            ],
+            "yaw": 3.3509481558440606,
+            "size": [
+              0.05049113969264392,
+              0.01,
+              0.07751795155450278
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.012703169854372115,
+              0.06221617286342687
+            ],
+            "yaw": 3.062211643030548,
+            "size": [
+              0.06136559977060431,
+              0.01,
+              0.03624954169628691
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263086,
+      "task_success": true,
+      "steps": 150,
+      "true_original_return": 125.38206844322079,
+      "control_return": 9.700853646117928,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 15.038865804672241,
+      "minimum_goal_distance_cm": 0.17475660424679518,
+      "final_goal_distance_cm": 0.17475660145282745,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17625190630218035,
+          -0.23806222096193397
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.21447469451071216,
+              0.06642634572453035
+            ],
+            "yaw": -1.641689231080397,
+            "size": [
+              0.021474892115660442,
+              0.01812212769865917,
+              0.08217397782798287
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.05013328397335767,
+              0.05760097227778913
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.026912127111517005,
+              0.06624722018026993
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.1131861584294997,
+              -0.037026239329190976
+            ],
+            "yaw": -2.2374017329564415,
+            "size": [
+              0.02561301565924732,
+              0.018367154944472136,
+              0.08347178098045208
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263087,
+      "task_success": true,
+      "steps": 114,
+      "true_original_return": 111.34732918677443,
+      "control_return": 10.714963251440036,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.2862868309021,
+      "minimum_goal_distance_cm": 0.1566388877108693,
+      "final_goal_distance_cm": 0.15663889050483704,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17722411625826187,
+          -0.23083053447183313
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.23401259741260408,
+              0.08903644653288507
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.021841111009862746,
+              0.09304628412953235
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              -0.02088998687317034,
+              0.10004667271707915
+            ],
+            "yaw": 3.2861854987089254,
+            "size": [
+              0.07594044740301578,
+              0.01,
+              0.0862018041165466
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.09447837045009883,
+              -0.027596459884050746
+            ],
+            "yaw": 3.2078362320770024,
+            "size": [
+              0.06308577399697232,
+              0.01,
+              0.053199404841249395
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263088,
+      "task_success": true,
+      "steps": 113,
+      "true_original_return": 106.91598668407369,
+      "control_return": 11.696149146737383,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 13.733857870101929,
+      "minimum_goal_distance_cm": 0.21844126749783754,
+      "final_goal_distance_cm": 0.21844126284122467,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17717310712313178,
+          -0.23675377908132658
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.24405536256312746,
+              -0.02606852462146214
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.029393838376912413,
+              0.08650841430343394
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.01857577808259979,
+              0.0746029991874097
+            ],
+            "yaw": 3.2216801811372577,
+            "size": [
+              0.05633096457763137,
+              0.01,
+              0.053225581464837135
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2128869073642839,
+              0.06960294729906831
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.019006242100181023,
+              0.06406809574246088
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263089,
+      "task_success": true,
+      "steps": 159,
+      "true_original_return": 128.82741888426318,
+      "control_return": -5.71930810403121,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.250210762023926,
+      "minimum_goal_distance_cm": 0.07229138864204288,
+      "final_goal_distance_cm": 0.07231321930885315,
+      "final_held": false,
+      "obstacle_contact_steps": 16,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18153664773551642,
+          -0.23332321656166485
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.041785414739088464,
+              -0.057236762263713145
+            ],
+            "yaw": 3.244921371352501,
+            "size": [
+              0.05636416845837232,
+              0.01,
+              0.09181611612123486
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.28928528131970055,
+              -0.042457869231577156
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.029838371788939857,
+              0.08747135760438969
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.26637564239269473,
+              0.0553812776530657
+            ],
+            "yaw": -2.4953564142636315,
+            "size": [
+              0.023494951926504103,
+              0.01929132055881559,
+              0.06874440985238653
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263090,
+      "task_success": true,
+      "steps": 117,
+      "true_original_return": 107.9330623725847,
+      "control_return": 12.032651215396331,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 14.426016807556152,
+      "minimum_goal_distance_cm": 0.2516880165785551,
+      "final_goal_distance_cm": 0.25168800354003906,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17379424571558186,
+          -0.2350271764524706
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              -0.0021894871883557376,
+              0.09686362960623207
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027586999374487303,
+              0.08266112879343451
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.22808969445805605,
+              -0.033318325497723685
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.016018857912710658,
+              0.056348403703205166
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.003315560676850099,
+              -0.11076842493038447
+            ],
+            "yaw": -2.7609796216297156,
+            "size": [
+              0.029692078989022923,
+              0.017778452574602855,
+              0.05893245587852863
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263091,
+      "task_success": true,
+      "steps": 109,
+      "true_original_return": 102.72789007336861,
+      "control_return": 12.219487123828669,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 12.925833463668823,
+      "minimum_goal_distance_cm": 0.14920927351340652,
+      "final_goal_distance_cm": 0.14920927584171295,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1844723149727308,
+          -0.2237759313358711
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2572512197671079,
+              0.025031480344212872
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.024135185581381467,
+              0.0800708129721997
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.10784956299658094,
+              0.05872063594002345
+            ],
+            "yaw": -0.11938775598953422,
+            "size": [
+              0.015387477286639199,
+              0.027258854251126945,
+              0.04750809676487858
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.0007927957211997239,
+              -0.05058087810778313
+            ],
+            "yaw": 3.2489325442897585,
+            "size": [
+              0.060139652878979905,
+              0.01,
+              0.021574500157678426
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263092,
+      "task_success": true,
+      "steps": 125,
+      "true_original_return": 115.72944194715649,
+      "control_return": 10.637848845927042,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.551691055297852,
+      "minimum_goal_distance_cm": 0.24886170867830515,
+      "final_goal_distance_cm": 0.24886171519756317,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1729204160242674,
+          -0.23047281668539416
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.1528745405532983,
+              0.019248017064960057
+            ],
+            "yaw": -1.4533729055809594,
+            "size": [
+              0.015548827414239292,
+              0.018237178367369725,
+              0.09070381492358409
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263093,
+      "task_success": true,
+      "steps": 156,
+      "true_original_return": 143.02862146570968,
+      "control_return": 11.482138316589843,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.312360525131226,
+      "minimum_goal_distance_cm": 0.08907081792131066,
+      "final_goal_distance_cm": 0.09541571885347366,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17060857614322097,
+          -0.2235413961929711
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.13532918797077612,
+              0.060923042128362574
+            ],
+            "yaw": 3.3263125079574047,
+            "size": [
+              0.07036926809472943,
+              0.01,
+              0.08554937130038273
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263094,
+      "task_success": true,
+      "steps": 143,
+      "true_original_return": 132.10283262760345,
+      "control_return": 11.979891500104795,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.218685865402222,
+      "minimum_goal_distance_cm": 0.19327033078297973,
+      "final_goal_distance_cm": 0.19327032566070557,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1720920886459177,
+          -0.2322365045583411
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.09805526453345122,
+              -0.0042743276671489555
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02731668461748067,
+              0.08208592419201458
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.2795268827826388,
+              0.05138970072900865
+            ],
+            "yaw": 3.094234170220663,
+            "size": [
+              0.0514825350125902,
+              0.01,
+              0.0704582518393185
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263095,
+      "task_success": true,
+      "steps": 115,
+      "true_original_return": 105.56699919343255,
+      "control_return": 8.677370717310712,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 16.145873069763184,
+      "minimum_goal_distance_cm": 1.2651585973799229,
+      "final_goal_distance_cm": 2.928675413131714,
+      "final_held": false,
+      "obstacle_contact_steps": 3,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18136388382327942,
+          -0.23413465108233478
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.22093921504546404,
+              0.03804146717438864
+            ],
+            "yaw": 2.8553717787584,
+            "size": [
+              0.025901738793411073,
+              0.029428743178948037,
+              0.0883545177727029
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.06501640941263584,
+              -0.040002584861457184
+            ],
+            "yaw": -2.9935706689714348,
+            "size": [
+              0.02892568404002156,
+              0.023947028604847265,
+              0.06431805499074779
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263096,
+      "task_success": true,
+      "steps": 149,
+      "true_original_return": 123.92414275958559,
+      "control_return": 9.05244518278406,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.40499210357666,
+      "minimum_goal_distance_cm": 0.08990944479592144,
+      "final_goal_distance_cm": 0.08990944176912308,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17966589276885903,
+          -0.22032688925149851
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              0.10998756234878748,
+              -0.028870017586030257
+            ],
+            "yaw": 2.817374968023076,
+            "size": [
+              0.01893072624548182,
+              0.01825054572254476,
+              0.09420281752416929
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2660006113935393,
+              -0.026173324267199267
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.022731778383592027,
+              0.07217963885873573
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263097,
+      "task_success": true,
+      "steps": 119,
+      "true_original_return": 114.96346630623377,
+      "control_return": 10.557966663219034,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 12.26421594619751,
+      "minimum_goal_distance_cm": 0.1620696857571602,
+      "final_goal_distance_cm": 0.1620696783065796,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17995576870547134,
+          -0.2300925895491949
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.20166892903592804,
+              0.09634832397126662
+            ],
+            "yaw": 3.15436103846976,
+            "size": [
+              0.0689880491359417,
+              0.01,
+              0.08713295433862601
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.16947556266622926,
+              -0.006375657177869995
+            ],
+            "yaw": 3.3548669687357884,
+            "size": [
+              0.0753267975279906,
+              0.01,
+              0.08039436934629014
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.015981820668866498,
+              -0.028305249838996557
+            ],
+            "yaw": -0.7877037328029961,
+            "size": [
+              0.02284442318455962,
+              0.027322342740268377,
+              0.03462693404272102
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263098,
+      "task_success": true,
+      "steps": 152,
+      "true_original_return": 138.80615373652387,
+      "control_return": 10.20090261082635,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.66785454750061,
+      "minimum_goal_distance_cm": 0.06551499245688319,
+      "final_goal_distance_cm": 0.06551498919725418,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1797289767039898,
+          -0.22639503901210908
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.08420777646161884,
+              0.0456385343052043
+            ],
+            "yaw": 3.434796593700928,
+            "size": [
+              0.04695368591439704,
+              0.01,
+              0.09008495194309032
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              0.22313808246901465,
+              0.07338496708630002
+            ],
+            "yaw": 0.821014787174184,
+            "size": [
+              0.029247030781684592,
+              0.02943351369460565,
+              0.05184034929720405
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.170196899117839,
+              -0.017028845632433766
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.020274086348406974,
+              0.09179955068512746
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263099,
+      "task_success": true,
+      "steps": 116,
+      "true_original_return": 110.06083205035961,
+      "control_return": 11.77398321459404,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 10.516595840454102,
+      "minimum_goal_distance_cm": 0.20444197580218315,
+      "final_goal_distance_cm": 0.20444197952747345,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17299883601712113,
+          -0.23049671847730227
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2168462947364173,
+              0.05023994551248093
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027942890295649205,
+              0.09138952276137699
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263100,
+      "task_success": true,
+      "steps": 118,
+      "true_original_return": 102.89060260559069,
+      "control_return": 12.014052178265288,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.576698541641235,
+      "minimum_goal_distance_cm": 0.21480859722942114,
+      "final_goal_distance_cm": 0.2148085981607437,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1854924963786946,
+          -0.23039916802776417
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.06594717604209792,
+              0.0067597039070832095
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02204820327302225,
+              0.08095681062708839
+            ]
+          },
+          {
+            "kind": "wall",
+            "pos": [
+              0.24047380956164538,
+              0.10046467695406099
+            ],
+            "yaw": 3.0570641547386246,
+            "size": [
+              0.04230896543143604,
+              0.01,
+              0.05488343082618399
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263101,
+      "task_success": true,
+      "steps": 136,
+      "true_original_return": 108.58337415728211,
+      "control_return": 11.707664961333805,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.968392133712769,
+      "minimum_goal_distance_cm": 0.16746701439842582,
+      "final_goal_distance_cm": 0.17000119388103485,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17591808063975542,
+          -0.23465228322403522
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "box",
+            "pos": [
+              -0.007338535317125278,
+              -0.0826108578044094
+            ],
+            "yaw": -0.318759121097854,
+            "size": [
+              0.02921284148508394,
+              0.022346498098006855,
+              0.0900590364481084
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              -0.020749894152968157,
+              0.10543105961528174
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.0157962365537717,
+              0.034002668263688945
+            ]
+          },
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.2724403507335307,
+              0.0053269721473406875
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.027276718843359953,
+              0.0430551490537504
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263102,
+      "task_success": true,
+      "steps": 117,
+      "true_original_return": 105.2484972135709,
+      "control_return": 12.119190694376293,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 19.29609775543213,
+      "minimum_goal_distance_cm": 0.13189086457714438,
+      "final_goal_distance_cm": 0.1349407136440277,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.1768972159151964,
+          -0.2206597465540321
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.16599736520458766,
+              0.025768874578371993
+            ],
+            "yaw": 3.5168332277733714,
+            "size": [
+              0.04436643259378001,
+              0.01,
+              0.0806978250930816
+            ]
+          },
+          {
+            "kind": "box",
+            "pos": [
+              -0.008164753692259163,
+              0.026695221595005453
+            ],
+            "yaw": 1.6106023361122705,
+            "size": [
+              0.01840415163504026,
+              0.020695209006966003,
+              0.07935761925188746
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263103,
+      "task_success": true,
+      "steps": 120,
+      "true_original_return": 105.44467871617339,
+      "control_return": 9.884894652478193,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 11.071783304214478,
+      "minimum_goal_distance_cm": 0.15094020636752248,
+      "final_goal_distance_cm": 0.15105080604553223,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18858170790629708,
+          -0.22019127552275164
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "wall",
+            "pos": [
+              0.28836213444811626,
+              -0.04501358604569365
+            ],
+            "yaw": 3.301520490681289,
+            "size": [
+              0.07029597594289712,
+              0.01,
+              0.08180050789076783
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20263104,
+      "task_success": true,
+      "steps": 114,
+      "true_original_return": 106.72388934932624,
+      "control_return": 12.348391311663967,
+      "ever_held": true,
+      "ever_lifted_4cm": true,
+      "maximum_lift_cm": 9.675580263137817,
+      "minimum_goal_distance_cm": 0.19942433573305607,
+      "final_goal_distance_cm": 0.19942434132099152,
+      "final_held": false,
+      "obstacle_contact_steps": 0,
+      "table_contact_steps": 0,
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.17691173530340623,
+          -0.239468776881394
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": [
+          {
+            "kind": "cylinder",
+            "pos": [
+              0.02821719480896137,
+              0.07162169848601299
+            ],
+            "yaw": 0.0,
+            "size": [
+              0.02937094216576926,
+              0.08898446112440929
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "requested_successes": 100
+}

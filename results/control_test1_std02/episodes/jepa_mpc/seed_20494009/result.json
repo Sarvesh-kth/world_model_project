@@ -1,0 +1,63 @@
+{
+  "method": "jepa_mpc",
+  "seed": 20494009,
+  "task_success": false,
+  "steps": 300,
+  "true_original_return": 22.704023554031266,
+  "control_return": -15.03936785388118,
+  "ever_held": true,
+  "ever_lifted_4cm": false,
+  "maximum_lift_cm": 0.40059685707092285,
+  "minimum_goal_distance_cm": 50.83935856819153,
+  "final_goal_distance_cm": 51.71006393432617,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.18319203153894742,
+      -0.23154075324688117
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": []
+  },
+  "SAC_checkpoint_sha256": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+  "seconds": 159.8222003999981,
+  "model_fallback_steps": 27,
+  "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc",
+  "Q_on_actual_observations": {
+    "n": 300,
+    "xyz_mae_cm": [
+      4.488382319609324,
+      18.022752733901143,
+      3.3788363138834634
+    ],
+    "height_mae_cm": 3.3788363138834634,
+    "grasp_accuracy": 0.5566666666666666,
+    "grasp_precision": 0.036231884057971016,
+    "grasp_recall": 1.0,
+    "grasp_f1": 0.06993006993006994,
+    "grasp_brier": 0.4359290963501513,
+    "height_mae_when_held_cm": 1.202021837234497,
+    "height_mae_when_not_held_cm": 3.4157314745046325,
+    "positive_labels": 5,
+    "negative_labels": 295
+  },
+  "D_Q_one_step_height_mae_cm": 3.981158209371043,
+  "D_one_step_latent_normalized_mse": 0.1534233901636068
+}

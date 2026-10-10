@@ -1,4 +1,5 @@
 import heapq
+
 import numpy as np
 
 # 2D route planning around the obstacle footprints on the table
@@ -10,6 +11,7 @@ CELL = 0.02
 BLOCKED_COST = 1000.0
 NEIGHBOURS = [(dx, dy, float(np.hypot(dx, dy))) for dx in (-1, 0, 1) for dy in (-1, 0, 1)
               if (dx, dy) != (0, 0)]
+
 
 # Waypoints from start to goal (not including either), circles is a list of (centre_xy, radius)
 # lo / hi bound the walkable area, reach is (base_xy, max_radius) the arm can get to
@@ -23,6 +25,7 @@ def plan_route(start, goal, circles, lo, hi, reach=None):
   xs = lo[0] + CELL * np.arange(shape[0])
   ys = lo[1] + CELL * np.arange(shape[1])
   gx, gy = np.meshgrid(xs, ys, indexing="ij")
+
   # Cost map, expensive inside the circles and out of the arm's reach
   cost = np.ones(shape)
   for centre, radius in circles:
@@ -38,9 +41,11 @@ def plan_route(start, goal, circles, lo, hi, reach=None):
   points = [start] + [lo + CELL * np.array(c) for c in path[1:-1]] + [goal]
   return _smooth(points, circles)[1:-1]
 
+
 # How far p is inside the deepest circle, <= 0 when outside all of them
 def depth(p, circles):
   return max((r - float(np.linalg.norm(p - c)) for c, r in circles), default=0.0)
+
 
 # Same but for the closest point on the segment a -> b
 def segment_depth(a, b, circles):
@@ -52,9 +57,11 @@ def segment_depth(a, b, circles):
     worst = max(worst, radius - float(np.linalg.norm(a + t * ab - centre)))
   return worst
 
+
 # True when the segment cuts no deeper into a circle than a or b already do
 def segment_ok(a, b, circles, tol=0.005):
   return segment_depth(a, b, circles) <= max(depth(a, circles), depth(b, circles), 0.0) + tol
+
 
 # Plain A* over the grid, 8 connected
 def _astar(cost, s, g):
@@ -84,6 +91,7 @@ def _astar(cost, s, g):
         parent[n] = c
         heapq.heappush(frontier, (new + heur(n), new, n))
   return [s, g]
+
 
 # Skip ahead to the furthest point we can reach in a straight line, repeat
 def _smooth(points, circles):

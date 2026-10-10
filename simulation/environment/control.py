@@ -7,6 +7,7 @@ GRIPPER_ACTUATOR = "actuator8"
 GRIPPER_OPEN = 255.0
 GRIPPER_CLOSED = 0.0
 
+
 # Action layout for a config, (dx, dy, dz, gripper) or (dx, dy, dz, dyaw, gripper) when yaw is on
 def action_names(cfg):
   names = ["dx", "dy", "dz"]
@@ -14,6 +15,7 @@ def action_names(cfg):
     names.append("dyaw")
   names.append("gripper")
   return names
+
 
 # Moves the end effector by small deltas using damped least squares IK
 # actions are in [-1, 1], position deltas scale by control.max_delta and get clipped to the workspace box
@@ -48,6 +50,7 @@ class ArmController:
   def reset(self, data):
     self.target_pos = data.site_xpos[self.site_id].copy()
     self.step_start = self.target_pos.copy()
+
     # Build a top down orientation that keeps the current finger direction
     mat = data.site_xmat[self.site_id].reshape(3, 3)
     z = np.array([0.0, 0.0, -1.0])

@@ -1,5 +1,11 @@
+# simulation
 mujoco>=3.2
 numpy>=1.24
 pyyaml>=6.0
 opencv-python-headless>=4.8
 matplotlib>=3.7
+# world model (V-JEPA 2 through Hugging Face) and the SAC baseline; install torch for your CUDA first, see README
+transformers>=4.53,<6
+stable-baselines3==2.7.1
+# only for the LeWM comparison package (world_model/lewm, reference only)
+einops>=0.8,<0.9

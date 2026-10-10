@@ -1,9 +1,11 @@
 import mujoco
 import numpy as np
+
 from .config import load_config
 from .control import ArmController
 from .rewards import Rewards
 from . import scene
+
 
 # Mujoco environment for the panda pick and place with obstacles
 # Observation dict
@@ -29,19 +31,23 @@ class PickPlaceEnv:
   def reset(self, seed=None, layout=None, holdout=False):
     if seed is not None:
       self.rng = np.random.default_rng(seed)
+
     # Sample a layout for the episode, or replay the one passed in
     self.layout = layout or scene.sample_layout(self.cfg, self.rng, holdout=holdout)
+
     # A new model means a new renderer
     self.close()
     self.model = scene.build_scene(self.cfg, self.layout)
     self.data = mujoco.MjData(self.model)
     self._index_model()
+
     # Controller, with a slightly different posture target every episode so the elbow varies
     self.controller = ArmController(self.model, self.cfg)
     noise = self.cfg.robot.posture_noise
     posture = np.array(self.cfg.robot.home_qpos) + self.rng.uniform(-noise, noise, 7)
     self.controller.posture = np.clip(posture, self.controller.joint_range[:, 0],
                                       self.controller.joint_range[:, 1])
+
     self.reward = Rewards(self.cfg)
     self.step_count = 0
     self._success_steps = 0
@@ -69,6 +75,7 @@ class PickPlaceEnv:
 
     state = self._privileged_state(grasped_any, obstacle_hit, table_hit)
     state["obstacle_distance"] = self.obstacle_distance()
+
     # Failed when the object fell off the table, the policy gave up, or time ran out without success
     fell = state["object_pos"][2] < self.cfg.table.height - self.cfg.episode.fall_margin
     timeout = self.step_count >= self.cfg.episode.max_steps
@@ -163,6 +170,7 @@ class PickPlaceEnv:
     pc_cfg = self.cfg.cameras.pointcloud
     stride = pc_cfg.stride if stride is None else stride
     max_depth = pc_cfg.max_depth if max_depth is None else max_depth
+
     # Stride to reduce resolution
     depth = self.render_depth(camera)[::stride, ::stride]
     h, w = depth.shape
@@ -173,6 +181,7 @@ class PickPlaceEnv:
     u, v = np.meshgrid(np.arange(w), np.arange(h))
     valid = depth < max_depth
     d = depth[valid]
+
     # Unproject the pixels, mujoco cameras look down -z
     pts_cam = np.stack([(u[valid] - cx) / f * d, (cy - v[valid]) / f * d, -d], axis=1)
     if frame == "camera":
@@ -216,6 +225,7 @@ class PickPlaceEnv:
     self.right_finger_geoms = {g for g in range(m.ngeom)
                                if m.geom_bodyid[g] == m.body("right_finger").id}
     self.table_geom_id = m.geom("table").id
+
     # Every geom hanging off link0 belongs to the robot
     robot_root = m.body("link0").id
     self.robot_geom_ids = set()
@@ -225,6 +235,7 @@ class PickPlaceEnv:
         b = m.body_parentid[b]
       if b == robot_root:
         self.robot_geom_ids.add(g)
+
     # collision geoms of the arm, for the distance to the obstacles
     self.robot_collision_geoms = [g for g in sorted(self.robot_geom_ids)
                                   if m.geom_contype[g] or m.geom_conaffinity[g]]
@@ -271,6 +282,7 @@ class PickPlaceEnv:
       if self.table_geom_id in pair:
         if pair & (self.robot_geom_ids - finger_geoms):
           table = True
+
     # Grasped when both fingers touch the object while the gripper is closed
     grasped = left and right and not self.controller.gripper_open
     return grasped, obstacle, table

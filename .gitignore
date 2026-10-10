@@ -13,6 +13,19 @@ simulation/data/*
 !simulation/data/rl_baseline_v1/
 !simulation/data/control_frozen_v2/
 !simulation/data/q_clutter_v1/
+# The trained world model the controllers load (checkpoints, PCA basis, encoder settings, info.json; LFS for
+# the binaries) and the held-out obstacle layouts. The frames and the 230 MB latent cache stay local.
+!simulation/data/combined_test1/
+simulation/data/combined_test1/*
+!simulation/data/combined_test1/attempts/
+simulation/data/combined_test1/attempts/*
+!simulation/data/combined_test1/attempts/combined/
+!simulation/data/combined_test1/features/
+simulation/data/combined_test1/features/latents.npy
+!simulation/data/obstacles_test1/
+simulation/data/obstacles_test1/*
+!simulation/data/obstacles_test1/collection.json
+!simulation/data/obstacles_test1/scene_settings.json
 # control_v1/control_frozen_v1 and the replay buffer below are archived at tag
 # archive/pre-cleanup-2026-10-05; keep them out of the active branch.
 simulation/data/rl_baseline_v1/models/resume_*.pkl
@@ -22,8 +35,12 @@ results/vision_v2/width_comparison/**/*_forecasts.csv
 results/vision_v2/width_comparison/**/*_robot.csv
 
 
-# Keep local notes and agent instructions out of project commits.
+# Keep local notes and agent instructions out of project commits; the READMEs and the change report are code docs.
 *.md
+!README.md
+!**/README.md
+!CHANGES_FROM_M2.md
+!simulation/world_model/FLOW.md
 .agents/
 .codex/
 .claude/

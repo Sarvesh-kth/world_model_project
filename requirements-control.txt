@@ -1,2 +1,0 @@
-# Optional live-control experiment; keep the existing Torch/CUDA installation.
-stable-baselines3==2.7.1

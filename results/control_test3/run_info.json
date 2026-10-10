@@ -1,0 +1,990 @@
+{
+  "inputs": {
+    "options": {
+      "models_run": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/full_test1",
+      "baseline_run": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/rl_baseline_v1",
+      "tag": "test1z",
+      "layout": "/home/serweshh/robot_learning_lab/world_model_project/simulation/configs/grade_e_layout.json",
+      "out": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3",
+      "export_dir": "/home/serweshh/robot_learning_lab/world_model_project/results/control_test3",
+      "seed": 20474005,
+      "rl_steps": 10000,
+      "demos": 20,
+      "bc_epochs": 120,
+      "bc_weight": 100.0,
+      "critic_warmup": 1000,
+      "eval_every": 2500,
+      "validation_episodes": 5,
+      "test_episodes": 5,
+      "position_jitter": 0.01,
+      "horizon": 8,
+      "population": 64,
+      "elites": 8,
+      "iterations": 3,
+      "terminal_weight": 0.0,
+      "cem_std": 0.2,
+      "no_penalties": false,
+      "guide_margin": 0.25,
+      "free_gripper": false,
+      "threads": 4
+    },
+    "config": {
+      "seed": 0,
+      "sim": {
+        "timestep": 0.002,
+        "impratio": 10
+      },
+      "control": {
+        "hz": 10,
+        "max_delta": 0.04,
+        "yaw": {
+          "enabled": true,
+          "max_delta": 0.15
+        },
+        "workspace": {
+          "low": [
+            -0.12,
+            -0.42,
+            0.755
+          ],
+          "high": [
+            0.45,
+            0.42,
+            0.97
+          ]
+        },
+        "ik": {
+          "hz": 250,
+          "damping": 0.02,
+          "pos_gain": 10.0,
+          "ori_gain": 6.0,
+          "posture_gain": 2.0,
+          "max_lin_vel": 0.7,
+          "max_ang_vel": 2.0,
+          "max_joint_vel": 2.5,
+          "max_lead": 0.05
+        }
+      },
+      "cameras": {
+        "record_hz": 10,
+        "width": 256,
+        "height": 256,
+        "static": {
+          "pos": [
+            1.25,
+            0.0,
+            1.42
+          ],
+          "lookat": [
+            0.1,
+            0.0,
+            0.82
+          ],
+          "fovy": 52
+        },
+        "wrist": {
+          "fovy": 75,
+          "tilt_deg": 30
+        },
+        "pointcloud": {
+          "enabled": false,
+          "frame": "base",
+          "stride": 2,
+          "max_depth": 2.5
+        }
+      },
+      "robot": {
+        "base_pos": [
+          -0.4,
+          0.0,
+          0.75
+        ],
+        "home_qpos": [
+          0.0,
+          -0.6,
+          0.0,
+          -2.8,
+          0.0,
+          2.2,
+          -0.7853
+        ],
+        "posture_noise": 0.0,
+        "grip_scale": 2.0
+      },
+      "table": {
+        "center": [
+          0.15,
+          0.0
+        ],
+        "half_size": [
+          0.32,
+          0.46
+        ],
+        "height": 0.75,
+        "top_thickness": 0.04
+      },
+      "task": {
+        "pick_end": "random",
+        "place_end": "opposite",
+        "ends": {
+          "left": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              -0.38,
+              -0.18
+            ]
+          },
+          "right": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              0.18,
+              0.38
+            ]
+          },
+          "near": {
+            "x": [
+              -0.08,
+              0.04
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          },
+          "far": {
+            "x": [
+              0.2,
+              0.3
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          }
+        },
+        "reach_range": [
+          0.3,
+          0.65
+        ],
+        "min_pick_place_dist": 0.35,
+        "object": {
+          "pool": [
+            "cube",
+            "cuboid",
+            "cylinder",
+            "hex_prism",
+            "tri_prism",
+            "frustum"
+          ],
+          "holdout": [
+            "bottle"
+          ],
+          "scale": [
+            0.9,
+            1.1
+          ],
+          "mass": [
+            0.05,
+            0.2
+          ],
+          "friction": [
+            0.8,
+            1.5
+          ],
+          "randomize_color": true
+        },
+        "obstacles": {
+          "count": [
+            3,
+            5
+          ],
+          "extra_height": [
+            0.04,
+            0.19
+          ],
+          "clearance": 0.2,
+          "spacing": 0.1,
+          "corridor_span": [
+            0.25,
+            0.75
+          ],
+          "lateral_offset": 0.16,
+          "kinds": {
+            "wall": {
+              "length": [
+                0.08,
+                0.16
+              ],
+              "thickness": 0.02,
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "box": {
+              "width": [
+                0.03,
+                0.06
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "cylinder": {
+              "radius": [
+                0.015,
+                0.03
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            }
+          }
+        }
+      },
+      "episode": {
+        "max_steps": 300,
+        "success_radius": 0.07,
+        "settle_steps": 15,
+        "fall_margin": 0.05,
+        "terminate_on_success": false
+      },
+      "rewards": {
+        "lift_height": 0.04,
+        "safe_distance": 0.06,
+        "weights": {
+          "reach": 0.5,
+          "grasp": 0.5,
+          "lift": 0.5,
+          "transport": 1.0,
+          "place": 5.0,
+          "success": 10.0,
+          "fail": 10.0,
+          "collision": 0.5,
+          "proximity": 0.3,
+          "table_hit": 0.2,
+          "drop": 1.0,
+          "action": 0.01
+        }
+      },
+      "data": {
+        "root": "data",
+        "jpeg_quality": 90,
+        "workers": 4,
+        "mix": {
+          "success": 0.5,
+          "scripted": 0.3,
+          "drop": 0.1,
+          "collide": 0.0,
+          "random": 0.1
+        },
+        "success_attempts": 1,
+        "scripted": {
+          "noise": 0.1,
+          "noise_correlation": 0.8,
+          "speed_range": [
+            0.6,
+            1.0
+          ],
+          "carry_height": 0.1,
+          "route_margin": 0.16
+        }
+      }
+    },
+    "layout": {
+      "object": "cube",
+      "scale": 1.0,
+      "mass": 0.1,
+      "friction": 1.0,
+      "color": [
+        0.2,
+        0.7,
+        0.7,
+        1.0
+      ],
+      "pick_end": "left",
+      "place_end": "right",
+      "pick": [
+        0.18,
+        -0.23
+      ],
+      "place": [
+        0.1,
+        0.27
+      ],
+      "obstacles": []
+    },
+    "frozen_baseline": {
+      "run": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/rl_baseline_v1",
+      "checkpoint_sha256": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+      "training_sha256": "aa98befc88c989fcff92793770749669587be2c85e62e2dbad0e508007bc9612",
+      "evaluations_sha256": "af52ce85c872b23000a7bb28654a2dd11bd70be79602a5105767531c50ca43c7",
+      "pipeline_sha256": "6fdc5a343d7ed8ed01b36f3ec31721c02461fafe5a6dcb98c631ccb5f1469541",
+      "summary_sha256": "799ea4173aa45d9ee9f6474dd914c7d71d5bd8274b636ff0b5b03b12b71446dc",
+      "successes": 100,
+      "episodes": 100,
+      "validation_seeds": [
+        20273005,
+        20273006,
+        20273007,
+        20273008,
+        20273009,
+        20273010,
+        20273011,
+        20273012,
+        20273013,
+        20273014,
+        20273015,
+        20273016,
+        20273017,
+        20273018,
+        20273019,
+        20273020,
+        20273021,
+        20273022,
+        20273023,
+        20273024
+      ],
+      "test_seeds": [
+        21263005,
+        21263006,
+        21263007,
+        21263008,
+        21263009,
+        21263010,
+        21263011,
+        21263012,
+        21263013,
+        21263014,
+        21263015,
+        21263016,
+        21263017,
+        21263018,
+        21263019,
+        21263020,
+        21263021,
+        21263022,
+        21263023,
+        21263024,
+        21263025,
+        21263026,
+        21263027,
+        21263028,
+        21263029,
+        21263030,
+        21263031,
+        21263032,
+        21263033,
+        21263034,
+        21263035,
+        21263036,
+        21263037,
+        21263038,
+        21263039,
+        21263040,
+        21263041,
+        21263042,
+        21263043,
+        21263044,
+        21263045,
+        21263046,
+        21263047,
+        21263048,
+        21263049,
+        21263050,
+        21263051,
+        21263052,
+        21263053,
+        21263054,
+        21263055,
+        21263056,
+        21263057,
+        21263058,
+        21263059,
+        21263060,
+        21263061,
+        21263062,
+        21263063,
+        21263064,
+        21263065,
+        21263066,
+        21263067,
+        21263068,
+        21263069,
+        21263070,
+        21263071,
+        21263072,
+        21263073,
+        21263074,
+        21263075,
+        21263076,
+        21263077,
+        21263078,
+        21263079,
+        21263080,
+        21263081,
+        21263082,
+        21263083,
+        21263084,
+        21263085,
+        21263086,
+        21263087,
+        21263088,
+        21263089,
+        21263090,
+        21263091,
+        21263092,
+        21263093,
+        21263094,
+        21263095,
+        21263096,
+        21263097,
+        21263098,
+        21263099,
+        21263100,
+        21263101,
+        21263102,
+        21263103,
+        21263104
+      ],
+      "config": {
+        "seed": 0,
+        "sim": {
+          "timestep": 0.002,
+          "impratio": 10
+        },
+        "control": {
+          "hz": 10,
+          "max_delta": 0.04,
+          "yaw": {
+            "enabled": true,
+            "max_delta": 0.15
+          },
+          "workspace": {
+            "low": [
+              -0.12,
+              -0.42,
+              0.755
+            ],
+            "high": [
+              0.45,
+              0.42,
+              0.97
+            ]
+          },
+          "ik": {
+            "hz": 250,
+            "damping": 0.02,
+            "pos_gain": 10.0,
+            "ori_gain": 6.0,
+            "posture_gain": 2.0,
+            "max_lin_vel": 0.7,
+            "max_ang_vel": 2.0,
+            "max_joint_vel": 2.5,
+            "max_lead": 0.05
+          }
+        },
+        "cameras": {
+          "record_hz": 10,
+          "width": 256,
+          "height": 256,
+          "static": {
+            "pos": [
+              1.25,
+              0.0,
+              1.42
+            ],
+            "lookat": [
+              0.1,
+              0.0,
+              0.82
+            ],
+            "fovy": 52
+          },
+          "wrist": {
+            "fovy": 75,
+            "tilt_deg": 30
+          },
+          "pointcloud": {
+            "enabled": false,
+            "frame": "base",
+            "stride": 2,
+            "max_depth": 2.5
+          }
+        },
+        "robot": {
+          "base_pos": [
+            -0.4,
+            0.0,
+            0.75
+          ],
+          "home_qpos": [
+            0.0,
+            -0.6,
+            0.0,
+            -2.8,
+            0.0,
+            2.2,
+            -0.7853
+          ],
+          "posture_noise": 0.0,
+          "grip_scale": 2.0
+        },
+        "table": {
+          "center": [
+            0.15,
+            0.0
+          ],
+          "half_size": [
+            0.32,
+            0.46
+          ],
+          "height": 0.75,
+          "top_thickness": 0.04
+        },
+        "task": {
+          "pick_end": "random",
+          "place_end": "opposite",
+          "ends": {
+            "left": {
+              "x": [
+                -0.02,
+                0.28
+              ],
+              "y": [
+                -0.38,
+                -0.18
+              ]
+            },
+            "right": {
+              "x": [
+                -0.02,
+                0.28
+              ],
+              "y": [
+                0.18,
+                0.38
+              ]
+            },
+            "near": {
+              "x": [
+                -0.08,
+                0.04
+              ],
+              "y": [
+                -0.22,
+                0.22
+              ]
+            },
+            "far": {
+              "x": [
+                0.2,
+                0.3
+              ],
+              "y": [
+                -0.22,
+                0.22
+              ]
+            }
+          },
+          "reach_range": [
+            0.3,
+            0.65
+          ],
+          "min_pick_place_dist": 0.35,
+          "object": {
+            "pool": [
+              "cube",
+              "cuboid",
+              "cylinder",
+              "hex_prism",
+              "tri_prism",
+              "frustum"
+            ],
+            "holdout": [
+              "bottle"
+            ],
+            "scale": [
+              0.9,
+              1.1
+            ],
+            "mass": [
+              0.05,
+              0.2
+            ],
+            "friction": [
+              0.8,
+              1.5
+            ],
+            "randomize_color": true
+          },
+          "obstacles": {
+            "count": [
+              3,
+              5
+            ],
+            "extra_height": [
+              0.04,
+              0.19
+            ],
+            "clearance": 0.2,
+            "spacing": 0.1,
+            "corridor_span": [
+              0.25,
+              0.75
+            ],
+            "lateral_offset": 0.16,
+            "kinds": {
+              "wall": {
+                "length": [
+                  0.08,
+                  0.16
+                ],
+                "thickness": 0.02,
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              },
+              "box": {
+                "width": [
+                  0.03,
+                  0.06
+                ],
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              },
+              "cylinder": {
+                "radius": [
+                  0.015,
+                  0.03
+                ],
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              }
+            }
+          }
+        },
+        "episode": {
+          "max_steps": 300,
+          "success_radius": 0.07,
+          "settle_steps": 15,
+          "fall_margin": 0.05,
+          "terminate_on_success": false
+        },
+        "rewards": {
+          "lift_height": 0.04,
+          "safe_distance": 0.06,
+          "weights": {
+            "reach": 0.5,
+            "grasp": 0.5,
+            "lift": 0.5,
+            "transport": 1.0,
+            "place": 5.0,
+            "success": 10.0,
+            "fail": 10.0,
+            "collision": 0.5,
+            "proximity": 0.3,
+            "table_hit": 0.2,
+            "drop": 1.0,
+            "action": 0.01
+          }
+        },
+        "data": {
+          "root": "data",
+          "jpeg_quality": 90,
+          "workers": 4,
+          "mix": {
+            "success": 0.5,
+            "scripted": 0.3,
+            "drop": 0.1,
+            "collide": 0.0,
+            "random": 0.1
+          },
+          "success_attempts": 1,
+          "scripted": {
+            "noise": 0.1,
+            "noise_correlation": 0.8,
+            "speed_range": [
+              0.6,
+              1.0
+            ],
+            "carry_height": 0.1,
+            "route_margin": 0.16
+          }
+        }
+      },
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18,
+          -0.23
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": []
+      }
+    },
+    "known_rest_z": 0.7724708914756775,
+    "encoder": {
+      "model": "facebook/vjepa2-vitl-fpc64-256",
+      "model_revision": null,
+      "camera": "static",
+      "clip_frames": 16,
+      "frame_stride": 1,
+      "pooling": "spatial_mean_pca16_grid8",
+      "pca_sha256": "4fa15856d2022be1400bd07032663e7b2df31621f978dd032e28d8b41066f423",
+      "dtype": "fp16",
+      "spatial_pool": 2
+    },
+    "source_manifest_sha256": "6fbf774f865f41d7c82c7402c25ba0374bde0fe8e3e9f5c8a78f870ae316ad72",
+    "source_features_sha256": "4ffb8d6febae27fbcdd125e43e02d8421b94106332171f0c69ab22036be47fc9",
+    "source_dynamics_sha256": "be8dd0643502170f118f6bc2e36c81b48376db000dc4547aca9384eefedcf7c6",
+    "source_readout_sha256": "7be392aa872125cdcdcaf1e6fce14a6bef1ac7aeb50e448e90577d52b81a3db1",
+    "code_sha256": {
+      "data_collection/scripted_policy.py": "096a13c395f222c817e193c75244ea82d3747378463853fd53b0fde13b213c76",
+      "environment/__init__.py": "94a4334305b3eb50b5427827354a2f5e888cf7e156d0898354b5045198d35b3b",
+      "environment/config.py": "310b006e8ecfc0c8d6faf1996f0048acef48f7d79b166f77eefa75f931b85bd4",
+      "environment/control.py": "2335542725df0db1806c04dcf54926fefa3e05a955b51df8c95556f4134d1e02",
+      "environment/env.py": "f837388906cd8df6c9fb89abfd95a429686bb79e7c6c25708733c4b517197e7d",
+      "environment/obstacles.py": "999e42ce22579860fdaf74ec08663a509ff4a27593a3b5ba7c18aad4b2cf4fcf",
+      "environment/rewards.py": "9d13d03b2c202b4bef9c22733303501e653f31aff55b1d500c254ec1e83a39f6",
+      "environment/scene.py": "e141978f149435c725d887d452cb769e55f9d72795fd54a54706fb0bff120ddf",
+      "world_model/train_dynamics.py": "bda303a24ca5c391a4759d906f271703fae94581a52f66b0868ad949ef0cdfb4",
+      "world_model/vision/control_pipeline_test1.py": "0e6249c473edb523361c2d41c7320b08110ef86757e4912a06b41371105f459a",
+      "world_model/vision/data.py": "01bddc46d47391157cc74a0612944597c89620e25335602fa3a0f3ef40713feb",
+      "world_model/vision/encode_test1.py": "4a60285736127223d62b8ecc6810eccedc2b99c54dcef26572c8415e1cb7a2a8",
+      "world_model/vision/pipeline.py": "f70cffdaf143ef582d0f63c056a11166e58045cd7c9f1fee8176a7962c02743e",
+      "world_model/vision/rl_control.py": "ac95df6677a360af4c2f13aacca23513ee1558b003a446e7f8bd63d5e4a62cb4",
+      "world_model/vision/task_control.py": "bbd08ae3c437ebc944e19d7a23307eba1ab286ad523cd4639d78f09162ddfca2",
+      "world_model/vision/train.py": "dbf17752a5d41a5ab77cc26faf218b6204f5f8f919135a2e00c20867515dfc75"
+    },
+    "contracts": {
+      "reward": "GoalReward potential progress + strict placement bonus15 + penalties + time cost0.01; original rewards logged separately",
+      "reward_gamma": 0.99,
+      "omitted_imagined_penalties": [
+        "collision",
+        "proximity",
+        "table_hit"
+      ],
+      "held_probability_threshold": 0.5,
+      "success": "ever grasped AND held lift>=4cm AND released at B within source success_radius and rest-height tolerance2cm for source settle_steps",
+      "terminal_score": "discounted supported reward + terminal_weight * gamma^horizon * minimum SAC critic estimate",
+      "coverage": "existing D/Q fitted on local grasp/lift data; full-task extrapolation is experimental"
+    }
+  },
+  "provenance": {
+    "python": "3.12.3",
+    "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+    "git_commit": "78c4e7f687325200f76d20398e2df59966291a46",
+    "git_dirty": true
+  },
+  "complete": true,
+  "stages": {
+    "reuse_rl": {
+      "complete": true,
+      "seconds": 4.041593733999889,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/models/rl_training.json": "aa98befc88c989fcff92793770749669587be2c85e62e2dbad0e508007bc9612",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/models/sac_best.zip": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/frozen_baseline.json": "60fb00b6cf2601fe2149e519179404505b5cb3d76cced1d1b1e9abbccc30718c"
+      }
+    },
+    "scripted_20494005": {
+      "complete": true,
+      "seconds": 13.885075094000058,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494005/result.json": "f74ad3cbfceed20fcaacf9f31445f2267cab432937aa59ffb9c519196e0dda0b",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494005/steps.csv": "422dd15ba487dc4c70e4669956eca7f196c91a0dd7a1ad3fc147cf4114238411"
+      }
+    },
+    "scripted_20494006": {
+      "complete": true,
+      "seconds": 13.20468397600007,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494006/result.json": "0ac4f3526b870fcaeb8380129231b45275045363c68b08ea60fce88f9ceb2e4f",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494006/steps.csv": "dfd30bf1eadf7d2ac40b36bb66fb832eaec5d00d389d440cbcf04e111cae1ae3"
+      }
+    },
+    "scripted_20494007": {
+      "complete": true,
+      "seconds": 12.882001477999893,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494007/result.json": "569e162922e06d9f3f595402804cb1995d52851f2b3d0f68e4f0bffdeaeacc16",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494007/steps.csv": "7f7a035e97a281fd54bfc8717ddf1d3799c0efc3374073e573f3d4995592457c"
+      }
+    },
+    "scripted_20494008": {
+      "complete": true,
+      "seconds": 12.768370189000052,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494008/result.json": "68ad1fb6908beb65b5f81989201a04c8d9b639d6a482006457859096de336925",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494008/steps.csv": "cbdbfc02cf2a4a5a1e21c85de34ca16f63ce374d58355b6d2daa937d4d82fe17"
+      }
+    },
+    "scripted_20494009": {
+      "complete": true,
+      "seconds": 12.754934265999964,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494009/result.json": "504bd5747bf42b51c92f7e0c9d49b38ca16236b6182671b8de4d12b1ab75e6b2",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/scripted/seed_20494009/steps.csv": "2d9328adc82b679bba8e5a082a675ff04e844df4abb984b51e9c3dc12486469f"
+      }
+    },
+    "rl_true_20494005": {
+      "complete": true,
+      "seconds": 17.066183104000174,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494005/result.json": "26fc432181b97b1dcfcee304f47840d1e138e028d77945ff7e7df3546a2ce1a1",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494005/steps.csv": "c06f950727f047bae43c62d1cb9605eef57240c3bb721f064c272a55d91414d3"
+      }
+    },
+    "rl_true_20494006": {
+      "complete": true,
+      "seconds": 19.609502272999634,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494006/result.json": "7b358e932c001bfb5c01708609ee1ed6ff9a6b445de561526984080cee61835c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494006/steps.csv": "9ee5270dc01e5f249ba42eadf49b1cc41ca6609b5f29c7893d58490bcf19bc5f"
+      }
+    },
+    "rl_true_20494007": {
+      "complete": true,
+      "seconds": 17.887031954000122,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494007/result.json": "cd309f91054750a94d4130b08a878e4dafcb7ccaa5c43d88492a65b291926952",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494007/steps.csv": "ec94f59e60e6f7c68160bd95e31d9d16801318f03ca9f1fda64b0fe36c95f895"
+      }
+    },
+    "rl_true_20494008": {
+      "complete": true,
+      "seconds": 18.433767910999904,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494008/result.json": "0661070e959c33771bfe046455a6528ddbb426673614ddc2a520347fbeea1330",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494008/steps.csv": "98d7553b8e23ede731627db95c03cdb6e37a7a25f1963da9ec088deac2be4203"
+      }
+    },
+    "rl_true_20494009": {
+      "complete": true,
+      "seconds": 17.62963119799997,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494009/result.json": "24ded52c3ca5be7ecd78b10c82ec7ba6c9b63e4ac641b4cc6c13ce185e845eaf",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_true/seed_20494009/steps.csv": "d8993ecdae2cebe4da89065369f3a2c4d20cf2280a320b8297b3bac1a9625053"
+      }
+    },
+    "rl_q_20494005": {
+      "complete": true,
+      "seconds": 91.33068337899977,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494005/result.json": "324893305e4e7953272bbe2c478837c701be679dc3c37de1944d084987469089",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494005/steps.csv": "023de8a19662df7d49fdd436d8668907705f26fa255e32e3b1be20985d52fe03"
+      }
+    },
+    "rl_q_20494006": {
+      "complete": true,
+      "seconds": 89.58150425400027,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494006/result.json": "dc900742cfa4fd942593edc88ebfb0b0c7ae4c8eaf0fd769fb071a4f35ec4fe6",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494006/steps.csv": "8e1cbefb93232c85c5edf9ac1f98787e46ca2f4e9a27256ff220c83fcaed5dd4"
+      }
+    },
+    "rl_q_20494007": {
+      "complete": true,
+      "seconds": 81.2695355410001,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494007/result.json": "8a1ede97c356b0d45f545544003942bb1c4ac1a26b85cee44f406b50bfcc3c90",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494007/steps.csv": "c0595042140687246f1dfceb20606e4cc7b84a40f552dbe2ddcb7844d8aea8a2"
+      }
+    },
+    "rl_q_20494008": {
+      "complete": true,
+      "seconds": 86.7499583509998,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494008/result.json": "17d5b0785683a4304cf40d48c0bde83e1e889ab1f7cbbe090d251ebd5980d786",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494008/steps.csv": "8debd55698868056ad79afeb8ef1c2fdf50eeb887d6ab1eb82244ff7660d26d6"
+      }
+    },
+    "rl_q_20494009": {
+      "complete": true,
+      "seconds": 88.81315607400029,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494009/result.json": "f3092242a29e7356c11ed735935f98c762df416f84e2537b671c559a9440aec2",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/rl_q/seed_20494009/steps.csv": "010e2e30776234929bfc783ac49b84148a4c2e095f85c74389bddb3512043966"
+      }
+    },
+    "jepa_mpc_20494005": {
+      "complete": true,
+      "seconds": 125.54127018300005,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494005/result.json": "7625f8b78d3d905d4f056feb876ffe804912c7d8700fb4b26ab5257b0a509b11",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494005/selected_forecasts.csv": "f26029686031a37f4f0503a26e0558d51fa5209dbfc49ae350fe80ff73a25be0",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494005/steps.csv": "19a412fa5038f44331c29436f2f29e21927d4aea8673361868ec109d47b952a3",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494005/candidates.csv": "d913687611062a255d5e5e64e5215af8ac371e5307ac78b44167ac44369afe37"
+      }
+    },
+    "jepa_mpc_20494006": {
+      "complete": true,
+      "seconds": 130.30778799200016,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494006/result.json": "db3c3572f7219212ef311b41b0c60b6eb2339c96ce8cbd74a53a78c2c3343def",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494006/selected_forecasts.csv": "527295184d01e0bcd35bee3e39193180f0acb8b8c5a2f16f606b06d02203fec5",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494006/steps.csv": "842307a37f2d5eaa6400172798a1bfcab700c1edb5cd53871119a99de7561bf4",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494006/candidates.csv": "23cd481ad1e7eab204c8e96a8c39826619ccd3a614927758c41e30faec8aa73b"
+      }
+    },
+    "jepa_mpc_20494007": {
+      "complete": true,
+      "seconds": 120.99377719099994,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494007/result.json": "d4381c595655fea86f2a3923e027aa77afc74346662ce5c5cdcfea9df5b0d210",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494007/selected_forecasts.csv": "c9b2d9729102df2f3db08fc0283a839d796b2832a105412da3ebf5fd41b5de74",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494007/steps.csv": "733033395207713a618fbfa3280ce4210e0b1911d77027ce505dbe7d5b23a7bd",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494007/candidates.csv": "16fc2b2fda2262aecbe58e401418af89c6164bf5cd2bd03735e7c14cf579c58c"
+      }
+    },
+    "jepa_mpc_20494008": {
+      "complete": true,
+      "seconds": 125.53235273500013,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494008/result.json": "b276757344bcd57911f5221f9c2d801964e117f4b9a76387b702e723945ed7c8",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494008/selected_forecasts.csv": "8408c5d51da825a35cd1d013e419734a5abdadf1d548d3f3ce849447b0cf94aa",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494008/steps.csv": "b4a70227875e38967391970bd6e566b843f8370fc0d894e25d4d008124b72097",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494008/candidates.csv": "30ee1054555bf4a1b8601724bf59dfc312d371b9d667d3552f093b599059950d"
+      }
+    },
+    "jepa_mpc_20494009": {
+      "complete": true,
+      "seconds": 129.19568518100004,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494009/result.json": "9a116c542618ca7c7f7853d7e32ba7752697f4a2f43806f8fc2a9172926dd7a4",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494009/selected_forecasts.csv": "e57228020cc5e066f31df87c891838bb5d1e067997cbaefea6627499a4bf3c5e",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494009/steps.csv": "1551bf9dd7daecbc5258a52011ba24eb1b6267bb8c0065c95580e5b605f85139",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_test3/episodes/jepa_mpc/seed_20494009/candidates.csv": "8bb0dae67f5194b294cd729802297f94e9680041516fa4443410a2210164e901"
+      }
+    }
+  },
+  "started_utc": "2026-10-09T05:30:12.899556+00:00"
+}

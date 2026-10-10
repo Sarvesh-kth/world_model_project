@@ -1,0 +1,9 @@
+Live A-to-B control comparison
+complete=True
+Frozen SAC: 100/100 source placements; sha256=b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248; no retraining
+scripted: full placements 5/5; final goal distance=0.19cm; model fallbacks=0
+rl_true: full placements 5/5; final goal distance=1.44cm; model fallbacks=0
+rl_q: full placements 5/5; final goal distance=2.57cm; model fallbacks=0
+jepa_mpc: full placements 2/5; final goal distance=22.04cm; model fallbacks=91
+Repeatable SAC baseline on this test=True (predeclared criterion: >=80% over >=5 near-fixed-scene episodes).
+Actual GIFs/JPEGs and candidate NPZ forecasts remain in the notebook data run. No model success is implied by pipeline completion.

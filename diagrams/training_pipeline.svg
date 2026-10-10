@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 700" width="1180" height="700">
+<style>
+svg{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif}
+.bg{fill:#ffffff}
+.blk{fill:#ffffff;stroke:#cfd6dc;stroke-width:1.2}
+.blk.data{stroke:#8a6d3b;stroke-width:1.4;fill:#fbf3e4}
+.blk.enc{stroke:#1a8f8f;stroke-width:1.6;fill:#dcf1f1}
+.blk.model{stroke:#3b6ea5;stroke-width:1.6;fill:#e3ecf6}
+.blk.out{stroke:#5d6873;stroke-width:1.2;fill:#f1f3f5}
+.t{font-family:"IBM Plex Sans Condensed","DejaVu Sans Condensed","DejaVu Sans",Arial,sans-serif;font-weight:700;font-size:13px;fill:#1c2328}
+.m{font-family:"IBM Plex Mono","DejaVu Sans Mono",monospace;font-size:10.5px;fill:#5d6873}
+.f{font-family:"IBM Plex Mono","DejaVu Sans Mono",monospace;font-size:10.5px;fill:#1a8f8f}
+.ar{fill:none;stroke:#1c2328;stroke-width:1.3;marker-end:url(#arrow)}
+.ar.dash{stroke-dasharray:4 3;opacity:.7}
+.al{font-family:"IBM Plex Mono","DejaVu Sans Mono",monospace;font-size:10.5px;fill:#1c2328}
+.h{font-family:"IBM Plex Sans Condensed","DejaVu Sans Condensed","DejaVu Sans",Arial,sans-serif;font-weight:700;font-size:20px;fill:#1c2328}
+.s{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif;font-size:12px;fill:#5d6873}
+.lg{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif;font-size:11px;fill:#5d6873}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1c2328"/></marker></defs>
+<rect class="bg" width="1180" height="700"/>
+<text class="h" x="20" y="34">Training pipeline: recorded episodes -> frozen V-JEPA latent -> Q, R, D</text>
+<text class="s" x="20" y="54">Everything runs from simulation/ (python -m world_model.&lt;file&gt;). One run folder per dataset under data/, the trained models in attempts/combined/models/.</text>
+
+<!-- row 1: data -->
+<rect class="blk data" x="20" y="78" width="360" height="108" rx="4"/>
+<text class="t" x="32" y="97">1a  collect_full.py  ->  data/full_test1</text>
+<text class="m" x="32" y="114">frozen SAC on its layout, cube start jittered ±3 cm</text>
+<text class="m" x="32" y="128">4 cases: normal, forced drop at 15/50/75 % + recovery</text>
+<text class="m" x="32" y="142">2 views: empty table, clutter twin (same actions)</text>
+<text class="m" x="32" y="156">16 / 4 / 6 scenes · 30,642 states</text>
+<text class="f" x="32" y="176">needs data/rl_baseline_v1 (config, layout, sac_best.zip)</text>
+
+<rect class="blk data" x="410" y="78" width="360" height="108" rx="4"/>
+<text class="t" x="422" y="97">1b  collect_obstacles.py  ->  data/obstacles_test1</text>
+<text class="m" x="422" y="114">normal_empty: SAC on the empty table</text>
+<text class="m" x="422" y="128">replay_obstacles: same actions, 1-3 corridor obstacles</text>
+<text class="m" x="422" y="142">scripted_obstacles: scripted route around them</text>
+<text class="m" x="422" y="156">14 / 4 / 6 scenes · 10,103 states · the data R learns from</text>
+<text class="f" x="422" y="176">test scenes = controller/control_clutter benchmark</text>
+
+<rect class="blk data" x="800" y="78" width="360" height="108" rx="4"/>
+<text class="t" x="812" y="97">1c  data_collection.collect + prepare_episodes.py</text>
+<text class="m" x="812" y="114">configs/full_mix.yml: success .4 scripted .2 drop .1</text>
+<text class="m" x="812" y="128">collide .15 random .15, 1-3 obstacles, 120 episodes</text>
+<text class="m" x="812" y="142">prepare_episodes: episode folders -> manifest</text>
+<text class="m" x="812" y="156">-> data/episodes_test1 · 17,265 states</text>
+<text class="f" x="812" y="176">adds fingers closed on nothing, collisions, random motion</text>
+
+<text class="al" x="20" y="208">each run: manifest.json (states: p (20), cube xyz, held, reward components, frame history · rollouts: state indices + actions) + observations/*.jpg</text>
+
+<!-- arrows data -> encode -->
+<path class="ar" d="M200 186 L200 218 L380 218 L380 240"/>
+<path class="ar" d="M590 186 L590 240"/>
+<path class="ar" d="M980 186 L980 218 L800 218 L800 240"/>
+
+<!-- row 2: encode -->
+<rect class="blk enc" x="240" y="242" width="700" height="96" rx="4"/>
+<text class="t" x="252" y="261">2  encode.py  (V-JEPA 2 ViT-L, frozen, fp16, CUDA)  ->  &lt;run&gt;/features/latents.npy, pca.npz, meta.json</text>
+<text class="m" x="252" y="279">clip = the last 16 static frames of a state  ->  8 x 16 x 16 tokens of 1024</text>
+<text class="m" x="252" y="293">mean over the 8 time slices -> 16x16 grid -> 2x2 average pool -> 8x8 cells -> PCA 1024 -> 16 per cell</text>
+<text class="m" x="252" y="307">z = 8 * 8 * 16 = 1024 numbers that keep where things are (the cube is ~10 px, the token mean lost it)</text>
+<text class="f" x="252" y="327">PCA basis fitted on 300 full_test1 clips; the other two runs reuse it with --pca (same latent space) · 0.16 s per state</text>
+
+<!-- arrow encode -> merge -->
+<path class="ar" d="M590 338 L590 366"/>
+
+<!-- row 3: merge -->
+<rect class="blk out" x="340" y="368" width="500" height="40" rx="4"/>
+<text class="t" x="352" y="386">3  merge_runs.py  ->  data/combined_test1  (58,010 states)</text>
+<text class="m" x="352" y="400">keys prefixed by run, frames symlinked, latents concatenated, one manifest</text>
+
+<!-- arrows merge -> train -->
+<path class="ar" d="M400 408 L400 430 L200 430 L200 452"/>
+<path class="ar" d="M590 408 L590 452"/>
+<path class="ar" d="M780 408 L780 430 L980 430 L980 452"/>
+
+<!-- row 4: train -->
+<rect class="blk model" x="20" y="454" width="360" height="118" rx="4"/>
+<text class="t" x="32" y="473">4a  train.py readout  ->  Q(z, p)</text>
+<text class="m" x="32" y="491">in [z, p] = 1044  ->  cube xyz (3) + held logit</text>
+<text class="m" x="32" y="505">MLP 128 wide · loss: MSE(xyz, normalised) + BCE(held)</text>
+<text class="m" x="32" y="519">also readout_p: the same from p alone (blind control)</text>
+<text class="m" x="32" y="533">val: xyz MAE 1.5 / 2.9 / 0.45 cm, held F1 0.96</text>
+<text class="f" x="32" y="560">trained first: dynamics needs the frozen Q</text>
+
+<rect class="blk model" x="410" y="454" width="360" height="118" rx="4"/>
+<text class="t" x="422" y="473">4b  train.py reward  ->  R(z, p)  (penalty head)</text>
+<text class="m" x="422" y="491">in [z, p]  ->  proximity (-1..0), collision logit,</text>
+<text class="m" x="422" y="505">table-hit logit · loss: MSE + BCE + BCE</text>
+<text class="m" x="422" y="519">targets = the recorded unweighted reward components</text>
+<text class="m" x="422" y="533">(nonzero only in the obstacle data)</text>
+<text class="f" x="422" y="560">val: collision AUC 0.995 real, 0.99 imagined at 8 steps</text>
+
+<rect class="blk model" x="800" y="454" width="360" height="118" rx="4"/>
+<text class="t" x="812" y="473">4c  train.py dynamics  ->  D(z, p, a)</text>
+<text class="m" x="812" y="491">SplitDynamicsZ: robot head (z, p, a) -> p + d</text>
+<text class="m" x="812" y="505">visual head (z, p, a, p') -> z + d · widths 128 / 512</text>
+<text class="m" x="812" y="519">windows of 8 actions, rolled out recursively</text>
+<text class="m" x="812" y="533">loss: MSE(z) + MSE(p) + 1.0 * task term</text>
+<text class="f" x="812" y="560">task term: frozen Q must read the recorded cube on imagined states</text>
+
+<!-- dashed Q -> D -->
+<path class="ar dash" d="M380 545 L410 545 L410 585 L800 585 L800 572"/>
+<text class="al" x="520" y="598">frozen Q (same tag, same normalisation)</text>
+
+<!-- row 5: outputs -->
+<rect class="blk out" x="20" y="612" width="520" height="56" rx="4"/>
+<text class="t" x="32" y="631">5  eval_reward.py</text>
+<text class="m" x="32" y="647">R scored on real latents and on latents D imagined over 1 / 4 / 8 steps</text>
+<text class="m" x="32" y="661">from the recorded actions (what the planner sees) · reports/reward_&lt;split&gt;.json</text>
+
+<rect class="blk out" x="640" y="612" width="520" height="56" rx="4"/>
+<text class="t" x="652" y="631">->  controller/control_pipeline.py</text>
+<text class="m" x="652" y="647">loads attempts/combined/models/{readout,reward,dynamics}.pt,</text>
+<text class="m" x="652" y="661">features/pca.npz + meta.json (the online encoder) and rl_baseline_v1/models/sac_best.zip</text>
+
+<text class="lg" x="20" y="690">bash world_model/run_combined.sh does steps 3, 4a-c and 5. Solid arrows = data, dashed = a frozen model used in a loss. Numbers from data/combined_test1 (CHANGES_FROM_M2.md).</text>
+</svg>

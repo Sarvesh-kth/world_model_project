@@ -1,9 +1,10 @@
 import dataclasses
+
 import mujoco
 import numpy as np
 
 # Obstacle kinds, all tall and thin so the arm has to go around them and not over
-# wall: thin tall box 
+# wall: thin tall box
 # box: small square tall box with a random yaw
 # cylinder: thin tall pillar
 # Mujoco box sizes are half extents, cylinder size is (radius, half length)
@@ -13,6 +14,7 @@ OBSTACLE_COLORS = [
   (0.95, 0.55, 0.05, 1.0),
   (0.60, 0.10, 0.60, 1.0),
 ]
+
 
 @dataclasses.dataclass
 class Obstacle:
@@ -45,6 +47,7 @@ class Obstacle:
     return cls(d["kind"], np.asarray(d["pos"], dtype=float), float(d["yaw"]),
                np.asarray(d["size"], dtype=float))
 
+
 # Sample obstacles in the corridor between pick and place (xy on the table)
 # there is always at least one, the tall one, None when even that did not fit
 def sample_obstacles(cfg, rng, pick, place):
@@ -53,6 +56,7 @@ def sample_obstacles(cfg, rng, pick, place):
     if obstacles:
       return obstacles
   return None
+
 
 def _sample_once(cfg, rng, pick, place):
   ocfg = cfg.task.obstacles
@@ -69,6 +73,7 @@ def _sample_once(cfg, rng, pick, place):
     # only the first placed obstacle has to be tall, the rest can be anything (size[-1] is the half height for every kind)
     if obstacles:
       size[-1] = _uniform(rng, ocfg.extra_height) / 2
+
     # Try 50 times to find a spot along the corridor that is far enough from pick, place and the other obstacles
     for _ in range(50):
       t = rng.uniform(*ocfg.corridor_span)
@@ -80,6 +85,7 @@ def _sample_once(cfg, rng, pick, place):
         obstacles.append(Obstacle(kind, pos, yaw, size))
         break
   return obstacles
+
 
 # Sample the yaw and size for one obstacle kind, sizes in the config are a value or a [low, high] range
 def _sample_size(kind, kcfg, rng, direction):
@@ -97,6 +103,7 @@ def _sample_size(kind, kcfg, rng, direction):
     size = np.array([_uniform(rng, kcfg.radius), _uniform(rng, kcfg.height) / 2])
   return yaw, size
 
+
 # Add the obstacle to the scene as body obstacle_<index> sitting on the table
 # geoms are named obstacle_geom_<index>, the env uses that name to label collisions
 def add_obstacle(spec, cfg, index, ob):
@@ -113,11 +120,13 @@ def add_obstacle(spec, cfg, index, ob):
                   pos=[0, 0, ob.size[2]], rgba=rgba)
   return body
 
+
 # Check the xy position is on the table, with a small margin from the edge
 def on_table(cfg, pos, margin=0.04):
   c = np.array(cfg.table.center)
   h = np.array(cfg.table.half_size) - margin
   return bool(np.all(np.abs(np.asarray(pos) - c) <= h))
+
 
 # A fixed number or a [low, high] range from the config
 def _uniform(rng, value):

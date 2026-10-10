@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 700" width="1180" height="700">
+<style>
+svg{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif}
+.bg{fill:#ffffff}
+.blk{fill:#ffffff;stroke:#cfd6dc;stroke-width:1.2}
+.blk.sim{stroke:#8a6d3b;stroke-width:1.4;fill:#fbf3e4}
+.blk.enc{stroke:#1a8f8f;stroke-width:1.6;fill:#dcf1f1}
+.blk.model{stroke:#3b6ea5;stroke-width:1.6;fill:#e3ecf6}
+.blk.plan{stroke:#7a4b9e;stroke-width:1.6;fill:#efe6f6}
+.blk.out{stroke:#5d6873;stroke-width:1.2;fill:#f1f3f5}
+.t{font-family:"IBM Plex Sans Condensed","DejaVu Sans Condensed","DejaVu Sans",Arial,sans-serif;font-weight:700;font-size:13px;fill:#1c2328}
+.m{font-family:"IBM Plex Mono","DejaVu Sans Mono",monospace;font-size:10.5px;fill:#5d6873}
+.f{font-family:"IBM Plex Mono","DejaVu Sans Mono",monospace;font-size:10.5px;fill:#1a8f8f}
+.ar{fill:none;stroke:#1c2328;stroke-width:1.3;marker-end:url(#arrow)}
+.ar.dash{stroke-dasharray:4 3;opacity:.7}
+.al{font-family:"IBM Plex Mono","DejaVu Sans Mono",monospace;font-size:10.5px;fill:#1c2328}
+.h{font-family:"IBM Plex Sans Condensed","DejaVu Sans Condensed","DejaVu Sans",Arial,sans-serif;font-weight:700;font-size:20px;fill:#1c2328}
+.s{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif;font-size:12px;fill:#5d6873}
+.lg{font-family:"IBM Plex Sans","DejaVu Sans",Arial,sans-serif;font-size:11px;fill:#5d6873}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1c2328"/></marker></defs>
+<rect class="bg" width="1180" height="700"/>
+<text class="h" x="20" y="34">Inference: one control step of jepa_mpc (controller/control_pipeline.py)</text>
+<text class="s" x="20" y="54">observe -> read the cube with Q -> let the SAC propose a plan -> imagine variations with D, score them with Q and R -> execute one action -> repeat. 10 Hz control, about 0.3 s compute per step.</text>
+
+<!-- row 1 -->
+<rect class="blk sim" x="20" y="80" width="250" height="110" rx="4"/>
+<text class="t" x="32" y="99">MuJoCo  (rl/task_control.py TaskSession)</text>
+<text class="m" x="32" y="117">Panda + static camera, 5-dim action</text>
+<text class="m" x="32" y="131">out each step: frame 256x256,</text>
+<text class="m" x="32" y="145">p (20): joints, velocities, ee pose,</text>
+<text class="m" x="32" y="159">yaw, finger width, gripper command</text>
+<text class="f" x="32" y="180">true cube pose only for the logs</text>
+
+<path class="ar" d="M270 135 L308 135"/>
+<text class="al" x="274" y="128">frames</text>
+
+<rect class="blk enc" x="310" y="80" width="250" height="110" rx="4"/>
+<text class="t" x="322" y="99">Encoder  (world_model/encode.py)</text>
+<text class="m" x="322" y="117">same frozen V-JEPA 2, same pooling and</text>
+<text class="m" x="322" y="131">PCA basis as the cached features</text>
+<text class="m" x="322" y="145">(features/meta.json, pca.npz)</text>
+<text class="m" x="322" y="159">last 16 frames -> z (1024)</text>
+<text class="f" x="322" y="180">WorldModels.encode · 0.15 s</text>
+
+<path class="ar" d="M560 135 L598 135"/>
+<text class="al" x="575" y="128">z</text>
+
+<rect class="blk model" x="600" y="80" width="250" height="110" rx="4"/>
+<text class="t" x="612" y="99">Q(z, p) + width gate  (WorldModels.read)</text>
+<text class="m" x="612" y="117">readout.pt: cube xyz, P(held)</text>
+<text class="m" x="612" y="131">held := 0 when finger width &lt; 2 cm</text>
+<text class="m" x="612" y="145">(closed on nothing holds nothing)</text>
+<text class="m" x="612" y="159">--blind: readout_p, from p alone</text>
+<text class="f" x="612" y="180">this is all the controller knows about the cube</text>
+
+<path class="ar" d="M850 135 L888 135"/>
+<text class="al" x="858" y="126">xyz</text>
+<text class="al" x="855" y="150">held</text>
+
+<rect class="blk model" x="890" y="80" width="270" height="110" rx="4"/>
+<text class="t" x="902" y="99">SAC guide  (actor_sequence)</text>
+<text class="m" x="902" y="117">frozen SAC (rl_baseline_v1/sac_best.zip)</text>
+<text class="m" x="902" y="131">obs = policy_observation(p, xyz, held,</text>
+<text class="m" x="902" y="145">reward memory, goal) · 41 numbers</text>
+<text class="m" x="902" y="159">rolled 8 steps through D, each imagined</text>
+<text class="m" x="902" y="173">state read again with Q -> 8 actions</text>
+
+<!-- p arrow from sim along the top to Q -->
+<path class="ar dash" d="M145 80 L145 66 L725 66 L725 80"/>
+<text class="al" x="400" y="76">p (robot state) goes to Q, the SAC and D directly</text>
+
+<!-- guide down to CEM -->
+<path class="ar" d="M1025 190 L1025 238"/>
+<text class="al" x="1032" y="218">guide = candidate 0</text>
+
+<!-- row 2 -->
+<rect class="blk plan" x="890" y="240" width="270" height="130" rx="4"/>
+<text class="t" x="902" y="259">CEM candidates  (plan)</text>
+<text class="m" x="902" y="277">64 sequences x 8 steps = guide + 0.3 * noise</text>
+<text class="m" x="902" y="291">half the noise variance shared over the</text>
+<text class="m" x="902" y="305">horizon (--cem-smooth 0.5), gripper fixed</text>
+<text class="m" x="902" y="319">candidate 1 = last step's plan shifted</text>
+<text class="m" x="902" y="333">3 iterations: 8 elites -> new mean / std</text>
+<text class="f" x="902" y="356">original: std 0.6, independent, gripper sampled</text>
+
+<path class="ar" d="M890 305 L852 305"/>
+<text class="al" x="856" y="292">64x8</text>
+
+<rect class="blk model" x="470" y="240" width="380" height="130" rx="4"/>
+<text class="t" x="482" y="259">Imagine and score  (forecasts)</text>
+<text class="m" x="482" y="277">D(z, p, a) 8 steps per candidate  (dynamics.pt)</text>
+<text class="m" x="482" y="291">Q reads every imagined (z', p') -> xyz, held</text>
+<text class="m" x="482" y="305">r_t = predicted_reward (progress, goal bonus, time)</text>
+<text class="m" x="482" y="319">    + penalty_scale * R(z', p')  (reward.pt: proximity, collision, table)</text>
+<text class="m" x="482" y="333">score = sum gamma^t r_t  (+ terminal_weight * SAC critic, 0 by default)</text>
+<text class="f" x="482" y="356">invalid if finger width, hand, cube or z leave the physical range -> -1e9</text>
+
+<!-- elites feedback -->
+<path class="ar dash" d="M660 370 L660 392 L1025 392 L1025 370"/>
+<text class="al" x="700" y="406">scores -> elites refit the mean and std, 3 times</text>
+
+<path class="ar" d="M470 305 L432 305"/>
+<text class="al" x="430" y="298">scores</text>
+
+<rect class="blk plan" x="20" y="240" width="410" height="130" rx="4"/>
+<text class="t" x="32" y="259">Decide  (end of plan)</text>
+<text class="m" x="32" y="277">the guide is candidate 0, scored by the same D, Q, R</text>
+<text class="m" x="32" y="291">execute the best candidate only if</text>
+<text class="m" x="32" y="305">    score(best) - score(guide) > 0.25  (--guide-margin)</text>
+<text class="m" x="32" y="319">otherwise execute the guide's first action</text>
+<text class="m" x="32" y="333">best invalid -> guide (fallback)</text>
+<text class="f" x="32" y="356">on the empty table the guide is kept in ~100 % of steps</text>
+
+<path class="ar" d="M225 370 L225 428"/>
+<text class="al" x="232" y="402">a_0 (5 numbers)</text>
+
+<!-- row 3 -->
+<rect class="blk sim" x="20" y="430" width="410" height="96" rx="4"/>
+<text class="t" x="32" y="449">Execute  (TaskSession.step)</text>
+<text class="m" x="32" y="467">action -> ArmController (IK, 25 updates) -> physics</text>
+<text class="m" x="32" y="481">new frame saved and encoded, Q reads it, the reward</text>
+<text class="m" x="32" y="495">memory is advanced from Q's estimate, step logged</text>
+<text class="f" x="32" y="516">episode ends on placement (15 settled steps), a fall, or step 300</text>
+
+<!-- loop back to sim -->
+<path class="ar" d="M20 478 L8 478 L8 135 L18 135"/>
+<text class="al" x="12" y="300" transform="rotate(-90 12 300)">next step</text>
+
+<rect class="blk out" x="470" y="430" width="690" height="96" rx="4"/>
+<text class="t" x="482" y="449">The other controllers reuse the same loop</text>
+<text class="m" x="482" y="467">rl_true   SAC on the exact state (no encoder, no Q)            scripted  the scripted policy on the exact state</text>
+<text class="m" x="482" y="481">rl_q      SAC on policy_observation(p, Q's xyz, Q's held): the top row only, no planner</text>
+<text class="m" x="482" y="495">jepa_mpc  everything on this page</text>
+<text class="f" x="482" y="516">control_clutter.py: same episode() on the held-out obstacle layouts of data/obstacles_test1</text>
+
+<rect class="blk out" x="20" y="550" width="1140" height="100" rx="4"/>
+<text class="t" x="32" y="569">Outputs</text>
+<text class="m" x="32" y="587">data/&lt;out&gt;/episodes/&lt;method&gt;/seed_*/   frames/*.jpg, actual.gif, steps.csv (per step: true + control reward, goal distance, lift, actions, Q readings,</text>
+<text class="m" x="32" y="601">    guide / best scores, kept_guide, penalty sum), candidates.csv (every candidate's score per step), trajectory.npz, result.json</text>
+<text class="m" x="32" y="615">results/&lt;out&gt;/   summary.txt / .json / .csv (placements, final distance, contacts per method) + copies of the per-episode json and csv (tracked in git)</text>
+<text class="f" x="32" y="638">empty table, 20 seeds: scripted 20/20 · rl_true 20/20 · rl_q 20/20 · jepa_mpc 19/20 (median 1.0 cm) · obstacle scenes: rl_q 2/6, jepa_mpc 4/6 (penalty scale 2)</text>
+
+<text class="lg" x="20" y="680">Solid arrows = data flow within one step, dashed = inputs reused / feedback inside the planner. Flags and defaults: controller/README.md.</text>
+</svg>

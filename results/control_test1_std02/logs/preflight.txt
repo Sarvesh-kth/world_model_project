@@ -1,0 +1,3 @@
+
+COMMAND ["/home/serweshh/robot_learning_lab/world_model_project/simulation/../.venv/bin/python", "-c", "import torch, stable_baselines3, transformers, mujoco; assert torch.cuda.is_available(), 'CUDA required'; print('GPU:', torch.cuda.get_device_name(0), 'SB3:', stable_baselines3.__version__)"]
+GPU: NVIDIA GeForce RTX 4060 Laptop GPU SB3: 2.7.1

@@ -1,0 +1,1502 @@
+{
+  "inputs": {
+    "options": {
+      "models_run": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/combined_test1",
+      "baseline_run": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/rl_baseline_v1",
+      "tag": "combined",
+      "layout": "/home/serweshh/robot_learning_lab/world_model_project/simulation/configs/grade_e_layout.json",
+      "out": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20",
+      "export_dir": "/home/serweshh/robot_learning_lab/world_model_project/results/control_final_20",
+      "seed": 20474010,
+      "rl_steps": 10000,
+      "demos": 20,
+      "bc_epochs": 120,
+      "bc_weight": 100.0,
+      "critic_warmup": 1000,
+      "eval_every": 2500,
+      "validation_episodes": 5,
+      "test_episodes": 20,
+      "position_jitter": 0.01,
+      "horizon": 8,
+      "population": 64,
+      "elites": 8,
+      "iterations": 3,
+      "terminal_weight": 0.0,
+      "cem_std": 0.3,
+      "no_penalties": false,
+      "guide_margin": 0.25,
+      "free_gripper": false,
+      "no_width_gate": false,
+      "cem_smooth": 0.5,
+      "threads": 3
+    },
+    "config": {
+      "seed": 0,
+      "sim": {
+        "timestep": 0.002,
+        "impratio": 10
+      },
+      "control": {
+        "hz": 10,
+        "max_delta": 0.04,
+        "yaw": {
+          "enabled": true,
+          "max_delta": 0.15
+        },
+        "workspace": {
+          "low": [
+            -0.12,
+            -0.42,
+            0.755
+          ],
+          "high": [
+            0.45,
+            0.42,
+            0.97
+          ]
+        },
+        "ik": {
+          "hz": 250,
+          "damping": 0.02,
+          "pos_gain": 10.0,
+          "ori_gain": 6.0,
+          "posture_gain": 2.0,
+          "max_lin_vel": 0.7,
+          "max_ang_vel": 2.0,
+          "max_joint_vel": 2.5,
+          "max_lead": 0.05
+        }
+      },
+      "cameras": {
+        "record_hz": 10,
+        "width": 256,
+        "height": 256,
+        "static": {
+          "pos": [
+            1.25,
+            0.0,
+            1.42
+          ],
+          "lookat": [
+            0.1,
+            0.0,
+            0.82
+          ],
+          "fovy": 52
+        },
+        "wrist": {
+          "fovy": 75,
+          "tilt_deg": 30
+        },
+        "pointcloud": {
+          "enabled": false,
+          "frame": "base",
+          "stride": 2,
+          "max_depth": 2.5
+        }
+      },
+      "robot": {
+        "base_pos": [
+          -0.4,
+          0.0,
+          0.75
+        ],
+        "home_qpos": [
+          0.0,
+          -0.6,
+          0.0,
+          -2.8,
+          0.0,
+          2.2,
+          -0.7853
+        ],
+        "posture_noise": 0.0,
+        "grip_scale": 2.0
+      },
+      "table": {
+        "center": [
+          0.15,
+          0.0
+        ],
+        "half_size": [
+          0.32,
+          0.46
+        ],
+        "height": 0.75,
+        "top_thickness": 0.04
+      },
+      "task": {
+        "pick_end": "random",
+        "place_end": "opposite",
+        "ends": {
+          "left": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              -0.38,
+              -0.18
+            ]
+          },
+          "right": {
+            "x": [
+              -0.02,
+              0.28
+            ],
+            "y": [
+              0.18,
+              0.38
+            ]
+          },
+          "near": {
+            "x": [
+              -0.08,
+              0.04
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          },
+          "far": {
+            "x": [
+              0.2,
+              0.3
+            ],
+            "y": [
+              -0.22,
+              0.22
+            ]
+          }
+        },
+        "reach_range": [
+          0.3,
+          0.65
+        ],
+        "min_pick_place_dist": 0.35,
+        "object": {
+          "pool": [
+            "cube",
+            "cuboid",
+            "cylinder",
+            "hex_prism",
+            "tri_prism",
+            "frustum"
+          ],
+          "holdout": [
+            "bottle"
+          ],
+          "scale": [
+            0.9,
+            1.1
+          ],
+          "mass": [
+            0.05,
+            0.2
+          ],
+          "friction": [
+            0.8,
+            1.5
+          ],
+          "randomize_color": true
+        },
+        "obstacles": {
+          "count": [
+            3,
+            5
+          ],
+          "extra_height": [
+            0.04,
+            0.19
+          ],
+          "clearance": 0.2,
+          "spacing": 0.1,
+          "corridor_span": [
+            0.25,
+            0.75
+          ],
+          "lateral_offset": 0.16,
+          "kinds": {
+            "wall": {
+              "length": [
+                0.08,
+                0.16
+              ],
+              "thickness": 0.02,
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "box": {
+              "width": [
+                0.03,
+                0.06
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            },
+            "cylinder": {
+              "radius": [
+                0.015,
+                0.03
+              ],
+              "height": [
+                0.16,
+                0.19
+              ]
+            }
+          }
+        }
+      },
+      "episode": {
+        "max_steps": 300,
+        "success_radius": 0.07,
+        "settle_steps": 15,
+        "fall_margin": 0.05,
+        "terminate_on_success": false
+      },
+      "rewards": {
+        "lift_height": 0.04,
+        "safe_distance": 0.06,
+        "weights": {
+          "reach": 0.5,
+          "grasp": 0.5,
+          "lift": 0.5,
+          "transport": 1.0,
+          "place": 5.0,
+          "success": 10.0,
+          "fail": 10.0,
+          "collision": 0.5,
+          "proximity": 0.3,
+          "table_hit": 0.2,
+          "drop": 1.0,
+          "action": 0.01
+        }
+      },
+      "data": {
+        "root": "data",
+        "jpeg_quality": 90,
+        "workers": 4,
+        "mix": {
+          "success": 0.5,
+          "scripted": 0.3,
+          "drop": 0.1,
+          "collide": 0.0,
+          "random": 0.1
+        },
+        "success_attempts": 1,
+        "scripted": {
+          "noise": 0.1,
+          "noise_correlation": 0.8,
+          "speed_range": [
+            0.6,
+            1.0
+          ],
+          "carry_height": 0.1,
+          "route_margin": 0.16
+        }
+      }
+    },
+    "layout": {
+      "object": "cube",
+      "scale": 1.0,
+      "mass": 0.1,
+      "friction": 1.0,
+      "color": [
+        0.2,
+        0.7,
+        0.7,
+        1.0
+      ],
+      "pick_end": "left",
+      "place_end": "right",
+      "pick": [
+        0.18,
+        -0.23
+      ],
+      "place": [
+        0.1,
+        0.27
+      ],
+      "obstacles": []
+    },
+    "frozen_baseline": {
+      "run": "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/rl_baseline_v1",
+      "checkpoint_sha256": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+      "training_sha256": "aa98befc88c989fcff92793770749669587be2c85e62e2dbad0e508007bc9612",
+      "evaluations_sha256": "af52ce85c872b23000a7bb28654a2dd11bd70be79602a5105767531c50ca43c7",
+      "pipeline_sha256": "6fdc5a343d7ed8ed01b36f3ec31721c02461fafe5a6dcb98c631ccb5f1469541",
+      "summary_sha256": "799ea4173aa45d9ee9f6474dd914c7d71d5bd8274b636ff0b5b03b12b71446dc",
+      "successes": 100,
+      "episodes": 100,
+      "validation_seeds": [
+        20273005,
+        20273006,
+        20273007,
+        20273008,
+        20273009,
+        20273010,
+        20273011,
+        20273012,
+        20273013,
+        20273014,
+        20273015,
+        20273016,
+        20273017,
+        20273018,
+        20273019,
+        20273020,
+        20273021,
+        20273022,
+        20273023,
+        20273024
+      ],
+      "test_seeds": [
+        21263005,
+        21263006,
+        21263007,
+        21263008,
+        21263009,
+        21263010,
+        21263011,
+        21263012,
+        21263013,
+        21263014,
+        21263015,
+        21263016,
+        21263017,
+        21263018,
+        21263019,
+        21263020,
+        21263021,
+        21263022,
+        21263023,
+        21263024,
+        21263025,
+        21263026,
+        21263027,
+        21263028,
+        21263029,
+        21263030,
+        21263031,
+        21263032,
+        21263033,
+        21263034,
+        21263035,
+        21263036,
+        21263037,
+        21263038,
+        21263039,
+        21263040,
+        21263041,
+        21263042,
+        21263043,
+        21263044,
+        21263045,
+        21263046,
+        21263047,
+        21263048,
+        21263049,
+        21263050,
+        21263051,
+        21263052,
+        21263053,
+        21263054,
+        21263055,
+        21263056,
+        21263057,
+        21263058,
+        21263059,
+        21263060,
+        21263061,
+        21263062,
+        21263063,
+        21263064,
+        21263065,
+        21263066,
+        21263067,
+        21263068,
+        21263069,
+        21263070,
+        21263071,
+        21263072,
+        21263073,
+        21263074,
+        21263075,
+        21263076,
+        21263077,
+        21263078,
+        21263079,
+        21263080,
+        21263081,
+        21263082,
+        21263083,
+        21263084,
+        21263085,
+        21263086,
+        21263087,
+        21263088,
+        21263089,
+        21263090,
+        21263091,
+        21263092,
+        21263093,
+        21263094,
+        21263095,
+        21263096,
+        21263097,
+        21263098,
+        21263099,
+        21263100,
+        21263101,
+        21263102,
+        21263103,
+        21263104
+      ],
+      "config": {
+        "seed": 0,
+        "sim": {
+          "timestep": 0.002,
+          "impratio": 10
+        },
+        "control": {
+          "hz": 10,
+          "max_delta": 0.04,
+          "yaw": {
+            "enabled": true,
+            "max_delta": 0.15
+          },
+          "workspace": {
+            "low": [
+              -0.12,
+              -0.42,
+              0.755
+            ],
+            "high": [
+              0.45,
+              0.42,
+              0.97
+            ]
+          },
+          "ik": {
+            "hz": 250,
+            "damping": 0.02,
+            "pos_gain": 10.0,
+            "ori_gain": 6.0,
+            "posture_gain": 2.0,
+            "max_lin_vel": 0.7,
+            "max_ang_vel": 2.0,
+            "max_joint_vel": 2.5,
+            "max_lead": 0.05
+          }
+        },
+        "cameras": {
+          "record_hz": 10,
+          "width": 256,
+          "height": 256,
+          "static": {
+            "pos": [
+              1.25,
+              0.0,
+              1.42
+            ],
+            "lookat": [
+              0.1,
+              0.0,
+              0.82
+            ],
+            "fovy": 52
+          },
+          "wrist": {
+            "fovy": 75,
+            "tilt_deg": 30
+          },
+          "pointcloud": {
+            "enabled": false,
+            "frame": "base",
+            "stride": 2,
+            "max_depth": 2.5
+          }
+        },
+        "robot": {
+          "base_pos": [
+            -0.4,
+            0.0,
+            0.75
+          ],
+          "home_qpos": [
+            0.0,
+            -0.6,
+            0.0,
+            -2.8,
+            0.0,
+            2.2,
+            -0.7853
+          ],
+          "posture_noise": 0.0,
+          "grip_scale": 2.0
+        },
+        "table": {
+          "center": [
+            0.15,
+            0.0
+          ],
+          "half_size": [
+            0.32,
+            0.46
+          ],
+          "height": 0.75,
+          "top_thickness": 0.04
+        },
+        "task": {
+          "pick_end": "random",
+          "place_end": "opposite",
+          "ends": {
+            "left": {
+              "x": [
+                -0.02,
+                0.28
+              ],
+              "y": [
+                -0.38,
+                -0.18
+              ]
+            },
+            "right": {
+              "x": [
+                -0.02,
+                0.28
+              ],
+              "y": [
+                0.18,
+                0.38
+              ]
+            },
+            "near": {
+              "x": [
+                -0.08,
+                0.04
+              ],
+              "y": [
+                -0.22,
+                0.22
+              ]
+            },
+            "far": {
+              "x": [
+                0.2,
+                0.3
+              ],
+              "y": [
+                -0.22,
+                0.22
+              ]
+            }
+          },
+          "reach_range": [
+            0.3,
+            0.65
+          ],
+          "min_pick_place_dist": 0.35,
+          "object": {
+            "pool": [
+              "cube",
+              "cuboid",
+              "cylinder",
+              "hex_prism",
+              "tri_prism",
+              "frustum"
+            ],
+            "holdout": [
+              "bottle"
+            ],
+            "scale": [
+              0.9,
+              1.1
+            ],
+            "mass": [
+              0.05,
+              0.2
+            ],
+            "friction": [
+              0.8,
+              1.5
+            ],
+            "randomize_color": true
+          },
+          "obstacles": {
+            "count": [
+              3,
+              5
+            ],
+            "extra_height": [
+              0.04,
+              0.19
+            ],
+            "clearance": 0.2,
+            "spacing": 0.1,
+            "corridor_span": [
+              0.25,
+              0.75
+            ],
+            "lateral_offset": 0.16,
+            "kinds": {
+              "wall": {
+                "length": [
+                  0.08,
+                  0.16
+                ],
+                "thickness": 0.02,
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              },
+              "box": {
+                "width": [
+                  0.03,
+                  0.06
+                ],
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              },
+              "cylinder": {
+                "radius": [
+                  0.015,
+                  0.03
+                ],
+                "height": [
+                  0.16,
+                  0.19
+                ]
+              }
+            }
+          }
+        },
+        "episode": {
+          "max_steps": 300,
+          "success_radius": 0.07,
+          "settle_steps": 15,
+          "fall_margin": 0.05,
+          "terminate_on_success": false
+        },
+        "rewards": {
+          "lift_height": 0.04,
+          "safe_distance": 0.06,
+          "weights": {
+            "reach": 0.5,
+            "grasp": 0.5,
+            "lift": 0.5,
+            "transport": 1.0,
+            "place": 5.0,
+            "success": 10.0,
+            "fail": 10.0,
+            "collision": 0.5,
+            "proximity": 0.3,
+            "table_hit": 0.2,
+            "drop": 1.0,
+            "action": 0.01
+          }
+        },
+        "data": {
+          "root": "data",
+          "jpeg_quality": 90,
+          "workers": 4,
+          "mix": {
+            "success": 0.5,
+            "scripted": 0.3,
+            "drop": 0.1,
+            "collide": 0.0,
+            "random": 0.1
+          },
+          "success_attempts": 1,
+          "scripted": {
+            "noise": 0.1,
+            "noise_correlation": 0.8,
+            "speed_range": [
+              0.6,
+              1.0
+            ],
+            "carry_height": 0.1,
+            "route_margin": 0.16
+          }
+        }
+      },
+      "layout": {
+        "object": "cube",
+        "scale": 1.0,
+        "mass": 0.1,
+        "friction": 1.0,
+        "color": [
+          0.2,
+          0.7,
+          0.7,
+          1.0
+        ],
+        "pick_end": "left",
+        "place_end": "right",
+        "pick": [
+          0.18,
+          -0.23
+        ],
+        "place": [
+          0.1,
+          0.27
+        ],
+        "obstacles": []
+      }
+    },
+    "known_rest_z": 0.7724708914756775,
+    "encoder": {
+      "model": "facebook/vjepa2-vitl-fpc64-256",
+      "model_revision": null,
+      "camera": "static",
+      "clip_frames": 16,
+      "frame_stride": 1,
+      "pooling": "spatial_mean_pca16_grid8",
+      "pca_sha256": "4fa15856d2022be1400bd07032663e7b2df31621f978dd032e28d8b41066f423",
+      "dtype": "fp16",
+      "spatial_pool": 2
+    },
+    "source_manifest_sha256": "b11acf3cf22ee44e3575cf48b96b7636fb2c1bf0a68a97dbcd13d3df37f43c30",
+    "source_features_sha256": "1a3965203cb35261fc8f9e26063f67865401240c02ad50a88bd157ee7a4c517f",
+    "source_dynamics_sha256": "63b5d5b04a7e1e29f978de3631a75cbfb623cfa92d5690fb91e08e8b52ee2719",
+    "source_readout_sha256": "4593a9abcd7c6fae1ce7ac52e9a33e9cf959d1e4637519db8dbdc18a385d0aa1",
+    "code_sha256": {
+      "data_collection/scripted_policy.py": "096a13c395f222c817e193c75244ea82d3747378463853fd53b0fde13b213c76",
+      "environment/__init__.py": "94a4334305b3eb50b5427827354a2f5e888cf7e156d0898354b5045198d35b3b",
+      "environment/config.py": "310b006e8ecfc0c8d6faf1996f0048acef48f7d79b166f77eefa75f931b85bd4",
+      "environment/control.py": "2335542725df0db1806c04dcf54926fefa3e05a955b51df8c95556f4134d1e02",
+      "environment/env.py": "f837388906cd8df6c9fb89abfd95a429686bb79e7c6c25708733c4b517197e7d",
+      "environment/obstacles.py": "999e42ce22579860fdaf74ec08663a509ff4a27593a3b5ba7c18aad4b2cf4fcf",
+      "environment/rewards.py": "9d13d03b2c202b4bef9c22733303501e653f31aff55b1d500c254ec1e83a39f6",
+      "environment/scene.py": "e141978f149435c725d887d452cb769e55f9d72795fd54a54706fb0bff120ddf",
+      "world_model/train_dynamics.py": "bda303a24ca5c391a4759d906f271703fae94581a52f66b0868ad949ef0cdfb4",
+      "world_model/vision/control_pipeline_test1.py": "004966c3d55d7b7609669d0c559200eb214d44c882ecdded9804a068c6d3b4f9",
+      "world_model/vision/data.py": "01bddc46d47391157cc74a0612944597c89620e25335602fa3a0f3ef40713feb",
+      "world_model/vision/encode_test1.py": "4a60285736127223d62b8ecc6810eccedc2b99c54dcef26572c8415e1cb7a2a8",
+      "world_model/vision/pipeline.py": "f70cffdaf143ef582d0f63c056a11166e58045cd7c9f1fee8176a7962c02743e",
+      "world_model/vision/rl_control.py": "ac95df6677a360af4c2f13aacca23513ee1558b003a446e7f8bd63d5e4a62cb4",
+      "world_model/vision/task_control.py": "bbd08ae3c437ebc944e19d7a23307eba1ab286ad523cd4639d78f09162ddfca2",
+      "world_model/vision/train.py": "dbf17752a5d41a5ab77cc26faf218b6204f5f8f919135a2e00c20867515dfc75"
+    },
+    "contracts": {
+      "reward": "GoalReward potential progress + strict placement bonus15 + penalties + time cost0.01; original rewards logged separately",
+      "reward_gamma": 0.99,
+      "omitted_imagined_penalties": [
+        "collision",
+        "proximity",
+        "table_hit"
+      ],
+      "held_probability_threshold": 0.5,
+      "success": "ever grasped AND held lift>=4cm AND released at B within source success_radius and rest-height tolerance2cm for source settle_steps",
+      "terminal_score": "discounted supported reward + terminal_weight * gamma^horizon * minimum SAC critic estimate",
+      "coverage": "existing D/Q fitted on local grasp/lift data; full-task extrapolation is experimental"
+    }
+  },
+  "provenance": {
+    "python": "3.12.3",
+    "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+    "git_commit": "78c4e7f687325200f76d20398e2df59966291a46",
+    "git_dirty": true
+  },
+  "complete": true,
+  "stages": {
+    "reuse_rl": {
+      "complete": true,
+      "seconds": 7.599506702999861,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/models/rl_training.json": "aa98befc88c989fcff92793770749669587be2c85e62e2dbad0e508007bc9612",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/models/sac_best.zip": "b091f73ce7952bb1abaa2f663705a277df3f1c1e8c780ef8d0ed99e1f36f8248",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/frozen_baseline.json": "60fb00b6cf2601fe2149e519179404505b5cb3d76cced1d1b1e9abbccc30718c"
+      }
+    },
+    "scripted_20494010": {
+      "complete": true,
+      "seconds": 16.495845232999272,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494010/result.json": "55bb569ff945a7e4f42a0205b96e4639e3fc65c36bf4990bba63a0a48ad0b3cb",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494010/steps.csv": "a7d097202ce45d94c6bed41d86306d9bbbd56bf83d3c342589953eaf8e76858d"
+      }
+    },
+    "scripted_20494011": {
+      "complete": true,
+      "seconds": 16.95079193700076,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494011/result.json": "7f0c570c2bf46fa3e935735c3303127d3fa453d389548c929495215d79f25861",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494011/steps.csv": "d40ba9d0944057864a1b1bf93accd7df705f34c56c6242d5ed7f32ce5c3fd194"
+      }
+    },
+    "scripted_20494012": {
+      "complete": true,
+      "seconds": 18.184709614000894,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494012/result.json": "66d61e3ec1c29b59b4b38eb0b10f325dec0c734724e318221569d338a4e3b41e",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494012/steps.csv": "a31511fe9797834dd465f18d782e2100a081a9f118ecff0927bdbbf5842c30ca"
+      }
+    },
+    "scripted_20494013": {
+      "complete": true,
+      "seconds": 19.645104098000957,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494013/result.json": "7fb32a71758b2f754321151523fdabfa701164f8fb794ebf84fb0f31aad0a3ff",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494013/steps.csv": "64330b9d48eabbe008cade5318e8ec95de10a900452d583b9f100cfad8880d89"
+      }
+    },
+    "scripted_20494014": {
+      "complete": true,
+      "seconds": 18.686015793999104,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494014/result.json": "0db21a79b0f8b734b52553759cbf24b17cf1f9055f96adc91ebcccaead2c9c90",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494014/steps.csv": "2efe6cfa12735bd051e016611d1b1733a16bc2c0eecb0fdc789da647ce97ab23"
+      }
+    },
+    "scripted_20494015": {
+      "complete": true,
+      "seconds": 18.99732838899945,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494015/result.json": "86bed79aa7bcc1576a60854d2b25da5d5f5e074f9b101815d2d73489ce50b437",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494015/steps.csv": "8b5c50f3b7403c8db4863fcb91b6b36ce52fecc2c381b6735ce0c75890f5bfc2"
+      }
+    },
+    "scripted_20494016": {
+      "complete": true,
+      "seconds": 19.746676157001275,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494016/result.json": "525a75f87d90de181de58071621330ee4de4b9cdf5cd640fcaad7978fd9e1d86",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494016/steps.csv": "e3050221319ec3fd11802338c921949950e5c00befe24c485389fec7c8c3eea4"
+      }
+    },
+    "scripted_20494017": {
+      "complete": true,
+      "seconds": 20.68218375700053,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494017/result.json": "f6634def623e41b388b13b33062eaec676189d5ac7951ff0959e8be28fdc749d",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494017/steps.csv": "e6006ec108efa78db1cf40bcbc901499eecdc2aaa8d803ec087429e05e12fb53"
+      }
+    },
+    "scripted_20494018": {
+      "complete": true,
+      "seconds": 28.599881644999186,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494018/result.json": "ad2233536e1aa1a698b483688d223578edc567616565283da1cd7a0b1ea8bd23",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494018/steps.csv": "cf679e9899f3468115cf537f11da958ee41f2f824257b2264770aedc3381936f"
+      }
+    },
+    "scripted_20494019": {
+      "complete": true,
+      "seconds": 26.513553272001445,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494019/result.json": "e36674519a042680650810dc5ec9da8f1fab4b8594b596681d7f70fdc0529315",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494019/steps.csv": "4920dc672f2346664b900e297555729e3c27ce3dd710134abb9b463834290b24"
+      }
+    },
+    "scripted_20494020": {
+      "complete": true,
+      "seconds": 24.86478056299893,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494020/result.json": "7efcc3a07bd0b88b36aa5c336825873e20548009f336245ded75609473ebc62b",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494020/steps.csv": "ea851f29630cf53420ff8f9ad75f9299371863cde3c42db79e82e36e4ddd4dd2"
+      }
+    },
+    "scripted_20494021": {
+      "complete": true,
+      "seconds": 25.89557439300006,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494021/result.json": "5f0ae68ff21f46d512b271340ee1823cfcbdee6878e07f4b35aff822e07e2f9e",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494021/steps.csv": "ddacfd89c18af2e4dc92649e8a14eacbe6aee56f741d7f65504ee4a77aab5037"
+      }
+    },
+    "scripted_20494022": {
+      "complete": true,
+      "seconds": 27.345263225999588,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494022/result.json": "86b7ee9c50dd2cebf6a846aaed7631370358330fa760688e1da2232747edf536",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494022/steps.csv": "3cfc52e5eb0d3c44f83b612fd91b1d215347ef40400af50260902fa47d757fc5"
+      }
+    },
+    "scripted_20494023": {
+      "complete": true,
+      "seconds": 25.112946765999368,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494023/result.json": "c2656dca7907f37eae83668fee2f4bf1b4d26e7c0e1546bb0cde676075f54461",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494023/steps.csv": "81b9b595c1f233ac8ffa206b7066fd6288cd1af6ce7b0bb980881d177100cbd4"
+      }
+    },
+    "scripted_20494024": {
+      "complete": true,
+      "seconds": 21.445941848000075,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494024/result.json": "4453cda8fb276502cd0917075de2fcd0ab7d3a1a15628fb8734a863de29f68bc",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494024/steps.csv": "4811348e6e4b9d45920ff759c43102c6850760d88c418d05ce82170ec1d33f8d"
+      }
+    },
+    "scripted_20494025": {
+      "complete": true,
+      "seconds": 22.985234559000673,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494025/result.json": "c0febb5c0373a8befb0865e4bac3e1bc57ff3f5ebd53957b1dc1d1965b745c05",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494025/steps.csv": "424a7a5d4b27ad6d9973292d2c5251e126ee5cedcc8d4d03e5d0d6227c9082e7"
+      }
+    },
+    "scripted_20494026": {
+      "complete": true,
+      "seconds": 21.921064174001003,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494026/result.json": "68eeae9aa0dd7d81079ce9b7d14f1fcae6cc1a040f8d62a215d4991d5a728884",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494026/steps.csv": "e9981b452c38c7c72698b7dbf219b77d364249f207e903d970971769b8241fab"
+      }
+    },
+    "scripted_20494027": {
+      "complete": true,
+      "seconds": 25.418230618999587,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494027/result.json": "aae696e2dfb9f782f0a9127806af1137dd9f5c5870dad4aa0d94ac2803576d90",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494027/steps.csv": "102d77cd4b225ccaeb7f61257c58a4b8ecda402a71ed4701a44c547cd5d1a0bf"
+      }
+    },
+    "scripted_20494028": {
+      "complete": true,
+      "seconds": 27.41057625400026,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494028/result.json": "22fc99b677a9be9005025134a1afad3f70db531de804d1e098fa662480c05ca3",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494028/steps.csv": "1c9bc7e12d44f8138354a30af16bac21901e7312a86faa9be4741fa06729d425"
+      }
+    },
+    "scripted_20494029": {
+      "complete": true,
+      "seconds": 25.79374251599984,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494029/result.json": "d10de22179e97bb59cfff9667e55e2d6b6712566255be28d97bc4849d99480d6",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/scripted/seed_20494029/steps.csv": "ae76e8db91bae628bdcfffcd0b5f3add2230a55891452af9b3827605ed54ca11"
+      }
+    },
+    "rl_true_20494010": {
+      "complete": true,
+      "seconds": 30.723865869998917,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494010/result.json": "4f1d2a8a44835532c6f7518c3e8b7581c4f07d7cd4a355ae07710730faae4c02",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494010/steps.csv": "553b12b682039b103e8179c2f3fb04740a7b377c83118ea89c0a8fecfb540630"
+      }
+    },
+    "rl_true_20494011": {
+      "complete": true,
+      "seconds": 27.0419329439992,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494011/result.json": "bccc294ec44b372be964697b238d32a6e993a67f8e83d21a114d3ee94f1ea23e",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494011/steps.csv": "c592af2e7cceb06aee841d0f9263ee1571480514add5300cd4cca188b4520d0d"
+      }
+    },
+    "rl_true_20494012": {
+      "complete": true,
+      "seconds": 26.549455075999504,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494012/result.json": "d93c6970446d1e962cc6e4b84de262cc30463cf5917d89d077e8c941fb6ae34f",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494012/steps.csv": "40e8dee17f2cfd1d22e19fca3a353d61fac962ba6bdbc415a0a9f8f81121a5e8"
+      }
+    },
+    "rl_true_20494013": {
+      "complete": true,
+      "seconds": 30.06823355800043,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494013/result.json": "af64a0ca37a0a367de860624c5f31f91afe6d076fbefd4587c43ebb1ae250357",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494013/steps.csv": "3631e4d437a07fce56ca514782aaad2a933ef797319e9e35ee314ed4f41f4339"
+      }
+    },
+    "rl_true_20494014": {
+      "complete": true,
+      "seconds": 28.060269231998973,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494014/result.json": "f507c0d7653088c90d3eddc4b4cef79d3e6193026d744e904eb4667418529acc",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494014/steps.csv": "7f4e964664efbe313d0103657b240304c5b0771efdea40efe231b61354bda185"
+      }
+    },
+    "rl_true_20494015": {
+      "complete": true,
+      "seconds": 28.8365192199999,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494015/result.json": "d1523763c527d54f98264b809e2a7cfb0140f877b52a23d32c913d40676650e7",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494015/steps.csv": "48691e78138548537c9c118ac5081c3913e0431585a28c2b3c2f6b1058c1ada2"
+      }
+    },
+    "rl_true_20494016": {
+      "complete": true,
+      "seconds": 29.95566132299973,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494016/result.json": "884ab6250bc79e7a0ccace73bbd5337ac04364ff9dbde98ebedb985e6611f901",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494016/steps.csv": "6a8bc4c75fa5ee4fdd817c4f7903f8e3e3832375534d111ab65cb91a3463bb57"
+      }
+    },
+    "rl_true_20494017": {
+      "complete": true,
+      "seconds": 25.196242754000195,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494017/result.json": "30d30e63b19e24736276b18ddb7ec3d6dd3386d055e39dc736a537b442ef0b4d",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494017/steps.csv": "f7770866d909a8880e7f53ef9252e28de68bed0ef2115b3c93839586e9ef7b07"
+      }
+    },
+    "rl_true_20494018": {
+      "complete": true,
+      "seconds": 24.12076528599937,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494018/result.json": "85f43ec51572941366b7c4cdf958c4340bcce2d4c6fcd428fbc9f84af14a20ce",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494018/steps.csv": "29a6273d0c9f2c19a4f6368f1f1d30012244fca5cff9ecaa35600821add263b7"
+      }
+    },
+    "rl_true_20494019": {
+      "complete": true,
+      "seconds": 25.39423298499969,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494019/result.json": "84f8457a416b8b3a27c7c32b9b2b1a3f113d419591bc33d9cf9d7667e4fe77fe",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494019/steps.csv": "73281869941a87f6a3724dea019f49105b8dea63b0fe2c84a622d8300eeedaac"
+      }
+    },
+    "rl_true_20494020": {
+      "complete": true,
+      "seconds": 25.165715332001128,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494020/result.json": "b9d22793fadd7286b342c1d5382b75af8b1946d449019bdf50da3ac6e6851954",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494020/steps.csv": "7e0e5c6a5909ce795358593e418e00b5b0b7f80d26354d705b146578f3cef8ef"
+      }
+    },
+    "rl_true_20494021": {
+      "complete": true,
+      "seconds": 28.57925685400005,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494021/result.json": "837093daf87cbf15a3ca907b7c46e9535d2ae4dbe933b412e610f0101e56f2e5",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494021/steps.csv": "191928769d07c57843dd9fcd92430279537058b24d812a4ecea789f11df1b72e"
+      }
+    },
+    "rl_true_20494022": {
+      "complete": true,
+      "seconds": 29.614781599000708,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494022/result.json": "f5035adcacb90cfe335ba0519ae2a980d08e3bcd2d9a6f35981a6fc672e707ee",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494022/steps.csv": "4d2697f8f815e8447c98e7b321f3e58b77326d12583c9e2ce3637f21f745c61d"
+      }
+    },
+    "rl_true_20494023": {
+      "complete": true,
+      "seconds": 32.11050232100024,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494023/result.json": "08dd46f1df09627be304ed71d077ad4b45f21186534ade2860e2306bb2698e6f",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494023/steps.csv": "9b47ddf9274e9cf3d8a3a67f0d5e5cfc3a79e0a156fa7438f34edd152403ae7c"
+      }
+    },
+    "rl_true_20494024": {
+      "complete": true,
+      "seconds": 25.456301321000865,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494024/result.json": "a5a1026aeb65d36203a65abebb10823a74d1fa959ac3c17f8e1ba46f80e61d9c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494024/steps.csv": "6e122b78705e610dd57b9a1be411d345cf251f0c8d8bc89db80f338a463a1385"
+      }
+    },
+    "rl_true_20494025": {
+      "complete": true,
+      "seconds": 22.10502814300162,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494025/result.json": "41379a7078969d217fdab92850fc939bb43c2cb6ee1ad726dd2f77cea2466040",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494025/steps.csv": "294f8070244fafe39cb8323c69fc1b04534b06ab40a96f196bfa0a69d6346515"
+      }
+    },
+    "rl_true_20494026": {
+      "complete": true,
+      "seconds": 23.00076085999899,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494026/result.json": "00b5e9090aa1afdffd4920fde34d08bf7abec3d01165be9c73bf7f88cfd5b27c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494026/steps.csv": "6bbf45bea4bf4f87dfe5be190ffa1b4419a4cde71318b63a37014eb62a3725d8"
+      }
+    },
+    "rl_true_20494027": {
+      "complete": true,
+      "seconds": 22.11245235199931,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494027/result.json": "110ba51b540a1cb5c08de8d6422ac358653ed0d330fb51bf9591262cf6e7c525",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494027/steps.csv": "647dcc03453f6b01bb5b3bdf4f30c4b7df9c75c5c5bdc2d43e705b1781cea4fe"
+      }
+    },
+    "rl_true_20494028": {
+      "complete": true,
+      "seconds": 24.439939873000185,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494028/result.json": "b249825cc0006c08c5954f56938e4fcec419dc5930bbac3612d35d92137cce87",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494028/steps.csv": "af350111e1ff59a754e0eab086992e4c426efff876148fe0115d6fd314d493da"
+      }
+    },
+    "rl_true_20494029": {
+      "complete": true,
+      "seconds": 21.978334325000105,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494029/result.json": "2a00fdcd89f48fd61478039603a45b2567767bddc0b4a68a186c75348fb9d42f",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_true/seed_20494029/steps.csv": "b2781a0db665038184a167b95554362d0a751923d1912e89f6e830e105c3bb45"
+      }
+    },
+    "rl_q_20494010": {
+      "complete": true,
+      "seconds": 115.48389263799982,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494010/result.json": "bf83cd0ba2d70190d36150262960090131cac99d78db1e0022b0bcbc0291185d",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494010/steps.csv": "b3596c430e80c2a3dcd617bc019329d7e07e092461b0245433425d114ec7c9e0"
+      }
+    },
+    "rl_q_20494011": {
+      "complete": true,
+      "seconds": 130.6608671189988,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494011/result.json": "00a2e2b8465afcd38d26969cc28a0d11c574a4a85213bbd0110c269e4311e35e",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494011/steps.csv": "6bc2ad916162de1a70f8ce45a8ce35ced80217c3041da451745d4d25e1809941"
+      }
+    },
+    "rl_q_20494012": {
+      "complete": true,
+      "seconds": 99.16379690900067,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494012/result.json": "d07908ec2c655c51e07640a9d9cd78f8407fef11fdfa322cb7cbfa959ccf09b1",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494012/steps.csv": "18de91a4748d0add9d2f5e24261925051e04645f750794e6c8be1c85b38344ee"
+      }
+    },
+    "rl_q_20494013": {
+      "complete": true,
+      "seconds": 95.11131900700093,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494013/result.json": "f28fd9a773657f6ffbaa55e551048ca7ecfd5e45d94e94e0480ea6f142eba1c0",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494013/steps.csv": "196a305682c2ab20fb6576870db82bd67875384f645d1be29dc48d655cdbf755"
+      }
+    },
+    "rl_q_20494014": {
+      "complete": true,
+      "seconds": 114.75096470599965,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494014/result.json": "cfa6bad070c0a099d42496c95822e8aa8324843365d6ce0cc6d67b3ca0b3ea52",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494014/steps.csv": "11c25f02550f9fcdba3e3a064f97c762d64e15d3936a6ae409fa4af0d85e31b9"
+      }
+    },
+    "rl_q_20494015": {
+      "complete": true,
+      "seconds": 73.25112672899922,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494015/result.json": "e73799310b360a4a642a3921786fa2bb526af704e556bd6d13535971acc40394",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494015/steps.csv": "73f2f7756138707b9be54b1bc18baeda3853cd5d0baf8ce7e1ae8e9203bbf0c5"
+      }
+    },
+    "rl_q_20494016": {
+      "complete": true,
+      "seconds": 76.06782903299973,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494016/result.json": "4e7d019236ee2d9f0442cdb541af595040c0515d00c0c6d4e3e957e3f3d47311",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494016/steps.csv": "f164f2b6194524407f25107f0cdca22d906892b85efb4d407b416c06ffc842ac"
+      }
+    },
+    "rl_q_20494017": {
+      "complete": true,
+      "seconds": 72.82738726599928,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494017/result.json": "3de9c5ee678ee96cebb2efd5c4d4eace9e9d242b25fa469b47c336cfe365dd3d",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494017/steps.csv": "da6b3a2543ee3247f24820c14af43a0ddaadbf214cc775b51c5c0b679ed7784f"
+      }
+    },
+    "rl_q_20494018": {
+      "complete": true,
+      "seconds": 55.6131511529984,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494018/result.json": "c453130186e993873d9680a49cea39c973063cd02b7001c094a89b48546ebc6c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494018/steps.csv": "e51f77ab162c61da93f49fe067e1d8baa0955d5320d2466f41bff8b6f2549d46"
+      }
+    },
+    "rl_q_20494019": {
+      "complete": true,
+      "seconds": 58.39726658100153,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494019/result.json": "58af18207e3c6e87f7e63ee8ca50d4bc0983aa82445473d388cc5f3892c43db3",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494019/steps.csv": "169e286c8a8a871c98161ea12a9c5967f7d9f1ca6ffa83d42d9cbee049ceaef9"
+      }
+    },
+    "rl_q_20494020": {
+      "complete": true,
+      "seconds": 58.817638510001416,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494020/result.json": "7f5cd8731c8b3311ae0311585c5ba2a726bc8d4f3acefa1de255b12cec3b88e3",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494020/steps.csv": "aaa38ec32c4602c1d02947bbcaf9b448a600a2c1f30b50fc0323145480357343"
+      }
+    },
+    "rl_q_20494021": {
+      "complete": true,
+      "seconds": 57.608883187000174,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494021/result.json": "32a421f13478f67bf68d2d30de97b5382eb59c785a199108f050e1a66d63061f",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494021/steps.csv": "10637a9513cfec7f7cd811642b2e13377cceb01df7bdb33aed2c28a0318757ed"
+      }
+    },
+    "rl_q_20494022": {
+      "complete": true,
+      "seconds": 51.77200580599856,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494022/result.json": "2d5be2f6225d422abc46bc4e59145dff2fb9680070caa690a707c68be92c37e0",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494022/steps.csv": "1a7ba6179f7631ed2bf3cedf0b41980e8ff61081ea6787f8cd971cac3583cdc3"
+      }
+    },
+    "rl_q_20494023": {
+      "complete": true,
+      "seconds": 50.12732913400032,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494023/result.json": "dfd9015499d0b8138580dc78b1f4548ccbd08d514afdacb5cd6251d9103dd885",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494023/steps.csv": "ccf8cf8a40264bb85073a70967a37be98ba73b4ae1e9c351addf92987b37e1ff"
+      }
+    },
+    "rl_q_20494024": {
+      "complete": true,
+      "seconds": 55.433487784001045,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494024/result.json": "7d4c4fcbbb530adbe3057e684ece5bfd31d57e256b8353abb4f5996865686ad0",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494024/steps.csv": "14cb17ebc3718a9998941b717e576ff4de3d9bff8e549d2408a199c89fe1de8d"
+      }
+    },
+    "rl_q_20494025": {
+      "complete": true,
+      "seconds": 60.47432763300094,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494025/result.json": "70e180c9a6b661886aad3fff7acc70a36cc4a2859eda3cd5e1b687b09da6dfde",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494025/steps.csv": "6884171a4cb303b895eee39bf73561a9d9a938f51b602c3978ffa591b1115c39"
+      }
+    },
+    "rl_q_20494026": {
+      "complete": true,
+      "seconds": 58.99752838600034,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494026/result.json": "d86bc7f380745566a94d2995a73b3108a994a8c73a738e6a6d732d195fb98821",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494026/steps.csv": "0a4691ff4ea492aa7757ce06e4f2be6e534ef91539865f0e34eeee8968422718"
+      }
+    },
+    "rl_q_20494027": {
+      "complete": true,
+      "seconds": 62.75626151100005,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494027/result.json": "b3a6dcce159a9729d7afba7a5e2b09f79508e9b9474c77b326ed123986ee5f4a",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494027/steps.csv": "e0b5a734c64bc40c866ec78d99c1d4cc2515ba243aa4b2fe1096c48cbfa5e3f1"
+      }
+    },
+    "rl_q_20494028": {
+      "complete": true,
+      "seconds": 59.51121395299924,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494028/result.json": "4498888e549561d80db04294dc313b88de9bf9d4b2698a048637deaf7ac20650",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494028/steps.csv": "f749b7a24a8ca219a64763c22c20331a96296adbca7b6ca6df0b29b47859d2da"
+      }
+    },
+    "rl_q_20494029": {
+      "complete": true,
+      "seconds": 48.754959418,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494029/result.json": "61417ccb37e463b006cfebca919067a35e5f339d4af17ba68cfa4bf49c8fdeda",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/rl_q/seed_20494029/steps.csv": "b50a7fd8bbc2ab44f4ab6f5eb0d42d95df95f6deea1a8e6c807ab4bdb61682a1"
+      }
+    },
+    "jepa_mpc_20494010": {
+      "complete": true,
+      "seconds": 88.12789670699931,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494010/result.json": "86ac92f283af9c1d72f6f5882e3545dc24728bf807befc1807abd98048361ffb",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494010/selected_forecasts.csv": "98fc491ae022775eafe1794164a00581418f67b2a4e0f43f5ec9930bb4e60021",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494010/steps.csv": "6fd8783f285934b71d33a2ec6613869a60fa2cb4b83219198721f219f07f4e5d",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494010/candidates.csv": "2a491f7d64deb386a53f569756f5e9e9a9036bacf19cf86701f4eddf6c5ea9a6"
+      }
+    },
+    "jepa_mpc_20494011": {
+      "complete": true,
+      "seconds": 189.9034934829997,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494011/result.json": "28617185e03d28d3568eca1b9c6bf93ef96222329ee2dab4ef69e2fa08039097",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494011/selected_forecasts.csv": "1497735881c73ed1858dec0e50c8353661eaeea7eb53b03f593e4296274d34ac",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494011/steps.csv": "a3151a3e27a4fb9e70ca5967edbbe8c078ba64286ee2e63b7ad6b65b4cc62c8c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494011/candidates.csv": "e482b21ce6b0a43007cafa5c082197853c0bb5e866eb75ed6136451778e20809"
+      }
+    },
+    "jepa_mpc_20494012": {
+      "complete": true,
+      "seconds": 83.19378948899976,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494012/result.json": "288e68477c6c14d35315d38caa3f74b7cb340d3950cc69dbd90c24767853dfbe",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494012/selected_forecasts.csv": "73060d26d070096680d7f12f9360dd5460e296edf16720f07cce560fa80fb73d",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494012/steps.csv": "a43a3e6967662b549961f85394fbc96d89c4c687c8525b96429f54c1dafc2a8a",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494012/candidates.csv": "053a2b3720f4dd4c0fee19640a50b0f43d10219cda2de9969c3688cd3c919673"
+      }
+    },
+    "jepa_mpc_20494013": {
+      "complete": true,
+      "seconds": 83.86659523400158,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494013/result.json": "2cb52b4358e27e32bb0719487b2ab4bd14f3f24725677e98122c604b25f10559",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494013/selected_forecasts.csv": "5c42fb9a8acaf223c02a388d94e7a90456d175de86b9c727e1c44c10fb409dc6",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494013/steps.csv": "a878c75a41b2e1b0bfca4dbc7aa70e5cb1850deaed93102daa72be83d30017bd",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494013/candidates.csv": "8854c1d181ff75df4258fbfad11a94017a11f4cb867dd68b07db795844bf5ffa"
+      }
+    },
+    "jepa_mpc_20494014": {
+      "complete": true,
+      "seconds": 148.02346770499935,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494014/result.json": "637b74c11cc97921be2e3f187508bc5943d3886ee78ab1497b961a1f4f38bb32",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494014/selected_forecasts.csv": "8bcfc214170f10e61d140d2ee1cf9e9ee83c50b4f23f363faa94aac7dec663a5",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494014/steps.csv": "964ca08a2c9a2c527b4fd0d530ae07b58e4dda80db8039ff0afbb6c4145b5b0c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494014/candidates.csv": "edc7fc83323d8e70f46c9ec3fdeebd76358db9e1babc4647e84121200561dec1"
+      }
+    },
+    "jepa_mpc_20494015": {
+      "complete": true,
+      "seconds": 84.8809245529992,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494015/result.json": "08bb43e44e9c0361e1253866649a984cfc484caf47c123efb7f7843e0c739eee",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494015/selected_forecasts.csv": "d6690ffe0ec064a4d71f0b33539c6b19c36401352d42924fa717380e90a1ba84",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494015/steps.csv": "2039cecc7be32ed257d8e9a3744eaf4baa21ea1a670eb938cd92f4860288d762",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494015/candidates.csv": "37894411da74f84db702d6b49c0c847f242530c5f209dbf47acbd5cc3bb4bd60"
+      }
+    },
+    "jepa_mpc_20494016": {
+      "complete": true,
+      "seconds": 88.97569390700119,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494016/result.json": "7197648fc0d099d516e7d13143db3c36baf8363d991e6ad7c759acbe2220fad8",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494016/selected_forecasts.csv": "06e0ccf5c4629dfd13da0c2f59810fd7997c71fb09dac59164864cd7bbc742f2",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494016/steps.csv": "81d996a91ed9159ad5fce090a5bbb5706663ddc88e69de4fb33c753561284cb5",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494016/candidates.csv": "9e402745fd7f24fa31add5c3aa4130f43d1262b8d04a6024556666d6d43d5573"
+      }
+    },
+    "jepa_mpc_20494017": {
+      "complete": true,
+      "seconds": 88.22405966200131,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494017/result.json": "46f2d11e567e5ff7ef35fd7e7b4189f8cdd1b8ebff10c752b5ef95b8cca0609c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494017/selected_forecasts.csv": "d0c6040045daf31f284d852ff8f28501654b7390613e8a7f8c2a47756dfd70d6",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494017/steps.csv": "883b59d2705402c75a410e46de2662cf4039156232180ed9540ef0acbc386765",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494017/candidates.csv": "a5054e60f7f9fc1e0ab60150cf760dde1316cd4251b8ef7652a3c699563eafee"
+      }
+    },
+    "jepa_mpc_20494018": {
+      "complete": true,
+      "seconds": 86.4822670930007,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494018/result.json": "6a3a5fb5e49f3cc7c97f4a1347ecf975737eb9ad1222ce54036b38b674f292eb",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494018/selected_forecasts.csv": "0843eedf330f3c04483027574488957b7c5035e1f054129ae8d509cb62e38eba",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494018/steps.csv": "7adc7596d6a0b1a1bd157674ebe96822b2d1497f01bfae511bd6c24c9a43ee1c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494018/candidates.csv": "cc14c82ac3555ea4fb1c3d21b77fe889da95d969c94dbe940fa449120bdc4b32"
+      }
+    },
+    "jepa_mpc_20494019": {
+      "complete": true,
+      "seconds": 88.02610098500008,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494019/result.json": "214afed3ba8e0682996dc9d1a484f63daa82d615d32389324eb7faeb4746173e",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494019/selected_forecasts.csv": "ec4f05b491914faac01bd84b26c8b0a1694202daa24cd67a01fdb590b31c3efd",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494019/steps.csv": "049a958194d1a9a1548f1df03b0ab325f79af5c6e91824d8aade6c75acf71224",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494019/candidates.csv": "7e59d86c2690845e9a29d3f8dd0bdca4dd6b8542c80fb220738a875c5f3865ed"
+      }
+    },
+    "jepa_mpc_20494020": {
+      "complete": true,
+      "seconds": 81.2958421989988,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494020/result.json": "a22f0c44bddf4b7d5d15d200c8edd7f47ea5e9a81da698b620a9ee52c59ecd25",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494020/selected_forecasts.csv": "3575a0092c771ce7eee09e404c939feee9971751657cb92a5a4b06fb0ab76a6c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494020/steps.csv": "5c380dad7eb6e91c79b491afa5f80b77d9de4c81f1e2576f7d64c54b52381059",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494020/candidates.csv": "88e2e56c58649463781d4aa568ad68689f15cb38453ad446cf5f31a4342264dd"
+      }
+    },
+    "jepa_mpc_20494021": {
+      "complete": true,
+      "seconds": 84.50377441599994,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494021/result.json": "10857f73bcd144afc3cc04df38b18e3f6c2b65364a9ea51995a8cd5f60eea867",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494021/selected_forecasts.csv": "eed5004245746a74bb7d9057044d995f4a1d86758a066295ecea6598f2aa361d",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494021/steps.csv": "846805e09bc5fc4fd8fcd28496eeecf2fceef2e5002039e0e9f6d07794752a68",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494021/candidates.csv": "17ebf066674a283c2c24811aae2e5a8ba589f936f78c10f6e3a14740ae259f72"
+      }
+    },
+    "jepa_mpc_20494022": {
+      "complete": true,
+      "seconds": 91.29951713899936,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494022/result.json": "a8d131456d2d5bd4365a9a19bf48750c3d0ffbc4a6d78e0fd60abf830f7e0508",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494022/selected_forecasts.csv": "b3c20bb51843d66ea0ef2e27e082a9cbd03254e4fb1063fb125bec21a4495413",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494022/steps.csv": "6a89b79441e713963e37ae337028cac3d8759761a58c1274d6e12b6760354dab",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494022/candidates.csv": "b19ab60163a375d268cffb20ff3d50e86b7276ad471fa7690cc32edacb810e71"
+      }
+    },
+    "jepa_mpc_20494023": {
+      "complete": true,
+      "seconds": 86.88381054300044,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494023/result.json": "afb98c22454666cce04f0dde27c92f478e6f6cf80a811a8b0963d7a9282a47e3",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494023/selected_forecasts.csv": "6d29cfd47b776e676a807f4c125cc7bb06fb84cae4841dcc5853bd3ab1a86fdc",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494023/steps.csv": "650b7e0936191865f2db9db9a34b9bcc9e87854bed179f45a0224bc50784c05c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494023/candidates.csv": "043e5c4f119689efa11091a69c17b8bd3aed604ddb1a9830297852474ddf4ee6"
+      }
+    },
+    "jepa_mpc_20494024": {
+      "complete": true,
+      "seconds": 84.7068118520001,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494024/result.json": "943a97f74367c4719a5469c0a63b1a3821762b0107a3f3d7b8b3defa6c08badb",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494024/selected_forecasts.csv": "0cb6da7b0f93029a91a903b20d72e64316856343d609ce5d1337ecd566f76d01",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494024/steps.csv": "5213053fa01fb6f9923817f70b4c320f93d064179adc84d67b07d56bd0bf0752",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494024/candidates.csv": "ac7d63efd7447bdc7b8a82423285294821a858f781bff5414f62d1b7a777372d"
+      }
+    },
+    "jepa_mpc_20494025": {
+      "complete": true,
+      "seconds": 87.71227758200075,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494025/result.json": "30057ee997aa8a4308f53f1da25fd42bfb353a150d98eb5cc4912bfd66e96584",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494025/selected_forecasts.csv": "eab02089eab11819f62fe58e39f32e70773ce5017afa2a3a45b87978d8c6ddaa",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494025/steps.csv": "4ccc784cdfa626977bd2c1a26d803492e5f4b212f29ac20f2d7a2c97b75cad9c",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494025/candidates.csv": "4f1e575dac850f2dd45ee88d5dab47dcd205327c09977c6ce99d404ef3640bf5"
+      }
+    },
+    "jepa_mpc_20494026": {
+      "complete": true,
+      "seconds": 84.93819321600131,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494026/result.json": "7bd4113f84fe74c5440f79fd1ca684ad16516f5d6d88f3b2f3431bfb02ce2276",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494026/selected_forecasts.csv": "a6ab1acebf7e847721b51720eb81a36eb05af0ec8d4d68a9263127a1732305b8",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494026/steps.csv": "0e442e2319d19c735b33c512e05a806da676cdcfad91f54d2338508da86d185d",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494026/candidates.csv": "e55046131f7fc90923820150dcc0c93bae29f7bff721915b3a6d9348c8aa91c8"
+      }
+    },
+    "jepa_mpc_20494027": {
+      "complete": true,
+      "seconds": 96.53355080399888,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494027/result.json": "fbc867f18532f78706b3a0093f0fa6c6864815219ff3333e7de07b7f195ea3d3",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494027/selected_forecasts.csv": "555aaea2dc0158519aad8cbb48c2e6c5e49cec6e7b0a2500e24cac937f7d081b",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494027/steps.csv": "3927c7ddad5033ee23c6b02c0ffffc3808232354638bd3455ec233db3e27598b",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494027/candidates.csv": "319e4a588b9f61b95db91de10c78caf5656a7f952c589b328ad35fb149fa19a7"
+      }
+    },
+    "jepa_mpc_20494028": {
+      "complete": true,
+      "seconds": 102.9436645909991,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494028/result.json": "0f2229601f6e68f892924c926e5c27b9d1af49359a25be0f5d656d0c8a905c14",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494028/selected_forecasts.csv": "29c37c95b2a000dd1ada691e98f1ae47a49b2afed50158a1ed230ec1273b4d4b",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494028/steps.csv": "e74ac1d0945bab7484e572f6e8b7f6f73c055354f6060d4bea5894890c6e557a",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494028/candidates.csv": "4d3ad3c3b7949c180b88e18b65a5896833affe8fc0efa457d3445e6a202eae6a"
+      }
+    },
+    "jepa_mpc_20494029": {
+      "complete": true,
+      "seconds": 79.0304508549998,
+      "artifacts": {
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494029/result.json": "aaf519c163536eb14ca14d18c93c93e6636afceb82468bb8545939076260f24e",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494029/selected_forecasts.csv": "c3f252ea0c3dba79c6f8ed1f095cde5322c5c274d607342110f60dabede31e45",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494029/steps.csv": "e7d7c2c3dbbaada753a634d31a2f38cffae1764f5305a48d25841240db844ee8",
+        "/home/serweshh/robot_learning_lab/world_model_project/simulation/data/control_final_20/episodes/jepa_mpc/seed_20494029/candidates.csv": "034966b6cb8a2b12fd5e91cd6b91990d5f71d570e756266529e339d0c3a468bc"
+      }
+    }
+  },
+  "started_utc": "2026-10-09T08:04:49.922056+00:00"
+}

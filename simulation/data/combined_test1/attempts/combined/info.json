@@ -1,0 +1,299 @@
+{
+  "config": {
+    "seed": 0,
+    "sim": {
+      "timestep": 0.002,
+      "impratio": 10
+    },
+    "control": {
+      "hz": 10,
+      "max_delta": 0.04,
+      "yaw": {
+        "enabled": true,
+        "max_delta": 0.15
+      },
+      "workspace": {
+        "low": [
+          -0.12,
+          -0.42,
+          0.755
+        ],
+        "high": [
+          0.45,
+          0.42,
+          0.97
+        ]
+      },
+      "ik": {
+        "hz": 250,
+        "damping": 0.02,
+        "pos_gain": 10.0,
+        "ori_gain": 6.0,
+        "posture_gain": 2.0,
+        "max_lin_vel": 0.7,
+        "max_ang_vel": 2.0,
+        "max_joint_vel": 2.5,
+        "max_lead": 0.05
+      }
+    },
+    "cameras": {
+      "record_hz": 10,
+      "width": 256,
+      "height": 256,
+      "static": {
+        "pos": [
+          1.25,
+          0.0,
+          1.42
+        ],
+        "lookat": [
+          0.1,
+          0.0,
+          0.82
+        ],
+        "fovy": 52
+      },
+      "wrist": {
+        "fovy": 75,
+        "tilt_deg": 30
+      },
+      "pointcloud": {
+        "enabled": false,
+        "frame": "base",
+        "stride": 2,
+        "max_depth": 2.5
+      }
+    },
+    "robot": {
+      "base_pos": [
+        -0.4,
+        0.0,
+        0.75
+      ],
+      "home_qpos": [
+        0.0,
+        -0.6,
+        0.0,
+        -2.8,
+        0.0,
+        2.2,
+        -0.7853
+      ],
+      "posture_noise": 0.0,
+      "grip_scale": 2.0
+    },
+    "table": {
+      "center": [
+        0.15,
+        0.0
+      ],
+      "half_size": [
+        0.32,
+        0.46
+      ],
+      "height": 0.75,
+      "top_thickness": 0.04
+    },
+    "task": {
+      "pick_end": "random",
+      "place_end": "opposite",
+      "ends": {
+        "left": {
+          "x": [
+            -0.02,
+            0.28
+          ],
+          "y": [
+            -0.38,
+            -0.18
+          ]
+        },
+        "right": {
+          "x": [
+            -0.02,
+            0.28
+          ],
+          "y": [
+            0.18,
+            0.38
+          ]
+        },
+        "near": {
+          "x": [
+            -0.08,
+            0.04
+          ],
+          "y": [
+            -0.22,
+            0.22
+          ]
+        },
+        "far": {
+          "x": [
+            0.2,
+            0.3
+          ],
+          "y": [
+            -0.22,
+            0.22
+          ]
+        }
+      },
+      "reach_range": [
+        0.3,
+        0.65
+      ],
+      "min_pick_place_dist": 0.35,
+      "object": {
+        "pool": [
+          "cube",
+          "cuboid",
+          "cylinder",
+          "hex_prism",
+          "tri_prism",
+          "frustum"
+        ],
+        "holdout": [
+          "bottle"
+        ],
+        "scale": [
+          0.9,
+          1.1
+        ],
+        "mass": [
+          0.05,
+          0.2
+        ],
+        "friction": [
+          0.8,
+          1.5
+        ],
+        "randomize_color": true
+      },
+      "obstacles": {
+        "count": [
+          3,
+          5
+        ],
+        "extra_height": [
+          0.04,
+          0.19
+        ],
+        "clearance": 0.2,
+        "spacing": 0.1,
+        "corridor_span": [
+          0.25,
+          0.75
+        ],
+        "lateral_offset": 0.16,
+        "kinds": {
+          "wall": {
+            "length": [
+              0.08,
+              0.16
+            ],
+            "thickness": 0.02,
+            "height": [
+              0.16,
+              0.19
+            ]
+          },
+          "box": {
+            "width": [
+              0.03,
+              0.06
+            ],
+            "height": [
+              0.16,
+              0.19
+            ]
+          },
+          "cylinder": {
+            "radius": [
+              0.015,
+              0.03
+            ],
+            "height": [
+              0.16,
+              0.19
+            ]
+          }
+        }
+      }
+    },
+    "episode": {
+      "max_steps": 300,
+      "success_radius": 0.07,
+      "settle_steps": 15,
+      "fall_margin": 0.05,
+      "terminate_on_success": false
+    },
+    "rewards": {
+      "lift_height": 0.04,
+      "safe_distance": 0.06,
+      "weights": {
+        "reach": 0.5,
+        "grasp": 0.5,
+        "lift": 0.5,
+        "transport": 1.0,
+        "place": 5.0,
+        "success": 10.0,
+        "fail": 10.0,
+        "collision": 0.5,
+        "proximity": 0.3,
+        "table_hit": 0.2,
+        "drop": 1.0,
+        "action": 0.01
+      }
+    },
+    "data": {
+      "root": "data",
+      "jpeg_quality": 90,
+      "workers": 4,
+      "mix": {
+        "success": 0.5,
+        "scripted": 0.3,
+        "drop": 0.1,
+        "collide": 0.0,
+        "random": 0.1
+      },
+      "success_attempts": 1,
+      "scripted": {
+        "noise": 0.1,
+        "noise_correlation": 0.8,
+        "speed_range": [
+          0.6,
+          1.0
+        ],
+        "carry_height": 0.1,
+        "route_margin": 0.16
+      }
+    }
+  },
+  "rest_z": 0.7724708914756775,
+  "encoder": {
+    "model": "facebook/vjepa2-vitl-fpc64-256",
+    "model_revision": null,
+    "pooling": "spatial_mean_pca16_grid8",
+    "grid": 16,
+    "camera": "static",
+    "clip_frames": 16,
+    "frame_stride": 1,
+    "dtype": "fp16",
+    "spatial_pool": 2,
+    "manifest_sha256": "b11acf3cf22ee44e3575cf48b96b7636fb2c1bf0a68a97dbcd13d3df37f43c30",
+    "latents_sha256": "3a95dbaf414545e95fa563858e0e4166bbd404922a80d5633d38f921f75f721b",
+    "pca_sha256": "4fa15856d2022be1400bd07032663e7b2df31621f978dd032e28d8b41066f423",
+    "merged_from": {
+      "data/full_test1": "4ff227514808ce74ab9f38af3b6d09e9b46631644e0d24e79ca37287df4465aa",
+      "data/obstacles_test1_fullpca": "f471a48cb4f5e19bcc6fb8a63b2ffeebe6bba6bfda5256ce8bd9ef89d436e4c1",
+      "data/episodes_test1_fullpca": "699e2b85c1b618cd6a5ba0c22c64daf4f6b42176084f23359c97a5d44b8ec840"
+    },
+    "provenance": {
+      "python": "3.12.3",
+      "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+      "git_commit": "78c4e7f687325200f76d20398e2df59966291a46",
+      "git_dirty": true
+    }
+  }
+}

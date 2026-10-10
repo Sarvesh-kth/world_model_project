@@ -1,0 +1,84 @@
+{
+  "method": "scripted",
+  "seed": 21263006,
+  "task_success": true,
+  "steps": 132,
+  "true_original_return": 109.02418178501959,
+  "control_return": 9.37329184243746,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 14.536511898040771,
+  "minimum_goal_distance_cm": 0.19328233320266008,
+  "final_goal_distance_cm": 0.1932823359966278,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.17454205506692888,
+      -0.22568566354132324
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": [
+      {
+        "kind": "wall",
+        "pos": [
+          -0.0008657720033797278,
+          -0.11095666404812096
+        ],
+        "yaw": 3.3560027310042795,
+        "size": [
+          0.0484868539811616,
+          0.01,
+          0.08592526109780461
+        ]
+      },
+      {
+        "kind": "wall",
+        "pos": [
+          0.3074673449209434,
+          -0.06581542468996203
+        ],
+        "yaw": 3.350148732025345,
+        "size": [
+          0.0587352151610703,
+          0.01,
+          0.05411028690975307
+        ]
+      },
+      {
+        "kind": "box",
+        "pos": [
+          0.15913959935802713,
+          0.05037632479061578
+        ],
+        "yaw": -0.40644180799382124,
+        "size": [
+          0.029281582888140482,
+          0.02971901870386986,
+          0.05722226856353542
+        ]
+      }
+    ]
+  },
+  "SAC_checkpoint_sha256": null,
+  "seconds": 2.5125324350001392,
+  "model_fallback_steps": 0,
+  "guide_kept_steps": 0,
+  "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc"
+}

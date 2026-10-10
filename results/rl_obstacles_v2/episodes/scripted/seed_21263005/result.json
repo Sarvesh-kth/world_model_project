@@ -1,0 +1,58 @@
+{
+  "method": "scripted",
+  "seed": 21263005,
+  "task_success": true,
+  "steps": 115,
+  "true_original_return": 109.77593806773973,
+  "control_return": 12.236945318478519,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 11.085450649261475,
+  "minimum_goal_distance_cm": 0.13276534155011177,
+  "final_goal_distance_cm": 0.14283639192581177,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0,
+    "mass": 0.1,
+    "friction": 1.0,
+    "color": [
+      0.2,
+      0.7,
+      0.7,
+      1.0
+    ],
+    "pick_end": "left",
+    "place_end": "right",
+    "pick": [
+      0.18742927080761979,
+      -0.2226334308478935
+    ],
+    "place": [
+      0.1,
+      0.27
+    ],
+    "obstacles": [
+      {
+        "kind": "box",
+        "pos": [
+          0.2081999690073126,
+          0.01378210714429272
+        ],
+        "yaw": 1.3399230579833823,
+        "size": [
+          0.026583084438238886,
+          0.02404259021066671,
+          0.09178821242121235
+        ]
+      }
+    ]
+  },
+  "SAC_checkpoint_sha256": null,
+  "seconds": 2.3297118350001256,
+  "model_fallback_steps": 0,
+  "guide_kept_steps": 0,
+  "input_contract": "true state for scripted/rl_true; causal JEPA clip + measured p + explicit B for rl_q/jepa_mpc"
+}

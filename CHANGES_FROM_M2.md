@@ -1,13 +1,32 @@
 # What changed from the M2_Kuba architecture, and why
 
-Branch `world_model_testing`, 9 October 2026. Diagrams: `diagrams/jepa_architecture_old.png`
-(problem points P1-P5) and `diagrams/jepa_architecture_new.png` (changes C1-C8). Commands: README,
-section "Spatial latent, penalty head and the fixed planner". Every number here comes from a folder under `results/` or `simulation/data/`.
+Branch `world_model_testing`. "Old" below is the M2_Kuba pipeline as it stood before the "New
+architecture" commit (b4b0e93e); "new" is that commit plus the code reorganisation of 10 October 2026.
+Diagrams: `diagrams/jepa_architecture_old.png` (problem points P1-P5), `diagrams/jepa_architecture_new.png`
+(changes C1-C8), `diagrams/training_pipeline.png` and `diagrams/inference_pipeline.png` (the new
+pipelines, file by file). Commands: README, section "Current architecture", and
+`simulation/controller/README.md`. Every number here comes from a folder under `results/` or
+`simulation/data/` (or the archive of the latter).
 
 The short version: the pipeline on M2_Kuba had working pieces (frozen V-JEPA, a readout Q, a
 dynamics model D, a frozen SAC policy, a CEM planner) wired so that the camera could not actually
 tell the models where the cube was, and the planner then amplified that. Nothing in the new version
 is a different method; the same pieces are kept and each one is made to do its job.
+
+## 0. Old versus new at a glance
+
+| | old (M2_Kuba) | new (world_model_testing) |
+|---|---|---|
+| camera clip | 64 frames (6.4 s), bf16, CPU preprocessing, 0.98 s per clip | 16 frames (1.6 s), fp16, GPU preprocessing, 0.15 s per clip (C1) |
+| latent z | mean over all 8192 tokens, 1024 values, the cube lost (P1) | time-mean -> 8x8 cells -> PCA 16 per cell, 1024 values that keep where things are (C2) |
+| training data | fixed scene, cube +-1 cm, frozen-SAC trajectories only, no "closed on nothing" (P2, P5) | full task at +-3 cm + paired obstacle scenes + the collector's full mix, 58,010 states, one PCA basis (C3) |
+| Q held reading | trusted as is | zeroed when the finger width is under 2 cm (C4) |
+| D | SplitDynamics, latent + p MSE; finger width from (p, a) alone (P3) | SplitDynamicsZ, robot head sees z; task term through the frozen Q (C5) |
+| contact penalties | none predicted (P4) | penalty head R(z, p): proximity, P(collision), P(table hit) (C6) |
+| planner | CEM std 0.6, independent noise, gripper resampled, best candidate always executed (P4) | std 0.3, half the noise shared over the horizon, gripper follows the guide, guide is candidate 0 and wins unless beaten by 0.25 (C7) |
+| empty table, 20 seeds | rl_q 0/20, jepa_mpc 0/20 | rl_q 20/20, jepa_mpc 19/20 |
+| obstacle scenes | not attempted (the planner could not see obstacles) | rl_q 2/6, jepa_mpc 4/6 |
+| code | 27 files under `world_model/vision/`, per-episode subprocesses, sha256 contracts on every file | `world_model/`, `rl/`, `controller/`, 24 files, in-process episodes, no hashing (section 8) |
 
 ## 1. Where the pipeline stood
 
@@ -82,7 +101,7 @@ confirms it, and nothing in the loop can say otherwise.
 
 ## 3. The eight changes
 
-### C1. A shorter, faster clip (encode.py)
+### C1. A shorter, faster clip (world_model/encode.py)
 
 The clip went from 64 frames (6.4 s of history) to 16 (1.6 s), the model runs in fp16 instead of
 bf16, and the frame preprocessing (resize to 292 px, centre crop 256, normalise) runs on the GPU
@@ -91,13 +110,12 @@ control step (10 Hz, so 100 ms of simulated time per step), and the planner also
 step. At 0.98 s per clip a 300-step episode spent 5 minutes in the encoder alone and a 20-episode
 comparison took hours; at 0.15 s it is 45 s per episode. The simulator does not run in real time,
 so this is throughput, not feasibility; on a real robot at 10 Hz only the 8-frame clip (0.07 s)
-would keep up. Everything that matters
-for the task is in the current frame, and 16 frames still cover the grasp and the lift. bf16 was
-dropped because it moves every patch feature by 18 % of its norm relative to fp32 (fp16: 3 %), at the
-same speed; that noise matters once single patches carry the signal. The old setting is still
-available (`--clip-frames 64 --dtype bf16 --pooling mean_all`).
+would keep up. Everything that matters for the task is in the current frame, and 16 frames still
+cover the grasp and the lift. bf16 was dropped because it moves every patch feature by 18 % of its
+norm relative to fp32 (fp16: 3 %), at the same speed; that noise matters once single patches carry
+the signal. The old setting is still available (`--clip-frames 64 --dtype bf16 --pooling mean_all`).
 
-### C2. Keep where things are: spatial pooling plus PCA (encode.py)
+### C2. Keep where things are: spatial pooling plus PCA (world_model/encode.py)
 
 Instead of averaging all tokens, the tokens are reshaped to their 8 time slices x 16 x 16 spatial
 grid, and three steps turn that into a 1024-value latent of the same size the rest of the pipeline
@@ -122,7 +140,7 @@ z is then 8 x 8 x 16 = 1024 values: a map of the scene rather than a summary of 
 fed these estimates placed 5/5 (`results/control_test3`) where it had placed 0/20, with Q reading
 the cube within 0.3-0.5 cm per axis from the live camera on scenes it never saw.
 
-### C3. One training set with everything in it (collect_full.py, collect_obstacles.py, prepare_episodes.py, merge_runs.py)
+### C3. One training set with everything in it (world_model/collect_full.py, collect_obstacles.py, prepare_episodes.py, merge_runs.py)
 
 Three datasets were collected and merged into one run with one PCA basis
 (`data/combined_test1`, 58,010 states from 400 trajectories):
@@ -141,7 +159,7 @@ Q, the penalty head and D are trained once on all of it (tag `combined`). Effect
 test seeds: rl_q 18/20 to 20/20 and the planner 16/20 to 19/20 compared with models trained on the
 full-task data alone (`results/control_final_full20` versus `results/control_final_20`).
 
-### C4. The held reading is gated by the finger width (control_pipeline.py)
+### C4. The held reading is gated by the finger width (controller/control_pipeline.py)
 
 The readout's "held" probability is set to zero whenever the measured finger width is under 2 cm.
 The cube is 4.5 cm wide, so fingers closed to under 2 cm are holding nothing. This uses the robot's
@@ -153,7 +171,7 @@ on the 20 seeds drop from four to one (`results/control_test4_20` versus `result
 The one remaining failure is a layout where the gripper hovers 3 mm too low and pushes the cube on
 every re-grasp.
 
-### C5. D is held to the recorded cube (train.py dynamics --robot-sees-z --task-weight)
+### C5. D is held to the recorded cube (world_model/train.py dynamics --robot-sees-z --task-weight)
 
 Two changes to the dynamics model. SplitDynamicsZ gives the robot head the latent as an extra
 input, so the predicted finger width can depend on what is between the fingers. And a
@@ -164,7 +182,7 @@ With plain latent MSE a rollout that forgets the cube barely changes the loss, b
 steps 0.56 to 0.67, the held-cube height error 10.8 to 8.6 cm; the first variant to predict part of
 the lift on the clear far-offset pairs.
 
-### C6. A penalty head for obstacles (train.py reward)
+### C6. A penalty head for obstacles (world_model/train.py reward)
 
 A small MLP R(z, p) is trained on the recorded, unweighted reward components to output the proximity
 term (in [-1, 0], ramping from 0 at 6 cm from an obstacle to -1 at contact), the probability of an
@@ -173,11 +191,11 @@ imagined step of every candidate. On the held-out obstacle scenes the collision 
 latents and 0.99 on latents imagined by D 8 steps ahead; the paired data design means that number
 cannot come from the robot state. Effect in closed loop: the planner with the head places 3/6 with
 465 contact steps, the same planner with the head switched off 2/6 with 829, and the SAC on camera
-estimates 2/6 with 794 (`simulation/data/control_obstacles_final` and `_nopen`).
+estimates 2/6 with 794 (`control_obstacles_final` and `_nopen`, now in the data archive).
 
-### C7. The planner is anchored to the policy (control_pipeline.py)
+### C7. The planner is anchored to the policy (controller/control_pipeline.py)
 
-The CEM loop itself is unchanged (64 candidates, 8 steps, 3 iterations, 8 elites). Four things around it changed.
+The CEM loop itself is unchanged (64 candidates, 8 steps, 3 iterations, 8 elites). Five things around it changed.
 
 - The gripper follows the SAC guide in every candidate (`--free-gripper` restores the old
   sampling). Whether to close is the policy's decision; the search is over where the arm goes.
@@ -197,17 +215,17 @@ The CEM loop itself is unchanged (64 candidates, 8 steps, 3 iterations, 8 elites
 - The imagined penalties are multiplied by `--penalty-scale` (default 2). At 1 the planner reacts one or
   two steps before a wall and clips it (13-17 contact steps on the scenes it solves); at 3 it is so
   cautious it will not approach a cube standing beside a wall (scenes 19 and 21 lost). At 2 it places
-  4/6 obstacle scenes with 0 / 5 / 5 / 20 contact steps (`simulation/data/control_obstacles_final_ps2`).
+  4/6 obstacle scenes with 0 / 5 / 5 / 20 contact steps (`control_obstacles_final_ps2`, archived).
 
 Effect with the same models as the 0/5 run: 5/5 (`results/control_test1` versus `results/control_test3`).
 
-### C8. Two small fixes
+### C8. A small fix
 
 The validity check on predicted finger width rejected anything above 0.082 m; the open gripper
 measures 0.083 and D overshoots it by a few millimetres during the carry, so during the carry every
 candidate was invalid and the planner fell back to the guide (138 fallbacks in 5 episodes; now 4 in
-20). And the pipeline forwarded boolean flags to its episode subprocesses as `--flag False`, which
-argparse rejects; they are forwarded as bare flags now.
+20). The bound is 0.09 m now. (The M2 pipeline also forwarded boolean flags to its episode
+subprocesses as `--flag False`, which argparse rejects; that code is gone, see section 8.)
 
 ## 4. What was deliberately not changed
 
@@ -221,7 +239,7 @@ iterations, elites and horizon, and the evaluator (strict placement within 7 cm,
 Empty table, 20 fresh seeds, combined models (`results/control_final_20`): scripted 20/20, SAC with
 exact state 20/20, SAC on camera estimates 20/20, planner 19/20 with a median 1.0 cm from B.
 
-Six held-out scenes with 1-3 blocking corridor obstacles (`simulation/data/control_obstacles_final*`):
+Six held-out scenes with 1-3 blocking corridor obstacles (`control_obstacles_final*`, archived):
 SAC with exact state 1/6 (923 contact steps), SAC on camera estimates 2/6 (794), planner with the
 penalty head at scale 1 3/6 (465, placed at 2.3, 0.8 and 0.3 cm), without it 2/6 (829), and with the
 default scale 2 **4/6** (placed at 1.7, 2.6, 1.3 and 4.8 cm with 0, 5, 5 and 20 contact steps; 22 and 23
@@ -239,19 +257,58 @@ random-layout data, where the visual Q beats the proprio-only one by a factor of
 (1.5/2.9 cm versus 2.6/4.7 cm). The "held" signal is now mostly the finger sensor. The `--blind` control
 runs the whole loop with the proprio-only readout in place of Q(z, p): the SAC then never reaches the
 cube, 0/5 on the empty seeds and 0/4 on the obstacle scenes (`results/control_blind_20`,
-`simulation/data/control_obstacles_blind`), while the same loop with the image gives 20/20 and 2/6.
+`control_obstacles_blind`, archived), while the same loop with the image gives 20/20 and 2/6.
+
+Obstacle-scene outcomes are not repeatable episode by episode. Q reads the cube to about 1-3 cm in
+those scenes, the grasp needs about 1 cm, and the encoder is sensitive enough that a 17-pixel
+difference between two renders of the same state (observed between two sessions on the same machine)
+moves Q's reading by 1-2 cm. A rerun of scenes 19 and 21 on 10 October placed 0/2 with both the old
+and the reorganised code, bit for bit the same, where the archived runs had placed 2/2. Quote obstacle
+rates over many scenes and seeds, and treat a single episode as one sample.
 
 ## 7. Still open
 
 - Contact-free avoidance cannot be guaranteed with this structure: the planner looks 0.8 s ahead
   and only deviates from a prior that always heads straight, while the proximity signal starts 6 cm
   from an obstacle. Raising the penalty scale trades contacts for refusing to approach a cube beside a
-  wall. Zero contacts needs an obstacle-aware prior: a SAC retrained with the layout in its observation,
-  or the scripted route planner as the guide the CEM refines. Not started.
-
+  wall. Zero contacts needs an obstacle-aware prior. One was tried right after the New architecture
+  commit (a SAC with an 8x8 occupancy grid in its observation, the grid read from the latent by a
+  linear readout, commits 82fd41f1 and 6ce17f60): with the exact grid it solved the six held-out
+  scenes, through the camera it solved none and was worse than the original SAC on the empty table
+  (0/5), because it was trained from 100 demonstrations and 5k RL steps and did not tolerate Q's
+  small errors. Those commits were reverted; the runs (`rl_obstacles_v2`, `rl_obstacles_v3`,
+  `control_obstacles_rlobs*`) are in the data archive. Obstacles are parked for now.
 - Scenes 22 and 23: walls right beside the cube put Q 1-2 cm off before the grasp. More obstacle
   data near the pick, or a finer grid for the cube region.
 - Detours longer than the 8-step horizon: a 12-16 step horizon drifted with the current D (0/2 on
   the hard scenes). Structured lateral candidates would not need a longer D.
 - Scene 18: the penalty head over-predicts contact on a narrow pass and the chosen detour hit the wall.
 - The combined Q is about 1 cm less precise on the standard scene than a model trained on it alone.
+
+## 8. Code layout: old versus new
+
+The M2 code grew as a series of experiments, each adding a script next to the previous ones. By the
+New architecture commit `simulation/world_model/vision/` held 27 files (the live pipeline next to
+the retired "decision", "clutter", "width", "contact", "check" and LeWM experiments), every script
+hashed the source files and the data it touched and refused to run when a hash changed, the
+controller ran every episode in a subprocess that re-hashed the code, and the trained SAC could only
+be loaded if the simulator code still had the exact hash recorded at training time. That last check
+is what broke the default command on 10 October, when an additive change to `task_control.py` made
+the recorded policy "invalid".
+
+The reorganisation keeps the pipeline and the numbers and changes only how the code is laid out:
+
+| | old | new |
+|---|---|---|
+| packages | `world_model/` (pre-test1 scripts) and `world_model/vision/` (everything else) | `world_model/` (data, encoder, Q R D), `rl/` (the SAC), `controller/` (the controllers) |
+| files | 27 + 9, about 9,000 lines | 24, about 4,500 lines |
+| removed | the retired experiments and their pipelines, LeWM, `audit`, `data`, `pipeline`, `decision`, `full_task` (folded into the files that used them) | |
+| provenance | sha256 of every file, dataset and checkpoint; "contract" checks | none; `load_model` checks the role, `merge_runs` compares the PCA bases |
+| episodes | one subprocess per episode and per RL stage, `pipeline.json` state machine, `--resume` by hash | one process, models loaded once, `--resume` skips episodes with a `result.json` |
+| stages | `train.py` with readout / dynamics / baseline / width / reward / policy / occupancy | readout / reward / dynamics |
+| docs | one 2,000-line README | a README per package, `world_model/FLOW.md`, the diagrams |
+| style | docstrings, 4-space, mixed | plain `#` comments, 2-space, blank lines between blocks |
+
+Everything the controllers load is unchanged (`data/combined_test1`, `data/rl_baseline_v1`), and the
+reorganised code reproduces the old code's episodes exactly (checked on the empty table and on an
+obstacle scene, where both gave the same result to the millimetre).
