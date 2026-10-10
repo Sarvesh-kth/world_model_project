@@ -41,14 +41,14 @@ def load(folder):
 
 
 # Per step spread of the candidate scores (best minus median of the valid ones): near zero means the
-# planner had nothing to choose between
+# planner had nothing to choose between. Steps with a single candidate (mpc's retreat after placing) are skipped.
 def score_spread(candidates):
   steps = np.unique(candidates["step"])
   best, spread = [], []
   for s in steps:
     scores = candidates["score"][(candidates["step"] == s) & candidates["valid"]]
-    best.append(scores.max() if len(scores) else np.nan)
-    spread.append(scores.max() - np.median(scores) if len(scores) else np.nan)
+    best.append(scores.max() if len(scores) > 1 else np.nan)
+    spread.append(scores.max() - np.median(scores) if len(scores) > 1 else np.nan)
   return steps, np.array(best), np.array(spread)
 
 
@@ -94,7 +94,9 @@ def report(ep):
       findings.append("the planner fell back to holding still on many steps (every candidate left the valid range)")
   if ep["candidates"] is not None:
     _, best, spread = score_spread(ep["candidates"])
-    lines.append(f"scores: best candidate {np.nanmean(best):.3f} on average, best minus median {np.nanmean(spread):.4f}")
+    single = int(np.isnan(spread).sum())
+    lines.append(f"scores: best candidate {np.nanmean(best):.3f} on average, best minus median {np.nanmean(spread):.4f}"
+                 + (f"; no search (retreat after letting go at B) on {single} steps" if single else ""))
     if np.nanmean(spread) < .01:
       findings.append("all candidates scored almost the same: the score gives the planner nothing to choose by")
   plans = ep["plans"]
