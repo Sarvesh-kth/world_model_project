@@ -61,6 +61,16 @@ SCORE = "reward"
 # weight of the per-step potential when SCORE = "progress"
 PROGRESS_WEIGHT = 1.0
 
+# extra pull that does not fade with distance: minus this times the metres from the gripper to the cube
+# (from the cube to B once it is held), averaged over the imagined steps; 0 = off, the same score as jepa_mpc.
+# The task reward's reach term is nearly flat beyond 30 cm, so an 8-step plan sees no reason to approach
+REACH_PULL = 0.0
+
+# in imagination the cube only counts as held while the fingers are closed around something (under 6 cm;
+# open is 8 cm). False = as jepa_mpc. D and Q learned from carries only, so near B they imagine a held
+# cube even with the fingers wide open
+HELD_NEEDS_CLOSED = False
+
 # discount of the imagined rewards (the SAC and jepa_mpc use 0.99)
 DISCOUNT = 0.99
 

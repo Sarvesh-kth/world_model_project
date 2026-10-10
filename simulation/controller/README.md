@@ -6,6 +6,7 @@ control_clutter.py    the same controllers on the held-out obstacle scenes of a 
 run_final.sh          the whole evaluation: 20 empty scenes, 6 obstacle scenes with and without the penalty head
 mpc.py                the standalone planner (method mpc): CEM in imagination with no SAC; mpc_config.py holds its knobs
 replay.py             replay a recorded episode in a MuJoCo window or as gif/mp4, with the planner's imagined plans
+diagnose.py           text diagnosis and one summary picture (diagnosis.png) of any recorded episode, no GPU
 ```
 
 | method | perception | action | what it tests |
@@ -25,6 +26,7 @@ bash controller/run_final.sh 20
 python -m controller.control_pipeline --methods mpc --test-episodes 1 --headless --out data/mpc_smoke
 python -m controller.mpc --self-check                                    # planner logic on the CPU, no camera
 python -m controller.replay data/mpc_smoke/episodes/mpc/seed_20494010 --video   # gif + mp4 with the plans drawn
+python -m controller.diagnose data/mpc_smoke/episodes/mpc/seed_20494010         # what went wrong, diagnosis.png
 ```
 
 ## The standalone planner, `mpc.py`, and the replay, `replay.py`
@@ -38,6 +40,11 @@ saves `mpc_settings.json` (the values used) and `plans.npz` (per step the chosen
 cube paths and the runner-ups' gripper paths). Every controller now also saves the simulator state per step
 (`trajectory.npz` `qpos`), so `replay.py` can redraw any episode without a GPU: a MuJoCo window (on macOS
 through `mjpython`; space pause, arrows step, up/down speed, R restart) or `--video` for a gif and an mp4.
+`diagnose.py` reads the same files and prints what happened (arm motion, grasp, Q's and D's errors, the
+candidates' scores, whether the plans expected a grasp that did not happen) and writes `diagnosis.png`
+(six camera frames, top view with the imagined plans, distances, gripper, scores, model errors); in JupyterLab
+double-click it, or `actual.gif` for the camera view. Without CUDA, `WorldModels` uses Apple's GPU (MPS), so
+camera controllers also run on a Mac (about 3 min for a 300-step mpc episode).
 
 ## What runs, `control_pipeline.py`
 

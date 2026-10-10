@@ -17,7 +17,7 @@ import numpy as np
 DEFAULT_CONFIG = pathlib.Path(__file__).with_name("mpc_config.py")
 REQUIRED = ("HORIZON", "POPULATION", "ELITES", "ITERATIONS", "NOISE_STD", "NOISE_MIN", "NOISE_SMOOTH", "GRIPPER",
             "RULE_CLOSE_DISTANCE", "RULE_RELEASE_RADIUS", "RULE_RELEASE_HEIGHT", "SCORE", "PROGRESS_WEIGHT",
-            "DISCOUNT", "PENALTY_SCALE", "SAVE_RUNNER_UPS")
+            "DISCOUNT", "PENALTY_SCALE", "SAVE_RUNNER_UPS", "REACH_PULL", "HELD_NEEDS_CLOSED")
 
 
 # The knobs of a config file (every UPPERCASE name), checked once
@@ -74,6 +74,13 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
   # forecasts() only needs a discount from the policy; there is no critic here (terminal weight 0)
   scorer = types.SimpleNamespace(gamma=s["DISCOUNT"])
   saved_scale, models.penalty_scale = models.penalty_scale, s["PENALTY_SCALE"]
+  if s["HELD_NEEDS_CLOSED"]:
+    # an instance attribute shadows WorldModels.read for this planning step only (removed again below)
+    plain_read = models.read
+    def read(zz, pp):
+      xyz, held = plain_read(zz, pp)
+      return xyz, held * (np.asarray(pp)[:, 18] < .06)
+    models.read = read
   best = None
   try:
     for _ in range(s["ITERATIONS"]):
@@ -89,6 +96,10 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
       if s["SCORE"] == "progress":
         # also pay the task potential of every imagined state: getting there early is worth more
         pool["scores"] = np.where(pool["valid"], pool["scores"] + s["PROGRESS_WEIGHT"] * pool["potentials"].mean(1), -1e9)
+      if s["REACH_PULL"]:
+        gripper, cube, held = pool["p"][:, 1:, 14:17], pool["xyz"][:, 1:], pool["held"][:, 1:] > .5
+        far = np.where(held, np.linalg.norm(cube[..., :2] - goal[:2], axis=-1), np.linalg.norm(gripper - cube, axis=-1))
+        pool["scores"] = np.where(pool["valid"], pool["scores"] - s["REACH_PULL"] * far.mean(1), -1e9)
       selected = int(np.argmax(pool["scores"]))
       if best is None or pool["scores"][selected] > best["pool"]["scores"][best["selected"]]:
         best = {"pool": pool, "selected": selected}
@@ -97,6 +108,8 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
       mean, std = elites.mean(0), np.maximum(elites.std(0), floor)
   finally:
     models.penalty_scale = saved_scale
+    if s["HELD_NEEDS_CLOSED"]:
+      del models.read
 
   pool, selected = best["pool"], best["selected"]
   fallback = not bool(pool["valid"][selected])
@@ -124,7 +137,9 @@ def overlay_record(pool, selected, runner_ups, horizon):
   runners = np.full((runner_ups, horizon + 1, 3), np.nan, np.float32)
   for k, i in enumerate(order):
     runners[k] = padded(gripper[i])
-  return {"chosen_gripper": padded(gripper[selected]), "chosen_cube": padded(pool["xyz"][selected]),
+  held = np.full(horizon + 1, np.nan, np.float32)
+  held[:pool["held"].shape[1]] = pool["held"][selected]
+  return {"chosen_gripper": padded(gripper[selected]), "chosen_cube": padded(pool["xyz"][selected]), "chosen_held": held,
           "runner_gripper": runners, "score": float(pool["scores"][selected]), "valid": int(pool["valid"].sum())}
 
 
@@ -172,7 +187,7 @@ def self_check():
   goal = np.array([*layout["place"], rest_z], np.float32)
   base = load_settings()
 
-  for variant in ({}, {"GRIPPER": "rule"}, {"SCORE": "progress"}):
+  for variant in ({}, {"GRIPPER": "rule"}, {"SCORE": "progress"}, {"REACH_PULL": 1.0, "HELD_NEEDS_CLOSED": True}):
     s = {**base, **variant}
     memory, previous, rng = GoalReward(cfg), None, np.random.default_rng(0)
     started = time.monotonic()
@@ -183,6 +198,7 @@ def self_check():
       assert np.all(np.abs(d["sequence"]) <= 1) and set(np.unique(d["sequence"][:, -1])) <= {-1.0, 1.0}
       assert d["overlay"]["chosen_gripper"].shape == (s["HORIZON"] + 1, 3) and not d["kept_guide"]
       assert models.penalty_scale == 2.0, "penalty scale was not restored"
+      assert "read" not in vars(models), "the held gate was not removed"
     seconds = (time.monotonic() - started) / 3
     print(f"variant {variant or 'default'}: ok, {seconds:.2f} s per planning step on the CPU, "
           f"valid candidates {d['overlay']['valid']}/{s['POPULATION']}, chosen score {d['best_score']:.3f}, "
@@ -212,7 +228,7 @@ def self_check():
     cp.forecasts = real
   assert f["fallback"] and np.array_equal(f["action"][:4], np.zeros(4)) and f["action"][4] == (1.0 if p[19] > 0 else -1.0)
   print("same seed same plan, short horizon at the episode end, fallback: ok")
-  print("self-check passed (planner logic only: the latent is a stand-in, run a real episode on a CUDA machine)")
+  print("self-check passed (planner logic only: the latent is a stand-in, run a real episode for the rest)")
 
 
 if __name__ == "__main__":

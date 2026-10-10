@@ -151,30 +151,34 @@ def window(ep, speed):
           state["paused"] = True
 
 
-def video(ep, size, out, camera):
+def video(ep, size, out, camera, every):
   from PIL import Image
   data = mujoco.MjData(ep["model"])
   renderer = mujoco.Renderer(ep["model"], size, size)
   cam = overview_camera() if camera == "overview" else camera
   frames = []
-  for t in range(len(ep["qpos"])):
+  # software rendering on the notebook (OSMesa) is slow, so only every few steps are drawn
+  steps = range(0, len(ep["qpos"]), every)
+  for k, t in enumerate(steps):
+    if k % 25 == 0:
+      print(f"rendering step {t} of {len(ep['qpos']) - 1}", flush=True)
     data.qpos[:] = ep["qpos"][t]
     mujoco.mj_forward(ep["model"], data)
     renderer.update_scene(data, camera=cam)
     draw(renderer.scene, ep, t)
     frame = np.ascontiguousarray(renderer.render())
-    for i, line in enumerate(caption(ep, t)):
-      y = 18 + 18 * i
-      cv2.putText(frame, line, (8, y), cv2.FONT_HERSHEY_SIMPLEX, .45, (0, 0, 0), 3, cv2.LINE_AA)
-      cv2.putText(frame, line, (8, y), cv2.FONT_HERSHEY_SIMPLEX, .45, (255, 255, 255), 1, cv2.LINE_AA)
+    # the caption on a dark band, readable at small sizes
+    lines = caption(ep, t)
+    frame[:16 * len(lines) + 6] = (frame[:16 * len(lines) + 6] * .35).astype(np.uint8)
+    for i, line in enumerate(lines):
+      cv2.putText(frame, line, (6, 15 + 16 * i), cv2.FONT_HERSHEY_SIMPLEX, .4, (255, 255, 255), 1, cv2.LINE_AA)
     frames.append(frame)
   renderer.close()
   out = pathlib.Path(out)
-  # a gif plays inline in Jupyter; the mp4 (MPEG-4) plays in QuickTime / VLC after download
-  # every second frame at 200 ms keeps real time and halves the gif (the mp4 has every frame)
-  gif = [Image.fromarray(f) for f in frames[::2]]
-  gif[0].save(out.with_suffix(".gif"), save_all=True, append_images=gif[1:], duration=200, loop=0)
-  writer = cv2.VideoWriter(str(out.with_suffix(".mp4")), cv2.VideoWriter_fourcc(*"mp4v"), 10, (size, size))
+  # a gif plays inline in Jupyter; the mp4 (MPEG-4) plays in QuickTime / VLC after download; both in real time
+  gif = [Image.fromarray(f) for f in frames]
+  gif[0].save(out.with_suffix(".gif"), save_all=True, append_images=gif[1:], duration=100 * every, loop=0)
+  writer = cv2.VideoWriter(str(out.with_suffix(".mp4")), cv2.VideoWriter_fourcc(*"mp4v"), 10 / every, (size, size))
   for f in frames:
     writer.write(f[..., ::-1])
   writer.release()
@@ -188,7 +192,8 @@ def main():
   p.add_argument("--video", action="store_true", help="render a gif + mp4 instead of opening a window")
   p.add_argument("--out", type=pathlib.Path, default=None, help="video path without suffix (default <episode>/replay)")
   p.add_argument("--camera", default="overview", help="'overview' (free camera above the table) or 'static'")
-  p.add_argument("--size", type=int, default=480, help="video frame size in pixels")
+  p.add_argument("--size", type=int, default=320, help="video frame size in pixels")
+  p.add_argument("--every", type=int, default=2, help="video: draw every n-th step (1 = all, slower)")
   p.add_argument("--speed", type=float, default=1.0, help="window playback speed, 1 = real time (10 steps per second)")
   p.add_argument("--models-run", default=None, help="only if the run's settings.json is missing")
   p.add_argument("--tag", default=None)
@@ -197,7 +202,7 @@ def main():
   print(f"{len(ep['qpos']) - 1} steps, placed={ep['result']['task_success']}, "
         f"{'with' if ep['plans'] is not None else 'without'} imagined plans")
   if args.video:
-    video(ep, args.size, args.out or args.episode / "replay", args.camera)
+    video(ep, args.size, args.out or args.episode / "replay", args.camera, max(1, args.every))
   else:
     window(ep, args.speed)
 

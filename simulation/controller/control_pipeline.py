@@ -46,8 +46,10 @@ class WorldModels:
     import torch
     from world_model.train import load_model
     from world_model.encode import Encoder, PINNED_REVISION
-    if not torch.cuda.is_available():
-      raise RuntimeError("live JEPA encoding needs CUDA")
+    # CUDA on the cluster; Apple's GPU (MPS, about 0.2 s per encoding) also works, for debugging on a Mac
+    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else None
+    if device is None:
+      raise RuntimeError("live JEPA encoding needs CUDA (or Apple MPS)")
     self.torch = torch
     root = pathlib.Path(root)
     self.d, self.dc = load_model(root, "dynamics", tag)
@@ -63,7 +65,7 @@ class WorldModels:
     pooling = meta["pooling"].split("_pca")[0]
     pca = np.load(root / "features/pca.npz") if pooling != "mean_all_encoder_tokens" else None
     self.encoder = Encoder(meta["model"], meta["model_revision"] or PINNED_REVISION, "mean_all" if pca is None else pooling,
-                           pca=pca, clip_frames=meta["clip_frames"], stride=meta.get("frame_stride", 1),
+                           pca=pca, device=device, clip_frames=meta["clip_frames"], stride=meta.get("frame_stride", 1),
                            dtype=meta.get("dtype", "bf16"), spatial_pool=meta.get("spatial_pool", 1))
 
   # z from the frame history (newest last)
