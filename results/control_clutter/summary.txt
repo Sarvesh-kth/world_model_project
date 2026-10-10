@@ -1,0 +1,1 @@
+jepa_mpc: placements 0/1; final goal distance 9.09 cm; obstacle contacts 0

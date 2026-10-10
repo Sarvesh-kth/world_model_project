@@ -1,0 +1,11 @@
+[
+  {
+    "method": "jepa_mpc",
+    "episodes": 1,
+    "successes": 0,
+    "mean_final_goal_distance_cm": 9.090873718261719,
+    "median_final_goal_distance_cm": 9.090873718261719,
+    "obstacle_contact_steps": 0,
+    "planner_fallback_steps": 0
+  }
+]

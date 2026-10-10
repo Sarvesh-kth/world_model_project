@@ -1,0 +1,11 @@
+[
+  {
+    "scene": "scene_0000",
+    "method": "jepa_mpc",
+    "success": false,
+    "goal_cm": 9.090873718261719,
+    "ever_held": true,
+    "obstacle_contacts": 0,
+    "fallbacks": 0
+  }
+]
