@@ -4,6 +4,8 @@
 control_pipeline.py   the four controllers on fresh empty-table scenes; WorldModels, episode(), the planner
 control_clutter.py    the same controllers on the held-out obstacle scenes of a collect_obstacles run
 run_final.sh          the whole evaluation: 20 empty scenes, 6 obstacle scenes with and without the penalty head
+mpc.py                the standalone planner (method mpc): CEM in imagination with no SAC; mpc_config.py holds its knobs
+replay.py             replay a recorded episode in a MuJoCo window or as gif/mp4, with the planner's imagined plans
 ```
 
 | method | perception | action | what it tests |
@@ -12,6 +14,7 @@ run_final.sh          the whole evaluation: 20 empty scenes, 6 obstacle scenes w
 | rl_true | exact state | the frozen SAC | what the policy can do with perfect perception |
 | rl_q | camera through `Q(z, p)` | the frozen SAC on the estimate | is the JEPA perception good enough to drive the policy |
 | jepa_mpc | camera through `Q`, `D`, `R` | CEM around the SAC's plan, scored in imagination | does planning in the latent add anything (it is the only one that can avoid obstacles) |
+| mpc | camera through `Q`, `D`, `R` | CEM in imagination starting from its own previous plan, no SAC | can planning in the world model do the task on its own (the proposal's CEM/MPC controller) |
 
 ```bash
 python -m controller.control_pipeline --methods jepa_mpc                 # 5 scenes, live window
@@ -19,7 +22,22 @@ python -m controller.control_pipeline --test-episodes 20 --headless      # all f
 python -m controller.control_clutter --methods rl_q jepa_mpc             # six held-out obstacle scenes
 python -m controller.control_clutter --methods jepa_mpc --only scene_0019 scene_0021
 bash controller/run_final.sh 20
+python -m controller.control_pipeline --methods mpc --test-episodes 1 --headless --out data/mpc_smoke
+python -m controller.mpc --self-check                                    # planner logic on the CPU, no camera
+python -m controller.replay data/mpc_smoke/episodes/mpc/seed_20494010 --video   # gif + mp4 with the plans drawn
 ```
+
+## The standalone planner, `mpc.py`, and the replay, `replay.py`
+
+`mpc` searches like `jepa_mpc` (the same `forecasts()`: D imagines, Q reads, GoalReward plus R's penalties) but
+without the SAC: no guide, no `--guide-margin`, the gripper is sampled by the CEM, and the search starts from its
+own previous plan shifted by one step (the first plan holds still). Its knobs are in `mpc_config.py`, one
+commented Python file to edit by hand (horizon, population, elites, iterations, noise, gripper `sampled` or
+`rule`, score `reward` or `progress`, penalty scale); `--mpc-config other.py` uses a copy. Every mpc episode
+saves `mpc_settings.json` (the values used) and `plans.npz` (per step the chosen plan's imagined gripper and
+cube paths and the runner-ups' gripper paths). Every controller now also saves the simulator state per step
+(`trajectory.npz` `qpos`), so `replay.py` can redraw any episode without a GPU: a MuJoCo window (on macOS
+through `mjpython`; space pause, arrows step, up/down speed, R restart) or `--video` for a gif and an mp4.
 
 ## What runs, `control_pipeline.py`
 
