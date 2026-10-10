@@ -55,7 +55,7 @@ def main():
   cfg.episode.terminate_on_success = False
   _, rest_z = cp.run_settings(args.models_run, args.tag)
   policy = SAC.load(args.baseline_run / "models/sac_best.zip", device="cpu")
-  models = cp.WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc") for m in args.methods) else None
+  models = cp.WorldModels(args.models_run, args.tag, args) if any(m in cp.CAMERA_METHODS for m in args.methods) else None
   if models is not None:
     print(f"penalty head: {'ON' if models.r is not None else 'off'}", flush=True)
 

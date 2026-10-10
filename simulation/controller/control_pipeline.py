@@ -16,6 +16,7 @@ from environment.config import Config
 from data_collection.scripted_policy import ScriptedPickPlace
 from world_model.common import SIMULATION, load_run, save_csv, write_json, outcome_metrics
 from rl.task_control import GoalReward, TaskSession, policy_observation, predicted_reward
+from . import mpc
 
 # Run the four controllers on fresh empty-table scenes and compare them:
 #   scripted  the scripted policy on the exact simulator state, the upper bound
@@ -24,13 +25,17 @@ from rl.task_control import GoalReward, TaskSession, policy_observation, predict
 #   jepa_mpc  the planner: CEM around the SAC's own action sequence, candidates imagined by D for --horizon
 #             steps, scored by Q (progress reward) and the penalty head R; the SAC guide is candidate 0 and a
 #             candidate only replaces it when it beats the guide's forecast by --guide-margin
+#   mpc       the standalone planner (controller/mpc.py): the same imagined scoring as jepa_mpc but no SAC at
+#             all, the CEM starts from its own previous plan; tuning knobs in controller/mpc_config.py
 # Everything is loaded from two run folders: --models-run (Q, R, D, the PCA basis and encoder settings) and
 # --baseline-run (the SAC). Frames, gifs and per step csv land in data/<out>/episodes/<method>/seed_*/,
 # the summary in results/<out>/.
 #   python -m controller.control_pipeline --methods jepa_mpc
 #   python -m controller.control_pipeline --test-episodes 20 --headless
 
-METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc")
+METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc", "mpc")
+# the controllers that see the cube only through the camera (they need WorldModels and CUDA)
+CAMERA_METHODS = ("rl_q", "jepa_mpc", "mpc")
 
 
 # The world model at run time: the online V-JEPA encoder (same weights, pooling and PCA basis as the cached
@@ -122,6 +127,8 @@ def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, te
   memories = [copy.deepcopy(memory) for _ in range(n)]
   rewards = np.zeros((n, horizon), np.float32)
   penalties = np.zeros((n, horizon), np.float32)
+  # the task potential of every imagined state (used by mpc's "progress" score)
+  potentials = np.zeros((n, horizon), np.float32)
   valid = np.ones(n, bool)
   finished = np.zeros(n, bool)
 
@@ -145,6 +152,7 @@ def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, te
       failed = xyz[i, 2] < cfg.table.height - cfg.episode.fall_margin or step + t + 1 >= cfg.episode.max_steps
       rewards[i, t], _ = predicted_reward(memories[i], pp[i], xyz[i], held[i], actions[i, t], goal, rest_z, failed)
       rewards[i, t] += penalties[i, t]
+      potentials[i, t] = memories[i].potential
       finished[i] = memories[i].task_succeeded or failed
 
   continuation = np.zeros(n)
@@ -161,7 +169,8 @@ def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, te
   scores[~valid] = -1e9
   return {"actions": actions, "z": np.stack(zs, 1), "p": np.stack(ps, 1), "xyz": np.stack(xyzs, 1),
           "held": np.stack(helds, 1), "rewards": rewards, "penalties": penalties, "scores": scores,
-          "valid": valid, "terminal_critic": continuation, "discounted_reward": discounted}
+          "valid": valid, "terminal_critic": continuation, "discounted_reward": discounted,
+          "potentials": potentials}
 
 
 # The guide: what the SAC would do over the horizon if Q's readings of D's imagination were the truth
@@ -338,12 +347,17 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
   if folder.exists():
     shutil.rmtree(folder)
   folder.mkdir(parents=True)
-  visual = method in ("rl_q", "jepa_mpc")
+  visual = method in CAMERA_METHODS
   session = TaskSession(cfg, layout, args.position_jitter)
   goal = np.array([*layout["place"], rest_z], np.float32)
   memory = GoalReward(cfg)
   history, rows, candidates = [], [], []
   states_p, states_xyz, states_held, states_z, executed = [], [], [], [], []
+  # the full simulator state per step, so controller/replay.py can redraw the episode exactly
+  states_qpos, plans = [], []
+  settings = mpc.load_settings(args.mpc_config) if method == "mpc" else None
+  if settings is not None:
+    mpc.save_settings(folder, settings)
   previous = None
   started = time.monotonic()
   viewer = None
@@ -356,6 +370,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
     states_p.append(session.obs["proprio"].copy())
     states_xyz.append(session.obs["state"][:3].copy())
     states_held.append(bool(session.sim._check_contacts()[0]))
+    states_qpos.append(session.sim.data.qpos.copy())
     if visual:
       z = models.encode(history)
       states_z.append(z.copy())
@@ -373,6 +388,10 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       elif method == "rl_q":
         estimate = policy_observation(p, xyz, held, memory, goal, rest_z, 1 - step / cfg.episode.max_steps)
         action, _ = policy.predict(estimate, deterministic=True)
+      elif method == "mpc":
+        decision = mpc.plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, np.random.default_rng(seed * 1000 + step), previous)
+        action, previous = decision["action"], decision["sequence"]
+        plans.append(decision["overlay"])
       else:
         decision = plan(models, policy, z, p, memory, goal, rest_z, step, cfg, args, np.random.default_rng(seed * 1000 + step), previous)
         action, previous = decision["action"], decision["sequence"]
@@ -386,6 +405,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       states_p.append(actual_p)
       states_xyz.append(actual_xyz)
       states_held.append(info["held_endpoint"])
+      states_qpos.append(session.sim.data.qpos.copy())
       executed.append(np.asarray(action).copy())
       save_frame(session, folder, step + 1, history)
 
@@ -442,10 +462,12 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
     if candidates:
       save_csv(folder / "candidates.csv", candidates)
     arrays = {"p": np.asarray(states_p), "object_xyz": np.asarray(states_xyz), "held": np.asarray(states_held),
-              "actions": np.asarray(executed)}
+              "actions": np.asarray(executed), "qpos": np.asarray(states_qpos)}
     if visual:
       arrays["z"] = np.asarray(states_z)
     np.savez_compressed(folder / "trajectory.npz", **arrays)
+    if plans:
+      mpc.save_plans(folder, plans)
     from PIL import Image
     images = [Image.open(f).convert("RGB").resize((256, 256)) for f in sorted((folder / "frames").glob("*.jpg"))[::2]]
     images[0].save(folder / "actual.gif", save_all=True, append_images=images[1:], duration=200, loop=0)
@@ -531,6 +553,7 @@ def planner_arguments(p):
   p.add_argument("--free-gripper", action="store_true", help="let CEM sample the gripper too (the original behaviour)")
   p.add_argument("--no-width-gate", action="store_true", help="do not zero Q's held reading when the fingers are closed on nothing")
   p.add_argument("--blind", action="store_true", help="use the proprio-only readout_p instead of Q(z, p)")
+  p.add_argument("--mpc-config", type=pathlib.Path, default=None, help="tuning file of the mpc planner (default controller/mpc_config.py)")
   p.add_argument("--headless", action="store_true", help="no MuJoCo window (also the default without a display)")
   p.add_argument("--speed", type=float, default=1.0, help="playback speed of the window, times real time")
   p.add_argument("--threads", type=int, default=4)
@@ -573,7 +596,7 @@ def main():
   cfg, rest_z = run_settings(args.models_run, args.tag)
   layout = json.loads(args.layout.read_text())
   policy = SAC.load(args.baseline_run / "models/sac_best.zip", device="cpu")
-  models = WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc") for m in args.methods) else None
+  models = WorldModels(args.models_run, args.tag, args) if any(m in CAMERA_METHODS for m in args.methods) else None
   write_json(args.out / "settings.json", {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()})
 
   for method in args.methods:
