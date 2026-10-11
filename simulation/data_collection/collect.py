@@ -7,6 +7,7 @@ import multiprocessing as mp
 import time
 
 import numpy as np
+from tqdm import tqdm
 
 from environment import EpisodeLayout, PickPlaceEnv, load_config
 from .scripted_policy import make_policy
@@ -103,13 +104,15 @@ def collect(cfg, episodes, out_dir, seed=None, workers=None, holdout=False, real
 
   start = time.time()
   rows = []
+  bar = tqdm(total=episodes, desc="collect", unit="episode")
 
   def report(row):
     rows.append(row)
-    print(f"[{len(rows)}/{episodes}] ep {row['episode']:06d} {row['policy']:9s} "
-          f"{row['object']:9s} {row['pick_end']}->{row['place_end']} "
-          f"steps={row['steps']} success={row['success']} "
-          f"collisions={row['collisions']}", flush=True)
+    bar.write(f"[{len(rows)}/{episodes}] ep {row['episode']:06d} {row['policy']:9s} "
+              f"{row['object']:9s} {row['pick_end']}->{row['place_end']} "
+              f"steps={row['steps']} success={row['success']} "
+              f"collisions={row['collisions']}")
+    bar.update(1)
 
   if workers <= 1:
     _init_worker(cfg, out_dir, holdout, realtime, layout)
@@ -125,6 +128,7 @@ def collect(cfg, episodes, out_dir, seed=None, workers=None, holdout=False, real
       for row in pool.imap_unordered(_run_task, tasks):
         report(row)
 
+  bar.close()
   # Only the parent writes the index, so parallel workers cannot clash
   rows.sort(key=lambda r: r["episode"])
   append_index(out_dir, rows)

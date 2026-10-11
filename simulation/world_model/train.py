@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
+from tqdm import tqdm
 
 from .common import load_run, load_features, state_arrays, check_manifest, write_json, outcome_metrics
 
@@ -255,6 +256,7 @@ def fit(folder, role, model, train, val, loss_fn, meta, args):
   # cosine decay to 1 % of the learning rate over the run, stepped per batch
   schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs * len(loader), eta_min=args.lr * .01)
   best, history = float("inf"), []
+  bar = tqdm(total=args.epochs, desc=role, unit="epoch")
 
   for epoch in range(1, args.epochs + 1):
     model.train()
@@ -293,9 +295,12 @@ def fit(folder, role, model, train, val, loss_fn, meta, args):
       path.parent.mkdir(parents=True, exist_ok=True)
       torch.save({**meta, "role": role, "epoch": epoch, "val_loss": value,
                   "model": {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}}, path)
-    print(f"{role} epoch {epoch:03d} train={total / count:.5f} val={value:.5f} "
-          + " ".join(f"{k}={v:.5f}" for k, v in parts.items()), flush=True)
+    bar.write(f"{role} epoch {epoch:03d} train={total / count:.5f} val={value:.5f} "
+              + " ".join(f"{k}={v:.5f}" for k, v in parts.items()))
+    bar.set_postfix(train=f"{total / count:.4f}", val=f"{value:.4f}", best=f"{best:.4f}")
+    bar.update(1)
 
+  bar.close()
   write_json(folder / "reports" / f"{role}_training.json",
              {"device": device, "history": history, "best_validation_loss": best,
               "training_examples": len(train[0]), "validation_examples": len(val[0]),
