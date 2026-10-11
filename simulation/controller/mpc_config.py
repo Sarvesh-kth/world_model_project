@@ -19,10 +19,11 @@
 # imagined). Two other configurations, for clearly labelled comparison rows:
 #   rule-based gripper (9/20 on a Mac, 2026-10-10): GRIPPER = "rule", SCORE = "reward", RETREAT_AFTER_PLACE = True,
 #     GRASP_NEEDS_CONTACT = False, PLACED_CLEARANCE = 0.0, CARRY_WEIGHT = 1.0, EMPTY_GRIP_COST = 0.0,
-#     PLACED_RADIUS = 1.0, PULL_WHOLE_WAY = False, HELD_Z_OFFSET = 0.0
+#     PLACED_RADIUS = 1.0, PULL_WHOLE_WAY = False, HELD_Z_OFFSET = 0.0, CARRY_STEADY = 0.0
 #   plain jepa_mpc scoring, which never touches the cube without the SAC: GRIPPER = "sampled", SCORE = "reward",
 #     REACH_PULL = 0.0, CUBE_STAYS_PUT = False, HELD_NEEDS_CLOSED = False, GRASP_NEEDS_CONTACT = False,
-#     PLACED_AFTER = 15, PLACED_CLEARANCE = 0.0, EMPTY_GRIP_COST = 0.0, PLACED_RADIUS = 1.0, PULL_WHOLE_WAY = False
+#     PLACED_AFTER = 15, PLACED_CLEARANCE = 0.0, EMPTY_GRIP_COST = 0.0, PLACED_RADIUS = 1.0, PULL_WHOLE_WAY = False,
+#     CARRY_STEADY = 0.0
 
 
 # --- the search ---
@@ -133,6 +134,12 @@ HELD_Z_OFFSET = 0.03
 # how much more a missing centimetre of CARRY_HEIGHT costs than a centimetre of distance: at 1 the planner
 # still carried the cube only 3.5 cm high once (cluster, seed 20494025) and the placement did not count
 CARRY_WEIGHT = 5.0
+
+# (Sarvesh's idea) cost of a carried cube that keeps changing height: minus this times the mean change of the
+# imagined gripper's vertical speed (m per step, per step) while carrying. Steady lifting and lowering cost
+# nothing, up-down wobble does: in run F the carried cube reversed direction every 2-3 steps (about 0.3 cm per
+# step), since between CARRY_HEIGHT and the glide slope nothing in the score cared about its height. 0 = off
+CARRY_STEADY = 30.0
 
 # once the cube has been let go at B the pull turns around: the gripper should keep at least this far from the
 # cube (m) instead of reaching for it, so it neither grabs nor knocks the cube while it settles; 0 = off

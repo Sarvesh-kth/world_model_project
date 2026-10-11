@@ -21,7 +21,7 @@ REQUIRED = ("HORIZON", "POPULATION", "ELITES", "ITERATIONS", "NOISE_STD", "NOISE
             "DISCOUNT", "PENALTY_SCALE", "SAVE_RUNNER_UPS", "REACH_PULL", "HELD_NEEDS_CLOSED", "PLACE_SLOPE",
             "PLACED_AFTER", "RETREAT_AFTER_PLACE", "CUBE_STAYS_PUT", "CARRY_HEIGHT", "CARRY_WEIGHT",
             "GRASP_NEEDS_CONTACT", "CONTACT_RADIUS", "PLACED_CLEARANCE", "EMPTY_GRIP_COST", "PLACED_RADIUS",
-            "PULL_WHOLE_WAY", "HELD_Z_OFFSET")
+            "PULL_WHOLE_WAY", "HELD_Z_OFFSET", "CARRY_STEADY")
 
 
 # The knobs of a config file (every UPPERCASE name), checked once
@@ -41,9 +41,9 @@ def load_settings(path=None):
     raise ValueError(f"{path}: 0 < PLACE_SLOPE < 1, PLACED_AFTER a whole number >= 1, CARRY_HEIGHT >= 0, "
                      f"HELD_Z_OFFSET >= 0")
   if not (s["CARRY_WEIGHT"] >= 0 and s["CONTACT_RADIUS"] > 0 and s["PLACED_CLEARANCE"] >= 0 and s["EMPTY_GRIP_COST"] >= 0
-          and s["PLACED_RADIUS"] > 0):
+          and s["PLACED_RADIUS"] > 0 and s["CARRY_STEADY"] >= 0):
     raise ValueError(f"{path}: CARRY_WEIGHT >= 0, CONTACT_RADIUS > 0, PLACED_CLEARANCE >= 0, EMPTY_GRIP_COST >= 0, "
-                     f"PLACED_RADIUS > 0")
+                     f"PLACED_RADIUS > 0, CARRY_STEADY >= 0")
   if s["GRIPPER"] not in ("sampled", "switch", "rule") or s["SCORE"] not in ("reward", "progress"):
     raise ValueError(f"{path}: GRIPPER must be 'sampled', 'switch' or 'rule', SCORE 'reward' or 'progress'")
   settings["CONFIG_FILE"] = str(path.resolve())
@@ -167,6 +167,12 @@ def score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s):
     # cube, and after a missed grasp opening again pays, so the planner can retry on its own
     empty = (actions[:, :, -1] < 0) & (pool["held"][:, 1:] <= .5)
     parts["empty_grip"] = -s["EMPTY_GRIP_COST"] * empty.mean(1)
+  if s["CARRY_STEADY"] and actions.shape[1] > 1:
+    # (Sarvesh's idea) a carried cube should not keep changing height: the change of the imagined gripper's
+    # vertical speed costs while carrying, so steady lifting and lowering are free but up-down wobble is not
+    z = pool["p"][:, :, 16]
+    wobble = np.abs(z[:, 2:] - 2 * z[:, 1:-1] + z[:, :-2]) * (pool["held"][:, 1:-1] > .5)
+    parts["steady"] = -s["CARRY_STEADY"] * wobble.mean(1)
   extra = sum(v for k, v in parts.items() if k != "task") if len(parts) > 1 else 0
   pool["scores"] = np.where(pool["valid"], pool["scores"] + extra, -1e9).astype(np.float32)
   pool["parts"] = parts
@@ -313,10 +319,10 @@ def self_check():
 
   plain = {"GRIPPER": "sampled", "SCORE": "reward", "REACH_PULL": 0.0, "CUBE_STAYS_PUT": False, "HELD_NEEDS_CLOSED": False,
            "GRASP_NEEDS_CONTACT": False, "PLACED_AFTER": 15, "PLACED_CLEARANCE": 0.0, "RETREAT_AFTER_PLACE": False,
-           "EMPTY_GRIP_COST": 0.0, "PLACED_RADIUS": 1.0, "PULL_WHOLE_WAY": False}
+           "EMPTY_GRIP_COST": 0.0, "PLACED_RADIUS": 1.0, "PULL_WHOLE_WAY": False, "CARRY_STEADY": 0.0}
   rule = {"GRIPPER": "rule", "SCORE": "reward", "RETREAT_AFTER_PLACE": True, "GRASP_NEEDS_CONTACT": False, "PLACED_CLEARANCE": 0.0,
           "CARRY_WEIGHT": 1.0, "EMPTY_GRIP_COST": 0.0, "PLACED_RADIUS": 1.0, "PULL_WHOLE_WAY": False,
-          "HELD_Z_OFFSET": 0.0, "CARRY_HEIGHT": 0.05}
+          "HELD_Z_OFFSET": 0.0, "CARRY_HEIGHT": 0.05, "CARRY_STEADY": 0.0}
   for variant in ({}, plain, rule, {"GRIPPER": "sampled"}, {"SCORE": "reward"}, {"PULL_WHOLE_WAY": False}):
     s = {**base, **variant}
     memory, previous, rng = GoalReward(cfg), None, np.random.default_rng(0)
