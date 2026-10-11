@@ -7,6 +7,8 @@ run_final.sh          the whole evaluation: 20 empty scenes, 6 obstacle scenes w
 mpc.py                the standalone planner (method mpc): CEM in imagination with no SAC; mpc_config.py holds its knobs
 replay.py             replay a recorded episode in a MuJoCo window or as gif/mp4, with the planner's imagined plans
 diagnose.py           text diagnosis and one summary picture (diagnosis.png) of any recorded episode, no GPU
+compare.py            placements and failure kinds of several runs side by side, no GPU
+mpc_variants/         config files of the mpc comparison rows (plain scoring, rule gripper, pure without CARRY_STEADY)
 ```
 
 | method | perception | action | what it tests |
@@ -27,6 +29,8 @@ python -m controller.control_pipeline --methods mpc --test-episodes 1 --headless
 python -m controller.mpc --self-check                                    # planner logic on the CPU, no camera
 python -m controller.replay data/mpc_smoke/episodes/mpc/seed_20494010 --video   # gif + mp4 with the plans drawn
 python -m controller.diagnose data/mpc_smoke/episodes/mpc/seed_20494010         # what went wrong, diagnosis.png
+python -m controller.control_pipeline --methods mpc --mpc-config controller/mpc_variants/rule_gripper.py --out data/x
+python -m controller.compare data/run_a data/run_b --seeds                       # side by side, per seed
 ```
 
 ## The standalone planner, `mpc.py`, and the replay, `replay.py`
