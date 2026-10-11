@@ -37,15 +37,21 @@ step (the first plan holds still). Its knobs are in `mpc_config.py`, one comment
 `--mpc-config other.py` uses a copy. With the plain `jepa_mpc` scoring it fails without the SAC, for three
 reasons found with `diagnose.py`: the reach reward is flat beyond 30 cm (standing still scores best), off the
 SAC's route Q and D imagine phantom grasps (the training data is almost all SAC / scripted carries), and
-"placed" needs 15 settled steps, beyond the 8-step horizon. So the defaults add: a pull towards the cube that
-does not fade with distance and measures to Q's current reading, since an unheld cube does not move (`REACH_PULL`,
-`CUBE_STAYS_PUT`); once carried, towards B at least 5 cm up and coming down as it arrives (`CARRY_HEIGHT`,
-`PLACE_SLOPE`; the task counts a placement only after a 4 cm lift); a rule gripper (close at the cube, open over
-B); imagined held only with closed fingers (`HELD_NEEDS_CLOSED`); placed after 3 imagined settled steps
-(`PLACED_AFTER`); and no search after letting go at B, the arm rises (`RETREAT_AFTER_PLACE`). With these, 9/20 of
-the empty-table test seeds are placed (on a Mac): every seed reaches the cube and 9 of 10 grasped cubes are placed,
-the grasp itself fails in 10 (the fingers close on the cube's corners or 2-3 cm off, Q cannot see the cube's
-rotation and is 2-3 cm off near the gripper). The header of `mpc_config.py` lists the plain scoring. Every mpc episode
+"placed" needs 15 settled steps, beyond the 8-step horizon. The defaults are the pure version: the planner
+decides every action, the gripper too (`GRIPPER = "switch"`: one sampled switch time per plan), and only the
+score is hand-made. A pull that measures the whole way still to go (gripper to the cube, the cube's way to B and
+the lift it needs; after the grasp only the cube's way), so finishing a stage never costs (`REACH_PULL`,
+`PULL_WHOLE_WAY`), towards Q's current reading of an unheld cube (`CUBE_STAYS_PUT`); a carried cube at least 5 cm
+up, coming down as it nears B (`CARRY_HEIGHT`, `CARRY_WEIGHT`, `PLACE_SLOPE`), with Q's ~3 cm overestimate of a
+held cube's height corrected (`HELD_Z_OFFSET`); after letting go at B keep clear (`PLACED_CLEARANCE`); a small cost
+for closed fingers holding nothing (`EMPTY_GRIP_COST`); urgency, every imagined step's task potential counts
+(`SCORE = "progress"`); placed in imagination after 3 settled steps within 3 cm of B (`PLACED_AFTER`,
+`PLACED_RADIUS`). Two checks on what may be imagined: held only with closed fingers (`HELD_NEEDS_CLOSED`) and only
+after open fingers reached the cube within 2 cm of where Q sees it now (`GRASP_NEEDS_CONTACT`), since D and Q
+never saw failed grasps. `score_plans()` returns each part of the score separately, for probing. Pure version:
+7/20 empty-table seeds on a Mac, the grasp fails in 9. A rule-based gripper (close at the cube, open over B,
+rise after placing) is kept as a labelled comparison row (9/20 on a Mac, 2/6 of the same seeds on the cluster).
+The header of `mpc_config.py` lists both other configurations. Every mpc episode
 saves `mpc_settings.json` (the values used) and `plans.npz` (per step the chosen plan's imagined gripper and
 cube paths and the runner-ups' gripper paths). Every controller now also saves the simulator state per step
 (`trajectory.npz` `qpos`), so `replay.py` can redraw any episode without a GPU: a MuJoCo window (on macOS

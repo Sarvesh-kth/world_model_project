@@ -6,22 +6,26 @@
 # What the planner does every control step (10 per second):
 #   1. start from the previous step's plan shifted by one step (the very first plan: no motion)
 #   2. sample POPULATION plans of HORIZON actions around it, with noise NOISE_STD (NOISE_SMOOTH of it shared
-#      over the whole plan)
+#      over the whole plan); the gripper as one switch time per plan
 #   3. imagine every plan with D, read every imagined state with Q, score it: GoalReward on Q's reading plus
 #      R's collision penalties plus a pull towards the cube (towards B once it is carried)
 #   4. keep the best ELITES plans, re-centre and narrow the sampling on them, repeat ITERATIONS times
 #   5. execute only the first action of the best plan; the next step starts over from the new camera image
 # There is no SAC anywhere in this loop, which is what makes it the standalone baseline (jepa_mpc is the same
-# search anchored to the SAC's plan). Once the cube has been let go at B the search stops and the arm rises.
+# search anchored to the SAC's plan).
 #
-# The defaults are the best found on 2026-10-10: 9/20 placed on the 20 empty-table test seeds (Mac, MPS;
-# every seed reaches the cube, 9 of 10 grasped cubes are placed, the grasp fails in 10). The plain jepa_mpc
-# scoring, which fails without the SAC (no pull from afar, phantom grasps, placing beyond the horizon), is
-#   GRIPPER = "sampled", REACH_PULL = 0.0, CUBE_STAYS_PUT = False, HELD_NEEDS_CLOSED = False,
-#   PLACED_AFTER = 15, RETREAT_AFTER_PLACE = False
-# Earlier steps on the same seeds: REACH_PULL 1 without CUBE_STAYS_PUT and CARRY_HEIGHT 8/20 (4 never reached
-# the cube); + CUBE_STAYS_PUT and REACH_PULL 3 4/20 (5 set the cube down at B without the 4 cm lift).
+# The defaults are the PURE version (Calle, 2026-10-11): the planner decides every action, the gripper too,
+# with no hand-coded behaviour. What is hand-made is only the score (the pull and the checks on what may be
+# imagined). Two other configurations, for clearly labelled comparison rows:
+#   rule-based gripper (9/20 on a Mac, 2026-10-10): GRIPPER = "rule", SCORE = "reward", RETREAT_AFTER_PLACE = True,
+#     GRASP_NEEDS_CONTACT = False, PLACED_CLEARANCE = 0.0, CARRY_WEIGHT = 1.0, EMPTY_GRIP_COST = 0.0,
+#     PLACED_RADIUS = 1.0, PULL_WHOLE_WAY = False, HELD_Z_OFFSET = 0.0
+#   plain jepa_mpc scoring, which never touches the cube without the SAC: GRIPPER = "sampled", SCORE = "reward",
+#     REACH_PULL = 0.0, CUBE_STAYS_PUT = False, HELD_NEEDS_CLOSED = False, GRASP_NEEDS_CONTACT = False,
+#     PLACED_AFTER = 15, PLACED_CLEARANCE = 0.0, EMPTY_GRIP_COST = 0.0, PLACED_RADIUS = 1.0, PULL_WHOLE_WAY = False
 
+
+# --- the search ---
 
 # how far ahead the planner imagines, in control steps of 0.1 s; longer sees further, but D's errors grow
 HORIZON = 8
@@ -46,70 +50,126 @@ NOISE_MIN = 0.1
 NOISE_SMOOTH = 0.5
 
 # who decides the gripper:
-#   "sampled"  CEM samples open/close like every other action, the planner decides on its own
-#   "rule"     a fixed rule from Q's reading: close when the cube is between the fingers, open once it is
-#              lowered over the target (an ablation that takes the grasp decision away from the planner)
-GRIPPER = "rule"
+#   "switch"   the planner: each candidate plan switches the gripper at most once, at a sampled step (keep
+#              the current command until then, the opposite after); the switch time is refitted like the
+#              motions. One switch per 0.8 s plan is enough to close or release, and avoids plans that flicker
+#   "sampled"  the planner, open/close sampled independently at every step (plans flicker open and closed)
+#   "rule"     NOT the planner: a fixed rule from Q's reading closes the gripper at the cube and opens it over
+#              B (the rule-based comparison row)
+GRIPPER = "switch"
 
-# the "rule" gripper: close when the gripper is this close to the cube centre (m)
+# the "rule" gripper only: close when the gripper is this close to the cube centre (m) ...
 RULE_CLOSE_DISTANCE = 0.02
 
-# the "rule" gripper: release when the held cube is this close to the target horizontally (m) ...
+# ... release when the held cube is this close to the target horizontally (m) ...
 RULE_RELEASE_RADIUS = 0.03
 
 # ... and at most this far above its resting height (m)
 RULE_RELEASE_HEIGHT = 0.02
 
+
+# --- the score: the task reward ---
+
 # what a plan is scored with:
 #   "reward"    the same score as jepa_mpc: discounted sum of the GoalReward on Q's readings plus R's penalties
-#   "progress"  adds the task potential of every imagined state, so getting there early pays
-#               (the first ablation to try if the planner wanders instead of committing)
-SCORE = "reward"
+#   "progress"  adds the task potential of every imagined state, so getting there early pays (the pure
+#               version: with "reward" a grasp at plan step 1 or 7 scored the same and the planner procrastinated)
+SCORE = "progress"
 
 # weight of the per-step potential when SCORE = "progress"
 PROGRESS_WEIGHT = 1.0
-
-# extra pull that does not fade with distance: minus this times the metres from the gripper to the cube
-# (from the cube to B once it is held), averaged over the imagined steps; 0 = off, the same score as jepa_mpc.
-# The task reward's reach term is nearly flat beyond 30 cm, so an 8-step plan sees no reason to approach;
-# at 1 the first-frame margin of "towards the cube" over "stand still" was only 0.03, below the search noise
-REACH_PULL = 3.0
-
-# the pull towards an unheld cube measures to Q's reading of the current frame, not to the cube in imagination
-# (an unheld cube does not move; off the expert route D imagines it drifting along with the arm, and in 4 of
-# 20 benchmark seeds the arm went to B believing it was approaching the cube)
-CUBE_STAYS_PUT = True
-
-# part of the pull while carrying: the cube may be at most this times its distance to B (plus 1 cm) above its
-# resting height, so it comes down as it arrives (0.5: 10 cm high at 20 cm away, on the table at B). Under 1,
-# so getting closer to B always pays. Without it the planner carried the cube to B and hovered 5-10 cm high
-PLACE_SLOPE = 0.5
-
-# part of the pull while carrying: farther than 10 cm from B the cube should be at least this far above its
-# resting height (m). The task counts a placement only if the cube was lifted 4 cm, and its lift reward stops
-# growing at about 2 cm; with REACH_PULL 3 the planner dragged the cube along 2-4 cm low in 5 of 20 seeds and
-# set it down at B without it counting. At most the glide slope's height 10 cm from B
-CARRY_HEIGHT = 0.05
-
-# in imagination the cube counts as placed after this many settled steps (the real test needs 15, beyond the
-# 8-step horizon, and letting go first loses the carrying reward, so placing always looked like a loss)
-PLACED_AFTER = 3
-
-# once the cube has been let go at B: stop searching, keep the fingers open and lift the arm away, so it
-# cannot grab or knock the cube while it settles (False: keep planning; the rule gripper then re-grabbed
-# the cube and the twitching pushed it off the target)
-RETREAT_AFTER_PLACE = True
-
-# in imagination the cube only counts as held while the fingers are closed around something (under 6 cm;
-# open is 8 cm). False = as jepa_mpc. D and Q learned from carries only, so near B they imagine a held
-# cube even with the fingers wide open
-HELD_NEEDS_CLOSED = True
 
 # discount of the imagined rewards (the SAC and jepa_mpc use 0.99)
 DISCOUNT = 0.99
 
 # multiplier on R's imagined collision / proximity / table penalties (jepa_mpc uses 2; 3 was too cautious)
 PENALTY_SCALE = 2.0
+
+# in imagination the cube counts as placed after this many settled steps (the real test needs 15, beyond the
+# 8-step horizon, and letting go first loses the carrying reward, so placing always looked like a loss)
+PLACED_AFTER = 3
+
+# in imagination the cube counts as placed only within this distance of B (m), instead of the task's 7 cm: a
+# margin for Q's few cm of error. With 7 cm the planner let go 8-13 cm from B in 5 of 7 carries (Q thought it
+# was inside); letting go beyond twice this distance also counts as a drop in the task reward
+PLACED_RADIUS = 0.03
+
+
+# --- the score: the pull (hand-made, does not fade with distance) ---
+
+# minus this times the metres from the gripper to the cube (from the cube to B once it is held), averaged over
+# the imagined steps; 0 = off, the same score as jepa_mpc. The task reward's reach term is nearly flat beyond
+# 30 cm, so an 8-step plan saw no reason to approach; at 1 the first-frame margin of "towards the cube" over
+# "stand still" was only 0.03, below the search noise
+REACH_PULL = 3.0
+
+# the pull measures the whole way still to go: before the grasp the gripper's way to the cube plus the cube's
+# way from where it rests to B (and the lift it still needs), after the grasp only the cube's way. Finishing a
+# stage then never costs; with False grasping made the pull jump from the cm to the cube to the half metre to
+# B, and the pure planner never closed the fingers (reaching the cube, then waiting with open fingers)
+PULL_WHOLE_WAY = True
+
+# the pull towards an unheld cube measures to Q's reading of the current frame, not to the cube in imagination
+# (an unheld cube does not move; off the expert route D imagines it drifting along with the arm, and in 4 of
+# 20 benchmark seeds the arm went to B believing it was approaching the cube)
+CUBE_STAYS_PUT = True
+
+# while carrying, the cube may be at most this times its distance to B (plus 1 cm) above its resting height,
+# so it comes down as it arrives (0.5: 10 cm high at 20 cm away, on the table at B). Under 1, so getting closer
+# to B always pays. Without it the planner carried the cube to B and hovered 5-10 cm high
+PLACE_SLOPE = 0.5
+
+# while carrying, the cube should be at least this far above its resting height (m) wherever the glide slope
+# allows it (farther than (CARRY_HEIGHT - 1 cm) / PLACE_SLOPE from B): the task counts a placement only if the
+# cube was lifted 4 cm, and its lift reward stops growing at about 2 cm
+CARRY_HEIGHT = 0.05
+
+# Q reads a carried cube this much too high (m): measured on 13 carries (pure runs, 2026-10-11) Q said 6-7 cm
+# while the cube was 2.7-3.8 cm up, so the planner carried it too low for the 4 cm the task needs and set it on
+# the table 5-10 cm before B, where it slipped out. The pull's heights subtract it. Measured on the development
+# seeds; re-measure on other seeds (and tell M2: a Q retrain should remove it)
+HELD_Z_OFFSET = 0.03
+
+# how much more a missing centimetre of CARRY_HEIGHT costs than a centimetre of distance: at 1 the planner
+# still carried the cube only 3.5 cm high once (cluster, seed 20494025) and the placement did not count
+CARRY_WEIGHT = 5.0
+
+# once the cube has been let go at B the pull turns around: the gripper should keep at least this far from the
+# cube (m) instead of reaching for it, so it neither grabs nor knocks the cube while it settles; 0 = off
+PLACED_CLEARANCE = 0.10
+
+
+# cost of commanding the fingers closed while nothing is held, per imagined step (averaged over the plan): the
+# hand stays open on the way to the cube, and after a missed grasp opening again pays, so a retry can come out
+# of the score instead of a rule. Small against the grasp reward (0.5 and more), so closing at the cube still pays
+EMPTY_GRIP_COST = 0.3
+
+
+# --- what may be imagined (checks on Q's readings of imagined states) ---
+
+# the cube only counts as held while the imagined fingers are closed around something (under 6 cm; open is
+# 8 cm). D and Q learned from carries only, so near B they imagined a held cube with the fingers wide open
+HELD_NEEDS_CLOSED = True
+
+# a grasp needs open fingers arriving at the cube and closing there: unless it is really held now, an imagined
+# grasp only counts after the imagined gripper came within CONTACT_RADIUS of where Q sees the cube now with the
+# fingers still open. Without it a plan that closes the fingers anywhere imagined a grasp (D and Q never saw
+# failed grasps); requiring only the contact, the planner closed early and drove closed fingers to the cube
+GRASP_NEEDS_CONTACT = True
+
+# how close the imagined gripper has to come to the cube for a grasp to count (m): with 0.03 the planner closed
+# 3-4 cm away, 2-3 cm above the cube's centre, over its top; the good grasps closed within 0.5-1.8 cm of Q's cube
+CONTACT_RADIUS = 0.02
+
+
+# --- rule-based variants only ---
+
+# once the cube has been let go at B: stop searching, keep the fingers open and lift the arm away (a
+# hand-coded behaviour, used by the rule-based comparison row; the pure version uses PLACED_CLEARANCE)
+RETREAT_AFTER_PLACE = False
+
+
+# --- logging ---
 
 # imagined paths saved per step for the replay viewer: the chosen plan plus this many runner-ups
 SAVE_RUNNER_UPS = 5

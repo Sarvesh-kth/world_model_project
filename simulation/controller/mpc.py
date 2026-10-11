@@ -19,7 +19,9 @@ DEFAULT_CONFIG = pathlib.Path(__file__).with_name("mpc_config.py")
 REQUIRED = ("HORIZON", "POPULATION", "ELITES", "ITERATIONS", "NOISE_STD", "NOISE_MIN", "NOISE_SMOOTH", "GRIPPER",
             "RULE_CLOSE_DISTANCE", "RULE_RELEASE_RADIUS", "RULE_RELEASE_HEIGHT", "SCORE", "PROGRESS_WEIGHT",
             "DISCOUNT", "PENALTY_SCALE", "SAVE_RUNNER_UPS", "REACH_PULL", "HELD_NEEDS_CLOSED", "PLACE_SLOPE",
-            "PLACED_AFTER", "RETREAT_AFTER_PLACE", "CUBE_STAYS_PUT", "CARRY_HEIGHT")
+            "PLACED_AFTER", "RETREAT_AFTER_PLACE", "CUBE_STAYS_PUT", "CARRY_HEIGHT", "CARRY_WEIGHT",
+            "GRASP_NEEDS_CONTACT", "CONTACT_RADIUS", "PLACED_CLEARANCE", "EMPTY_GRIP_COST", "PLACED_RADIUS",
+            "PULL_WHOLE_WAY", "HELD_Z_OFFSET")
 
 
 # The knobs of a config file (every UPPERCASE name), checked once
@@ -34,12 +36,16 @@ def load_settings(path=None):
           and s["NOISE_STD"] > 0 and s["NOISE_MIN"] >= 0 and 0 <= s["NOISE_SMOOTH"] <= 1 and 0 < s["DISCOUNT"] <= 1):
     raise ValueError(f"{path}: invalid numbers (HORIZON, ITERATIONS >= 1; 2 <= ELITES < POPULATION; NOISE_STD > 0; "
                      f"NOISE_MIN >= 0; 0 <= NOISE_SMOOTH <= 1; 0 < DISCOUNT <= 1)")
-  if not (0 <= s["PLACE_SLOPE"] < 1 and int(s["PLACED_AFTER"]) == s["PLACED_AFTER"] >= 1
-          and 0 <= s["CARRY_HEIGHT"] <= .01 + .1 * s["PLACE_SLOPE"]):
-    raise ValueError(f"{path}: 0 <= PLACE_SLOPE < 1, PLACED_AFTER a whole number >= 1, "
-                     f"0 <= CARRY_HEIGHT <= 0.01 + 0.1 * PLACE_SLOPE (the glide slope's height 10 cm from B)")
-  if s["GRIPPER"] not in ("sampled", "rule") or s["SCORE"] not in ("reward", "progress"):
-    raise ValueError(f"{path}: GRIPPER must be 'sampled' or 'rule', SCORE 'reward' or 'progress'")
+  if not (0 < s["PLACE_SLOPE"] < 1 and int(s["PLACED_AFTER"]) == s["PLACED_AFTER"] >= 1 and s["CARRY_HEIGHT"] >= 0
+          and s["HELD_Z_OFFSET"] >= 0):
+    raise ValueError(f"{path}: 0 < PLACE_SLOPE < 1, PLACED_AFTER a whole number >= 1, CARRY_HEIGHT >= 0, "
+                     f"HELD_Z_OFFSET >= 0")
+  if not (s["CARRY_WEIGHT"] >= 0 and s["CONTACT_RADIUS"] > 0 and s["PLACED_CLEARANCE"] >= 0 and s["EMPTY_GRIP_COST"] >= 0
+          and s["PLACED_RADIUS"] > 0):
+    raise ValueError(f"{path}: CARRY_WEIGHT >= 0, CONTACT_RADIUS > 0, PLACED_CLEARANCE >= 0, EMPTY_GRIP_COST >= 0, "
+                     f"PLACED_RADIUS > 0")
+  if s["GRIPPER"] not in ("sampled", "switch", "rule") or s["SCORE"] not in ("reward", "progress"):
+    raise ValueError(f"{path}: GRIPPER must be 'sampled', 'switch' or 'rule', SCORE 'reward' or 'progress'")
   settings["CONFIG_FILE"] = str(path.resolve())
   return settings
 
@@ -58,100 +64,176 @@ def released_at_target(memory, xyz, p, goal, radius):
   return bool(p[19] > 0 and memory.was_grasped and memory.ever_lifted and np.linalg.norm(xyz[:2] - goal[:2]) < radius)
 
 
-# One planning step. Returns the action, the whole chosen plan (the next step's warm start) and the same
-# bookkeeping fields plan() returns, so episode() logs both planners the same way.
-def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng, previous=None):
+# Q's reading inside the imagination, with the physical checks of the config: the cube only counts as held
+# while the fingers are closed around something (HELD_NEEDS_CLOSED) and, unless it is really held now, only
+# after the imagined gripper has come within CONTACT_RADIUS of where Q sees it now with the fingers still open
+# (GRASP_NEEDS_CONTACT): a grasp needs open fingers arriving at the cube and closing there. D and Q never saw
+# failed grasps, so without this a plan that closes the fingers anywhere imagines a grasp. One wrapper per forecasts() call, which reads the candidates in the
+# same order at every step, so `touched` follows each candidate through its plan.
+def imagined_read(read, s, xyz_now, really_held):
+  touched = None
+
+  def gated(zz, pp):
+    nonlocal touched
+    xyz, held = read(zz, pp)
+    pp = np.asarray(pp)
+    if s["HELD_NEEDS_CLOSED"]:
+      held = held * (pp[:, 18] < .06)
+    if s["GRASP_NEEDS_CONTACT"]:
+      if touched is None or len(touched) != len(pp):
+        touched = np.full(len(pp), really_held)
+      touched |= (np.linalg.norm(pp[:, 14:17] - xyz_now, axis=1) < s["CONTACT_RADIUS"]) & (pp[:, 18] > .06)
+      held = held * touched
+    return xyz, held
+  return gated
+
+
+# The gripper column of plans from one switch time each: the current command until step `switch`, then the
+# opposite (at or past the horizon: no switch)
+def gripper_from_switch(switch, command, horizon):
+  return np.where(np.arange(horizon)[None] < np.asarray(switch)[:, None], command, -command).astype(np.float32)
+
+
+# Score candidate plans (n, horizon, 5) as the planner does: D imagines, Q reads with the physical checks,
+# GoalReward + R's penalties (forecasts()), plus the hand-made parts of the config. Returns forecasts()'s pool
+# with the final "scores" and their "parts" (task reward incl. R's penalties, progress, pull, empty grip).
+def score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s):
   from .control_pipeline import forecasts
-  s = settings
-  horizon = min(s["HORIZON"], cfg.episode.max_steps - step)
-  command = 1.0 if p[19] > 0 else -1.0
   xyz, held = models.read(z[None], p[None])
   xyz, held = xyz[0], float(held[0])
+  # really held now: Q says so and the robot's own fingers are closed around something cube-sized
+  really_held = bool(held > .5 and p[19] <= 0 and .02 < p[18] < .06)
+  placed = released_at_target(memory, xyz, p, goal, cfg.episode.success_radius)
 
   # in imagination the cube counts as placed after PLACED_AFTER settled steps instead of the task's 15, so
   # letting go at B can pay off inside the horizon; the real success test is unchanged
   imagined = copy.deepcopy(memory)
   imagined.settle_required = min(memory.settle_required, s["PLACED_AFTER"])
+  # and only within PLACED_RADIUS of B instead of the task's 7 cm, a margin for Q's few cm of error (letting go
+  # beyond twice the radius then also counts as a drop in the task reward)
+  imagined.success_radius = min(memory.success_radius, s["PLACED_RADIUS"])
 
-  # forecasts() only needs a discount from the policy; there is no critic here (terminal weight 0)
+  # forecasts() only needs a discount from the policy, there is no critic here (terminal weight 0); it calls
+  # models.read and uses models.penalty_scale, both set for the call (an instance attribute shadows
+  # WorldModels.read) and restored after
   scorer = types.SimpleNamespace(gamma=s["DISCOUNT"])
-
-  def score(actions):
-    pool = forecasts(models, scorer, z, p, actions, imagined, goal, rest_z, step, cfg, 0.0)
-    extra = np.zeros(len(actions), np.float32)
-    if s["SCORE"] == "progress":
-      # also pay the task potential of every imagined state: getting there early is worth more
-      extra += s["PROGRESS_WEIGHT"] * pool["potentials"].mean(1)
-    if s["REACH_PULL"]:
-      gripper, cube, carried = pool["p"][:, 1:, 14:17], pool["xyz"][:, 1:], pool["held"][:, 1:] > .5
-      across = np.linalg.norm(cube[..., :2] - goal[:2], axis=-1)
-      # a carried cube may be at most PLACE_SLOPE x its distance to B (+1 cm) above its resting height, so it
-      # comes down as it arrives instead of hovering over B; with a slope under 1 getting closer always pays
-      above = np.maximum(0, cube[..., 2] - (goal[2] + .01 + s["PLACE_SLOPE"] * across))
-      # and while still more than 10 cm from B it should be at least CARRY_HEIGHT up: a placement only counts if
-      # the cube was lifted 4 cm, and a strong pull alone drags it along low
-      below = np.where(across > .1, np.maximum(0, goal[2] + s["CARRY_HEIGHT"] - cube[..., 2]), 0)
-      # an unheld cube does not move: with CUBE_STAYS_PUT the reach part measures to Q's reading of the current
-      # frame instead of the imagined cube, which off the expert route drifts along with the arm
-      target = np.broadcast_to(xyz, cube.shape) if s["CUBE_STAYS_PUT"] else cube
-      far = np.where(carried, across + above + below, np.linalg.norm(gripper - target, axis=-1))
-      extra -= s["REACH_PULL"] * far.mean(1)
-    pool["scores"] = np.where(pool["valid"], pool["scores"] + extra, -1e9)
-    return pool
-
+  plain_read, shadowed = models.read, "read" in vars(models)
   saved_scale, models.penalty_scale = models.penalty_scale, s["PENALTY_SCALE"]
-  if s["HELD_NEEDS_CLOSED"]:
-    # an instance attribute shadows WorldModels.read for this planning step only (undone below)
-    shadowed, plain_read = "read" in vars(models), models.read
-    def read(zz, pp):
-      xyz, held = plain_read(zz, pp)
-      return xyz, held * (np.asarray(pp)[:, 18] < .06)
-    models.read = read
+  models.read = imagined_read(plain_read, s, xyz, really_held)
   try:
-    if s["RETREAT_AFTER_PLACE"] and released_at_target(memory, xyz, p, goal, cfg.episode.success_radius):
-      # the cube was let go at B: no search, the fingers stay open and the arm rises once they are clear of
-      # the cube, so nothing knocks it while it settles (scored as a one-candidate plan for the logs)
-      retreat = np.array([0, 0, .5 if p[18] > .06 else 0, 0, 1], np.float32)
-      best = {"pool": score(np.tile(retreat, (1, horizon, 1))), "selected": 0}
-    else:
-      # warm start: the previous plan shifted by one step with its last action repeated; the first plan holds still
-      if previous is None:
-        mean = np.zeros((horizon, 5), np.float32)
-        mean[:, -1] = command
-      else:
-        shifted = np.concatenate((previous[1:], previous[-1:]))
-        mean = np.concatenate((shifted, np.repeat(shifted[-1:], max(0, horizon - len(shifted)), 0)))[:horizon].astype(np.float32)
-      std = np.full((horizon, 5), s["NOISE_STD"], np.float32)
-      floor = np.full(5, s["NOISE_MIN"], np.float32)
-
-      # the "rule" gripper is decided once from the current reading and fixed for every candidate
-      rule = None
-      if s["GRIPPER"] == "rule":
-        rule = gripper_rule(xyz, held, p, goal, s)
-        mean[:, -1], std[:, -1], floor[-1] = rule, 0, 0
-
-      best = None
-      for _ in range(s["ITERATIONS"]):
-        noise = rng.normal(size=(s["POPULATION"], horizon, 5))
-        if s["NOISE_SMOOTH"] > 0:
-          noise = np.sqrt(s["NOISE_SMOOTH"]) * rng.normal(size=(s["POPULATION"], 1, 5)) + np.sqrt(1 - s["NOISE_SMOOTH"]) * noise
-        actions = np.clip(mean + std * noise, -1, 1).astype(np.float32)
-        # candidate 0 is the current mean itself, so a good plan can simply be continued
-        actions[0] = np.clip(mean, -1, 1)
-        actions[..., -1] = rule if rule is not None else np.where(actions[..., -1] > 0, 1, -1)
-        pool = score(actions)
-        selected = int(np.argmax(pool["scores"]))
-        if best is None or pool["scores"][selected] > best["pool"]["scores"][best["selected"]]:
-          best = {"pool": pool, "selected": selected}
-        elites = actions[np.argsort(pool["scores"])[-s["ELITES"]:]]
-        mean, std = elites.mean(0), np.maximum(elites.std(0), floor)
+    pool = forecasts(models, scorer, z, p, actions, imagined, goal, rest_z, step, cfg, 0.0)
   finally:
     models.penalty_scale = saved_scale
-    if s["HELD_NEEDS_CLOSED"]:
-      if shadowed:
-        models.read = plain_read
+    if shadowed:
+      models.read = plain_read
+    else:
+      del models.read
+
+  parts = {"task": pool["discounted_reward"].copy()}
+  if s["SCORE"] == "progress":
+    # also pay the task potential of every imagined state: getting there early is worth more
+    parts["progress"] = s["PROGRESS_WEIGHT"] * pool["potentials"].mean(1)
+  if s["REACH_PULL"]:
+    gripper, cube, carried = pool["p"][:, 1:, 14:17], pool["xyz"][:, 1:], pool["held"][:, 1:] > .5
+    across = np.linalg.norm(cube[..., :2] - goal[:2], axis=-1)
+    # Q reads a carried cube HELD_Z_OFFSET too high (measured: about 3 cm), the heights below correct for it
+    height = cube[..., 2] - s["HELD_Z_OFFSET"]
+    # a carried cube may be at most PLACE_SLOPE x its distance to B (+1 cm) above its resting height, so it
+    # comes down as it arrives instead of hovering over B; with a slope under 1 getting closer always pays
+    above = np.maximum(0, height - (goal[2] + .01 + s["PLACE_SLOPE"] * across))
+    # and while the glide slope allows it, at least CARRY_HEIGHT up: a placement only counts if the cube was
+    # lifted 4 cm, and a strong pull alone drags it along low
+    lifted_zone = across > (s["CARRY_HEIGHT"] - .01) / s["PLACE_SLOPE"]
+    below = np.where(lifted_zone, np.maximum(0, goal[2] + s["CARRY_HEIGHT"] - height), 0)
+    # an unheld cube does not move: with CUBE_STAYS_PUT the reach part measures to Q's reading of the current
+    # frame instead of the imagined cube, which off the expert route drifts along with the arm
+    target = np.broadcast_to(xyz, cube.shape) if s["CUBE_STAYS_PUT"] else cube
+    reach = np.linalg.norm(gripper - target, axis=-1)
+    if s["PULL_WHOLE_WAY"] and not placed:
+      # the whole way still to go, so finishing a stage never costs: before the grasp also the cube's way from
+      # where it rests now to B and the lift it still needs (otherwise grasping made the pull jump from the cm
+      # to the cube to the half metre to B, and the planner never closed the fingers)
+      rest_across = float(np.linalg.norm(xyz[:2] - goal[:2]))
+      rest_below = (max(0.0, float(goal[2] + s["CARRY_HEIGHT"] - xyz[2]))
+                    if rest_across > (s["CARRY_HEIGHT"] - .01) / s["PLACE_SLOPE"] else 0.0)
+      reach = reach + rest_across + s["CARRY_WEIGHT"] * rest_below
+    if placed and s["PLACED_CLEARANCE"]:
+      # the cube was let go at B: now the gripper should keep PLACED_CLEARANCE away from it, not reach for it
+      reach = np.maximum(0, s["PLACED_CLEARANCE"] - np.linalg.norm(gripper - xyz, axis=-1))
+    far = np.where(carried, across + above + s["CARRY_WEIGHT"] * below, reach)
+    parts["pull"] = -s["REACH_PULL"] * far.mean(1)
+  if s["EMPTY_GRIP_COST"]:
+    # fingers commanded closed while nothing is held cost a little: the hand stays open on the way to the
+    # cube, and after a missed grasp opening again pays, so the planner can retry on its own
+    empty = (actions[:, :, -1] < 0) & (pool["held"][:, 1:] <= .5)
+    parts["empty_grip"] = -s["EMPTY_GRIP_COST"] * empty.mean(1)
+  extra = sum(v for k, v in parts.items() if k != "task") if len(parts) > 1 else 0
+  pool["scores"] = np.where(pool["valid"], pool["scores"] + extra, -1e9).astype(np.float32)
+  pool["parts"] = parts
+  return pool
+
+
+# One planning step. Returns the action, the whole chosen plan (the next step's warm start) and the same
+# bookkeeping fields plan() returns, so episode() logs both planners the same way.
+def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng, previous=None):
+  s = settings
+  horizon = min(s["HORIZON"], cfg.episode.max_steps - step)
+  command = 1.0 if p[19] > 0 else -1.0
+  xyz, held = models.read(z[None], p[None])
+  xyz, held = xyz[0], float(held[0])
+  score = lambda actions: score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s)
+
+  if s["RETREAT_AFTER_PLACE"] and released_at_target(memory, xyz, p, goal, cfg.episode.success_radius):
+    # the cube was let go at B: no search, the fingers stay open and the arm rises once they are clear of
+    # the cube, so nothing knocks it while it settles (scored as a one-candidate plan for the logs)
+    retreat = np.array([0, 0, .5 if p[18] > .06 else 0, 0, 1], np.float32)
+    best = {"pool": score(np.tile(retreat, (1, horizon, 1))), "selected": 0}
+  else:
+    # warm start: the previous plan shifted by one step with its last action repeated; the first plan holds still
+    if previous is None:
+      mean = np.zeros((horizon, 5), np.float32)
+      mean[:, -1] = command
+    else:
+      shifted = np.concatenate((previous[1:], previous[-1:]))
+      mean = np.concatenate((shifted, np.repeat(shifted[-1:], max(0, horizon - len(shifted)), 0)))[:horizon].astype(np.float32)
+    std = np.full((horizon, 5), s["NOISE_STD"], np.float32)
+    floor = np.full(5, s["NOISE_MIN"], np.float32)
+
+    # the "rule" gripper is decided once from the current reading and fixed for every candidate
+    rule = None
+    if s["GRIPPER"] == "rule":
+      rule = gripper_rule(xyz, held, p, goal, s)
+      mean[:, -1], std[:, -1], floor[-1] = rule, 0, 0
+
+    # the "switch" gripper: one switch time per plan, sampled and refitted like the motions; the warm start
+    # keeps the previous plan's switch (one step earlier now), the first plan does not switch
+    if s["GRIPPER"] == "switch":
+      flips = np.nonzero(mean[:, -1] != command)[0]
+      switch_mean, switch_std = (float(flips[0]) if len(flips) else horizon + 2.0), horizon / 2
+
+    best = None
+    for _ in range(s["ITERATIONS"]):
+      noise = rng.normal(size=(s["POPULATION"], horizon, 5))
+      if s["NOISE_SMOOTH"] > 0:
+        noise = np.sqrt(s["NOISE_SMOOTH"]) * rng.normal(size=(s["POPULATION"], 1, 5)) + np.sqrt(1 - s["NOISE_SMOOTH"]) * noise
+      actions = np.clip(mean + std * noise, -1, 1).astype(np.float32)
+      # candidate 0 is the current mean itself, so a good plan can simply be continued
+      actions[0] = np.clip(mean, -1, 1)
+      if s["GRIPPER"] == "switch":
+        switch = switch_mean + switch_std * rng.normal(size=s["POPULATION"])
+        switch[0] = switch_mean
+        actions[..., -1] = gripper_from_switch(switch, command, horizon)
       else:
-        del models.read
+        actions[..., -1] = rule if rule is not None else np.where(actions[..., -1] > 0, 1, -1)
+      pool = score(actions)
+      selected = int(np.argmax(pool["scores"]))
+      if best is None or pool["scores"][selected] > best["pool"]["scores"][best["selected"]]:
+        best = {"pool": pool, "selected": selected}
+      order = np.argsort(pool["scores"])[-s["ELITES"]:]
+      elites = actions[order]
+      mean, std = elites.mean(0), np.maximum(elites.std(0), floor)
+      if s["GRIPPER"] == "switch":
+        switch_mean, switch_std = float(switch[order].mean()), max(float(switch[order].std()), .5)
 
   pool, selected = best["pool"], best["selected"]
   fallback = not bool(pool["valid"][selected])
@@ -229,8 +311,13 @@ def self_check():
   goal = np.array([*layout["place"], rest_z], np.float32)
   base = load_settings()
 
-  plain = {"GRIPPER": "sampled", "REACH_PULL": 0.0, "CUBE_STAYS_PUT": False, "HELD_NEEDS_CLOSED": False, "PLACED_AFTER": 15, "RETREAT_AFTER_PLACE": False}
-  for variant in ({}, plain, {"SCORE": "progress"}, {"GRIPPER": "sampled"}, {"CUBE_STAYS_PUT": not base["CUBE_STAYS_PUT"]}):
+  plain = {"GRIPPER": "sampled", "SCORE": "reward", "REACH_PULL": 0.0, "CUBE_STAYS_PUT": False, "HELD_NEEDS_CLOSED": False,
+           "GRASP_NEEDS_CONTACT": False, "PLACED_AFTER": 15, "PLACED_CLEARANCE": 0.0, "RETREAT_AFTER_PLACE": False,
+           "EMPTY_GRIP_COST": 0.0, "PLACED_RADIUS": 1.0, "PULL_WHOLE_WAY": False}
+  rule = {"GRIPPER": "rule", "SCORE": "reward", "RETREAT_AFTER_PLACE": True, "GRASP_NEEDS_CONTACT": False, "PLACED_CLEARANCE": 0.0,
+          "CARRY_WEIGHT": 1.0, "EMPTY_GRIP_COST": 0.0, "PLACED_RADIUS": 1.0, "PULL_WHOLE_WAY": False,
+          "HELD_Z_OFFSET": 0.0, "CARRY_HEIGHT": 0.05}
+  for variant in ({}, plain, rule, {"GRIPPER": "sampled"}, {"SCORE": "reward"}, {"PULL_WHOLE_WAY": False}):
     s = {**base, **variant}
     memory, previous, rng = GoalReward(cfg), None, np.random.default_rng(0)
     started = time.monotonic()
@@ -241,7 +328,10 @@ def self_check():
       assert np.all(np.abs(d["sequence"]) <= 1) and set(np.unique(d["sequence"][:, -1])) <= {-1.0, 1.0}
       assert d["overlay"]["chosen_gripper"].shape == (s["HORIZON"] + 1, 3) and not d["kept_guide"]
       assert models.penalty_scale == 2.0, "penalty scale was not restored"
-      assert "read" not in vars(models), "the held gate was not removed"
+      assert "read" not in vars(models), "the imagined read was not removed"
+      if s["GRIPPER"] == "switch":
+        flips = np.abs(np.diff(d["pool"]["actions"][:, :, -1], axis=1)).sum(1) / 2
+        assert flips.max() <= 1, "a switch-gripper plan switched more than once"
     seconds = (time.monotonic() - started) / 3
     print(f"variant {variant or 'default'}: ok, {seconds:.2f} s per planning step on the CPU, "
           f"valid candidates {d['overlay']['valid']}/{s['POPULATION']}, chosen score {d['best_score']:.3f}, "
@@ -272,6 +362,22 @@ def self_check():
   assert f["fallback"] and np.array_equal(f["action"][:4], np.zeros(4)) and f["action"][4] == (1.0 if p[19] > 0 else -1.0)
   print("same seed same plan, short horizon at the episode end, fallback: ok")
 
+  # the switch gripper and the imagined read's checks on their own
+  assert np.array_equal(gripper_from_switch([0, 3, 10], 1.0, 5), [[-1] * 5, [1, 1, 1, -1, -1], [1] * 5])
+  always_held = lambda zz, pp: (np.zeros((len(pp), 3)), np.ones(len(pp), np.float32))
+  gated = imagined_read(always_held, base, np.zeros(3), False)
+  pp = np.zeros((2, 20), np.float32)
+  pp[:, 14:17] = [[.2, 0, 0], [.01, 0, 0]]
+  steps = []
+  # candidate 0: arrives open at step 2 and closes at step 3; candidate 1: sits at the cube with closed fingers
+  for arrive, width in ((False, .08), (False, .08), (True, .08), (True, .045), (False, .045)):
+    pp[0, 14:17], pp[0, 18], pp[1, 18] = ([.01, 0, 0] if arrive else [.2, 0, 0]), width, .045
+    steps.append(gated(None, pp)[1].copy())
+  assert np.array_equal(np.array(steps).T, [[0, 0, 0, 1, 1], [0, 0, 0, 0, 0]]), "a grasp needs open fingers arriving, then closing"
+  pp[:, 18] = .08
+  assert imagined_read(always_held, base, np.zeros(3), True)(None, pp)[1].sum() == 0, "open fingers hold nothing"
+  print("switch gripper, held needs contact and closed fingers: ok")
+
   # after letting go at B: one candidate, fingers open, the arm rises only once the fingers are clear; the
   # real reward memory is not changed by the shorter imagined settle count
   released = GoalReward(cfg)
@@ -282,13 +388,17 @@ def self_check():
   try:
     for width, rise in ((.08, .5), (.045, 0.0)):
       open_p[18] = width
-      r = plan_standalone(models, z, open_p, released, goal, rest_z, 50, cfg, base, np.random.default_rng(4))
+      r = plan_standalone(models, z, open_p, released, goal, rest_z, 50, cfg, {**base, **rule}, np.random.default_rng(4))
       assert len(r["pool"]["scores"]) == 1 and np.allclose(r["action"], [0, 0, rise, 0, 1]), r["action"]
-    assert released.settle_required == cfg.episode.settle_steps and models.read.__name__ == "<lambda>"
+    # the pure version keeps searching after placing (the pull turns into a clearance)
+    r = plan_standalone(models, z, open_p, released, goal, rest_z, 50, cfg, base, np.random.default_rng(4))
+    assert len(r["pool"]["scores"]) == base["POPULATION"]
+    assert released.settle_required == cfg.episode.settle_steps and released.success_radius == cfg.episode.success_radius
+    assert models.read.__name__ == "<lambda>"
   finally:
     del models.read
   assert not released_at_target(GoalReward(cfg), goal, open_p, goal, cfg.episode.success_radius)
-  print("retreat after letting go at B, real memory untouched: ok")
+  print("after letting go at B: retreat rule (rule row), search with clearance (pure), real memory untouched: ok")
   print("self-check passed (planner logic only: the latent is a stand-in, run a real episode for the rest)")
 
 
