@@ -8,7 +8,7 @@ mpc.py                the standalone planner (method mpc): CEM in imagination wi
 replay.py             replay a recorded episode in a MuJoCo window or as gif/mp4, with the planner's imagined plans
 diagnose.py           text diagnosis and one summary picture (diagnosis.png) of any recorded episode, no GPU
 compare.py            placements and failure kinds of several runs side by side, no GPU
-mpc_variants/         config files of the mpc comparison rows (plain scoring, rule gripper, pure without CARRY_STEADY)
+mpc_variants/         config files of the mpc comparison rows (plain scoring, rule gripper, pure without CARRY_STEADY, penalty scale 1)
 ```
 
 | method | perception | action | what it tests |
@@ -24,6 +24,7 @@ python -m controller.control_pipeline --methods jepa_mpc                 # 5 sce
 python -m controller.control_pipeline --test-episodes 20 --headless      # all four, the benchmark
 python -m controller.control_clutter --methods rl_q jepa_mpc             # six held-out obstacle scenes
 python -m controller.control_clutter --methods jepa_mpc --only scene_0019 scene_0021
+python -m controller.control_clutter --methods mpc --new-scenes 20              # 20 fresh obstacle scenes
 bash controller/run_final.sh 20
 python -m controller.control_pipeline --methods mpc --test-episodes 1 --headless --out data/mpc_smoke
 python -m controller.mpc --self-check                                    # planner logic on the CPU, no camera

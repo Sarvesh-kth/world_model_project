@@ -18,6 +18,7 @@ from . import control_pipeline as cp
 # empty layout file. rl_true and rl_q cannot see obstacles, only the planner can, through the penalty head.
 #   python -m controller.control_clutter --methods jepa_mpc --only scene_0019 scene_0021
 #   python -m controller.control_clutter --methods rl_q jepa_mpc --no-penalties
+#   python -m controller.control_clutter --methods mpc --new-scenes 20      (fresh layouts, never in the training data)
 
 
 def main():
@@ -33,6 +34,10 @@ def main():
   p.add_argument("--scenes", type=int, default=6, help="how many test scenes")
   p.add_argument("--only", nargs="*", default=[], help="run just these scenes, e.g. scene_0019 scene_0021")
   p.add_argument("--position-jitter", type=float, default=0.0)
+  p.add_argument("--new-scenes", type=int, default=0,
+                 help="instead of the run's test scenes, this many fresh layouts from the same obstacle sampler and settings")
+  p.add_argument("--scene-seed", type=int, default=40466000,
+                 help="first seed of --new-scenes (the obstacles_test1 collection used 40464005-40464028)")
   cp.planner_arguments(p)
   args = p.parse_args()
   args.out = args.out.resolve()
@@ -51,6 +56,19 @@ def main():
   groups = [g for g in collection["groups"] if g["split"] == "test"][:args.scenes]
   if args.only:
     groups = [g for g in collection["groups"] if g["scene"] in args.only]
+  if args.new_scenes:
+    # fresh scenes: the collector's own layouts() with its settings, at seeds it never used; a seed whose
+    # obstacles do not fit is skipped
+    from world_model.collect_obstacles import layouts
+    base = Config.nested(copy.deepcopy(collection["config"]))
+    groups, seed = [], args.scene_seed
+    while len(groups) < args.new_scenes:
+      try:
+        pair = layouts(collection["layout"], base, seed, collection["settings"]["jitter"], collection["settings"]["obstacles"])
+        groups.append({"scene": f"new_{len(groups):04d}", "seed": seed, "layout": pair["obstacles"]})
+      except RuntimeError:
+        pass
+      seed += 1
   cfg = Config.nested(copy.deepcopy(collection["config"]))
   cfg.episode.terminate_on_success = False
   _, rest_z = cp.run_settings(args.models_run, args.tag)
@@ -61,7 +79,7 @@ def main():
 
   rows = []
   for group in groups:
-    layout = settings[f"{group['scene']}{args.layout_suffix}"]["layout"]
+    layout = group["layout"] if "layout" in group else settings[f"{group['scene']}{args.layout_suffix}"]["layout"]
     for method in args.methods:
       print(f"SCENE {group['scene']} {method} obstacles={len(layout['obstacles'])}", flush=True)
       result = cp.episode(args.out, method, group["seed"], cfg, layout, rest_z, args, policy, models)
