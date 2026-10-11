@@ -201,6 +201,24 @@ class PickPlaceEnv:
   def point_clouds(self, frame="base"):
     return {name: self.point_cloud(name, frame=frame) for name in ("static", "wrist")}
 
+  # Top down height map of the table from the static depth image: the highest point above the table top in
+  # each of cells x cells patches of the table, clipped to max_height. The arm, the cube and the obstacles
+  # all show up in it, which is what the world model and the policy need to know where things stand.
+  def height_map(self, camera="static"):
+    hm = self.cfg.cameras.heightmap
+    cells = hm.cells
+    pts = self.point_cloud(camera, frame="world", stride=1)
+    centre = np.asarray(self.cfg.table.center)
+    half = np.asarray(self.cfg.table.half_size)
+    top = self.cfg.table.height
+    on = (np.abs(pts[:, 0] - centre[0]) < half[0]) & (np.abs(pts[:, 1] - centre[1]) < half[1]) & (pts[:, 2] > top + 0.005)
+    pts = pts[on]
+    ix = np.clip(((pts[:, 0] - centre[0] + half[0]) / (2 * half[0]) * cells).astype(int), 0, cells - 1)
+    iy = np.clip(((pts[:, 1] - centre[1] + half[1]) / (2 * half[1]) * cells).astype(int), 0, cells - 1)
+    out = np.zeros((cells, cells), np.float32)
+    np.maximum.at(out, (ix, iy), pts[:, 2] - top)
+    return np.minimum(out, hm.max_height)
+
   # Make the renderer only when needed
   def _get_renderer(self):
     if self._renderer is None:
@@ -310,6 +328,8 @@ class PickPlaceEnv:
       "ee_pos": self.data.site_xpos[self.site_id].copy(),
       "place_pos": np.array([*self.layout.place_pos, self.cfg.table.height]),
       "grasped": grasped,
+      "gripper_width": float(self.data.qpos[self.finger_qpos_ids].sum()),
+      "gripper_closed": not self.controller.gripper_open,
       "obstacle_contacts": 1.0 if obstacle_hit else 0.0,
       "table_contacts": 1.0 if table_hit else 0.0,
     }

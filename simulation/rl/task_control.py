@@ -4,12 +4,14 @@ import numpy as np
 
 from environment import EpisodeLayout, PickPlaceEnv
 from environment.config import Config
+from environment.obstacles import sample_obstacles
 from environment.rewards import Rewards
 
 # What the SAC policy sees and is rewarded with, and the simulator wrapper every controller runs in.
 # The observation is the same 41 numbers whether they come from the exact simulator state (rl_true) or
-# from the JEPA readout Q (rl_q, jepa_mpc), so one policy serves both. The reward is a potential shaping
-# of the environment's staged reward, with a one time bonus for a finished placement.
+# from the JEPA readout Q (rl_q), so one policy serves both; a policy trained with obstacles also gets the
+# 8x8 table height map (64 more numbers), the same map the world model's latent carries. The reward is a
+# potential shaping of the environment's staged reward, with a one time bonus for a finished placement.
 
 
 # Reward for the A-to-B task, built on the environment's Rewards
@@ -66,8 +68,9 @@ class GoalReward(Rewards):
 # The 41 numbers the policy sees: scaled robot state (20), cube position relative to the table (3), cube
 # relative to the hand (3), goal relative to the table (3) and to the cube (3), held (1), the reward's
 # memory (6: was grasped, held last step, ever lifted, settle fraction, succeeded, potential), rest height
-# and the fraction of the episode left (2). Fixed scales turn centimetres into numbers near 1.
-def policy_observation(p, xyz, held, memory, goal, rest_z, remaining):
+# and the fraction of the episode left (2). Fixed scales turn centimetres into numbers near 1. With a
+# height map (metres, cells x cells) 64 more numbers follow, scaled by 4 so a 19 cm wall reads 0.76.
+def policy_observation(p, xyz, held, memory, goal, rest_z, remaining, heightmap=None):
   p, xyz, goal = (np.asarray(x, np.float32) for x in (p, xyz, goal))
   history = [float(memory.was_grasped), float(memory.prev_grasped), float(memory.ever_lifted),
              memory.settled_steps / memory.settle_required, float(memory.task_succeeded), memory.potential]
@@ -80,8 +83,10 @@ def policy_observation(p, xyz, held, memory, goal, rest_z, remaining):
   robot[18] *= 25
   observation = np.concatenate((robot, 5 * (xyz - origin), 20 * (xyz - p[14:17]), 5 * (goal - origin),
                                 5 * (goal - xyz), [held], history, [rest_z, remaining])).astype(np.float32)
-  if observation.shape != (41,) or not np.isfinite(observation).all():
-    raise ValueError("invalid policy observation, expected 41 finite numbers")
+  if heightmap is not None:
+    observation = np.concatenate((observation, 4 * np.asarray(heightmap, np.float32).reshape(-1)))
+  if observation.shape not in ((41,), (105,)) or not np.isfinite(observation).all():
+    raise ValueError("invalid policy observation, expected 41 or 105 finite numbers")
   return observation
 
 
@@ -90,6 +95,7 @@ def policy_observation(p, xyz, held, memory, goal, rest_z, remaining):
 def predicted_reward(memory, p, xyz, held, action, goal, rest_z, failed=False):
   state = {"object_pos": np.asarray(xyz), "ee_pos": np.asarray(p)[14:17], "place_pos": np.asarray(goal),
            "object_rest_z": rest_z, "grasped": bool(held >= .5), "failed": bool(failed),
+           "gripper_closed": bool(np.asarray(p)[19] < 0), "gripper_width": float(np.asarray(p)[18]),
            "obstacle_contacts": 0, "table_contacts": 0, "obstacle_distance": memory.safe_distance}
   total, components, _ = memory.compute(state, action)
   return float(total), components
@@ -97,20 +103,28 @@ def predicted_reward(memory, p, xyz, held, action, goal, rest_z, failed=False):
 
 # One fixed layout, run many times with the cube start jittered. Wraps PickPlaceEnv, computes the
 # GoalReward and the policy observation from the exact state, and keeps the episode statistics.
-# The controllers never read the exact state from here except through observation() (rl_true) and
-# the evaluation labels in step()'s info.
+# obstacles=(low, high) draws that many fresh corridor obstacles every episode (the obstacle-aware SAC
+# trains with this and sees them through the height map). The controllers never read the exact state
+# from here except through observation() (rl_true) and the evaluation labels in step()'s info.
 class TaskSession:
 
-  def __init__(self, cfg, layout, jitter=0.0):
+  def __init__(self, cfg, layout, jitter=0.0, obstacles=None, heightmap=False):
     self.cfg = Config.nested(copy.deepcopy(cfg))
     self.layout = copy.deepcopy(layout)
     self.jitter = jitter
+    self.obstacles = obstacles
+    self.heightmap = heightmap or obstacles is not None
     self.sim = PickPlaceEnv(self.cfg)
 
   def reset(self, seed):
     rng = np.random.default_rng(seed)
     layout = copy.deepcopy(self.layout)
     layout["pick"] = (np.asarray(layout["pick"]) + rng.uniform(-self.jitter, self.jitter, 2)).tolist()
+    if self.obstacles is not None:
+      cfg = copy.deepcopy(self.cfg)
+      cfg.task.obstacles.count = list(self.obstacles)
+      drawn = sample_obstacles(cfg, rng, np.asarray(layout["pick"]), np.asarray(layout["place"]))
+      layout["obstacles"] = [o.to_dict() for o in drawn] if drawn else []
     self.obs, _ = self.sim.reset(seed=seed, layout=EpisodeLayout.from_dict(layout))
     self.rest_z = self.sim.object_rest_z
     self.goal = np.array([*layout["place"], self.rest_z], np.float32)
@@ -124,12 +138,13 @@ class TaskSession:
     self.total = self.control_total = 0.0
     return self.observation()
 
-  # Exact state observation for rl_true and for training
+  # Exact state observation for rl_true and for training, with the height map when the policy uses one
   def observation(self):
     held = self.sim._check_contacts()[0]
     remaining = max(0, 1 - self.sim.step_count / self.cfg.episode.max_steps)
     return policy_observation(self.obs["proprio"], self.obs["state"][:3], float(held),
-                              self.reward, self.goal, self.rest_z, remaining)
+                              self.reward, self.goal, self.rest_z, remaining,
+                              self.sim.height_map() if self.heightmap else None)
 
   def step(self, action):
     self.obs, reward, terminated, truncated, info = self.sim.step(action)
@@ -158,6 +173,7 @@ class TaskSession:
     fell = xyz[2] < self.cfg.table.height - self.cfg.episode.fall_margin
     state = {"object_pos": xyz, "ee_pos": self.obs["proprio"][14:17], "place_pos": self.goal,
              "object_rest_z": self.rest_z, "grasped": bool(held), "failed": bool(fell or timeout),
+             "gripper_closed": bool(self.obs["proprio"][19] < 0), "gripper_width": float(self.obs["proprio"][18]),
              "obstacle_contacts": int(info["obstacle_contact"]), "table_contacts": int(info["table_contact"]),
              "obstacle_distance": self.sim.obstacle_distance()}
     control_reward, components, _ = self.reward.compute(state, action)
@@ -185,16 +201,16 @@ class TaskSession:
 
 
 # Gym wrapper around TaskSession for stable-baselines3, each reset takes the next seed
-def make_rl_env(cfg, layout, jitter, seed):
+def make_rl_env(cfg, layout, jitter, seed, obstacles=None):
   import gymnasium as gym
 
   class SACEnv(gym.Env):
 
     def __init__(self):
-      self.session = TaskSession(cfg, layout, jitter)
+      self.session = TaskSession(cfg, layout, jitter, obstacles)
       self.next_seed = seed
       self.action_space = gym.spaces.Box(-1, 1, (5,), dtype=np.float32)
-      self.observation_space = gym.spaces.Box(-np.inf, np.inf, (41,), dtype=np.float32)
+      self.observation_space = gym.spaces.Box(-np.inf, np.inf, (105 if obstacles is not None else 41,), dtype=np.float32)
 
     def reset(self, *, seed=None, options=None):
       super().reset(seed=seed)

@@ -9,24 +9,101 @@ from torch.utils.data import DataLoader, TensorDataset
 from .common import load_run, load_features, state_arrays, check_manifest, write_json, outcome_metrics
 
 # Train the three small networks on a run's latents, one stage per call, same --tag for all three:
-#   readout   Q(z, p) -> cube xyz and held logit (and readout_p, the same from p alone, a control for
-#             what the image contributes)
-#   reward    R(z, p) -> proximity penalty, collision logit, table-hit logit (the penalty head)
+#   readout   Q(z, gripper) -> cube xyz and held logit (and readout_p, the same from the robot state alone, a
+#             control for what the image contributes). Q is a GridReadout: the camera blocks of z put back
+#             into their grids (static 16x16, wrist 8x8), two convolutions each, and a spatial softmax over
+#             the static grid whose expected coordinates say WHERE the cube is, so the position is read off
+#             the image instead of being fitted by an MLP over thousands of numbers. The MLP memorised the
+#             training scenes within 3 epochs and could not place the cube better than 3-4 cm whenever the
+#             hand was away from it (it had learned "cube = near the hand", which is why it went to the wrong
+#             side); the grid readout gets under 1 cm there from 3,000 frames. Q sees no arm pose, only the
+#             finger width and gripper command (P_GRIPPER), so it cannot guess the cube from the arm.
+#             Two position heads: ABSOLUTE for a cube that is not held, RELATIVE to the grasp site for a held
+#             one (the clip is a time mean, a carried cube is smeared in it; relative to the hand it is a
+#             constant); readout() picks by the held reading. --mlp-readout restores the old MLP on (z, p).
+#   reward    R(z, p) -> the reward model the planner scores candidates with: the four shaped task terms
+#             (reach, grasp, lift, transport), placed, and the penalties proximity, collision, table hit
+#             and empty grasp (fingers shut on nothing). The same grid network, with the whole robot state
+#             (the penalties depend on where the arm is).
 #   dynamics  D(z, p, a) -> next z, next p, trained on windows of --rollout-steps steps. --task-weight adds
 #             a task-consistency term: the frozen Q (trained first, same tag) must still read the recorded
 #             cube xyz and held label from the imagined (z, p), otherwise plain latent MSE lets D drop the
-#             cube because it is 1 of 64 grid cells and the arm dominates the latent. --robot-sees-z lets the
-#             robot head read z too, so the predicted finger width can depend on whether a cube is between
-#             the fingers.
+#             cube because it is a few cells of the grid while the arm dominates the latent. --robot-sees-z
+#             lets the robot head read z too, so the predicted finger width can depend on whether a cube is
+#             between the fingers.
+# All three train with AdamW (weight decay 0.05), a cosine learning rate, dropout in the heads and Gaussian
+# noise on the latent (--z-noise): without these the validation loss stopped improving after 2-3 epochs while
+# the training loss kept falling (scene memorisation; consecutive states of a scene are near duplicates, so
+# 150k states are only ~1,000 independent scenes). The best validation epoch is kept.
 # Models land in <run>/attempts/<tag>/models/<stage>.pt with their normalisation statistics.
-#   python -m world_model.train readout  --run data/combined_test1 --tag combined --epochs 30
-#   python -m world_model.train reward   --run data/combined_test1 --tag combined --epochs 30
-#   python -m world_model.train dynamics --run data/combined_test1 --tag combined --epochs 30 --rollout-steps 8 --task-weight 1.0 --robot-sees-z
+#   python -m world_model.train readout  --run data/episodes_v3 --tag v3 --epochs 60
+#   python -m world_model.train reward   --run data/episodes_v3 --tag v3 --epochs 60
+#   python -m world_model.train dynamics --run data/episodes_v3 --tag v3 --epochs 60 --rollout-steps 8 --task-weight 1.0 --robot-sees-z
 
 
-def mlp(inputs, outputs, width=128):
-  return nn.Sequential(nn.Linear(inputs, width), nn.LayerNorm(width), nn.GELU(),
-                       nn.Linear(width, width), nn.GELU(), nn.Linear(width, outputs))
+# What R predicts, in output order: regressions for the shaped terms and proximity, logits for the flags
+REWARD_OUTPUTS = ("reach", "grasp", "lift", "transport", "placed", "proximity", "collision", "table_hit", "empty_grasp")
+REWARD_FLAGS = ("placed", "collision", "table_hit", "empty_grasp")
+# the columns of p the readout Q gets: finger width and gripper command, nothing about where the arm is
+P_GRIPPER = (18, 19)
+# what Q predicts, in output order: absolute cube xyz, cube xyz relative to the grasp site, held logit
+Q_OUTPUTS = 7
+
+
+def mlp(inputs, outputs, width=128, dropout=0.1):
+  return nn.Sequential(nn.Linear(inputs, width), nn.LayerNorm(width), nn.GELU(), nn.Dropout(dropout),
+                       nn.Linear(width, width), nn.GELU(), nn.Dropout(dropout), nn.Linear(width, outputs))
+
+
+# Q and R over the latent's grids: blocks is the latent layout from features/meta.json (block name -> size, in
+# order, e.g. static 8192 = 16x16 cells x 32, wrist 1024 = 8x8 x 16, heightmap 64), cells the side of each
+# camera's grid, p_dim the robot numbers that follow the latent in the input. Each camera grid goes through a
+# 1x1 and two 3x3 convolutions (the height map, resized to the static grid, rides along as one more channel of
+# it); the static features also feed a spatial softmax whose expected grid coordinates say where each of its
+# heads looks, which is how a position comes out of an image without learning every cell separately. Pooled
+# features, key points and p go into an MLP head.
+class GridReadout(nn.Module):
+
+  def __init__(self, blocks, cells, p_dim, outputs, width=64, keys=8):
+    super().__init__()
+    self.blocks, self.cells, self.p_dim = dict(blocks), dict(cells), p_dim
+    self.cameras = [c for c in self.blocks if c != "heightmap"]
+    extra = 1 if "heightmap" in self.blocks else 0
+    self.nets = nn.ModuleDict()
+    for i, c in enumerate(self.cameras):
+      depth = self.blocks[c] // (self.cells[c] ** 2) + (extra if i == 0 else 0)
+      self.nets[c] = nn.Sequential(nn.Conv2d(depth, width, 1), nn.GELU(),
+                                   nn.Conv2d(width, width, 3, padding=1), nn.GELU(),
+                                   nn.Conv2d(width, width, 3, padding=1), nn.GELU())
+    self.keys = nn.Conv2d(width, keys, 1)
+    n = self.cells[self.cameras[0]]
+    ys, xs = torch.meshgrid(torch.linspace(-1, 1, n), torch.linspace(-1, 1, n), indexing="ij")
+    self.register_buffer("grid", torch.stack((xs, ys)).reshape(2, n * n))
+    self.head = mlp(width * len(self.cameras) + 2 * keys + p_dim, outputs)
+
+  def forward(self, x):
+    n = x.shape[0]
+    parts, offset = {}, 0
+    for name, size in self.blocks.items():
+      parts[name] = x[:, offset:offset + size]
+      offset += size
+    feats = []
+    for i, camera in enumerate(self.cameras):
+      c = self.cells[camera]
+      g = parts[camera].reshape(n, c, c, -1).permute(0, 3, 1, 2)
+      if i == 0 and "heightmap" in parts:
+        h = parts["heightmap"]
+        side = int(round(h.shape[1] ** .5))
+        h = h.reshape(n, 1, side, side)
+        if side != c:
+          h = nn.functional.interpolate(h, size=(c, c), mode="nearest")
+        g = torch.cat((g, h), 1)
+      f = self.nets[camera](g)
+      feats.append(f.mean((2, 3)))
+      if i == 0:
+        attention = torch.softmax(self.keys(f).reshape(n, -1, c * c), -1)
+        feats.append((attention @ self.grid.T).reshape(n, -1))
+    return self.head(torch.cat(feats + [x[:, offset:]], -1))
 
 
 # Latent dynamics in two heads: the robot head predicts the next robot state from (p, a), the visual head
@@ -38,8 +115,8 @@ class SplitDynamics(nn.Module):
     super().__init__()
     self.robot = nn.Sequential(nn.Linear(p_dim + a_dim, p_width), nn.LayerNorm(p_width), nn.GELU(),
                                nn.Linear(p_width, p_width), nn.GELU(), nn.Linear(p_width, p_dim))
-    self.visual = nn.Sequential(nn.Linear(z_dim + 2 * p_dim + a_dim, width), nn.LayerNorm(width), nn.GELU(),
-                                nn.Linear(width, width), nn.GELU(), nn.Linear(width, z_dim))
+    self.visual = nn.Sequential(nn.Linear(z_dim + 2 * p_dim + a_dim, width), nn.LayerNorm(width), nn.GELU(), nn.Dropout(0.1),
+                                nn.Linear(width, width), nn.GELU(), nn.Dropout(0.1), nn.Linear(width, z_dim))
 
   def forward(self, z, p, action):
     next_p = p + self.robot(torch.cat((p, action), dim=-1))
@@ -63,9 +140,9 @@ class SplitDynamicsZ(SplitDynamics):
 
 
 # Mean and std over the training states, the std floored so constant columns do not blow up
-def normalizer(a):
+def normalizer(a, floor=1e-3):
   return (torch.as_tensor(a.mean(0), dtype=torch.float32),
-          torch.as_tensor(np.maximum(a.std(0), 1e-3), dtype=torch.float32))
+          torch.as_tensor(np.maximum(a.std(0), floor), dtype=torch.float32))
 
 
 # Normalise with the statistics stored in a checkpoint, name is z, p or xyz
@@ -80,8 +157,10 @@ def build_model(ck):
       model = SplitDynamicsZ(ck["z_dim"])
     else:
       model = SplitDynamics(ck["z_dim"])
+  elif ck.get("architecture") == "GridReadout":
+    model = GridReadout(ck["blocks"], ck["cells"], ck["p_dim"], ck["outputs"])
   else:
-    model = mlp(ck["input_dim"], 4)
+    model = mlp(ck["input_dim"], ck["outputs"])
   model.load_state_dict(ck["model"])
   return model.eval()
 
@@ -96,15 +175,55 @@ def load_model(root, role, tag=""):
   return build_model(ck), ck
 
 
-# Q on raw (unnormalised) inputs: cube xyz in metres and held probability
+# The device a model sits on; the planner keeps Q, R and D on the GPU (the grid readout is 5x faster there
+# on its batches of candidates), training and the offline evaluations use them wherever they were loaded
+def device_of(model):
+  return next(model.parameters()).device
+
+
+# The input of Q or R: the normalised latent followed by the columns of p the checkpoint was trained with
+def readout_inputs(ck, z, p):
+  inputs = normalized(p, ck, "p")[:, list(ck["p_columns"])]
+  if ck["role"] != "readout_p":
+    inputs = torch.cat((normalized(z, ck, "z"), inputs), -1)
+  return inputs
+
+
+# Q's loss on a batch of raw outputs: the absolute head on states where the cube is not held, the relative
+# head where it is (both normalised targets), BCE on the held logit
+def readout_loss(y, absolute, relative, held):
+  h = held >= .5
+  pose = (torch.where(h[:, None], y[:, 3:6] - relative, y[:, :3] - absolute)).square().mean()
+  contact = nn.functional.binary_cross_entropy_with_logits(y[:, 6], held)
+  return pose + contact, {"xyz_mse": pose.item(), "held_bce": contact.item()}
+
+
+# Q on raw (unnormalised) inputs: cube xyz in metres and held probability. The position is the absolute head,
+# or the relative head plus the grasp site when the cube is read as held
 @torch.inference_mode()
 def readout(model, ck, z, p):
-  inputs = normalized(p, ck, "p")
-  if ck["role"] == "readout":
-    inputs = torch.cat((normalized(z, ck, "z"), inputs), -1)
-  output = model(inputs)
-  xyz = output[:, :3] * ck["xyz_std"] + ck["xyz_mean"]
-  return xyz.numpy(), output[:, 3].sigmoid().numpy()
+  output = model(readout_inputs(ck, z, p).to(device_of(model))).cpu()
+  absolute = output[:, :3] * ck["xyz_std"] + ck["xyz_mean"]
+  relative = output[:, 3:6] * ck["rel_std"] + ck["rel_mean"] + torch.as_tensor(np.asarray(p)[:, 14:17], dtype=torch.float32)
+  held = output[:, 6].sigmoid()
+  xyz = torch.where((held >= .5)[:, None], relative, absolute)
+  return xyz.numpy(), held.numpy()
+
+
+# R on raw (unnormalised) inputs: a dict name -> array over the batch, flags as probabilities, the shaped
+# terms clipped to [0, 1] and proximity to [-1, 0]
+@torch.inference_mode()
+def reward_terms(model, ck, z, p):
+  y = model(readout_inputs(ck, z, p).to(device_of(model))).cpu().numpy()
+  out = {}
+  for j, name in enumerate(ck["output_names"]):
+    if name in REWARD_FLAGS:
+      out[name] = 1 / (1 + np.exp(-y[:, j]))
+    elif name == "proximity":
+      out[name] = np.clip(y[:, j], -1, 0)
+    else:
+      out[name] = np.clip(y[:, j], 0, 1)
+  return out
 
 
 # Roll D forward from one raw (z, p) through a list of actions, returns raw z and p for every step
@@ -124,13 +243,17 @@ def imagine(model, ck, z, p, actions):
 def fit(folder, role, model, train, val, loss_fn, meta, args):
   path = folder / "models" / f"{role}.pt"
   if path.exists():
-    raise FileExistsError(f"{path} exists; delete it or train with another --tag")
+    if not args.overwrite:
+      raise FileExistsError(f"{path} exists; delete it, train with another --tag or add --overwrite")
+    path.unlink()
   device = "cuda" if torch.cuda.is_available() else "cpu"
   model.to(device)
   print(f"{role}: {len(train[0])} training / {len(val[0])} validation examples on {device}, "
         f"{sum(p.numel() for p in model.parameters()):,} parameters", flush=True)
-  optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
+  optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
   loader = DataLoader(TensorDataset(*train), batch_size=args.batch_size, shuffle=True)
+  # cosine decay to 1 % of the learning rate over the run, stepped per batch
+  schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, args.epochs * len(loader), eta_min=args.lr * .01)
   best, history = float("inf"), []
 
   for epoch in range(1, args.epochs + 1):
@@ -145,6 +268,7 @@ def fit(folder, role, model, train, val, loss_fn, meta, args):
       loss.backward()
       nn.utils.clip_grad_norm_(model.parameters(), 5.0)
       optimizer.step()
+      schedule.step()
       total += loss.item() * len(batch[0])
       count += len(batch[0])
 
@@ -176,7 +300,7 @@ def fit(folder, role, model, train, val, loss_fn, meta, args):
              {"device": device, "history": history, "best_validation_loss": best,
               "training_examples": len(train[0]), "validation_examples": len(val[0]),
               "settings": {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()}})
-  print(f"{role}: saved the best epoch to {path}", flush=True)
+  print(f"{role}: saved the best epoch ({min(history, key=lambda h: h['val_loss'])['epoch']}) to {path}", flush=True)
 
 
 def main():
@@ -185,12 +309,16 @@ def main():
   p.add_argument("--run", required=True, type=pathlib.Path)
   p.add_argument("--tag", default="", help="models go to <run>/attempts/<tag>/models")
   p.add_argument("--epochs", type=int, default=30)
-  p.add_argument("--batch-size", type=int, default=64)
+  p.add_argument("--batch-size", type=int, default=256)
   p.add_argument("--lr", type=float, default=0.001)
+  p.add_argument("--weight-decay", type=float, default=0.05)
   p.add_argument("--seed", type=int, default=0)
   p.add_argument("--rollout-steps", type=int, default=8, help="dynamics: steps per training window")
   p.add_argument("--task-weight", type=float, default=1.0, help="dynamics: weight of the frozen Q term, 0 turns it off")
   p.add_argument("--robot-sees-z", action="store_true", help="dynamics: SplitDynamicsZ instead of SplitDynamics")
+  p.add_argument("--mlp-readout", action="store_true", help="readout / reward: the old MLP on (z, p) instead of GridReadout; see the note at the top")
+  p.add_argument("--z-noise", type=float, default=0.3, help="readout / reward: Gaussian noise on the normalised latent while training, against scene memorisation")
+  p.add_argument("--overwrite", action="store_true", help="replace an existing model of this tag (after the data grew)")
   args = p.parse_args()
   if min(args.epochs, args.batch_size, args.rollout_steps) < 1 or args.lr <= 0:
     p.error("epochs, batch-size, rollout-steps and lr must be positive")
@@ -208,13 +336,40 @@ def main():
   ids = {s: np.flatnonzero(splits == s) for s in ("train", "val")}
   folder = args.run / "attempts" / args.tag if args.tag else args.run
 
-  # normalisation from the training states only, stored in every checkpoint
+  # normalisation from the training states only, stored in every checkpoint: "xyz" is the absolute cube
+  # position, "rel" the cube relative to the grasp site (the relative statistics from the held states, where
+  # that head is used)
+  relative = xyz - robot[:, 14:17]
   stats = {}
-  for name, array in (("z", z), ("p", robot), ("xyz", xyz)):
-    stats[name + "_mean"], stats[name + "_std"] = normalizer(array[ids["train"]])
-  nz, np_, nxyz = (normalized(a, stats, n) for n, a in (("z", z), ("p", robot), ("xyz", xyz)))
+  for name, array, rows in (("z", z, ids["train"]), ("p", robot, ids["train"]), ("xyz", xyz, ids["train"]),
+                            ("rel", relative, ids["train"][held[ids["train"]] >= .5])):
+    stats[name + "_mean"], stats[name + "_std"] = normalizer(array[rows] if len(rows) else array[ids["train"]])
+  # the height map cells are in [0, 1]; a cell nothing ever stood on in training has std ~0 and would turn a
+  # test-time obstacle into a value in the hundreds, so those cells get a floor of 0.1 (a 2.5 cm step)
+  blocks = feature_meta.get("layout", {})
+  if "heightmap" in blocks:
+    n = blocks["heightmap"]
+    stats["z_std"][-n:] = torch.maximum(stats["z_std"][-n:], torch.tensor(0.1))
+  nz, np_, nxyz, nrel = (normalized(a, stats, n) for n, a in (("z", z), ("p", robot), ("xyz", xyz), ("rel", relative)))
   nheld = torch.from_numpy(held)
   meta = {**stats, "encoder": feature_meta["model"], "z_dim": z.shape[1], "seed": args.seed}
+
+  # Q and R train on a noisy latent: a different draw every batch, nothing at validation / inference
+  def noisy(x, model):
+    if model.training and args.z_noise > 0:
+      x = x.clone()
+      x[:, :z.shape[1]] += args.z_noise * torch.randn_like(x[:, :z.shape[1]])
+    return x
+
+  # Q and R: the grid network when the latent has grids (Q with the gripper columns of p only, R with all of
+  # p), otherwise (or with --mlp-readout) the MLP on (z, p)
+  cells = feature_meta.get("cells") or {c: 8 for c in blocks if c != "heightmap"}
+  def readout_network(outputs, p_columns):
+    if args.mlp_readout or not blocks or sum(blocks.values()) != z.shape[1]:
+      p_columns = tuple(range(robot.shape[1]))
+      return mlp(z.shape[1] + len(p_columns), outputs), {"input_dim": z.shape[1] + len(p_columns), "outputs": outputs, "p_columns": p_columns}
+    return GridReadout(blocks, cells, len(p_columns), outputs), {"architecture": "GridReadout", "blocks": blocks, "cells": cells,
+                                                                 "p_dim": len(p_columns), "outputs": outputs, "p_columns": tuple(p_columns)}
 
   # what the controller needs besides the checkpoints (the environment config and the resting cube height),
   # so a clone that has only attempts/<tag>/ and features/{pca.npz,meta.json} can run without the manifest
@@ -224,19 +379,18 @@ def main():
                                     "encoder": {k: v for k, v in feature_meta.items() if k != "keys"}})
 
   if args.stage == "readout":
-    # Q from (z, p), and readout_p from p alone as the blind control
+    # Q from (z, gripper), and readout_p from the whole p alone as the blind control
     def outcome_loss(model, batch):
-      x, target, g = batch
-      y = model(x)
-      pose = (y[:, :3] - target).square().mean()
-      contact = nn.functional.binary_cross_entropy_with_logits(y[:, 3], g)
-      return pose + contact, {"xyz_mse": pose.item(), "held_bce": contact.item()}
+      x, absolute, rel, g = batch
+      return readout_loss(model(noisy(x, model) if x.shape[1] > z.shape[1] else x), absolute, rel, g)
 
     reports = {}
-    for role, x in (("readout", torch.cat((nz, np_), -1)), ("readout_p", np_)):
-      arrays = {s: [a[i] for a in (x, nxyz, nheld)] for s, i in ids.items()}
-      fit(folder, role, mlp(x.shape[1], 4), arrays["train"], arrays["val"], outcome_loss,
-          {**meta, "input_dim": x.shape[1]}, args)
+    q, extra = readout_network(Q_OUTPUTS, P_GRIPPER)
+    for role, x, model, ck in (("readout", torch.cat((nz, np_[:, list(extra["p_columns"])]), -1), q, extra),
+                               ("readout_p", np_, mlp(np_.shape[1], Q_OUTPUTS),
+                                {"input_dim": np_.shape[1], "outputs": Q_OUTPUTS, "p_columns": tuple(range(np_.shape[1]))})):
+      arrays = {s: [a[i] for a in (x, nxyz, nrel, nheld)] for s, i in ids.items()}
+      fit(folder, role, model, arrays["train"], arrays["val"], outcome_loss, {**meta, **ck}, args)
       q, ck = load_model(args.run, role, args.tag)
       v = ids["val"]
       predicted, probability = readout(q, ck, z[v], robot[v])
@@ -245,34 +399,43 @@ def main():
     write_json(folder / "reports/readout_validation.json", reports)
 
   elif args.stage == "reward":
-    # targets are the recorded unweighted reward components: proximity (continuous), collision and table hit (0/1)
-    comps = np.asarray([[s["reward_components"].get(k, 0.0) for k in ("proximity", "collision", "table_hit")]
-                        for s in manifest["states"]], np.float32)
-    targets = torch.from_numpy(np.c_[comps[:, 0], comps[:, 1] != 0, comps[:, 2] != 0].astype(np.float32))
-    x = torch.cat((nz, np_), -1)
+    # targets are the recorded unweighted reward components: the shaped task terms reach, grasp, lift and
+    # transport (in [0, 1]), placed (the environment's stage is done), proximity (continuous) and the
+    # collision and table-hit flags (0/1); regression for the continuous ones, BCE for the flags
+    comps = {k: np.asarray([s["reward_components"].get(k, 0.0) for s in manifest["states"]], np.float32) for k in REWARD_OUTPUTS if k != "placed"}
+    comps["placed"] = np.asarray([s["reward_stage"] == "done" for s in manifest["states"]], np.float32)
+    # runs recorded before the empty_grasp penalty existed get it from p, the environment's own definition
+    missing = np.asarray(["empty_grasp" not in s["reward_components"] for s in manifest["states"]])
+    comps["empty_grasp"][missing] = -((robot[missing, 19] < 0) & (robot[missing, 18] < .03)).astype(np.float32)
+    columns = [comps[k] != 0 if k in REWARD_FLAGS else comps[k] for k in REWARD_OUTPUTS]
+    targets = torch.from_numpy(np.stack(columns, 1).astype(np.float32))
+    flags = [j for j, k in enumerate(REWARD_OUTPUTS) if k in REWARD_FLAGS]
+    values = [j for j, k in enumerate(REWARD_OUTPUTS) if k not in REWARD_FLAGS]
+    model, extra = readout_network(len(REWARD_OUTPUTS), tuple(range(robot.shape[1])))
+    x = torch.cat((nz, np_[:, list(extra["p_columns"])]), -1)
 
-    def penalty_loss(model, batch):
+    def reward_loss(model, batch):
       inputs, target = batch
-      y = model(inputs)
-      proximity = (y[:, 0] - target[:, 0]).square().mean()
-      collision = nn.functional.binary_cross_entropy_with_logits(y[:, 1], target[:, 1])
-      table = nn.functional.binary_cross_entropy_with_logits(y[:, 2], target[:, 2])
-      return proximity + collision + table, {"proximity_mse": proximity.item(), "collision_bce": collision.item(),
-                                             "table_bce": table.item()}
+      y = model(noisy(inputs, model))
+      regression = (y[:, values] - target[:, values]).square().mean()
+      classification = nn.functional.binary_cross_entropy_with_logits(y[:, flags], target[:, flags])
+      return regression + classification, {"terms_mse": regression.item(), "flags_bce": classification.item()}
 
-    fit(folder, "reward", mlp(x.shape[1], 4), [x[ids["train"]], targets[ids["train"]]],
-        [x[ids["val"]], targets[ids["val"]]], penalty_loss, {**meta, "input_dim": x.shape[1]}, args)
+    fit(folder, "reward", model, [x[ids["train"]], targets[ids["train"]]],
+        [x[ids["val"]], targets[ids["val"]]], reward_loss,
+        {**meta, "output_names": list(REWARD_OUTPUTS), **extra}, args)
     r, ck = load_model(args.run, "reward", args.tag)
     v = ids["val"]
-    with torch.inference_mode():
-      y = r(x[v]).numpy()
+    terms = reward_terms(r, ck, z[v], robot[v])
     t = targets[v].numpy()
-    report = {"n": len(v), "proximity_mae": float(np.abs(y[:, 0] - t[:, 0]).mean()),
-              "penalised_states": int((t[:, 0] != 0).sum())}
-    for j, name in ((1, "collision"), (2, "table_hit")):
-      guess, truth = y[:, j] > 0, t[:, j] > .5
-      tp, fp, fn = int((guess & truth).sum()), int((guess & ~truth).sum()), int((~guess & truth).sum())
-      report[name] = {"positives": int(truth.sum()), "precision": tp / max(tp + fp, 1), "recall": tp / max(tp + fn, 1)}
+    report = {"n": len(v), "penalised_states": int((t[:, REWARD_OUTPUTS.index("proximity")] != 0).sum())}
+    for j, name in enumerate(REWARD_OUTPUTS):
+      if name in REWARD_FLAGS:
+        guess, truth = terms[name] > .5, t[:, j] > .5
+        tp, fp, fn = int((guess & truth).sum()), int((guess & ~truth).sum()), int((~guess & truth).sum())
+        report[name] = {"positives": int(truth.sum()), "precision": tp / max(tp + fp, 1), "recall": tp / max(tp + fn, 1)}
+      else:
+        report[f"{name}_mae"] = float(np.abs(terms[name] - t[:, j]).mean())
     write_json(folder / "reports/reward_validation.json", report)
     print(f"reward validation: {report}")
 
@@ -292,12 +455,13 @@ def main():
         p.error("rollout-steps is longer than the recorded sequences")
       windows = np.asarray(windows)
       arrays[split] = [nz[windows], np_[windows], torch.tensor(actions, dtype=torch.float32),
-                       nxyz[windows], nheld[windows]]
+                       nxyz[windows], nrel[windows], nheld[windows]]
 
     # the frozen Q that reads every imagined state
     q_frozen = None
     if args.task_weight > 0:
       q_frozen, q_ck = load_model(args.run, "readout", args.tag)
+      q_columns = list(q_ck["p_columns"])
       for name in stats:
         if not torch.allclose(q_ck[name], stats[name]):
           raise ValueError("the readout was trained with other normalisation; train readout and dynamics with the same tag")
@@ -305,7 +469,7 @@ def main():
       print(f"dynamics: task-consistency through the frozen Q, weight {args.task_weight}", flush=True)
 
     def dynamics_loss(model, batch):
-      zz, pp, aa, xx, gg = batch
+      zz, pp, aa, xx, rr, gg = batch
       current_z, current_p = zz[:, 0], pp[:, 0]
       z_loss = p_loss = task_loss = 0
       for t in range(w):
@@ -313,9 +477,8 @@ def main():
         z_loss += (current_z - zz[:, t + 1]).square().mean() / w
         p_loss += (current_p - pp[:, t + 1]).square().mean() / w
         if q_frozen is not None:
-          y = q_frozen(torch.cat((current_z, current_p), -1))
-          task_loss += ((y[:, :3] - xx[:, t + 1]).square().mean()
-                        + nn.functional.binary_cross_entropy_with_logits(y[:, 3], gg[:, t + 1])) / w
+          y = q_frozen(torch.cat((current_z, current_p[:, q_columns]), -1))
+          task_loss += readout_loss(y, xx[:, t + 1], rr[:, t + 1], gg[:, t + 1])[0] / w
       terms = {"z_mse": z_loss.item(), "p_mse": p_loss.item()}
       if q_frozen is None:
         return z_loss + p_loss, terms

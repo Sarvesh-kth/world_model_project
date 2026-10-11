@@ -1,46 +1,32 @@
 .venv/
 __pycache__/
 *.pyc
-data/
-artifacts/
 .mujoco-osmesa/
+MUJOCO_LOG.TXT
 
-# Explicit team-shared experiment runs. Their contents use Git LFS.
-# Other generated runs remain local unless deliberately added here.
-!simulation/data/
+# runs (datasets, latents, models, controller episodes) and the summaries the controllers write stay local;
+# the only tracked data are the frozen SAC the rl_true / rl_q controllers load and the held-out obstacle layouts
 simulation/data/*
-!simulation/data/vision_v2/
+!simulation/data/README.md
 !simulation/data/rl_baseline_v1/
-!simulation/data/control_frozen_v2/
-!simulation/data/q_clutter_v1/
-# The trained world model the controllers load (checkpoints, PCA basis, encoder settings, info.json; LFS for
-# the binaries) and the held-out obstacle layouts. The frames and the 230 MB latent cache stay local.
-!simulation/data/combined_test1/
-simulation/data/combined_test1/*
-!simulation/data/combined_test1/attempts/
-simulation/data/combined_test1/attempts/*
-!simulation/data/combined_test1/attempts/combined/
-!simulation/data/combined_test1/features/
-simulation/data/combined_test1/features/latents.npy
-!simulation/data/obstacles_test1/
-simulation/data/obstacles_test1/*
-!simulation/data/obstacles_test1/collection.json
-!simulation/data/obstacles_test1/scene_settings.json
-# control_v1/control_frozen_v1 and the replay buffer below are archived at tag
-# archive/pre-cleanup-2026-10-05; keep them out of the active branch.
-simulation/data/rl_baseline_v1/models/resume_*.pkl
-results/decision_v1/reports/seed_*_forecast_steps.csv
-results/decision_v1/reports/seed_*_candidates.csv
-results/vision_v2/width_comparison/**/*_forecasts.csv
-results/vision_v2/width_comparison/**/*_robot.csv
+simulation/data/rl_baseline_v1/*
+!simulation/data/rl_baseline_v1/models/
+!simulation/data/rl_baseline_v1/pipeline.json
+!simulation/data/rl_baseline_v1/demos.json
+!simulation/data/rl_baseline_v1/demos.npz
+!simulation/data/rl_baseline_v1/evaluations.json
+!simulation/data/rl_baseline_v1/summary.json
+!simulation/data/obstacles_v2/
+simulation/data/obstacles_v2/*
+!simulation/data/obstacles_v2/collection.json
+!simulation/data/obstacles_v2/scene_settings.json
+results/
 
-
-# Keep local notes and agent instructions out of project commits; the READMEs and the change report are code docs.
+# notes stay local; the READMEs, CLUSTER.md and STATUS.txt are project docs
 *.md
 !README.md
 !**/README.md
-!CHANGES_FROM_M2.md
-!simulation/world_model/FLOW.md
+!simulation/CLUSTER.md
 .agents/
 .codex/
 .claude/

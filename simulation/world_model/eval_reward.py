@@ -6,27 +6,28 @@ import numpy as np
 import torch
 
 from .common import load_run, load_features, state_arrays, write_json
-from .train import load_model, imagine, normalized
+from .train import load_model, imagine, reward_terms
 
-# Can the penalty head R see obstacles? Scored on the held-out split twice: on the REAL latents, and on
-# latents IMAGINED by D over 1 / 4 / 8 steps from the recorded actions, which is what the planner sees.
-#   python -m world_model.eval_reward --run data/combined_test1 --tag combined --split test
+# Can the reward model R see obstacles and the task? Scored on the held-out split twice: on the REAL latents,
+# and on latents IMAGINED by D over 1 / 4 / 8 steps from the recorded actions, which is what the planner sees.
+#   python -m world_model.eval_reward --run data/combined_v2 --tag combined --split test
 
 
-# R's three outputs on raw (z, p): proximity in [-1, 0], collision and table-hit probabilities
+# R's penalty outputs on raw (z, p): proximity in [-1, 0], collision and table-hit probabilities, plus the
+# task terms the planner's potential is built from
 def scores(r, rc, z, p):
-  with torch.inference_mode():
-    y = r(torch.cat((normalized(z, rc, "z"), normalized(p, rc, "p")), -1)).numpy()
-  return np.clip(y[:, 0], -1, 0), 1 / (1 + np.exp(-y[:, 1])), 1 / (1 + np.exp(-y[:, 2]))
+  terms = reward_terms(r, rc, z, p)
+  return terms["proximity"], terms["collision"], terms["table_hit"], terms
 
 
-def metrics(prox, col, tab, truth):
+def metrics(prox, col, tab, terms, truth):
   out = {"n": len(prox), "penalised_states": int((truth[:, 0] != 0).sum()), "contact_states": int((truth[:, 1] != 0).sum()),
-         "proximity_mae": float(np.abs(prox - truth[:, 0]).mean())}
+         "proximity_mae": float(np.abs(prox - truth[:, 0]).mean()),
+         "task_terms_mae": {k: float(np.abs(terms[k] - truth[:, 3 + j]).mean()) for j, k in enumerate(("reach", "grasp", "lift", "transport"))}}
   near = truth[:, 0] != 0
   if near.any():
     out["proximity_mae_when_penalised"] = float(np.abs(prox[near] - truth[near, 0]).mean())
-  for name, prob, column in (("collision", col, 1), ("table_hit", tab, 2)):
+  for name, prob, column in (("collision", col, 1), ("table_hit", tab, 2), ("empty_grasp", terms.get("empty_grasp", np.zeros(len(prox))), 7)):
     t = truth[:, column] != 0
     g = prob > .5
     tp, fp, fn = int((g & t).sum()), int((g & ~t).sum()), int((~g & t).sum())
@@ -45,8 +46,11 @@ def main():
   manifest = load_run(args.run)
   z, _ = load_features(args.run, manifest)
   robot, _, _ = state_arrays(manifest)
-  truth = np.asarray([[s["reward_components"].get(k, 0.0) for k in ("proximity", "collision", "table_hit")]
+  truth = np.asarray([[s["reward_components"].get(k, 0.0) for k in ("proximity", "collision", "table_hit", "reach", "grasp", "lift", "transport", "empty_grasp")]
                       for s in manifest["states"]], np.float32)
+  # runs recorded before the empty_grasp penalty existed get it from p, as train.py does
+  missing = np.asarray(["empty_grasp" not in s["reward_components"] for s in manifest["states"]])
+  truth[missing, 7] = -((robot[missing, 19] < 0) & (robot[missing, 18] < .03)).astype(np.float32)
   r, rc = load_model(args.run, "reward", args.tag)
   d, dc = load_model(args.run, "dynamics", args.tag)
   report = {"split": args.split, "tag": args.tag}

@@ -55,7 +55,9 @@ commanded closed; an obstacle contact is any robot or object geom touching an ob
 contact is any arm geom except the fingers touching the table. `obstacle_distance()` is the closest
 distance between any arm collision geom and any obstacle, capped at `rewards.safe_distance` (6 cm).
 
-Rendering: `render(camera)` for `static` (256x256, fixed above the far side of the table) and `wrist`;
+Rendering: `render(camera)` for `static` (256x256, fixed above the far side of the table looking down at
+about 60 degrees) and `wrist`; `height_map()` turns the static depth image into an 8x8 map of the highest
+point per table cell (the world model's and the obstacle-aware policy's view of the obstacles);
 `render_depth` and `point_cloud` for the optional point clouds. The renderer is created lazily and
 rebuilt on every reset because the model changes.
 
@@ -113,11 +115,14 @@ flag. Components (weights in `rewards.weights`):
 | fail | once | episode ends without success |
 | collision, table_hit | per step | -1 while touching an obstacle / the table |
 | proximity | per step | ramps from 0 at `safe_distance` to -1 when an arm link touches an obstacle |
+| empty_grasp | per step | -1 while the gripper is commanded closed and the fingers are under 3 cm apart (shut on nothing; the cube is 4.5 cm) |
 | drop | once | released away from the target |
 | action | per step | mean squared motion command |
 
 The components are stored unweighted on purpose so training can pick any subset later; the penalty
-head `R` in `world_model/` learns proximity, collision and table_hit. The SAC in `rl/` uses its own
+head `R` in `world_model/` learns proximity, collision, table_hit and empty_grasp. A config saved before a
+component existed (a run's manifest, a SAC's `pipeline.json`) gets the missing weight from `default.yml`
+(`rewards.fill_weights`). The SAC in `rl/` uses its own
 shaping built on top of this class (`GoalReward`).
 
 ## Data collection, `data_collection/`
@@ -129,6 +134,7 @@ shaping built on top of this class (`GoalReward`).
 | success | clean scripted pick and place, retried on fresh layouts up to `success_attempts` times until it succeeds |
 | scripted | the same with slowly drifting action noise (`scripted.noise`, `noise_correlation`) |
 | drop | noisy scripted that lets go halfway through the carry |
+| miss | noisy scripted whose first grasp closes 3.5-7 cm beside the cube (across the fingers) or 3-7 cm above it, lifts the empty hand, then picks it up properly |
 | collide | noisy scripted that carries low, straight through the obstacles |
 | random | random actions with momentum and a downward drift |
 

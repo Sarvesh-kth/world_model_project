@@ -10,7 +10,9 @@ from environment.config import load_config
 from world_model.common import SIMULATION, write_json
 from .rl_control import train, validate
 
-# Train the exact-state SAC baseline on one fixed layout and evaluate it on fresh seeds.
+# Train the exact-state SAC baseline on one fixed layout and evaluate it on fresh seeds. With --obstacles
+# low high every episode gets that many fresh corridor obstacles and the policy sees the table height map
+# (pipeline.json records it, the controllers read it to build the matching observation).
 # The run folder is what the controllers and the collectors load afterwards:
 #   models/sac_best.zip     the frozen policy
 #   models/bc_initial.zip   the behaviour cloned actor before RL, for comparison
@@ -38,6 +40,10 @@ def main():
   p.add_argument("--validation-episodes", type=int, default=20)
   p.add_argument("--test-episodes", type=int, default=100)
   p.add_argument("--position-jitter", type=float, default=.01, help="cube start jitter per xy axis in metres")
+  p.add_argument("--obstacles", type=int, nargs=2, default=None, metavar=("LOW", "HIGH"),
+                 help="fresh corridor obstacles per episode and the height map in the observation, e.g. 1 3")
+  p.add_argument("--safety", type=float, default=1.0,
+                 help="multiplier on the collision, proximity and table-hit reward weights during training; the hand is wide, so the obstacle-aware policy trains with 4")
   p.add_argument("--threads", type=int, default=4)
   args = p.parse_args()
   args.out = args.out.resolve()
@@ -45,7 +51,9 @@ def main():
     p.error("keep the run under simulation/data/")
 
   # the session ends episodes itself, so the env must not stop early on its own success event
-  cfg = load_config(args.config, overrides={"episode": {"terminate_on_success": False}})
+  base = load_config(args.config)
+  weights = {k: float(base.rewards.weights[k] * args.safety) for k in ("collision", "proximity", "table_hit")}
+  cfg = load_config(args.config, overrides={"episode": {"terminate_on_success": False}, "rewards": {"weights": weights}})
   layout = json.loads(args.layout.read_text())
   options = {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()}
   args.out.mkdir(parents=True, exist_ok=True)
@@ -60,7 +68,7 @@ def main():
   torch.set_num_threads(args.threads)
   evaluations = {}
   test_args = SimpleNamespace(seed=args.seed + 990000, position_jitter=args.position_jitter,
-                              validation_episodes=args.test_episodes)
+                              validation_episodes=args.test_episodes, obstacles=args.obstacles)
   for method, checkpoint in (("bc_true", "bc_initial.zip"), ("rl_true", "sac_best.zip")):
     print(f"evaluating {method} on {args.test_episodes} fresh episodes", flush=True)
     policy = SAC.load(args.out / "models" / checkpoint, device="cpu")

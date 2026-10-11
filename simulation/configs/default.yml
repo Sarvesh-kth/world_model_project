@@ -33,9 +33,9 @@ cameras:
   width: 256
   height: 256
   static:
-    pos: [1.25, 0.0, 1.42]
-    lookat: [0.10, 0.0, 0.82]
-    fovy: 52
+    pos: [0.80, 0.0, 2.0]      # about 60 degrees down onto the table, the old low view (1.25, 0, 1.42) hid how far things were
+    lookat: [0.13, 0.0, 0.78]
+    fovy: 40                   # tight on the table, the cube is about 15 px across instead of 10
   wrist:
     fovy: 75                 # wide enough to keep both fingers in frame
     tilt_deg: 30             # pitch towards the fingertips (0 implies that it is looking straight along the gripper)
@@ -44,6 +44,9 @@ cameras:
     frame: base
     stride: 2
     max_depth: 2.5
+  heightmap:                 # the static depth image as a top down map of the table, cells x cells, highest point per cell
+    cells: 8
+    max_height: 0.25         # metres above the table top, everything higher is clipped
 
 # Position defined in world coordinates
 robot:
@@ -118,6 +121,7 @@ rewards:
     proximity: 0.3
     table_hit: 0.2
     drop: 1.0
+    empty_grasp: 0.5
     action: 0.01
 
 # Data collection configuration

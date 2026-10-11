@@ -1,9 +1,18 @@
 import numpy as np
 
+from .config import load_config
+
 COMPONENTS = ("reach", "grasp", "lift", "transport", "place", "success",
-              "fail", "collision", "proximity", "table_hit", "drop", "action")
+              "fail", "collision", "proximity", "table_hit", "drop", "empty_grasp", "action")
 BONUSES = COMPONENTS[:6]
 PENALTIES = COMPONENTS[6:]
+
+
+# A config saved before a component existed (a run's manifest, a SAC's pipeline.json) has no weight for it,
+# so the missing ones come from the default file
+def fill_weights(weights):
+  for k, v in load_config().rewards.weights.items():
+    weights.setdefault(k, v)
 
 
 # Staged reward from the privileged sim state, each component is stored unweighted
@@ -12,6 +21,7 @@ class Rewards:
 
   def __init__(self, cfg):
     self.cfg = cfg.rewards
+    fill_weights(self.cfg.weights)
     self.success_radius = cfg.episode.success_radius
     self.safe_distance = cfg.rewards.safe_distance
     self.table_height = cfg.table.height
@@ -66,6 +76,9 @@ class Rewards:
     c["collision"] = -float(state["obstacle_contacts"])
     c["proximity"] = -float(np.clip(1.0 - state["obstacle_distance"] / self.safe_distance, 0.0, 1.0))
     c["table_hit"] = -float(state["table_contacts"])
+    # Per step penalty while the fingers are shut on nothing: closed command and under 3 cm apart, the cube
+    # is 4.5 cm wide so nothing can be between them (a close beside or above the cube ends up here)
+    c["empty_grasp"] = -float(state["gripper_closed"] and state["gripper_width"] < 0.03)
     c["action"] = -float(np.mean(np.square(action[:-1])))
 
     # One time bonus the first step the object sits placed at the target

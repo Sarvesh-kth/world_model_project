@@ -1,14 +1,19 @@
-# Test 1: the original collector's full mix (success, noisy scripted, drop, collide, random) on the fixed cube,
-# random pick/place ends and 1-3 corridor obstacles, so the world model sees collisions, drops and random motion
-# with their recorded reward components. Everything else comes from grade_e.yml / default.yml.
-robot:
-  posture_noise: 0.0
+# The full mix for the world model: the cube anywhere on the reachable table, the goal anywhere else at least
+# 35 cm away, 0-3 random obstacles in between, the hand seen everywhere. Every kind starts from the same home
+# pose. success / scripted: clean and noisy picks; miss: the first close 2.5-7 cm beside or above the cube,
+# then a clean pick; lateral: the close the way a planner does it (low, sideways, up to 2.5 cm off); wander:
+# a few random points anywhere on the table (half the time after first going to the cube and leaving it),
+# then the pick, half the time with a detour while carrying (the hand is far from the cube in these states,
+# so a readout cannot guess the cube from the arm); drop / collide / random: the cube let go mid carry, a
+# carry low through the obstacles, random motion. Everything else (the 0.25 posture noise, a different elbow
+# every episode) comes from default.yml.
 task:
+  pick_end: anywhere
   object:
     pool: [cube]
     randomize_color: false
   obstacles:
-    count: [1, 3]
+    count: [0, 3]
 data:
-  mix: {success: 0.4, scripted: 0.2, drop: 0.1, collide: 0.15, random: 0.15}
+  mix: {success: 0.2, scripted: 0.1, miss: 0.15, lateral: 0.15, wander: 0.25, drop: 0.05, collide: 0.05, random: 0.05}
   success_attempts: 3

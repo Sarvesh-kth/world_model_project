@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-# Merge the three encoded runs into one and train Q, R and D on it, then score R on imagined latents.
-#   usage: bash world_model/run_combined.sh [run] [tag] [epochs]
+# Train Q, R and D on an encoded run, then score R on imagined latents and check that D / Q / R tell a grasp
+# from a miss. Stages whose model exists are skipped unless the 4th argument is "retrain" (after more data).
+#   usage: bash world_model/run_combined.sh data/episodes_v3 v3 60 [retrain]
 set -euo pipefail
-RUN=${1:-data/combined_test1}
+RUN=${1:-data/combined_v2}
 TAG=${2:-combined}
-EPOCHS=${3:-30}
+EPOCHS=${3:-60}
+RETRAIN=${4:-}
 export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4
-
-if [ ! -f "$RUN/manifest.json" ]; then
-  echo "=== merge"
-  python -m world_model.merge_runs --runs data/full_test1 data/obstacles_test1_fullpca data/episodes_test1_fullpca --out "$RUN"
-fi
 
 mkdir -p "$RUN/logs"
 for stage in readout reward dynamics; do
-  if [ ! -f "$RUN/attempts/$TAG/models/$stage.pt" ]; then
-    echo "=== train $stage ($TAG)"
+  if [ ! -f "$RUN/attempts/$TAG/models/$stage.pt" ] || [ "$RETRAIN" = retrain ]; then
+    echo "=== train $stage ($TAG, $EPOCHS epochs)"
     extra=""
     [ "$stage" = dynamics ] && extra="--rollout-steps 8 --task-weight 1.0 --robot-sees-z"
+    [ "$RETRAIN" = retrain ] && extra="$extra --overwrite"
     python -u -m world_model.train $stage --run "$RUN" --tag "$TAG" --epochs "$EPOCHS" $extra 2>&1 | tee "$RUN/logs/${TAG}_train_$stage.txt"
   fi
 done
 
 for split in val test; do
-  echo "=== penalty head on real and imagined latents ($split)"
+  echo "=== reward model on real and imagined latents ($split)"
   python -u -m world_model.eval_reward --run "$RUN" --tag "$TAG" --split $split 2>&1 | tee "$RUN/logs/${TAG}_reward_$split.txt"
 done
+echo "=== grasp or miss in imagination (test)"
+python -u -m world_model.eval_grasp --run "$RUN" --tag "$TAG" --split test 2>&1 | tee "$RUN/logs/${TAG}_grasp_test.txt"
 echo "DONE $TAG"

@@ -1,3 +1,204 @@
+REVIEW (2026-10-12 early morning): why 1,300 episodes were not enough, and the v3 chain
+==========================================================================================
+Question: a world model should not need 1,300 episodes for one cube; it still grasps badly and goes to the
+wrong side. Measured on the data/episodes_v2 latents (76k encoded states, scratch scripts q_probe / res_probe):
+  1. Q's error grows with the hand's distance from the cube: xy MAE 0.3/0.3 cm under 3 cm, 1.2/1.4 at 8-20 cm,
+     2.7/4.4 cm beyond 20 cm (val). Far = a clean, unoccluded view, the moment the planner picks its direction.
+     Retrained without any robot state the far error stayed at 3.3/4.2 cm: not a shortcut, the 8x8 x 16-PCA
+     time-mean latent itself cannot place a 15 px cube. On 4,000 sampled frames (2,863 train, no robot state):
+        MLP on 8x8 PCA16 (what was used)        far-hand xy MAE 3.3 / 6.4 cm
+        conv + spatial softmax, 16x16 PCA16     1.4 / 1.4
+        conv + spatial softmax, 16x16 PCA32     0.8 / 0.8
+        conv + spatial softmax, 16x16 PCA64     0.7 / 0.8
+     That is the data-efficiency problem: the position has to be READ OFF the grid, not fitted by an MLP.
+  2. Q, R, D all memorised: best validation epoch 3 (R), 13 (Q), training loss 7-10x below validation; D's
+     validation latent MSE 0.16 against 0.27 for simply keeping z constant. Consecutive states of a scene are
+     near duplicates, so 150k states were ~1,000 independent scenes.
+  3. Bias: every episodes_v2 episode has the cube in the four end zones (never the middle band); full_v2,
+     obstacles_v2 and planner_v1 (46k of the 123k training states) are at ONE spot, and the default empty
+     benchmark (no --random-ends) is that spot, so "empty 10/10" was a memorised scene. The honest number was
+     the random-end obstacle run, 4/10. Last night's planner constants were tuned on one 3-obstacle scene and
+     took the empty run from 10/10 to 2/7.
+  Already fine: the proximity penalty is the closest distance over all 24 arm collision geoms; the cube spawns
+  at a random yaw every episode and the scripted kinds turn the fingers to its faces.
+Changes (uncommitted, on top of the previous session's anywhere-sampler, wander and lateral kinds):
+  encode.py   per camera grid and PCA: static 16x16 x 32 (--static-pool 1 --static-pca 32), wrist 8x8 x 16;
+              z = 8192 + 1024 + 64 = 9280; meta.json has spatial_pool / cells / pca_dims per camera.
+  train.py    Q = GridReadout by default (1x1 + two 3x3 convolutions per camera, spatial softmax over the
+              static grid), input = z + finger width + gripper command only (P_GRIPPER), two position heads
+              (absolute when not held, relative to the grasp site when held) + held; R = the same network with
+              all of p; AdamW weight decay 0.05, cosine lr, dropout 0.1, batch 256, z-noise 0.3; the dynamics
+              task term goes through the new Q. --mlp-readout keeps the old MLP for comparison.
+              --grid-readout / --absolute-cube are gone; old checkpoints and the 8x8 latents are not compatible.
+  policy      lateral episodes turn the fingers to the cube's faces half the time (the other half keep the
+              arrival yaw, the way the planner grasps).
+  cluster_round.sh  the whole v3 chain on the cluster: collect -> prepare -> encode -> Q, R, D -> checks ->
+              20 random-end empty + 20 random-end obstacle + 6 clutter scenes (bash cluster_round.sh v3 400).
+NEXT: commit, run `bash cluster_round.sh v3 400` on the cluster (MUJOCO_GL=osmesa there), bring back
+  data/episodes_v3/attempts/v3 + features/{pca.npz,meta.json} + results/control_v3_*. Judge on the random-end
+  runs only. If 400 clean episodes with the new latent beat the 1,310 old ones, the data question is answered.
+  The planner does not turn the hand yet (yaw untouched): fine for the cube (diagonal 6.4 cm < 8 cm opening),
+  to be added for other objects.
+
+GRASPING SESSION (2026-10-11 afternoon/evening): data for the planner's own situations, Q/D fixes
+==================================================================================================
+Goal: 75-80 % placements with the models doing the work (planner stop-gaps off). Everything below is
+uncommitted. Progression on the 10 empty-table seeds 20494010-19 (jepa_mpc, --grasp-prior/--cube-anchor OFF):
+  v3 grid readout                          0/10   Q latched onto the hand (6 cm off on planner trajectories)   results/control_v3grid_empty
+  v4 MLP + latent noise                    2/10   Q +3.5 cm in y with the hand low beside the cube (not in scripted data)
+  v5 + wander data                         3/10   grasps work; releases 10-20 cm short: Q read the HELD cube 7-17 cm behind the hand
+  v6 Q relative to the grasp site          5/10   carry solved (held cube within 1 cm); left: late/missed grasps, one edge grasp, one phantom
+  v6 obstacles (random ends, 1-3 obstacles): 0/3 run before the stop (one released at 6.9 cm), 0 contacts
+  v6 + sampling spread shrinking to 1 cm   4/10   (results/control_v6b_empty) different seeds pass and fail: with the spread at 1 cm the
+                                                  hand gets trapped at a wrong cube estimate (Q's far-hand phantom); default floor now 3 cm.
+                                                  Offline: a Q with absolute + relative heads blended by held is best on validation (0.97/1.38 cm)
+                                                  but no better far from the cube; the planner episodes in the v8 training set are the fix.
+What was found and done (details in world_model/README.md, controller/README.md, simulation/README.md):
+  data   old data = 70 % one cube spot (SAC layout) -> Q 0.4 cm there, 3-5 cm elsewhere. Now episodes_v2 = 1,010 full-mix
+         episodes (random ends, 0-3 obstacles, kinds success/scripted/miss/wander/drop/collide/random), 137,139 states,
+         76,062 encoded; the 450 newest (ids 560-1009: 300 diverse + 150 miss-heavy at 2.5-5 cm) are NOT encoded yet.
+         New kinds: `miss` (close 2.5-7 cm beside across the fingers or above, then a clean pick), `wander` (low
+         points around the cube first). prepare_control.py turns planner episodes into a run (data/planner_v1,
+         40 episodes, true labels, online latents, no encoding). The *_test1 folders were deleted.
+  reward `empty_grasp` component (-1/step, gripper closed and under 3 cm), weight 0.5; R predicts it (P/R 0.99).
+  Q, R   MLP on (z, p), latent noise 0.6 while training (they memorised scenes in 3 epochs without it); Q predicts
+         the cube RELATIVE to the grasp site (ck relative_cube; --absolute-cube for the old). GridReadout kept as
+         --grid-readout: better on recorded scenes, follows the hand on planner trajectories.
+  D      trained on misses: recorded grasps imagined held 0.97-1.0, recorded misses 0.03-0.07; imagined closes 4 cm
+         beside the cube still 0.46 held (was 0.9), 5 cm above 0.28 (was 0.83). eval_grasp.py measures this.
+  encode wrist clip 16 frames (was 8), `--recamera wrist` redid the block in 0.17 s/state, tqdm progress bar; GPU
+         bound (batching gave nothing). planner: D/Q/R on the GPU (decision ~60 ms); --random-ends for the planner's
+         generalisation test; stop-gaps are flags, off.
+Remaining failure modes (v6): (1) a close 3-4 cm beside the cube is imagined as a 46 % hold, so sloppy grasp
+waypoints tie with precise ones and the planner hovers (seed 11); (2) fingers closed on a cube edge, cube slips,
+Q says held 0.6-0.9 (seed 13); (3) hand far from the cube: Q's "unsure" answer is "at the hand" (seed 15).
+All three are in the planner's own episodes (data/planner_v1) and in the miss batch at 2.5-5 cm.
+LATE EVENING (cluster rounds v8, v9): empty table 10/10 with v8 models (results from the cluster), random-end
+obstacle scenes 4/10 with 410 contact steps, held-out layouts 2/6. The 3-obstacle random-end scene seed 20494010
+watched live was bad (0/1, jerky, carried toward the far corner, hovered beside the cube). Replays of the recorded
+latents through D/Q/R found four planner-side causes, each fixed as a setting, no retraining (v9 models):
+  1. R's "placed" flag fires on imagined states with the hand high and the gripper opening (the post-placement
+     retreat in the data): potentials of 2.5 at 60 cm from the goal -> --reward-source readout is the default.
+  2. Beyond D's 8-step training window the imagined carry lost the cube (held 1.0 -> 0.01 at steps 10-12), so the
+     carry scored below holding still -> --horizon 8.
+  3. The task's tanh terms are flat far away (8 carry steps 50 cm out gain 0.05; one step near an obstacle costs
+     0.6) -> a linear goal pull while holding (0.3 over 80 cm), like the reach pull.
+  4. The 1.2 cm arrival tolerance was never met by the imagined hand (Q 1 cm off, D drifting), so the grasp
+     proposal never got its close -> CLOSE 2 cm (measured: closes within 1.5 cm hold 92-100 %, 1.5-2.5 cm half).
+  plus --plan-margin 0.05 (commitment) and --waypoint-std-min 0.03. Result on that scene: placed at 4.1 cm in
+  188 steps, 0 contacts, direction flips 0.22 -> 0.12, action change 0.36 -> 0.14 (results/control_v9_obstacles3_c2).
+  D findings: its hand prediction is right (0.3 cm/step; the real hand moves ~2 cm per full-speed step, not 4);
+  loss reweighting and a Q cue did not sharpen its imagined close at the cube (0.49 held), the lateral kind
+  (210 episodes, closes 0-2.5 cm off from a low sideways approach) was added for that; D's recorded-close replay
+  is right (0.95-0.98 held on grasps, 0.07-0.11 on misses). New: data_collection `lateral` kind, cluster_round.sh,
+  world_model/README.md "Encoding on another machine". Full evaluation with these settings: data/eval_v9_local.log.
+
+NEXT (the user encodes on a cluster, see world_model/README.md "Encoding on another machine"):
+  on the cluster:  python -m world_model.encode --run data/episodes_v2 --resume      (61,077 states)
+  back here:       python -m world_model.prepare_control --control data/control_v3_empty data/control_v4_empty data/control_v5_empty data/control_v6_empty --run data/planner_v1
+                   python -m world_model.merge_runs --runs data/full_v2 data/obstacles_v2 data/episodes_v2 data/planner_v1 --out data/combined_v2 --overwrite
+                   bash world_model/run_combined.sh data/combined_v2 combined 60 retrain
+                   python -m controller.control_pipeline --methods jepa_mpc --test-episodes 10 --headless --out data/control_v8_empty
+                   python -m controller.control_pipeline --methods jepa_mpc --test-episodes 20 --random-ends --obstacles 1 3 --headless --out data/control_v8_obstacles
+                   python -m controller.control_clutter --methods jepa_mpc --headless --out data/control_v8_clutter
+  then fold the new planner episodes back in (prepare_control + merge + retrain) and repeat; if the grasp boundary
+  stays soft, raise --task-weight for D or slow the final descent in the planner. Run run_combined.sh with the
+  venv ACTIVE (plain `python`). Raw results of this session: results/control_v4_empty, control_v5_empty, control_v6_empty.
+
+V2 (2026-10-11): two cameras, height map, latent MPC without the SAC
+=====================================================================
+Problem: with an obstacle in the scene the planner failed to pick the cube (Q 1-2 cm off), the low static
+camera (1.25, 0, 1.42 looking at the table edge, ~30 deg down) could not tell depth, and the planner was a
+CEM around the SAC's own action sequence, so "planner vs policy" was circular.
+
+What changed (all code, see the READMEs of simulation/world_model, controller, rl):
+  camera      static camera at (0.80, 0, 2.0) looking at (0.13, 0, 0.78), fovy 40 (~60 deg down, the table fills
+              the frame, the cube is ~15 px instead of ~10). configs/default.yml.
+  perception  z = [V-JEPA static clip 16 frames -> 8x8x16 PCA (1024)] + [V-JEPA wrist clip 8 frames -> 1024]
+              + [8x8 table height map from the static depth image, metres / 0.25 (64)] = 2112.
+              Point clouds cannot go into V-JEPA (RGB video only); the height map is the point cloud's
+              contribution (PickPlaceEnv.height_map), D predicts it, Q/R read it. encode.py --cameras,
+              --wrist-clip-frames, --no-heightmap; one PCA basis per camera in features/pca.npz.
+  data        every collector records static_NNNN.jpg + wrist_NNNN.jpg + heightmap per state; the config
+              (cameras) comes from configs/grade_e.yml, only the layout + SAC from rl_baseline_v1.
+              world_model/run_collect.sh v2 -> data/full_v2 (16/4/2 scenes), obstacles_v2 (14/4/6),
+              episodes_v2 (120 full-mix episodes) -> encode (0.26 s/state) -> data/combined_v2.
+  planner     controller/planner.py: Cartesian waypoint MPC. Candidate = (grasp-site waypoint, gripper switch
+              step, gripper after). Actions from a go-to rule inside the imagination, D rolls 8 steps, Q reads
+              cube/held (width gate), R the penalties; score = terminal task potential (reach 0..0.5 < held
+              1..2.5 < placed 3.5) + 0.1 mean potential + penalties - action cost; CEM 64/8/3 with 8 fixed
+              proposals (hold, previous, to_cube, grasp, above_cube, carry, lower, release) always in the pool.
+              No SAC anywhere in the planner; --baseline-run is only loaded for rl_true / rl_q.
+  reward      R(z,p) now predicts the task terms too (reach, grasp, lift, transport, placed) next to the penalties
+              (train.REWARD_OUTPUTS); the planner's potential comes from R's terms, from Q's readings through the
+              formula, or their mean (--reward-source both, the default). Penalties always from R.
+  growth      bash world_model/run_grow.sh N: N more full-mix episodes (random ends, 1-3 obstacles, posture noise
+              on), stable modulo-7 split, encode --resume encodes only the new states, merge --overwrite keeps
+              attempts/, run_combined.sh ... retrain retrains Q/R/D with --overwrite. Default epochs now 60.
+  SAC         rl_baseline --obstacles LOW HIGH: fresh corridor obstacles every episode and the height map in the
+              observation (41 -> 105 numbers); control_pipeline reads pipeline.json to build the matching
+              observation for rl_q. Not trained yet (code path smoke-tested).
+  comparison  actor-critic = amortised policy, one forward pass (~1 ms), samples only during training;
+              MPC = online planning with D/Q/R (~0.3 s/step, mostly the online encoder), no policy training.
+              Judged on placements, contacts, decision time, held-out obstacle layouts.
+
+Smoke test (tiny data, 2 epochs): collectors, encode, merge, train Q/R/D, eval_reward, rl_baseline --obstacles,
+all four controllers run end to end. Mock-model test of planner.py: reach -> grasp -> lift -> carry around a
+wall (0 penalty) -> lower -> release -> placed in 26 steps, 23 ms/decision.
+
+Planner findings (2026-10-11, empty table runs; see controller/README.md "The planner"):
+  1. Action cost 0.01 outweighed the reach gain -> the arm crept. Now 0.0002 plus a linear pull toward the cube.
+  2. Diagonal go-to reached table height 7 cm from the cube and pushed it. The go-to rule now travels at
+     rest_z + carry_height and descends only when aligned (2 cm), rises first when it is low.
+  3. D HALLUCINATES THE GRASP: closing the fingers 5-7 cm from the cube is imagined as a successful hold
+     (in the data fingers only ever close at the cube). Stop-gap: a candidate is credited with a hold only
+     if its hand was within 3 cm of the cube's current estimate when it closed; closes only within 1.2 cm.
+     The user wants this solved properly, not by such rules: collect near-miss closes (fingers closing 2-8 cm
+     beside the cube, random episodes have a few) and train D with a higher --task-weight / a held-consistency
+     term so the imagined held flag is only set when the fingers really enclose the cube; possibly a reward
+     term at collection time that penalises closing on nothing, so R learns it as well.
+  4. Q drifts 1-3 cm while the hand hovers over the cube (the hand occludes it from the static camera).
+     Stop-gap: the planner keeps the last clear sighting while the hand is within 8 cm and nothing is held.
+     Proper fix: hover-over-cube states in the data (run_grow.sh adds random/scripted episodes) and the wrist
+     camera weight in Q; a third camera from the side would remove the occlusion altogether.
+  5. Horizon 12 instead of 8: a grasp from 10 cm away needs about 10 steps to show its payoff.
+  Result after 1+2+3 (before 4): empty table 3/5, lift 15-18 cm, release within 1-5 cm, 100 ms per decision.
+
+  6. After 4 + a 1.5 cm tolerance on the grasp prior: empty table 4/5 (below). Obstacle scenes: scene 19 fails
+     because Q reads the cube 5-10 cm off from step 1 (cube away from its usual spot, hand far across the
+     table: out of Q's training distribution); scene 20 grasped and lifted but hit the 16 cm cylinder at travel
+     height (R flagged it only on contact), dropped the cube beside it and Q then read it 4-8 cm off. Both are
+     perception / data-coverage limits, not planner logic; more diverse episodes (run_grow.sh) is the fix.
+
+Numbers with the v2 models (2026-10-11, stopped here by the user; partial runs, 5 empty seeds 20494010-14,
+held-out obstacle scenes 18-23 of data/obstacles_v2; decision = mean wall time per step):
+  controller          empty table            obstacle scenes                 decision
+  jepa_mpc            4/5  (1-4 cm, 0 contacts)   2/5 run (18, 21 solved, 0 contacts; 20: 7 contacts)   ~120 ms
+  rl_true (obstacle SAC, exact state)  5/5         2/2 run (18, 19)                                    1 ms
+  rl_q    (obstacle SAC, Q + height map) 2/2 run   0/1 run (scene 18: 116 contact steps)              1 ms
+  Not run: the rest of rl_q, scene 23 for jepa_mpc, the 20-seed runs. Raw per-episode results are in
+  data/control_v2, data/control_obstacles_v2, data/control_v2_rl, data/control_obstacles_v2_rl (and
+  results/<same>). Models: data/combined_v2 tag combined (Q val xyz 1.29/1.94/0.23 cm, held F1 0.99; R task
+  terms MAE 0.03-0.05, placed P/R 1.0/1.0, collision AUC 0.98 real / 0.96 imagined at 8 steps).
+  Obstacle-aware SAC: data/rl_obstacles_v2 (--obstacles 1 3 --safety 4): 66/100 fresh obstacle layouts with
+  exact state, BC alone 43/100.
+
+To continue:
+  python -m controller.control_pipeline --methods jepa_mpc --test-episodes 20 --headless --out data/control_v2_20
+  python -m controller.control_pipeline --methods rl_true rl_q --baseline-run data/rl_obstacles_v2 --test-episodes 20 --headless --out data/control_v2_rl20
+  python -m controller.control_clutter --methods jepa_mpc --headless --out data/control_obstacles_v2
+  python -m controller.control_clutter --methods rl_true rl_q --baseline-run data/rl_obstacles_v2 --headless --out data/control_obstacles_v2_rl
+  bash world_model/run_grow.sh 120      # more diverse episodes, re-encode only the new ones, retrain (the proper fix for 3, 4, 6)
+  Nothing is committed. The *_test1 data folders and combined_test1 models are obsolete (old camera).
+
+Commands:
+  bash world_model/run_collect.sh v2 120
+  bash world_model/run_combined.sh data/combined_v2 combined 30
+  python -m controller.control_pipeline --methods jepa_mpc --headless
+  python -m controller.control_pipeline --methods jepa_mpc --obstacles 1 3 --headless
+  python -m controller.control_clutter --methods rl_q jepa_mpc --headless
+  python -m rl.rl_baseline --out data/rl_obstacles_v2 --obstacles 1 3        (the obstacle-aware actor-critic, ~1 h)
+
 NOTE (2026-10-10): the code was reorganised after this log was written. world_model/vision/* is now split into
   world_model/ (collect_full, collect_obstacles, prepare_episodes, encode, merge_runs, train, eval_reward, run_combined.sh),
   rl/ (task_control, rl_control, rl_baseline) and controller/ (control_pipeline, control_clutter, run_final.sh);

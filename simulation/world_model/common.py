@@ -119,13 +119,14 @@ def outcome_metrics(pred_xyz, probability, xyz, held):
           "positive_labels": int(truth.sum()), "negative_labels": int((~truth).sum())}
 
 
-# One recorded state for the manifest: robot state, cube pose, contact flags, reward and the frame history
-# that is the camera clip ending at this state (newest frame last)
-def record(env, key, scene, split, history, action=None, info=None, reward=0):
+# One recorded state for the manifest: robot state, cube pose, contact flags, reward, the frame histories
+# of both cameras (the clips ending at this state, newest frame last) and the table height map
+def record(env, key, scene, split, history, action=None, info=None, reward=0, wrist_history=None):
   obs = env._observation()
   grasp, obstacle, table = env._check_contacts()
   info = info or {}
   return {"key": key, "scene": scene, "split": split, "frames": history[-64:],
+          "wrist_frames": (wrist_history or [])[-64:], "heightmap": env.height_map().reshape(-1).tolist(),
           "p": obs["proprio"].tolist(), "object_xyz": obs["state"][:3].tolist(),
           "object_quat": obs["state"][3:7].tolist(), "held": bool(grasp),
           "obstacle_contact": bool(obstacle), "table_contact": bool(table),
@@ -137,6 +138,6 @@ def record(env, key, scene, split, history, action=None, info=None, reward=0):
 # An empty manifest, every collector starts from this
 def new_manifest(campaign, cfg, settings):
   return {"schema": "vision_consequences_v1", "campaign": campaign, "complete": False,
-          "settings": settings, "config": cfg, "camera": "static", "control_hz": cfg["control"]["hz"],
+          "settings": settings, "config": cfg, "cameras": ["static", "wrist"], "control_hz": cfg["control"]["hz"],
           "p_columns": P_COLUMNS, "action_columns": A_COLUMNS,
           "states": [], "rollouts": [], "scene_settings": []}

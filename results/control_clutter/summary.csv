@@ -1,2 +1,0 @@
-episodes,mean_final_goal_distance_cm,median_final_goal_distance_cm,method,obstacle_contact_steps,planner_fallback_steps,successes
-1,9.090873718261719,9.090873718261719,jepa_mpc,0,0,0

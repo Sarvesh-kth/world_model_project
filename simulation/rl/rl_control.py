@@ -15,7 +15,7 @@ from .task_control import GoalReward, TaskSession, make_rl_env
 
 # Run the policy on fresh seeds and count placements
 def validate(model, cfg, layout, args):
-  session = TaskSession(cfg, layout, args.position_jitter)
+  session = TaskSession(cfg, layout, args.position_jitter, args.obstacles)
   results = []
   try:
     for i in range(args.validation_episodes):
@@ -40,7 +40,7 @@ def demonstrations(path, cfg, layout, args):
   if path.exists():
     with np.load(path) as data:
       return {k: data[k] for k in data.files}
-  session = TaskSession(cfg, layout, args.position_jitter)
+  session = TaskSession(cfg, layout, args.position_jitter, args.obstacles)
   transitions, reports = [], []
   try:
     for attempt in range(3 * args.demos):
@@ -93,7 +93,7 @@ def train(root, cfg, layout, args):
   data = demonstrations(root / "demos.npz", cfg, layout, args)
   demo_obs = torch.as_tensor(data["obs"], dtype=torch.float32)
   demo_actions = torch.as_tensor(data["action"], dtype=torch.float32)
-  env = Monitor(make_rl_env(cfg, layout, args.position_jitter, args.seed + 1000),
+  env = Monitor(make_rl_env(cfg, layout, args.position_jitter, args.seed + 1000, args.obstacles),
                 filename=str(root / "rl_monitor.csv"), info_keywords=("task_success",))
   start = time.monotonic()
   try:
@@ -168,6 +168,8 @@ def train(root, cfg, layout, args):
                           > (best["success_rate"], -best["mean_final_goal_distance_cm"])):
         history["best"] = evaluation
         history["best_checkpoint_file"] = path.name
+        # the best so far is copied right away, so an interrupted run still leaves a usable policy
+        shutil.copyfile(path, folder / "sac_best.zip")
       for old in folder.glob("sac_0*.zip"):
         if old.name != history["best_checkpoint_file"]:
           old.unlink()
@@ -183,13 +185,13 @@ def train(root, cfg, layout, args):
     model.learn(args.rl_steps, callback=ValidationCallback())
     if not history["validation"] or history["validation"][-1]["training_steps"] != model.num_timesteps:
       checkpoint()
-    shutil.copyfile(folder / history["best_checkpoint_file"], folder / "sac_best.zip")
     write_json(folder / "rl_training.json", {
       **history, "SB3_version": stable_baselines3.__version__, "torch_version": torch.__version__,
       "seconds": time.monotonic() - start,
       "settings": {"rl_steps": args.rl_steps, "critic_warmup": args.critic_warmup, "bc_weight": args.bc_weight,
                    "learning_rate": args.learning_rate, "ent_coef": args.ent_coef, "bc_epochs": args.bc_epochs,
                    "demos": args.demos, "seed": args.seed, "network": [128, 128], "gamma": model.gamma,
+                   "obstacles": args.obstacles,
                    "validation_seeds": [args.seed + 10000 + i for i in range(args.validation_episodes)]}})
   finally:
     env.close()

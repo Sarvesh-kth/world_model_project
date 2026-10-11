@@ -3,36 +3,47 @@ import csv
 import json
 import pathlib
 
+import numpy as np
+
 from environment.rewards import COMPONENTS
 from .common import P_COLUMNS, A_COLUMNS, new_manifest, write_json
 
 # Turn a data_collection.collect dataset (success / scripted / drop / collide / random episodes with their
 # reward components) into a run folder with a manifest, so encode / train can use the full data mix.
-# Every episode becomes one rollout, split 70 / 15 / 15 by episode index; only the static camera is used.
+# Every episode becomes one rollout, with both cameras and the height map. The split is by episode index
+# modulo 7 (5 -> val, 6 -> test, about 14 % each), so collecting more episodes into the same folder and
+# running this again keeps every earlier episode in its split and only appends states (encode --resume
+# then encodes just the new ones).
 #   python -m data_collection.collect --config configs/full_mix.yml --episodes 120 --out data/episodes_test1/episodes_raw
 #   python -m world_model.prepare_episodes --episodes data/episodes_test1/episodes_raw --run data/episodes_test1
+
+
+# Episodes recorded before the empty_grasp penalty existed get it from the row: fingers commanded shut and
+# under 3 cm apart (the environment's definition); any other missing component is 0
+def empty_grasp(row, k):
+  if k != "empty_grasp":
+    return 0.0
+  return -float(float(row["gripper_cmd"]) < 0 and float(row["gripper_width"]) < 0.03)
 
 
 def main():
   p = argparse.ArgumentParser()
   p.add_argument("--episodes", type=pathlib.Path, required=True, help="folder with episode_*/ from data_collection.collect")
   p.add_argument("--run", type=pathlib.Path, required=True, help="run folder to create")
-  p.add_argument("--val-fraction", type=float, default=.15)
-  p.add_argument("--test-fraction", type=float, default=.15)
   args = p.parse_args()
   folders = sorted(args.episodes.glob("episode_*/data.csv"))
   if not folders:
     p.error("no episodes found")
   n = len(folders)
-  n_test, n_val = round(args.test_fraction * n), round(args.val_fraction * n)
-  cfg = json.loads((folders[0].parent / "meta.json").read_text())["config"]
+  # the newest episode's config, so a reward weight added later is in the manifest the models are trained with
+  cfg = json.loads((folders[-1].parent / "meta.json").read_text())["config"]
   manifest = new_manifest("episodes", cfg, {k: str(v) for k, v in vars(args).items()})
 
   kinds = {}
   for index, path in enumerate(folders):
     folder = path.parent
     meta = json.loads((folder / "meta.json").read_text())
-    split = "test" if index >= n - n_test else "val" if index >= n - n_test - n_val else "train"
+    split = {5: "val", 6: "test"}.get(index % 7, "train")
     with path.open(newline="") as f:
       rows = list(csv.DictReader(f))
     scene = folder.name
@@ -40,27 +51,32 @@ def main():
     kinds[kind] = kinds.get(kind, 0) + 1
     view = "obstacles" if meta["layout"]["obstacles"] else "empty"
     start = len(manifest["states"])
-    history, actions = [], []
+    history, wrist_history, actions = [], [], []
+    heightmaps = np.load(folder / "heightmaps.npy")
+    if len(heightmaps) != len(rows):
+      raise ValueError(f"{folder}: {len(heightmaps)} height maps for {len(rows)} rows")
 
     # one state per recorded row, the action stored on a row is the one that led to it
     for j, row in enumerate(rows):
       serial = int(row["serial"])
-      frame = f"episodes/{scene}/images/static_{serial}.jpg"
-      if not (folder / "images" / f"static_{serial}.jpg").is_file():
-        raise FileNotFoundError(frame)
-      history.append(frame)
+      for camera, kept in (("static", history), ("wrist", wrist_history)):
+        frame = f"episodes/{scene}/images/{camera}_{serial}.jpg"
+        if not (folder / "images" / f"{camera}_{serial}.jpg").is_file():
+          raise FileNotFoundError(frame)
+        kept.append(frame)
       action = [float(row[c]) for c in A_COLUMNS]
       if j:
         actions.append(action)
       manifest["states"].append({
         "key": f"{scene}:{serial:04d}", "scene": scene, "split": split, "frames": history[-64:],
+        "wrist_frames": wrist_history[-64:], "heightmap": heightmaps[j].reshape(-1).tolist(),
         "p": [float(row[c]) for c in P_COLUMNS],
         "object_xyz": [float(row[c]) for c in ("object_x", "object_y", "object_z")],
         "object_quat": [float(row[c]) for c in ("object_qw", "object_qx", "object_qy", "object_qz")],
         "held": bool(int(row["grasped"])),
         "obstacle_contact": bool(int(row["obstacle_contact"])), "table_contact": bool(int(row["table_contact"])),
         "reward_stage": row["stage"], "reward": float(row["reward_total"]),
-        "reward_components": {k: float(row[f"reward_{k}"]) for k in COMPONENTS},
+        "reward_components": {k: float(row[f"reward_{k}"]) if f"reward_{k}" in row else empty_grasp(row, k) for k in COMPONENTS},
         "action_from_previous": action if j else None, "time": float(row["time"]),
         "view": view, "case": kind, "task_success": bool(int(row["success"]))})
     manifest["rollouts"].append({

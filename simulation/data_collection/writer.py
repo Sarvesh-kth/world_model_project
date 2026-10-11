@@ -19,6 +19,7 @@ POSE_AXES = ("x", "y", "z", "qw", "qx", "qy", "qz")
 #   data.csv     one row per recorded step, keyed by serial
 #   meta.json    layout (replayable), policy variant, seed, goal, config
 #   images/      static_<serial>.jpg, wrist_<serial>.jpg
+#   heightmaps.npy  (steps, cells, cells) table height map from the static depth image, one per row
 #   pcl/         static_<serial>.npy, wrist_<serial>.npy when point clouds are on
 class EpisodeWriter:
 
@@ -38,13 +39,16 @@ class EpisodeWriter:
     self.rows = []
     self.images = {cam: [] for cam in CAMERAS}
     self.pointclouds = {cam: [] for cam in CAMERAS}
+    self.heightmaps = []
     self.collisions = 0
     self.success = False
 
   # Store one step, images are jpeg encoded right away to keep memory down
-  def add_record(self, step, action, obs, reward, info, cam_poses, images, pointclouds=None):
+  def add_record(self, step, action, obs, reward, info, cam_poses, images, pointclouds=None, heightmap=None):
     serial = len(self.rows) + 1
     self.rows.append(self._row(serial, step, action, obs, reward, info, cam_poses))
+    if heightmap is not None:
+      self.heightmaps.append(np.asarray(heightmap, np.float32))
     quality = [cv2.IMWRITE_JPEG_QUALITY, self.cfg.data.jpeg_quality]
     for cam in CAMERAS:
       # opencv wants BGR
@@ -68,6 +72,8 @@ class EpisodeWriter:
       writer.writeheader()
       writer.writerows(self.rows)
 
+    if self.heightmaps:
+      np.save(ep_dir / "heightmaps.npy", np.stack(self.heightmaps))
     for cam in CAMERAS:
       for i, jpeg in enumerate(self.images[cam]):
         (img_dir / f"{cam}_{i + 1}.jpg").write_bytes(jpeg.tobytes())

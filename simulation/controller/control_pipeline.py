@@ -13,28 +13,31 @@ import cv2
 import numpy as np
 
 from environment.config import Config
+from environment.rewards import fill_weights
 from data_collection.scripted_policy import ScriptedPickPlace
 from world_model.common import SIMULATION, load_run, save_csv, write_json, outcome_metrics
 from rl.task_control import GoalReward, TaskSession, policy_observation, predicted_reward
+from . import planner
 
-# Run the four controllers on fresh empty-table scenes and compare them:
+# Run the controllers on fresh scenes of one layout and compare them:
 #   scripted  the scripted policy on the exact simulator state, the upper bound
-#   rl_true   the frozen SAC on the exact state
-#   rl_q      the same SAC, but cube position and held come from Q on the live camera
-#   jepa_mpc  the planner: CEM around the SAC's own action sequence, candidates imagined by D for --horizon
-#             steps, scored by Q (progress reward) and the penalty head R; the SAC guide is candidate 0 and a
-#             candidate only replaces it when it beats the guide's forecast by --guide-margin
-# Everything is loaded from two run folders: --models-run (Q, R, D, the PCA basis and encoder settings) and
-# --baseline-run (the SAC). Frames, gifs and per step csv land in data/<out>/episodes/<method>/seed_*/,
-# the summary in results/<out>/.
+#   rl_true   the frozen SAC on the exact state (the actor-critic controller, one forward pass per step)
+#   rl_q      the same SAC, but cube position and held come from Q on the live cameras
+#   jepa_mpc  the latent planner (planner.py): Cartesian waypoint candidates imagined by D, scored by Q's
+#             task potential and R's penalties, CEM, no policy anywhere in the loop
+# The world model comes from --models-run (Q, R, D, the PCA bases and encoder settings), the SAC from
+# --baseline-run (only loaded for rl_true / rl_q). Frames, gifs and per step csv land in
+# data/<out>/episodes/<method>/seed_*/, the summary in results/<out>/.
 #   python -m controller.control_pipeline --methods jepa_mpc
 #   python -m controller.control_pipeline --test-episodes 20 --headless
 
 METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc")
+CAMERAS = ("static", "wrist")
 
 
-# The world model at run time: the online V-JEPA encoder (same weights, pooling and PCA basis as the cached
-# features), Q, D and the optional penalty head R, all from one run folder and tag
+# The world model at run time: the online V-JEPA encoder (same weights, pooling, cameras and PCA bases as
+# the cached features, plus the live height map), Q, D and the optional penalty head R, all from one run
+# folder and tag
 class WorldModels:
 
   def __init__(self, root, tag, args):
@@ -51,19 +54,32 @@ class WorldModels:
     self.r = self.rc = None
     if (root / "attempts" / tag / "models/reward.pt").exists() and not args.no_penalties:
       self.r, self.rc = load_model(root, "reward", tag)
+      if "reach" not in self.rc.get("output_names", ()) and args.reward_source != "readout":
+        raise ValueError("this reward.pt predicts penalties only; train the reward stage again or use --reward-source readout")
+    # the small networks run on the GPU next to the encoder: batches of 64 candidates per imagined step
+    for model in (self.d, self.q, self.r):
+      if model is not None:
+        model.to("cuda")
     self.penalty_scale = args.penalty_scale
+    self.reward_source = args.reward_source
     self.width_gate = not args.no_width_gate
+    self.grasp_prior = args.grasp_prior
 
     meta = json.loads((root / "features/meta.json").read_text())
     pooling = meta["pooling"].split("_pca")[0]
-    pca = np.load(root / "features/pca.npz") if pooling != "mean_all_encoder_tokens" else None
-    self.encoder = Encoder(meta["model"], meta["model_revision"] or PINNED_REVISION, "mean_all" if pca is None else pooling,
-                           pca=pca, clip_frames=meta["clip_frames"], stride=meta.get("frame_stride", 1),
-                           dtype=meta.get("dtype", "bf16"), spatial_pool=meta.get("spatial_pool", 1))
+    self.cameras = tuple(meta.get("cameras", ["static"]))
+    self.heightmap = bool(meta.get("heightmap", False))
+    clip_frames = meta["clip_frames"] if isinstance(meta["clip_frames"], dict) else {"static": meta["clip_frames"]}
+    self.encoder = Encoder(meta["model"], meta["model_revision"] or PINNED_REVISION, "mean_all" if pooling == "mean_all_encoder_tokens" else pooling,
+                           cameras=self.cameras, clip_frames=clip_frames, stride=meta.get("frame_stride", 1),
+                           dtype=meta.get("dtype", "fp16"), spatial_pool=meta.get("spatial_pool"),
+                           heightmap=self.heightmap, heightmap_scale=meta.get("heightmap_scale", .25))
+    if pooling != "mean_all_encoder_tokens":
+      self.encoder.set_pca(np.load(root / "features/pca.npz"))
 
-  # z from the frame history (newest last)
-  def encode(self, frames):
-    z = self.encoder.encode_frames(frames)
+  # z from the frame histories (camera -> frames, newest last) and the live height map
+  def encode(self, histories, heightmap):
+    z = self.encoder.encode_frames(histories, heightmap if self.heightmap else None)
     if z.shape != (self.dc["z_dim"],) or not np.isfinite(z).all():
       raise ValueError("invalid latent from the online encoder")
     return z
@@ -72,176 +88,68 @@ class WorldModels:
   def predict(self, z, p, actions):
     from world_model.train import normalized
     with self.torch.inference_mode():
-      zz, pp = self.d(normalized(z, self.dc, "z"), normalized(p, self.dc, "p"),
-                      self.torch.as_tensor(actions, dtype=self.torch.float32))
-    return (zz.numpy() * self.dc["z_std"].numpy() + self.dc["z_mean"].numpy(),
-            pp.numpy() * self.dc["p_std"].numpy() + self.dc["p_mean"].numpy())
+      zz, pp = self.d(normalized(z, self.dc, "z").cuda(), normalized(p, self.dc, "p").cuda(),
+                      self.torch.as_tensor(actions, dtype=self.torch.float32).cuda())
+    return (zz.cpu().numpy() * self.dc["z_std"].numpy() + self.dc["z_mean"].numpy(),
+            pp.cpu().numpy() * self.dc["p_std"].numpy() + self.dc["p_mean"].numpy())
 
   # Q: cube xyz and held probability
   def read(self, z, p):
     from world_model.train import readout
     xyz, held = readout(self.q, self.qc, z, p)
     # fingers closed to under 2 cm hold nothing (the cube is 4.5 cm); without this Q kept saying held after a
-    # missed grasp and the policy carried air to B in every failed episode
+    # missed grasp and the controller carried air to B in every failed episode
     if self.width_gate:
-      held = held * (np.asarray(p)[:, 18] > .02)
+      p = np.asarray(p)
+      held = held * (p[:, 18] > .02)
+    # the old stop-gap on top: nothing is held unless the cube estimate sits between the fingers
+    if self.grasp_prior:
+      p = np.asarray(p)
+      held = held * (np.linalg.norm(p[:, 14:16] - xyz[:, :2], axis=1) < .05) * (np.abs(p[:, 16] - xyz[:, 2]) < .06)
     return xyz, held
 
-  # R: weighted imagined penalty per candidate, <= 0, zero without a penalty head
-  def penalty(self, z, p, weights):
-    from world_model.train import normalized
+  # R: its predicted terms for a batch (name -> array), None without a reward model
+  def reward(self, z, p):
+    from world_model.train import reward_terms
     if self.r is None:
-      return np.zeros(len(z), np.float32)
-    with self.torch.inference_mode():
-      y = self.r(self.torch.cat((normalized(z, self.rc, "z"), normalized(p, self.rc, "p")), -1)).numpy()
-    proximity = np.clip(y[:, 0], -1, 0)
-    collision, table = 1 / (1 + np.exp(-y[:, 1])), 1 / (1 + np.exp(-y[:, 2]))
-    # scaled above 1 the planner leaves the guide earlier, before the forecast reaches the wall
-    return (self.penalty_scale * (weights["proximity"] * proximity - weights["collision"] * collision
-                                  - weights["table_hit"] * table)).astype(np.float32)
+      return None
+    return reward_terms(self.r, self.rc, z, p)
+
+  # The weighted imagined penalty per candidate from R's terms, <= 0, zero without a reward model
+  def penalty(self, terms, weights):
+    if terms is None:
+      return 0.0
+    # scaled above 1 the planner turns away earlier, before the forecast reaches the wall; a reward model
+    # from before the empty-grasp penalty has no such term
+    return (self.penalty_scale * (weights["proximity"] * terms["proximity"] - weights["collision"] * terms["collision"]
+                                  - weights["table_hit"] * terms["table_hit"]
+                                  - weights.get("empty_grasp", 0) * terms.get("empty_grasp", 0))).astype(np.float32)
 
 
-# The SAC critic's value of a batch of observations, the optional terminal value of a plan
-def terminal_values(policy, observations):
-  import torch
-  with torch.inference_mode():
-    obs, _ = policy.policy.obs_to_tensor(np.asarray(observations, np.float32))
-    actions = policy.actor(obs, deterministic=True)
-    values = torch.cat(policy.critic(obs, actions), dim=1).min(dim=1).values
-  return values.cpu().numpy()
+# The frozen SAC and what it expects to see: a policy trained with --obstacles reads the height map too
+class Policy:
+
+  def __init__(self, baseline_run):
+    from stable_baselines3 import SAC
+    baseline_run = pathlib.Path(baseline_run)
+    self.sac = SAC.load(baseline_run / "models/sac_best.zip", device="cpu")
+    options = json.loads((baseline_run / "pipeline.json").read_text())["inputs"]["options"]
+    self.heightmap = options.get("obstacles") is not None
+
+  def act(self, observation):
+    return self.sac.predict(observation, deterministic=True)[0]
 
 
-# Imagine every candidate action sequence with D, read the imagined states with Q and score them:
-# discounted predicted reward plus imagined penalties, plus terminal_weight * critic at the end.
-# Candidates whose imagination leaves the physical range are marked invalid.
-def forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, terminal_weight):
-  n, horizon, _ = actions.shape
-  zs, ps = [np.repeat(z[None], n, 0)], [np.repeat(p[None], n, 0)]
-  xyz, held = models.read(zs[0], ps[0])
-  xyzs, helds = [xyz], [held]
-  memories = [copy.deepcopy(memory) for _ in range(n)]
-  rewards = np.zeros((n, horizon), np.float32)
-  penalties = np.zeros((n, horizon), np.float32)
-  valid = np.ones(n, bool)
-  finished = np.zeros(n, bool)
-
-  for t in range(horizon):
-    zz, pp = models.predict(zs[-1], ps[-1], actions[:, t])
-    finite = np.isfinite(zz).all(1) & np.isfinite(pp).all(1)
-    zz[~finite], pp[~finite] = zs[-1][~finite], ps[-1][~finite]
-    xyz, held = models.read(zz, pp)
-    # the open gripper measures up to .083, D overshoots by a few mm during the carry which is fine
-    valid &= (finite & np.isfinite(xyz).all(1) & np.isfinite(held)
-              & (pp[:, 18] >= -.002) & (pp[:, 18] <= .09) & (np.abs(pp[:, 14:17]) < 5).all(1)
-              & (np.abs(xyz) < 5).all(1) & (np.abs(pp) < 100).all(1) & (np.abs(zz) < 1e4).all(1))
-    zs.append(zz)
-    ps.append(pp)
-    xyzs.append(xyz)
-    helds.append(held)
-    penalties[:, t] = models.penalty(zz, pp, cfg.rewards.weights)
-    for i in range(n):
-      if finished[i]:
-        continue
-      failed = xyz[i, 2] < cfg.table.height - cfg.episode.fall_margin or step + t + 1 >= cfg.episode.max_steps
-      rewards[i, t], _ = predicted_reward(memories[i], pp[i], xyz[i], held[i], actions[i, t], goal, rest_z, failed)
-      rewards[i, t] += penalties[i, t]
-      finished[i] = memories[i].task_succeeded or failed
-
-  continuation = np.zeros(n)
-  if terminal_weight:
-    remaining = max(0, 1 - (step + horizon) / cfg.episode.max_steps)
-    observations = [policy_observation(ps[-1][i], xyzs[-1][i], helds[-1][i], memories[i], goal, rest_z, remaining)
-                    if valid[i] else policy_observation(p, xyzs[0][i], helds[0][i], memory, goal, rest_z, 0)
-                    for i in range(n)]
-    continuation = terminal_values(policy, observations)
-  continuation[finished | ~valid] = 0.0
-  discounted = rewards @ np.power(policy.gamma, np.arange(horizon))
-  scores = discounted + terminal_weight * policy.gamma ** horizon * continuation
-  valid &= np.isfinite(scores)
-  scores[~valid] = -1e9
-  return {"actions": actions, "z": np.stack(zs, 1), "p": np.stack(ps, 1), "xyz": np.stack(xyzs, 1),
-          "held": np.stack(helds, 1), "rewards": rewards, "penalties": penalties, "scores": scores,
-          "valid": valid, "terminal_critic": continuation, "discounted_reward": discounted}
-
-
-# The guide: what the SAC would do over the horizon if Q's readings of D's imagination were the truth
-def actor_sequence(models, policy, z, p, memory, goal, rest_z, step, cfg, horizon):
-  memory = copy.deepcopy(memory)
-  z, p = z.copy()[None], p.copy()[None]
-  actions = []
-  for t in range(horizon):
-    xyz, held = models.read(z, p)
-    remaining = max(0, 1 - (step + t) / cfg.episode.max_steps)
-    action, _ = policy.predict(policy_observation(p[0], xyz[0], held[0], memory, goal, rest_z, remaining), deterministic=True)
-    actions.append(action)
-    z, p = models.predict(z, p, action[None])
-    xyz, held = models.read(z, p)
-    if not (np.isfinite(z).all() and np.isfinite(p).all() and np.isfinite(xyz).all() and np.isfinite(held).all()):
-      actions.extend([action.copy()] * (horizon - t - 1))
-      break
-    predicted_reward(memory, p[0], xyz[0], held[0], action, goal, rest_z)
-  return np.asarray(actions, np.float32)
-
-
-# CEM around the guide. Returns the chosen first action, the chosen sequence and the bookkeeping for the csv.
-def plan(models, policy, z, p, memory, goal, rest_z, step, cfg, args, rng, previous=None):
-  horizon = min(args.horizon, cfg.episode.max_steps - step)
-  guide = actor_sequence(models, policy, z, p, memory, goal, rest_z, step, cfg, horizon)
-
-  # the gripper follows the guide unless --free-gripper: D and Q never saw fingers closed on nothing, so a
-  # candidate that closes early looks like a grasp in imagination and gets rewarded for it
-  gripper = np.where(guide[:, -1] > 0, 1, -1).astype(np.float32)
-  mean, std = guide.copy(), np.full_like(guide, args.cem_std)
-  std_floor = np.full(5, min(.1, args.cem_std), np.float32)
-  if not args.free_gripper:
-    std[:, -1] = std_floor[-1] = 0
-
-  best = None
-  for iteration in range(args.iterations):
-    # part of each candidate's noise is shared over the horizon (--cem-smooth): independent per step noise
-    # averages out to under 1 cm of lateral spread over 8 steps, so no candidate could ever go around anything
-    noise = rng.normal(size=(args.population, horizon, 5))
-    if args.cem_smooth > 0:
-      noise = np.sqrt(args.cem_smooth) * rng.normal(size=(args.population, 1, 5)) + np.sqrt(1 - args.cem_smooth) * noise
-    actions = np.clip(mean + std * noise, -1, 1).astype(np.float32)
-    actions[..., -1] = gripper if not args.free_gripper else np.where(actions[..., -1] > 0, 1, -1)
-    # candidate 0 is always the guide, candidate 1 the previous plan shifted by one step
-    actions[0] = guide
-    if previous is not None:
-      actions[1] = np.concatenate((previous[1:], previous[-1:]))[:horizon]
-      if not args.free_gripper:
-        actions[1, :, -1] = gripper
-    pool = forecasts(models, policy, z, p, actions, memory, goal, rest_z, step, cfg, args.terminal_weight)
-    selected = int(np.argmax(pool["scores"]))
-    if best is None or pool["scores"][selected] > best["pool"]["scores"][best["selected"]]:
-      best = {"pool": pool, "selected": selected}
-    elites = actions[np.argsort(pool["scores"])[-args.elites:]]
-    mean, std = elites.mean(0), np.maximum(elites.std(0), std_floor)
-
-  # the guide's forecast is scored with the same D / Q / R as everything else, so a candidate only replaces
-  # it when the gap is bigger than the model noise
-  pool, selected = best["pool"], best["selected"]
-  best["fallback"] = not bool(pool["valid"][selected])
-  best["guide_score"] = float(pool["scores"][0])
-  best["best_score"] = float(pool["scores"][selected])
-  best["kept_guide"] = best["fallback"] or (bool(pool["valid"][0]) and best["best_score"] - best["guide_score"] <= args.guide_margin)
-  if best["kept_guide"]:
-    selected = 0
-  best["selected"] = selected
-  best["action"] = guide[0] if best["fallback"] else pool["actions"][selected, 0]
-  best["sequence"] = guide if best["fallback"] else pool["actions"][selected]
-  return best
-
-
-# Save the static camera frame as jpeg and keep the decoded jpeg in the history (what the encoder sees)
-def save_frame(session, folder, serial, history):
-  path = folder / "frames" / f"static_{serial:04d}.jpg"
-  path.parent.mkdir(parents=True, exist_ok=True)
-  frame = session.sim.render("static")
-  if not cv2.imwrite(str(path), cv2.cvtColor(frame, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, session.cfg.data.jpeg_quality]):
-    raise OSError(f"failed to save {path}")
-  history.append(cv2.cvtColor(cv2.imread(str(path)), cv2.COLOR_BGR2RGB))
-  del history[:-64]
+# Save both camera frames as jpeg and keep the decoded jpegs in the histories (what the encoder sees)
+def save_frames(session, folder, serial, histories):
+  for camera in CAMERAS:
+    path = folder / "frames" / f"{camera}_{serial:04d}.jpg"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    frame = session.sim.render(camera)
+    if not cv2.imwrite(str(path), cv2.cvtColor(frame, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, session.cfg.data.jpeg_quality]):
+      raise OSError(f"failed to save {path}")
+    histories[camera].append(cv2.cvtColor(cv2.imread(str(path)), cv2.COLOR_BGR2RGB))
+    del histories[camera][:-64]
 
 
 # Separate process that owns the MuJoCo window. The episode process renders its camera through EGL and a
@@ -339,28 +247,37 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
     shutil.rmtree(folder)
   folder.mkdir(parents=True)
   visual = method in ("rl_q", "jepa_mpc")
-  session = TaskSession(cfg, layout, args.position_jitter)
+  session = TaskSession(cfg, layout, args.position_jitter, heightmap=policy is not None and policy.heightmap)
   goal = np.array([*layout["place"], rest_z], np.float32)
   memory = GoalReward(cfg)
-  history, rows, candidates = [], [], []
+  task_memory = planner.TaskMemory(args.cube_anchor)
+  histories = {camera: [] for camera in CAMERAS}
+  rows, candidates = [], []
   states_p, states_xyz, states_held, states_z, executed = [], [], [], [], []
   previous = None
   started = time.monotonic()
   viewer = None
+
+  # z, Q's reading and the live height map of the current frame
+  def perceive(p):
+    heightmap = session.sim.height_map()
+    z = models.encode(histories, heightmap)
+    xyz, held = models.read(z[None], p[None])
+    return z, xyz[0], float(held[0]), heightmap
+
   try:
     obs = session.reset(seed)
     viewer = LiveViewer(session, args, cfg)
     step_time = 1 / (cfg.control.hz * max(args.speed, 1e-3))
     scripted = ScriptedPickPlace(session.sim, np.random.default_rng(seed)) if method == "scripted" else None
-    save_frame(session, folder, 0, history)
+    save_frames(session, folder, 0, histories)
     states_p.append(session.obs["proprio"].copy())
     states_xyz.append(session.obs["state"][:3].copy())
     states_held.append(bool(session.sim._check_contacts()[0]))
     if visual:
-      z = models.encode(history)
+      z, xyz, held, heightmap = perceive(session.obs["proprio"])
       states_z.append(z.copy())
-      xyz, held = models.read(z[None], session.obs["proprio"][None])
-      xyz, held = xyz[0], float(held[0])
+      task_memory.update(xyz, held, rest_z, session.obs["proprio"][14:17])
 
     for step in range(cfg.episode.max_steps):
       p = session.obs["proprio"].copy()
@@ -369,13 +286,15 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       if method == "scripted":
         action = scripted.act()
       elif method == "rl_true":
-        action, _ = policy.predict(obs, deterministic=True)
+        action = policy.act(obs)
       elif method == "rl_q":
-        estimate = policy_observation(p, xyz, held, memory, goal, rest_z, 1 - step / cfg.episode.max_steps)
-        action, _ = policy.predict(estimate, deterministic=True)
+        estimate = policy_observation(p, xyz, held, memory, goal, rest_z, 1 - step / cfg.episode.max_steps,
+                                      heightmap if policy.heightmap else None)
+        action = policy.act(estimate)
       else:
-        decision = plan(models, policy, z, p, memory, goal, rest_z, step, cfg, args, np.random.default_rng(seed * 1000 + step), previous)
-        action, previous = decision["action"], decision["sequence"]
+        decision = planner.plan(models, z, p, xyz, held, task_memory, goal, rest_z, cfg, args,
+                                np.random.default_rng(seed * 1000 + step), previous)
+        action, previous = decision["action"], decision["plan"]
       decision_seconds = time.monotonic() - decision_start
 
       obs, reward, done, timeout, info = session.step(action)
@@ -387,7 +306,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       states_xyz.append(actual_xyz)
       states_held.append(info["held_endpoint"])
       executed.append(np.asarray(action).copy())
-      save_frame(session, folder, step + 1, history)
+      save_frames(session, folder, step + 1, histories)
 
       row = {"step": step + 1, "time_s": float(session.sim.data.time), "true_original_reward": info["original_reward"],
              "control_reward": reward, "actual_held": info["held_endpoint"],
@@ -399,33 +318,34 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       row.update({f"actual_object_{k}": float(v) for k, v in zip("xyz", actual_xyz)})
 
       if visual:
-        # what Q reads from the new frame, against the truth, and what the planner expected
-        next_z = models.encode(history)
+        # what Q reads from the new frames, against the truth, and what the planner expected
+        next_z, next_xyz, next_held, heightmap = perceive(actual_p)
         states_z.append(next_z.copy())
-        next_xyz, next_held = models.read(next_z[None], actual_p[None])
-        next_xyz, next_held = next_xyz[0], float(next_held[0])
         row.update({"Q_held_probability": next_held, "Q_xyz_mae_cm": float(100 * np.abs(next_xyz - actual_xyz).mean())})
         row.update({f"Q_{k}": float(v) for k, v in zip("xyz", next_xyz)})
-        # the reward memory (was grasped, ever lifted, settle count, potential) is part of the policy's
-        # observation; for the visual controllers it is advanced from Q's estimates, never from the true state
+        # the task memory (was held, ever lifted, the SAC's reward memory) is advanced from Q's estimates,
+        # never from the true state
+        task_memory.update(next_xyz, next_held, rest_z, actual_p[14:17])
         failed = next_xyz[2] < cfg.table.height - cfg.episode.fall_margin or step + 1 >= cfg.episode.max_steps
         row["Q_estimated_reward"], _ = predicted_reward(memory, actual_p, next_xyz, next_held, action, goal, rest_z, failed)
         if decision is not None:
           pool, selected = decision["pool"], decision["selected"]
-          row.update({"predicted_score": float(pool["scores"][selected]),
-                      "predicted_penalty_sum": float(pool["penalties"][selected].sum()),
-                      "planner_fallback": decision["fallback"], "guide_score": decision["guide_score"],
-                      "best_candidate_score": decision["best_score"], "kept_guide": decision["kept_guide"],
-                      "valid_candidates": int(pool["valid"].sum())})
+          row.update({"predicted_score": decision["score"], "predicted_penalty_sum": float(pool["penalties"][selected].sum()),
+                      "predicted_potential": float(pool["potentials"][selected, -1]), "planner_fallback": decision["fallback"],
+                      "chosen": decision["proposal"], "valid_candidates": int(pool["valid"].sum())})
+          row.update({f"score_{name}": float(v) for name, v in zip(planner.PROPOSALS, decision["proposal_scores"])})
           if not decision["fallback"]:
-            predicted_xyz = pool["xyz"][selected, 1]
-            row.update({"D_Q_one_step_xyz_mae_cm": float(100 * np.abs(predicted_xyz - actual_xyz).mean()),
-                        "D_one_step_latent_normalized_mse": float(np.square((pool["z"][selected, 1] - next_z) / models.dc["z_std"].numpy()).mean()),
-                        "D_one_step_ee_mae_cm": float(100 * np.abs(pool["p"][selected, 1, 14:17] - actual_p[14:17]).mean())})
+            row.update({"D_Q_one_step_xyz_mae_cm": float(100 * np.abs(pool["xyz"][selected, 0] - actual_xyz).mean()),
+                        "waypoint_x": float(decision["waypoints"][selected, 0]), "waypoint_y": float(decision["waypoints"][selected, 1]),
+                        "waypoint_z": float(decision["waypoints"][selected, 2]), "switch_step": int(decision["switch"][selected]),
+                        "grip_after": float(decision["grip_after"][selected])})
           for i in range(len(pool["scores"])):
-            candidates.append({"step": step + 1, "candidate": i, "selected": i == selected, "valid": bool(pool["valid"][i]),
-                               "score": float(pool["scores"][i]), "discounted_reward": float(pool["discounted_reward"][i]),
-                               "penalty_sum": float(pool["penalties"][i].sum()), "terminal_critic": float(pool["terminal_critic"][i])})
+            candidates.append({"step": step + 1, "candidate": i, "proposal": planner.PROPOSALS[i] if i < len(planner.PROPOSALS) else "sampled",
+                               "selected": i == selected, "valid": bool(pool["valid"][i]), "score": float(pool["scores"][i]),
+                               "terminal_potential": float(pool["potentials"][i, -1]), "penalty_sum": float(pool["penalties"][i].sum()),
+                               "waypoint_x": float(decision["waypoints"][i, 0]), "waypoint_y": float(decision["waypoints"][i, 1]),
+                               "waypoint_z": float(decision["waypoints"][i, 2]), "switch": int(decision["switch"][i]),
+                               "grip_after": float(decision["grip_after"][i])})
         z, xyz, held = next_z, next_xyz, next_held
 
       rows.append(row)
@@ -433,7 +353,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
         save_csv(folder / "steps.csv", rows)
         print(f"{method} seed={seed} step={step + 1}: held={info['held_endpoint']} "
               f"goal_distance={row['actual_goal_distance_cm']:.1f}cm lift={row['actual_lift_cm']:.1f}cm "
-              f"success={info['task_success']}", flush=True)
+              f"success={info['task_success']}" + (f" chose={row['chosen']}" if decision is not None else ""), flush=True)
       if done or timeout:
         break
 
@@ -447,12 +367,12 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       arrays["z"] = np.asarray(states_z)
     np.savez_compressed(folder / "trajectory.npz", **arrays)
     from PIL import Image
-    images = [Image.open(f).convert("RGB").resize((256, 256)) for f in sorted((folder / "frames").glob("*.jpg"))[::2]]
+    images = [Image.open(f).convert("RGB").resize((256, 256)) for f in sorted((folder / "frames").glob("static_*.jpg"))[::2]]
     images[0].save(folder / "actual.gif", save_all=True, append_images=images[1:], duration=200, loop=0)
 
-    result = {"method": method, "seed": seed, **session.result(), "seconds": time.monotonic() - started,
+    result = {"method": method, "seed": seed, **session.result(), "seconds": time.monotonic() - started, "layout": layout,
               "planner_fallback_steps": sum(bool(r.get("planner_fallback")) for r in rows),
-              "guide_kept_steps": sum(bool(r.get("kept_guide")) for r in rows)}
+              "mean_decision_seconds": float(np.mean([r["decision_seconds"] for r in rows]))}
     if visual:
       result["Q_on_actual_observations"] = outcome_metrics([[r[f"Q_{k}"] for k in "xyz"] for r in rows],
                                                            [r["Q_held_probability"] for r in rows], states_xyz[1:], states_held[1:])
@@ -479,8 +399,9 @@ def run_settings(models_run, tag):
     rest = [s["object_xyz"][2] for s in manifest["states"]
             if s["split"] == "train" and not s["held"] and abs(s["object_xyz"][2] - cfg.table.height) < .06]
     rest_z = float(np.median(rest))
-  # the session ends episodes itself
+  # the session ends episodes itself; reward weights added after the models' data was recorded come from default.yml
   cfg.episode.terminate_on_success = False
+  fill_weights(cfg.rewards.weights)
   return cfg, rest_z
 
 
@@ -504,10 +425,12 @@ def summarize(root, target, methods):
                     "mean_final_goal_distance_cm": float(np.mean([r["final_goal_distance_cm"] for r in rows])),
                     "median_final_goal_distance_cm": float(np.median([r["final_goal_distance_cm"] for r in rows])),
                     "obstacle_contact_steps": sum(r["obstacle_contact_steps"] for r in rows),
-                    "planner_fallback_steps": sum(r["planner_fallback_steps"] for r in rows)})
+                    "planner_fallback_steps": sum(r["planner_fallback_steps"] for r in rows),
+                    "mean_decision_seconds": float(np.mean([r["mean_decision_seconds"] for r in rows]))})
     lines.append(f"{method}: placements {summary[-1]['successes']}/{len(rows)}; "
                  f"final goal distance {summary[-1]['mean_final_goal_distance_cm']:.2f} cm; "
-                 f"obstacle contacts {summary[-1]['obstacle_contact_steps']}")
+                 f"obstacle contacts {summary[-1]['obstacle_contact_steps']}; "
+                 f"decision {1000 * summary[-1]['mean_decision_seconds']:.0f} ms")
   target.mkdir(parents=True, exist_ok=True)
   write_json(target / "summary.json", summary)
   if summary:
@@ -516,21 +439,9 @@ def summarize(root, target, methods):
   print("\n".join(lines), flush=True)
 
 
-# The planner flags, shared with control_clutter
-def planner_arguments(p):
-  p.add_argument("--horizon", type=int, default=8, help="steps D imagines ahead")
-  p.add_argument("--population", type=int, default=64, help="CEM candidates per iteration")
-  p.add_argument("--elites", type=int, default=8)
-  p.add_argument("--iterations", type=int, default=3)
-  p.add_argument("--cem-std", type=float, default=0.3, help="CEM noise around the SAC guide (the original used 0.6)")
-  p.add_argument("--cem-smooth", type=float, default=0.5, help="share of the noise variance that is constant over the horizon")
-  p.add_argument("--guide-margin", type=float, default=0.25, help="a candidate replaces the guide only if it wins by this much")
-  p.add_argument("--terminal-weight", type=float, default=0.0, help="weight of the SAC critic at the end of the horizon (the original used 1)")
-  p.add_argument("--penalty-scale", type=float, default=2.0, help="multiplier on R's imagined penalties")
-  p.add_argument("--no-penalties", action="store_true", help="ignore the penalty head")
-  p.add_argument("--free-gripper", action="store_true", help="let CEM sample the gripper too (the original behaviour)")
-  p.add_argument("--no-width-gate", action="store_true", help="do not zero Q's held reading when the fingers are closed on nothing")
-  p.add_argument("--blind", action="store_true", help="use the proprio-only readout_p instead of Q(z, p)")
+# The run flags shared with control_clutter, the planner's own are in planner.arguments
+def run_arguments(p):
+  planner.arguments(p)
   p.add_argument("--headless", action="store_true", help="no MuJoCo window (also the default without a display)")
   p.add_argument("--speed", type=float, default=1.0, help="playback speed of the window, times real time")
   p.add_argument("--threads", type=int, default=4)
@@ -538,11 +449,11 @@ def planner_arguments(p):
 
 def main():
   p = argparse.ArgumentParser()
-  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("data/combined_test1"),
-                 help="run folder with features/ (PCA basis, encoder settings) and attempts/<tag>/models/ (Q, R, D)")
+  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("data/combined_v2"),
+                 help="run folder with features/ (PCA bases, encoder settings) and attempts/<tag>/models/ (Q, R, D)")
   p.add_argument("--tag", default="combined")
   p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("data/rl_baseline_v1"),
-                 help="rl_baseline run with the frozen SAC in models/sac_best.zip")
+                 help="rl_baseline run with the frozen SAC in models/sac_best.zip, for rl_true / rl_q")
   p.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/grade_e_layout.json"))
   p.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/control"),
                  help="run folder for frames, gifs and csv; overwritten unless --resume")
@@ -550,10 +461,14 @@ def main():
   p.add_argument("--test-episodes", type=int, default=5, help="fresh scenes per method")
   p.add_argument("--seed", type=int, default=20474010)
   p.add_argument("--position-jitter", type=float, default=.01, help="cube start jitter per xy axis in metres")
+  p.add_argument("--obstacles", type=int, nargs=2, default=None, metavar=("LOW", "HIGH"),
+                 help="draw this many fresh corridor obstacles per scene (control_clutter replays recorded ones)")
+  p.add_argument("--random-ends", action="store_true",
+                 help="cube and goal anywhere on the reachable table per scene (the environment's own sampler) instead of the layout file's, for the planner only")
   p.add_argument("--resume", action="store_true", help="keep finished episodes in --out and run the missing ones")
-  planner_arguments(p)
+  run_arguments(p)
   args = p.parse_args()
-  if not 2 <= args.elites < args.population or not 0 <= args.cem_smooth <= 1 or min(args.horizon, args.iterations, args.test_episodes) < 1:
+  if not 2 <= args.elites < args.population or args.population <= len(planner.PROPOSALS) or min(args.horizon, args.iterations, args.test_episodes) < 1:
     p.error("invalid planner settings")
   args.out = args.out.resolve()
   if SIMULATION / "data" not in args.out.parents:
@@ -568,11 +483,10 @@ def main():
 
   # config and reference height from the run the models were trained on, the layout from the file
   import torch
-  from stable_baselines3 import SAC
   torch.set_num_threads(args.threads)
   cfg, rest_z = run_settings(args.models_run, args.tag)
   layout = json.loads(args.layout.read_text())
-  policy = SAC.load(args.baseline_run / "models/sac_best.zip", device="cpu")
+  policy = Policy(args.baseline_run) if any(m in ("rl_true", "rl_q") for m in args.methods) else None
   models = WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc") for m in args.methods) else None
   write_json(args.out / "settings.json", {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()})
 
@@ -581,10 +495,34 @@ def main():
       seed = args.seed + 20000 + i
       if args.resume and (args.out / "episodes" / method / f"seed_{seed}" / "result.json").exists():
         continue
-      episode(args.out, method, seed, cfg, layout, rest_z, args, policy, models)
+      scene = scene_layout(layout, cfg, seed, args.obstacles, args.random_ends)
+      episode(args.out, method, seed, cfg, scene, rest_z, args, policy, models)
       summarize(args.out, export_dir, args.methods)
   summarize(args.out, export_dir, args.methods)
   print(f"DONE: summary in {export_dir}, frames and gifs in {args.out / 'episodes'}", flush=True)
+
+
+# The layout of one scene: the file's layout, with the ends redrawn at random table ends when --random-ends
+# is given and fresh corridor obstacles when --obstacles is given
+def scene_layout(layout, cfg, seed, obstacles, random_ends=False):
+  if obstacles is None and not random_ends:
+    return layout
+  from environment.obstacles import sample_obstacles
+  from environment.scene import sample_ends
+  rng = np.random.default_rng(seed)
+  scene = copy.deepcopy(layout)
+  if random_ends:
+    cfg = copy.deepcopy(cfg)
+    cfg.task.pick_end = "anywhere"
+    pick_end, place_end, pick, place = sample_ends(cfg, rng)
+    scene.update(pick_end=pick_end, place_end=place_end, pick=pick.tolist(), place=place.tolist())
+  if obstacles is None:
+    return scene
+  cfg = copy.deepcopy(cfg)
+  cfg.task.obstacles.count = list(obstacles)
+  drawn = sample_obstacles(cfg, rng, np.asarray(scene["pick"]), np.asarray(scene["place"]))
+  scene["obstacles"] = [o.to_dict() for o in drawn] if drawn else []
+  return scene
 
 
 if __name__ == "__main__":

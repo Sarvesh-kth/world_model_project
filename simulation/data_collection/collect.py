@@ -13,11 +13,10 @@ from .scripted_policy import make_policy
 from .writer import EpisodeWriter, append_index, next_episode_id
 
 
-# Run one episode with the policy, recording frames into the writer if given
+# Run one episode with a freshly made (or reset) policy, recording frames into the writer if given
 # stops when the env says so or when the policy has nothing left to do
 # the physics runs much faster than real time, realtime=True sleeps so each control step takes 1/control.hz seconds
 def run_episode(env, policy, writer=None, realtime=False):
-  policy.reset()
   success = False
   collisions = 0
   t = 0
@@ -30,7 +29,7 @@ def run_episode(env, policy, writer=None, realtime=False):
       pcs = None
       if env.cfg.cameras.pointcloud.enabled:
         pcs = env.point_clouds(frame=env.cfg.cameras.pointcloud.frame)
-      writer.add_record(t, action, obs, reward, info, env.camera_poses(), env.render_all(), pcs)
+      writer.add_record(t, action, obs, reward, info, env.camera_poses(), env.render_all(), pcs, env.height_map())
     success |= info["success"]
     collisions += int(info["obstacle_contact"])
     t += 1

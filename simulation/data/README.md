@@ -1,29 +1,22 @@
 # simulation/data
 
-Only the inputs the controllers and the training chain need live here. Everything else (old experiment
-outputs, the pre-test1 vision_v2 encoder run, the obstacle-aware SAC runs) was moved to
-../../../world_model_project_data_archive/simulation_data on 2026-10-10.
+Run folders. Nothing here is tracked except the two inputs below; everything else is made by the
+collector, `encode.py`, `train.py` and the controllers, on this machine or on the cluster
+(`../CLUSTER.md`, `../cluster_round.sh`).
 
-Used at run time by controller.control_pipeline / controller.control_clutter (scripted, rl_true, rl_q, jepa_mpc):
+Tracked:
 
-  combined_test1/       Q, R, D weights (attempts/combined/models/*.pt), PCA basis + encoder settings
-                        (features/pca.npz, features/meta.json), manifest.json the models were trained on
-  rl_baseline_v1/       frozen exact-state SAC (models/sac_best.zip), its demos, evaluation and pipeline.json
-                        (config + layout, read by the collectors)
-  obstacles_test1/      the six held-out obstacle layouts control_clutter replays (collection.json, scene_settings.json)
+  rl_baseline_v1/       the frozen exact-state SAC (models/sac_best.zip, pipeline.json with its layout, demos,
+                        evaluations), for the rl_true / rl_q controllers only
+  obstacles_v2/         collection.json + scene_settings.json: the six held-out obstacle layouts control_clutter replays
 
-Training sources (combined_test1 symlinks into these; only needed to re-encode or re-merge):
+Made by the v3 chain (local):
 
-  full_test1/               full task, cube jittered +-3 cm, frames + features (the PCA basis was fitted here)
-  obstacles_test1/          paired empty / replay-with-obstacles / scripted-around scenes, frames + features
-  episodes_test1/           data_collection.collect full mix (success, scripted, drop, collide, random)
-  obstacles_test1_fullpca/  obstacles_test1 re-encoded with the full_test1 PCA basis (links to the frames)
-  episodes_test1_fullpca/   episodes_test1 re-encoded with the full_test1 PCA basis
+  episodes_v3/          the full-mix episodes (episodes_raw/), the run folder (manifest.json), the latents
+                        (features/latents.npy, pca.npz, meta.json) and the models (attempts/v3/). To run the
+                        controllers on another machine, copy attempts/v3/ and features/{pca.npz,meta.json}.
+  control_*/            controller runs (frames, gifs, per-step csv per episode); their summaries go to ../../results/
 
-Shared through git (Git LFS for the binaries): combined_test1/attempts/combined/, combined_test1/features/{pca.npz,meta.json},
-rl_baseline_v1/ and obstacles_test1/{collection.json,scene_settings.json}. `git lfs pull` fetches them after a clone;
-everything else here is rebuilt by the collectors and encode.py (world_model/README.md, "Checkpoints").
-
-Controller runs write to data/control (control_pipeline) and data/control_clutter (control_clutter);
-both are overwritten on the next run, the shareable summaries go to results/<run name>.
-The folder layout of a run is described in world_model/README.md.
+The runs made before 2026-10-12 (full_v2, obstacles_v2 frames, episodes_v2, planner_v1, combined_v2, the
+control_v3..v9 runs, the old results/) used the 8x8 latent and a biased cube placement; they were moved to
+../../../world_model_project_data_archive/2026-10-12/ and can be deleted.

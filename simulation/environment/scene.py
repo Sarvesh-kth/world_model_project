@@ -91,22 +91,9 @@ def sample_layout(cfg, rng, holdout=False):
   friction = rng.uniform(*task.object.friction)
   color = _sample_color(rng) if task.object.randomize_color else (0.5, 0.5, 0.5, 1.0)
 
-  pick_end = task.pick_end
-  if pick_end == "random":
-    pick_end = END_NAMES[rng.integers(len(END_NAMES))]
-  place_end = task.place_end
-  if place_end == "opposite":
-    place_end = OPPOSITE_END[pick_end]
-  elif place_end == "random":
-    choices = [e for e in END_NAMES if e != pick_end]
-    place_end = choices[rng.integers(len(choices))]
-
-  # Try 200 times to get pick and place far enough apart with at least one obstacle in between
+  # Try 200 times to get pick and place far enough apart with the obstacles fitting in between
   for _ in range(200):
-    pick = _sample_in_end(cfg, rng, pick_end)
-    place = _sample_in_end(cfg, rng, place_end)
-    if np.linalg.norm(pick - place) < task.min_pick_place_dist:
-      continue
+    pick_end, place_end, pick, place = sample_ends(cfg, rng)
     obstacles = sample_obstacles(cfg, rng, pick, place)
     if obstacles is not None:
       break
@@ -114,6 +101,41 @@ def sample_layout(cfg, rng, holdout=False):
     raise RuntimeError("could not sample a layout; check task.ends / task.obstacles config")
   return EpisodeLayout(name, scale, mass, friction, color, pick_end, place_end,
                        pick, place, obstacles)
+
+
+# Pick and place positions: in the table's end zones (task.ends) or, with pick_end "anywhere", anywhere on
+# the reachable table (6 cm inside the edges, within reach_range of the base), at least min_pick_place_dist
+# apart. Returns the end names and the two positions.
+def sample_ends(cfg, rng):
+  task = cfg.task
+  pick_end = task.pick_end
+  if pick_end == "random":
+    pick_end = END_NAMES[rng.integers(len(END_NAMES))]
+  place_end = "anywhere" if pick_end == "anywhere" else task.place_end
+  if place_end == "opposite":
+    place_end = OPPOSITE_END[pick_end]
+  elif place_end == "random":
+    choices = [e for e in END_NAMES if e != pick_end]
+    place_end = choices[rng.integers(len(choices))]
+  for _ in range(200):
+    pick = _sample_anywhere(cfg, rng) if pick_end == "anywhere" else _sample_in_end(cfg, rng, pick_end)
+    place = _sample_anywhere(cfg, rng) if place_end == "anywhere" else _sample_in_end(cfg, rng, place_end)
+    if np.linalg.norm(pick - place) >= task.min_pick_place_dist:
+      return pick_end, place_end, pick, place
+  raise RuntimeError("could not sample pick and place far enough apart")
+
+
+# A position anywhere on the table the arm can reach from above
+def _sample_anywhere(cfg, rng):
+  base = np.array(cfg.robot.base_pos[:2])
+  lo = np.array(cfg.table.center) - np.array(cfg.table.half_size) + 0.06
+  hi = np.array(cfg.table.center) + np.array(cfg.table.half_size) - 0.06
+  reach_lo, reach_hi = cfg.task.reach_range
+  for _ in range(200):
+    p = rng.uniform(lo, hi)
+    if reach_lo <= np.linalg.norm(p - base) <= reach_hi:
+      return p
+  raise RuntimeError("no reachable position on the table")
 
 
 # Sample a position for pick or place near the end

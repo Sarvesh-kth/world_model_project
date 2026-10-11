@@ -1,9 +1,12 @@
 # Reinforcement learning: the exact-state SAC baseline
 
-The SAC policy is trained on the exact simulator state and then frozen. It is used three ways:
-`rl_true` runs it on the exact state (what the policy can do with perfect perception), `rl_q` runs
-it on `Q`'s camera estimates (is the perception good enough to drive it), and the planner uses its
-action sequence as the guide the CEM searches around (`controller/README.md`).
+The SAC policy is trained on the exact simulator state and then frozen. It is the actor-critic
+controller in the comparison with the latent MPC (`controller/README.md`): `rl_true` runs it on the
+exact state (what the policy can do with perfect perception), `rl_q` runs it on `Q`'s camera estimates
+(is the perception good enough to drive it). The collectors also use it as a data source. The planner
+does not use it. With `--obstacles LOW HIGH` the policy trains with fresh corridor obstacles every episode
+and sees them through the 8x8 table height map (64 more inputs, the same map the world model's latent
+carries), which is the obstacle-aware actor-critic for the comparison.
 
 ```
 task_control.py   GoalReward (the reward), policy_observation (the 41 inputs), TaskSession (the simulator
@@ -14,7 +17,8 @@ rl_baseline.py    the command: train, evaluate on fresh seeds, write the run fol
 
 ## The task as the policy sees it, `task_control.py`
 
-**Observation**, `policy_observation(p, xyz, held, memory, goal, rest_z, remaining)`, 41 numbers. The same
+**Observation**, `policy_observation(p, xyz, held, memory, goal, rest_z, remaining, heightmap=None)`, 41
+numbers, 105 with the height map. The same
 function is called with the exact cube position (`rl_true`, training) and with `Q`'s estimate (`rl_q`,
 planner), which is what makes the policy transferable. Fixed scales turn centimetres into numbers near 1.
 `origin` is `(0, 0, rest_z)`, the cube's resting height.
@@ -35,6 +39,7 @@ planner), which is what makes the policy transferable. Fixed scales turn centime
 | 33-38 | reward memory: was grasped, held last step, ever lifted, settle fraction, succeeded, potential | |
 | 39 | rest_z | |
 | 40 | fraction of the episode left | |
+| 41-104 | the table height map (`PickPlaceEnv.height_map`, metres x 4), only for a policy trained with `--obstacles` | |
 
 The reward memory makes the task Markov for the policy: whether the cube has been lifted already
 decides what the next move should be. For the camera controllers the memory is advanced from `Q`'s
@@ -55,8 +60,10 @@ episode they sum to the potential gained, so the policy is paid for reaching, gr
 carrying but cannot farm any of it. `predicted_reward` evaluates the same formula on an estimated state;
 contacts are unknown there (the penalty head `R` adds them in the planner).
 
-**TaskSession(cfg, layout, jitter)** wraps `PickPlaceEnv`: `reset(seed)` jitters the cube start by
-`jitter` per axis and returns the exact-state observation; `step(action)` steps the environment, updates
+**TaskSession(cfg, layout, jitter, obstacles=None, heightmap=False)** wraps `PickPlaceEnv`: `reset(seed)`
+jitters the cube start by `jitter` per axis, draws `obstacles` (low, high) fresh corridor obstacles with
+the environment's sampler when asked, and returns the exact-state observation (with the height map when
+`obstacles` or `heightmap` is set); `step(action)` steps the environment, updates
 the statistics, computes the control reward and ends the episode on success, a fallen cube or the
 deadline (300 steps). Success is judged here, not by the environment: ever held, lifted 4 cm, now
 released, within `success_radius` of the goal, within 2 cm of the rest height, for `settle_steps` steps.
@@ -92,6 +99,7 @@ selection is by validation and the best checkpoint is often an early one.
 
 ```bash
 python -m rl.rl_baseline --out data/rl_baseline_v1
+python -m rl.rl_baseline --out data/rl_obstacles_v2 --obstacles 1 3    # the obstacle-aware policy, height map in the observation
 ```
 
 Loads `configs/grade_e.yml` (no posture noise, cube) with `terminate_on_success` off (the session ends
@@ -101,7 +109,7 @@ fresh seeds (`seed + 990000 + i`). The run folder:
 
 ```
 data/rl_baseline_v1/
-  pipeline.json          inputs: config, layout, options   <- the collectors read config and layout from here
+  pipeline.json          inputs: config, layout, options   <- the collectors read the layout, the controllers the obstacles option
   demos.npz, demos.json  the demonstrations and every attempt's outcome
   models/sac_best.zip    the frozen policy the controllers load
   models/bc_initial.zip  the cloned actor before RL
@@ -112,7 +120,7 @@ data/rl_baseline_v1/
 ```
 
 The policy in `data/rl_baseline_v1` passed the 90 % placement gate on 100 fresh episodes and places
-20/20 on the controller benchmark (`CHANGES_FROM_M2.md`). Videos of it come from the controller:
+20/20 on the controller benchmark (one fixed layout). Videos of it come from the controller:
 `python -m controller.control_pipeline --methods rl_true`.
 
 Seeds, so nothing overlaps: demonstrations `seed + attempt`, training environment `seed + 1000` upward,

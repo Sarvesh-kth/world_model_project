@@ -49,19 +49,22 @@ class Obstacle:
 
 
 # Sample obstacles in the corridor between pick and place (xy on the table)
-# there is always at least one, the tall one, None when even that did not fit
+# the first one is the tall one, None when even that did not fit; a count range starting at 0 gives
+# an empty table now and then
 def sample_obstacles(cfg, rng, pick, place):
+  n = rng.integers(cfg.task.obstacles.count[0], cfg.task.obstacles.count[1] + 1)
+  if n == 0:
+    return []
   for _ in range(20):
-    obstacles = _sample_once(cfg, rng, pick, place)
+    obstacles = _sample_once(cfg, rng, pick, place, n)
     if obstacles:
       return obstacles
   return None
 
 
-def _sample_once(cfg, rng, pick, place):
+def _sample_once(cfg, rng, pick, place, n):
   ocfg = cfg.task.obstacles
   kinds = list(ocfg.kinds)
-  n = rng.integers(ocfg.count[0], ocfg.count[1] + 1)
   direction = place - pick
   length = np.linalg.norm(direction)
   direction = direction / length
