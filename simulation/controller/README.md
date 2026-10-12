@@ -53,10 +53,9 @@ for closed fingers holding nothing (`EMPTY_GRIP_COST`); urgency, every imagined 
 (`SCORE = "progress"`); placed in imagination after 3 settled steps within 3 cm of B (`PLACED_AFTER`,
 `PLACED_RADIUS`). Two checks on what may be imagined: held only with closed fingers (`HELD_NEEDS_CLOSED`) and only
 after open fingers reached the cube within 2 cm of where Q sees it now (`GRASP_NEEDS_CONTACT`), since D and Q
-never saw failed grasps. `score_plans()` returns each part of the score separately, for probing. Pure version:
-7/20 empty-table seeds on a Mac, the grasp fails in 9. A rule-based gripper (close at the cube, open over B,
-rise after placing) is kept as a labelled comparison row (9/20 on a Mac, 2/6 of the same seeds on the cluster).
-The header of `mpc_config.py` lists both other configurations. Every mpc episode
+never saw failed grasps. `score_plans()` returns each part of the score separately, for probing. A rule-based
+gripper (close at the cube, open over B, rise after placing) is kept as a labelled comparison row. The header of
+`mpc_config.py` lists both other configurations; results under "Numbers and failure modes". Every mpc episode
 saves `mpc_settings.json` (the values used) and `plans.npz` (per step the chosen plan's imagined gripper and
 cube paths and the runner-ups' gripper paths). Every controller now also saves the simulator state per step
 (`trajectory.npz` `qpos`), so `replay.py` can redraw any episode without a GPU: a MuJoCo window (on macOS
@@ -172,6 +171,16 @@ with the fingers closed on air. Six held-out obstacle scenes: rl_true 1/6 (923 c
 (contacts 0 / 5 / 5 / 20 on the solved scenes). Scenes 19 and 21 are solved only by the planner and only
 with the penalty head; scenes 22 and 23 (walls right beside the cube) fail before the grasp because `Q` is
 1 to 2 cm off there.
+
+`mpc`, the standalone planner without the SAC (default build: the pure version with `CARRY_STEADY`). Tuned on
+the development seeds 20494010-029 on a Mac (pure version 7/20, then 10/20 with `CARRY_STEADY`; rule-based
+gripper row 9/20). Empty table, 20 new seeds 20494110-129 never used for tuning (`results/eval_default`):
+**14/20 placed**, median 2.6 cm from B; all 6 failures are failed grasps. Six held-out obstacle scenes
+(`results/clutter_mpc`): 0/6, 113 obstacle contact steps; scene 18 carried to B but never let go, 21 hit an
+obstacle after the grasp, 19, 20, 22 and 23 failed the grasp. 20 new obstacle scenes (`--new-scenes 20`,
+`results/clutter20_scale2`): 4/20, 12 obstacle contact steps, 14 failed grasps. At penalty scale 1
+(`mpc_variants/penalty_1.py`, `results/clutter20_scale1`): 2/20, 287 contact steps, 15 failed grasps, so the
+default stays 2. `R` keeps the planner off the obstacles without any SAC; what fails in clutter is the grasp.
 
 Outcomes vary between runs of the same seed: the encoder runs in fp16 and the CEM amplifies small
 differences in `Q`, so a scene that was solved once can be a near miss the next time. Quote rates over

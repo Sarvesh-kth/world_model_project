@@ -83,7 +83,8 @@ PROGRESS_WEIGHT = 1.0
 # discount of the imagined rewards (the SAC and jepa_mpc use 0.99)
 DISCOUNT = 0.99
 
-# multiplier on R's imagined collision / proximity / table penalties (jepa_mpc uses 2; 3 was too cautious)
+# multiplier on R's imagined collision / proximity / table penalties (jepa_mpc uses 2; 3 was too cautious; 1 on
+# 20 new obstacle scenes: 287 obstacle contact steps instead of 12 and no more grasps, 2/20 placed instead of 4/20)
 PENALTY_SCALE = 2.0
 
 # in imagination the cube counts as placed after this many settled steps (the real test needs 15, beyond the
