@@ -24,8 +24,8 @@ from . import control_pipeline as cp
 
 def main():
   p = argparse.ArgumentParser()
-  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("data/combined_v2"))
-  p.add_argument("--tag", default="combined")
+  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/v3c"))
+  p.add_argument("--tag", default="", help="attempts/<tag> inside a run folder; empty for a packaged model folder")
   p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("data/rl_baseline_v1"))
   p.add_argument("--scenes-run", type=pathlib.Path, default=pathlib.Path("data/obstacles_v2"),
                  help="run whose recorded test scene layouts are replayed")
@@ -63,7 +63,8 @@ def main():
 
   rows = []
   for group in groups:
-    layout = settings[f"{group['scene']}{args.layout_suffix}"]["layout"]
+    layout = dict(settings[f"{group['scene']}{args.layout_suffix}"]["layout"])
+    layout["color"] = [0.5, 0.5, 0.5, 1.0]
     for method in args.methods:
       print(f"SCENE {group['scene']} {method} obstacles={len(layout['obstacles'])}", flush=True)
       result = cp.episode(args.out, method, group["seed"], cfg, layout, rest_z, args, policy, models)

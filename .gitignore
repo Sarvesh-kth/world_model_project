@@ -21,12 +21,30 @@ simulation/data/obstacles_v2/*
 !simulation/data/obstacles_v2/collection.json
 !simulation/data/obstacles_v2/scene_settings.json
 results/
+# the packaged models the controllers run with (Q, R, D, obstacle, cost-to-go, PCA bases, encoder settings): tracked, Git LFS
+!simulation/models/
+# the training data, through Git LFS too (about 3.3 GB; a clone gets pointer files until `git lfs pull`):
+# the v3 run folder (manifest, latents split in 1.5 GB parts, bases, maps) and the hack episodes as one tar
+!simulation/data/episodes_v3/
+simulation/data/episodes_v3/*
+!simulation/data/episodes_v3/manifest.json
+!simulation/data/episodes_v3/scene_settings.json
+!simulation/data/episodes_v3/features/
+simulation/data/episodes_v3/features/*
+!simulation/data/episodes_v3/features/latents.npy.part*
+!simulation/data/episodes_v3/features/pca.npz
+!simulation/data/episodes_v3/features/meta.json
+!simulation/data/episodes_v3/features/obstacle_maps.npz
+!simulation/data/episodes_v3/features/cost_to_go_20000_r7_h12.npz
+!simulation/data/episodes_hack/
+simulation/data/episodes_hack/*
+!simulation/data/episodes_hack/episodes_raw.tar
 
-# notes stay local; the READMEs, CLUSTER.md and STATUS.txt are project docs
+# notes stay local; the READMEs and NEXT.md are the project docs (STATUS.txt is the log)
 *.md
 !README.md
 !**/README.md
-!simulation/CLUSTER.md
+!NEXT.md
 .agents/
 .codex/
 .claude/

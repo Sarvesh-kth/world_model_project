@@ -6,6 +6,9 @@ from .control import ArmController
 from .rewards import Rewards
 from . import scene
 
+# resolution of obstacle_map(): 16 cells over the 64 x 92 cm table = 4 x 5.75 cm cells
+OBSTACLE_CELLS = 16
+
 
 # Mujoco environment for the panda pick and place with obstacles
 # Observation dict
@@ -165,8 +168,8 @@ class PickPlaceEnv:
   def render_all(self):
     return {name: self.render(name) for name in ("static", "wrist")}
 
-  # Point cloud from the depth image, in the camera, world or robot base frame
-  def point_cloud(self, camera="static", frame="base", stride=None, max_depth=None):
+  # Point cloud from the depth image, in the camera, world or robot base frame; drop = pixels to leave out
+  def point_cloud(self, camera="static", frame="base", stride=None, max_depth=None, drop=None):
     pc_cfg = self.cfg.cameras.pointcloud
     stride = pc_cfg.stride if stride is None else stride
     max_depth = pc_cfg.max_depth if max_depth is None else max_depth
@@ -180,6 +183,8 @@ class PickPlaceEnv:
     cx, cy = (w - 1) / 2, (h - 1) / 2
     u, v = np.meshgrid(np.arange(w), np.arange(h))
     valid = depth < max_depth
+    if drop is not None:
+      valid &= ~drop[::stride, ::stride]
     d = depth[valid]
 
     # Unproject the pixels, mujoco cameras look down -z
@@ -206,8 +211,30 @@ class PickPlaceEnv:
   # all show up in it, which is what the world model and the policy need to know where things stand.
   def height_map(self, camera="static"):
     hm = self.cfg.cameras.heightmap
-    cells = hm.cells
-    pts = self.point_cloud(camera, frame="world", stride=1)
+    return self._table_map(self.point_cloud(camera, frame="world", stride=1), hm.cells, hm.max_height)
+
+  # The obstacles alone, the way a depth camera with a segmentation mask sees them: the same top down map at
+  # OBSTACLE_CELLS x OBSTACLE_CELLS, with every pixel of the robot and of the object dropped before the points
+  # are binned, so nothing but the obstacles is in it (and 0 where the arm hides them from the camera). The
+  # learned obstacle model reads a window of this map around the hand, nothing geometric is done with it.
+  def obstacle_map(self, camera="static"):
+    r = self._get_renderer()
+    r.enable_segmentation_rendering()
+    try:
+      r.update_scene(self.data, camera=camera)
+      geom_ids = r.render()[:, :, 0]
+    finally:
+      r.disable_segmentation_rendering()
+    drop = np.isin(geom_ids, list(self.robot_geom_ids | self.object_geom_ids))
+    # a cell needs a few points (the smallest obstacle gives hundreds): one or two stray pixels at the table's
+    # edge (a table leg or the pedestal seen past it) made a
+    # 15 cm phantom next to the cube once, and the controller's running maximum kept it for the episode
+    return self._table_map(self.point_cloud(camera, frame="world", stride=1, drop=drop), OBSTACLE_CELLS,
+                           self.cfg.cameras.heightmap.max_height, min_points=8)
+
+  # Highest point above the table top in each of cells x cells patches of the table, clipped to max_height;
+  # cells with fewer than min_points points above the table read 0
+  def _table_map(self, pts, cells, max_height, min_points=1):
     centre = np.asarray(self.cfg.table.center)
     half = np.asarray(self.cfg.table.half_size)
     top = self.cfg.table.height
@@ -217,7 +244,11 @@ class PickPlaceEnv:
     iy = np.clip(((pts[:, 1] - centre[1] + half[1]) / (2 * half[1]) * cells).astype(int), 0, cells - 1)
     out = np.zeros((cells, cells), np.float32)
     np.maximum.at(out, (ix, iy), pts[:, 2] - top)
-    return np.minimum(out, hm.max_height)
+    if min_points > 1:
+      count = np.zeros((cells, cells), int)
+      np.add.at(count, (ix, iy), 1)
+      out[count < min_points] = 0
+    return np.minimum(out, max_height)
 
   # Make the renderer only when needed
   def _get_renderer(self):

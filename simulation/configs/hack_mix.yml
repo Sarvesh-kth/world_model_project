@@ -1,0 +1,14 @@
+# Data for the two planner rules that stood in for missing data (and more closes on nothing): travel_close =
+# the fingers shut mid-travel toward the cube, then a clean pick; short_release = the cube let go 3-12 cm
+# short of the goal (from the carry height or lowered), then picked up and placed; miss = a close beside or
+# above the cube first. Cube and goal anywhere, 0-2 obstacles, like the evaluation.
+task:
+  pick_end: anywhere
+  object:
+    pool: [cube]
+    randomize_color: false
+  obstacles:
+    count: [0, 2]
+data:
+  mix: {travel_close: 0.4, short_release: 0.4, miss: 0.2, success: 0, scripted: 0, drop: 0, collide: 0, random: 0}   # the default mix merges in, so its kinds are zeroed
+  success_attempts: 3

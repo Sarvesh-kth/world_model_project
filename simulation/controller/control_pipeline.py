@@ -42,7 +42,7 @@ class WorldModels:
 
   def __init__(self, root, tag, args):
     import torch
-    from world_model.train import load_model
+    from world_model.train import load_model, model_folder
     from world_model.encode import Encoder, PINNED_REVISION
     if not torch.cuda.is_available():
       raise RuntimeError("live JEPA encoding needs CUDA")
@@ -52,7 +52,7 @@ class WorldModels:
     # blind = readout_p, the proprio only twin of Q, a control for what the image contributes
     self.q, self.qc = load_model(root, "readout_p" if args.blind else "readout", tag)
     self.r = self.rc = None
-    if (root / "attempts" / tag / "models/reward.pt").exists() and not args.no_penalties:
+    if (model_folder(root, tag) / "models/reward.pt").exists() and not args.no_penalties:
       self.r, self.rc = load_model(root, "reward", tag)
       if "reach" not in self.rc.get("output_names", ()) and args.reward_source != "readout":
         raise ValueError("this reward.pt predicts penalties only; train the reward stage again or use --reward-source readout")
@@ -61,7 +61,16 @@ class WorldModels:
       if model is not None:
         model.to("cuda")
     self.penalty_scale = args.penalty_scale
-    self.reward_source = args.reward_source
+    self.reward_source = "head" if args.no_goal else args.reward_source
+    self.no_goal = args.no_goal
+    if args.no_goal and self.r is None:
+      raise ValueError("--no-goal needs the reward model R (its terms carry the task)")
+    self.obstacle = None
+    if args.obstacle_source == "model":
+      from world_model.train_obstacle import load_obstacle_model
+      self.obstacle, self.oc = load_obstacle_model(root, tag)
+      self.obstacle.to("cuda")
+    self.cost_to_go = CostToGoFields(root, tag) if getattr(args, "cost_to_go", False) else None
     self.width_gate = not args.no_width_gate
     self.grasp_prior = args.grasp_prior
 
@@ -102,6 +111,10 @@ class WorldModels:
     if self.width_gate:
       p = np.asarray(p)
       held = held * (p[:, 18] > .02)
+      # and fingers commanded shut that stopped at a cube's width (3.5-6.5 cm; the cubes are 4-5 cm, the grip
+      # reads 4.2-5.4) hold one: Q's held reading lags a real grasp by ~12 steps because the latent is a
+      # 16-frame time mean, and the planner stood still that long after every grasp
+      held = np.where((p[:, 19] < 0) & (p[:, 18] > .035) & (p[:, 18] < .065), np.maximum(held, .99), held)
     # the old stop-gap on top: nothing is held unless the cube estimate sits between the fingers
     if self.grasp_prior:
       p = np.asarray(p)
@@ -116,6 +129,13 @@ class WorldModels:
     return reward_terms(self.r, self.rc, z, p)
 
   # The weighted imagined penalty per candidate from R's terms, <= 0, zero without a reward model
+  # The learned obstacle model's penalty, scaled like R's: proximity and contact from a window of the
+  # obstacle-only depth map around the imagined hand (--obstacle-source model)
+  def obstacle_penalty(self, obstacle_map, p, held, weights):
+    from world_model.train_obstacle import obstacle_terms
+    proximity, contact = obstacle_terms(self.obstacle, self.oc, obstacle_map, p, held)
+    return (self.penalty_scale * (weights["proximity"] * proximity - weights["collision"] * contact)).astype(np.float32)
+
   def penalty(self, terms, weights):
     if terms is None:
       return 0.0
@@ -124,6 +144,23 @@ class WorldModels:
     return (self.penalty_scale * (weights["proximity"] * terms["proximity"] - weights["collision"] * terms["collision"]
                                   - weights["table_hit"] * terms["table_hit"]
                                   - weights.get("empty_grasp", 0) * terms.get("empty_grasp", 0))).astype(np.float32)
+
+
+# The learned cost-to-go (--cost-to-go): a field over the table per target, looked up at imagined positions
+class CostToGoFields:
+
+  def __init__(self, root, tag):
+    from world_model.train_cost_to_go import load_cost_to_go
+    # stays on the CPU: 6 ms per field there, while a tiny convolution queued behind D on a busy GPU took 500 ms
+    self.model, self.ck = load_cost_to_go(root, tag)
+
+  def field(self, obstacle_map, target):
+    from world_model.train_cost_to_go import cost_field
+    return cost_field(self.model, self.ck, obstacle_map, target)
+
+  def lookup(self, field, points):
+    from world_model.train_cost_to_go import lookup
+    return lookup(field, points, self.ck["centre"], self.ck["half"])
 
 
 # The frozen SAC and what it expects to see: a policy trained with --obstacles reads the height map too
@@ -278,6 +315,12 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       z, xyz, held, heightmap = perceive(session.obs["proprio"])
       states_z.append(z.copy())
       task_memory.update(xyz, held, rest_z, session.obs["proprio"][14:17])
+      # the obstacles as the depth camera measures them, for the planner's geometric clearance check
+      task_memory.obstacles = planner.ObstacleMap(heightmap, cfg, session.obs["proprio"][14:17], xyz[:2])
+      if models.obstacle is not None:
+        # the obstacle-only map for the learned obstacle model; obstacles do not move, so the running maximum
+        # keeps every cell the arm hides later
+        task_memory.obstacle_map = session.sim.obstacle_map()
 
     for step in range(cfg.episode.max_steps):
       p = session.obs["proprio"].copy()
@@ -320,6 +363,9 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       if visual:
         # what Q reads from the new frames, against the truth, and what the planner expected
         next_z, next_xyz, next_held, heightmap = perceive(actual_p)
+        task_memory.obstacles.update(heightmap, actual_p[14:17], next_xyz[:2])
+        if models.obstacle is not None:
+          task_memory.obstacle_map = np.maximum(task_memory.obstacle_map, session.sim.obstacle_map())
         states_z.append(next_z.copy())
         row.update({"Q_held_probability": next_held, "Q_xyz_mae_cm": float(100 * np.abs(next_xyz - actual_xyz).mean())})
         row.update({f"Q_{k}": float(v) for k, v in zip("xyz", next_xyz)})
@@ -332,7 +378,11 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
           pool, selected = decision["pool"], decision["selected"]
           row.update({"predicted_score": decision["score"], "predicted_penalty_sum": float(pool["penalties"][selected].sum()),
                       "predicted_potential": float(pool["potentials"][selected, -1]), "planner_fallback": decision["fallback"],
-                      "chosen": decision["proposal"], "valid_candidates": int(pool["valid"].sum())})
+                      "chosen": decision["proposal"], "valid_candidates": int(pool["valid"].sum()),
+                      "clearance_max_cm": float(pool["clearance"][selected].max() * 100),
+                      "grasp_clearance_max_cm": float(pool["clearance"][planner.PROPOSALS.index("grasp")].max() * 100),
+                      "obstacle_cells": int((task_memory.obstacle_map > .01).sum()) if task_memory.obstacle_map is not None
+                      else int(len(task_memory.obstacles.occupied)) if task_memory.obstacles is not None else 0})
           row.update({f"score_{name}": float(v) for name, v in zip(planner.PROPOSALS, decision["proposal_scores"])})
           if not decision["fallback"]:
             row.update({"D_Q_one_step_xyz_mae_cm": float(100 * np.abs(pool["xyz"][selected, 0] - actual_xyz).mean()),
@@ -370,7 +420,10 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
     images = [Image.open(f).convert("RGB").resize((256, 256)) for f in sorted((folder / "frames").glob("static_*.jpg"))[::2]]
     images[0].save(folder / "actual.gif", save_all=True, append_images=images[1:], duration=200, loop=0)
 
+    obstacle_cells = ([[round(float(v), 3) for v in task_memory.obstacles.centres[c]] + [round(float(task_memory.obstacles.heights[c]), 3)]
+                       for c in task_memory.obstacles.occupied] if task_memory.obstacles is not None else [])
     result = {"method": method, "seed": seed, **session.result(), "seconds": time.monotonic() - started, "layout": layout,
+              "obstacle_cells": obstacle_cells,
               "planner_fallback_steps": sum(bool(r.get("planner_fallback")) for r in rows),
               "mean_decision_seconds": float(np.mean([r["decision_seconds"] for r in rows]))}
     if visual:
@@ -386,10 +439,11 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
 
 
 # The environment config the models were trained on and the resting cube height (the policy's and the planner's
-# reference height). train.py writes both to attempts/<tag>/info.json, so a clone that has only the checkpoints
-# and features/{pca.npz,meta.json} can run; without that file they come from the full manifest.
+# reference height). train.py writes both to attempts/<tag>/info.json, so a packaged model folder (models/v3c:
+# models/, info.json, features/) can run without the manifest; without that file they come from the full manifest.
 def run_settings(models_run, tag):
-  info = pathlib.Path(models_run) / "attempts" / tag / "info.json"
+  from world_model.train import model_folder
+  info = model_folder(models_run, tag) / "info.json"
   if info.exists():
     info = json.loads(info.read_text())
     cfg, rest_z = Config.nested(info["config"]), float(info["rest_z"])
@@ -449,9 +503,9 @@ def run_arguments(p):
 
 def main():
   p = argparse.ArgumentParser()
-  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("data/combined_v2"),
-                 help="run folder with features/ (PCA bases, encoder settings) and attempts/<tag>/models/ (Q, R, D)")
-  p.add_argument("--tag", default="combined")
+  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/v3c"),
+                 help="a packaged model folder (models/, info.json, features/) or a run folder with attempts/<tag>/ (then give --tag)")
+  p.add_argument("--tag", default="", help="attempts/<tag> inside a run folder; empty for a packaged model folder")
   p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("data/rl_baseline_v1"),
                  help="rl_baseline run with the frozen SAC in models/sac_best.zip, for rl_true / rl_q")
   p.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/grade_e_layout.json"))
@@ -502,23 +556,23 @@ def main():
   print(f"DONE: summary in {export_dir}, frames and gifs in {args.out / 'episodes'}", flush=True)
 
 
-# The layout of one scene: the file's layout, with the ends redrawn at random table ends when --random-ends
-# is given and fresh corridor obstacles when --obstacles is given
+# The layout of one scene. With --random-ends the WHOLE scene comes from the environment's own sampler, the
+# way the training episodes were made: cube and goal anywhere on the reachable table, the cube's size, mass,
+# friction and colour drawn the same way (the layout file's cube is teal and of one size, the data's cubes are
+# grey and vary), obstacles per --obstacles (none by default). Without it the file's layout is used, with
+# fresh corridor obstacles when --obstacles is given.
 def scene_layout(layout, cfg, seed, obstacles, random_ends=False):
   if obstacles is None and not random_ends:
     return layout
   from environment.obstacles import sample_obstacles
-  from environment.scene import sample_ends
+  from environment.scene import sample_layout
   rng = np.random.default_rng(seed)
-  scene = copy.deepcopy(layout)
-  if random_ends:
-    cfg = copy.deepcopy(cfg)
-    cfg.task.pick_end = "anywhere"
-    pick_end, place_end, pick, place = sample_ends(cfg, rng)
-    scene.update(pick_end=pick_end, place_end=place_end, pick=pick.tolist(), place=place.tolist())
-  if obstacles is None:
-    return scene
   cfg = copy.deepcopy(cfg)
+  if random_ends:
+    cfg.task.pick_end = "anywhere"
+    cfg.task.obstacles.count = list(obstacles) if obstacles is not None else [0, 0]
+    return sample_layout(cfg, rng).to_dict()
+  scene = copy.deepcopy(layout)
   cfg.task.obstacles.count = list(obstacles)
   drawn = sample_obstacles(cfg, rng, np.asarray(scene["pick"]), np.asarray(scene["place"]))
   scene["obstacles"] = [o.to_dict() for o in drawn] if drawn else []

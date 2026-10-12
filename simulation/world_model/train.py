@@ -62,12 +62,18 @@ def mlp(inputs, outputs, width=128, dropout=0.1):
 # 1x1 and two 3x3 convolutions (the height map, resized to the static grid, rides along as one more channel of
 # it); the static features also feed a spatial softmax whose expected grid coordinates say where each of its
 # heads looks, which is how a position comes out of an image without learning every cell separately. Pooled
-# features, key points and p go into an MLP head.
+# features, key points and p go into an MLP head. For Q the first `static_outputs` outputs (the absolute cube
+# position) come from a head on the static grid only, and the main head (relative position, held) gets the
+# static features DETACHED next to the wrist features and p. Measured on the v3 validation scenes, cube not
+# held, hand more than 20 cm away: one head on everything 1.25/1.76 cm; static-only position head 0.99/1.04;
+# with the relative and held heads sharing the trunk 1.27/1.12; detached 0.92/0.75. The relative head on a
+# shared trunk teaches the key points to follow the HAND (the cube is in it when held), which then pulls the
+# position toward the hand when it is not.
 class GridReadout(nn.Module):
 
-  def __init__(self, blocks, cells, p_dim, outputs, width=64, keys=8):
+  def __init__(self, blocks, cells, p_dim, outputs, width=64, keys=8, static_outputs=0):
     super().__init__()
-    self.blocks, self.cells, self.p_dim = dict(blocks), dict(cells), p_dim
+    self.blocks, self.cells, self.p_dim, self.static_outputs = dict(blocks), dict(cells), p_dim, static_outputs
     self.cameras = [c for c in self.blocks if c != "heightmap"]
     extra = 1 if "heightmap" in self.blocks else 0
     self.nets = nn.ModuleDict()
@@ -80,7 +86,8 @@ class GridReadout(nn.Module):
     n = self.cells[self.cameras[0]]
     ys, xs = torch.meshgrid(torch.linspace(-1, 1, n), torch.linspace(-1, 1, n), indexing="ij")
     self.register_buffer("grid", torch.stack((xs, ys)).reshape(2, n * n))
-    self.head = mlp(width * len(self.cameras) + 2 * keys + p_dim, outputs)
+    self.head = mlp(width * len(self.cameras) + 2 * keys + p_dim, outputs - static_outputs)
+    self.static_head = mlp(width + 2 * keys, static_outputs) if static_outputs else None
 
   def forward(self, x):
     n = x.shape[0]
@@ -104,7 +111,10 @@ class GridReadout(nn.Module):
       if i == 0:
         attention = torch.softmax(self.keys(f).reshape(n, -1, c * c), -1)
         feats.append((attention @ self.grid.T).reshape(n, -1))
-    return self.head(torch.cat(feats + [x[:, offset:]], -1))
+    if self.static_head is None:
+      return self.head(torch.cat(feats + [x[:, offset:]], -1))
+    y = self.head(torch.cat([f.detach() for f in feats[:2]] + feats[2:] + [x[:, offset:]], -1))
+    return torch.cat((self.static_head(torch.cat(feats[:2], -1)), y), -1)
 
 
 # Latent dynamics in two heads: the robot head predicts the next robot state from (p, a), the visual head
@@ -140,6 +150,34 @@ class SplitDynamicsZ(SplitDynamics):
     return next_z, next_p
 
 
+# Same two heads, but the robot head reads the frozen Q's reading of the current (z, p) (the cube's absolute
+# position and the held probability: 4 numbers; p is an input too, so the head can take the difference)
+# instead of the whole latent. With the 16x16 latent the robot head on z (9,000 noisy numbers -> 128) lost
+# the hand: 2 cm off after 8 steps, so the imagined hand rarely "arrived" at the cube and the planner never
+# closed. Q is a submodule (frozen, saved with the checkpoint). Q's RELATIVE head must not be used here: it
+# is trained on held states only and says nothing when the cube is not held, and with it D imagined fingers
+# closing 14 cm from the cube as a hold.
+class SplitDynamicsQ(SplitDynamics):
+
+  def __init__(self, z_dim, q, q_ck, p_dim=20, a_dim=5, width=512, p_width=128):
+    super().__init__(z_dim, p_dim, a_dim, width, p_width)
+    self.robot = nn.Sequential(nn.Linear(4 + p_dim + a_dim, p_width), nn.LayerNorm(p_width), nn.GELU(),
+                               nn.Linear(p_width, p_width), nn.GELU(), nn.Linear(p_width, p_dim))
+    self.q = q.requires_grad_(False)
+    self.q_columns = list(q_ck["p_columns"])
+
+  # Q's absolute position head and held probability on the normalised (z, p), no gradient into Q
+  def reading(self, z, p):
+    with torch.no_grad():
+      y = self.q(torch.cat((z, p[:, self.q_columns]), -1))
+    return torch.cat((y[:, :3], y[:, 6:7].sigmoid()), -1)
+
+  def forward(self, z, p, action):
+    next_p = p + self.robot(torch.cat((self.reading(z.detach(), p.detach()), p, action), dim=-1))
+    next_z = z + self.visual(torch.cat((z, p.detach(), action, next_p.detach()), dim=-1))
+    return next_z, next_p
+
+
 # Mean and std over the training states, the std floored so constant columns do not blow up
 def normalizer(a, floor=1e-3):
   return (torch.as_tensor(a.mean(0), dtype=torch.float32),
@@ -156,20 +194,29 @@ def build_model(ck):
   if ck["role"] == "dynamics":
     if ck.get("architecture", "SplitDynamics") == "SplitDynamicsZ":
       model = SplitDynamicsZ(ck["z_dim"])
+    elif ck.get("architecture") == "SplitDynamicsQ":
+      q_ck = ck["readout_ck"]
+      model = SplitDynamicsQ(ck["z_dim"], GridReadout(q_ck["blocks"], q_ck["cells"], q_ck["p_dim"], q_ck["outputs"], static_outputs=q_ck.get("static_outputs", 0)), q_ck)
     else:
       model = SplitDynamics(ck["z_dim"])
   elif ck.get("architecture") == "GridReadout":
-    model = GridReadout(ck["blocks"], ck["cells"], ck["p_dim"], ck["outputs"])
+    model = GridReadout(ck["blocks"], ck["cells"], ck["p_dim"], ck["outputs"], static_outputs=ck.get("static_outputs", 0))
   else:
     model = mlp(ck["input_dim"], ck["outputs"])
   model.load_state_dict(ck["model"])
   return model.eval()
 
 
-# Load <run>/attempts/<tag>/models/<role>.pt, returns the network and its checkpoint dict (statistics)
-def load_model(root, role, tag=""):
+# Where a tag's models, info.json and reports live: <run>/attempts/<tag>/, or the folder itself without a tag
+# (a packaged model folder such as models/v3c, which holds models/, info.json and features/ side by side)
+def model_folder(root, tag=""):
   root = pathlib.Path(root)
-  folder = root / "attempts" / tag if tag else root
+  return root / "attempts" / tag if tag else root
+
+
+# Load <folder>/models/<role>.pt, returns the network and its checkpoint dict (statistics)
+def load_model(root, role, tag=""):
+  folder = model_folder(root, tag)
   ck = torch.load(folder / "models" / f"{role}.pt", map_location="cpu", weights_only=True)
   if ck["role"] != role:
     raise ValueError(f"{folder}/models/{role}.pt holds a {ck['role']} model")
@@ -320,7 +367,8 @@ def main():
   p.add_argument("--seed", type=int, default=0)
   p.add_argument("--rollout-steps", type=int, default=8, help="dynamics: steps per training window")
   p.add_argument("--task-weight", type=float, default=1.0, help="dynamics: weight of the frozen Q term, 0 turns it off")
-  p.add_argument("--robot-sees-z", action="store_true", help="dynamics: SplitDynamicsZ instead of SplitDynamics")
+  p.add_argument("--robot-sees-z", action="store_true", help="dynamics: SplitDynamicsZ, the robot head reads the whole latent")
+  p.add_argument("--robot-sees-q", action="store_true", help="dynamics: SplitDynamicsQ, the robot head reads the frozen Q's cube and held reading (needs a GridReadout Q of the same tag)")
   p.add_argument("--mlp-readout", action="store_true", help="readout / reward: the old MLP on (z, p) instead of GridReadout; see the note at the top")
   p.add_argument("--z-noise", type=float, default=0.3, help="readout / reward: Gaussian noise on the normalised latent while training, against scene memorisation")
   p.add_argument("--overwrite", action="store_true", help="replace an existing model of this tag (after the data grew)")
@@ -369,12 +417,13 @@ def main():
   # Q and R: the grid network when the latent has grids (Q with the gripper columns of p only, R with all of
   # p), otherwise (or with --mlp-readout) the MLP on (z, p)
   cells = feature_meta.get("cells") or {c: 8 for c in blocks if c != "heightmap"}
-  def readout_network(outputs, p_columns):
+  def readout_network(outputs, p_columns, static_outputs=0):
     if args.mlp_readout or not blocks or sum(blocks.values()) != z.shape[1]:
       p_columns = tuple(range(robot.shape[1]))
       return mlp(z.shape[1] + len(p_columns), outputs), {"input_dim": z.shape[1] + len(p_columns), "outputs": outputs, "p_columns": p_columns}
-    return GridReadout(blocks, cells, len(p_columns), outputs), {"architecture": "GridReadout", "blocks": blocks, "cells": cells,
-                                                                 "p_dim": len(p_columns), "outputs": outputs, "p_columns": tuple(p_columns)}
+    return (GridReadout(blocks, cells, len(p_columns), outputs, static_outputs=static_outputs),
+            {"architecture": "GridReadout", "blocks": blocks, "cells": cells, "p_dim": len(p_columns), "outputs": outputs,
+             "p_columns": tuple(p_columns), "static_outputs": static_outputs})
 
   # what the controller needs besides the checkpoints (the environment config and the resting cube height),
   # so a clone that has only attempts/<tag>/ and features/{pca.npz,meta.json} can run without the manifest
@@ -390,7 +439,7 @@ def main():
       return readout_loss(model(noisy(x, model) if x.shape[1] > z.shape[1] else x), absolute, rel, g)
 
     reports = {}
-    q, extra = readout_network(Q_OUTPUTS, P_GRIPPER)
+    q, extra = readout_network(Q_OUTPUTS, P_GRIPPER, static_outputs=3)
     for role, x, model, ck in (("readout", torch.cat((nz, np_[:, list(extra["p_columns"])]), -1), q, extra),
                                ("readout_p", np_, mlp(np_.shape[1], Q_OUTPUTS),
                                 {"input_dim": np_.shape[1], "outputs": Q_OUTPUTS, "p_columns": tuple(range(np_.shape[1]))})):
@@ -489,10 +538,17 @@ def main():
         return z_loss + p_loss, terms
       return z_loss + p_loss + args.task_weight * task_loss, {**terms, "task": task_loss.item()}
 
-    model = SplitDynamicsZ(z.shape[1]) if args.robot_sees_z else SplitDynamics(z.shape[1])
-    fit(folder, "dynamics", model, arrays["train"], arrays["val"], dynamics_loss,
-        {**meta, "rollout_steps": w, "task_weight": args.task_weight,
-         "architecture": "SplitDynamicsZ" if args.robot_sees_z else "SplitDynamics"}, args)
+    extra = {}
+    if args.robot_sees_q:
+      q_model, q_ck = load_model(args.run, "readout", args.tag)
+      if q_ck.get("architecture") != "GridReadout":
+        raise ValueError("--robot-sees-q needs a GridReadout readout of the same tag")
+      model = SplitDynamicsQ(z.shape[1], q_model, q_ck)
+      extra = {"architecture": "SplitDynamicsQ", "readout_ck": {k: q_ck[k] for k in ("blocks", "cells", "p_dim", "outputs", "p_columns", "static_outputs")}}
+    else:
+      model = SplitDynamicsZ(z.shape[1]) if args.robot_sees_z else SplitDynamics(z.shape[1])
+      extra = {"architecture": "SplitDynamicsZ" if args.robot_sees_z else "SplitDynamics"}
+    fit(folder, "dynamics", model, arrays["train"], arrays["val"], dynamics_loss, {**meta, "rollout_steps": w, "task_weight": args.task_weight, **extra}, args)
 
 
 if __name__ == "__main__":

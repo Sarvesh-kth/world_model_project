@@ -48,7 +48,8 @@ class ScriptedPickPlace:
   # Height kept between the lowest point of hand + object and an obstacle top when passing over it
   OVER_CLEARANCE = 0.04
 
-  def __init__(self, env, rng, noise=0.0, carry_low=False, drop_early=False, miss=False, wander=False, lateral=False):
+  def __init__(self, env, rng, noise=0.0, carry_low=False, drop_early=False, miss=False, wander=False, lateral=False,
+               travel_close=False, short_release=False):
     self.env = env
     self.rng = rng
     self.noise = noise
@@ -57,6 +58,8 @@ class ScriptedPickPlace:
     self.miss = miss
     self.wander = wander
     self.lateral = lateral
+    self.travel_close = travel_close
+    self.short_release = short_release
     self.reset()
 
   # Nothing left to do, the episode can stop here instead of idling till max_steps
@@ -105,6 +108,20 @@ class ScriptedPickPlace:
       angle = self.rng.uniform(0, 2 * np.pi)
       radius = self.rng.uniform(0.0, 0.025) if self.rng.uniform() < 0.6 else 0.0
       self.lateral_offset = np.array([radius * np.cos(angle), radius * np.sin(angle), self.rng.uniform(-0.005, 0.02)])
+    # travel_close: the fingers shut for HOLD_STEPS while the hand is still on its way to the object, 4-20 cm
+    # from it (in the air, or on the last low leg), then open and the pick goes on. The planner's dynamics
+    # model imagined a hold for exactly such closes because the data had none; the gripper envelope rule
+    # stood in for this data.
+    self.travel_close_dist = self.rng.uniform(0.04, 0.20) if self.travel_close else None
+    self.travel_closed_steps = 0
+    self.travel_close_done = not self.travel_close
+    # short_release: the cube is let go 5-14 cm short of the place spot (the success radius is 7 cm, so most count as failures), half the time from the carry height,
+    # half after lowering, then picked up again and placed properly. Q read a just-released cube toward the
+    # hand and R called releases 8 cm out "placed"; the release rule stood in for this data.
+    self.short_dist = self.rng.uniform(0.05, 0.14) if self.short_release else None
+    self.short_pending = self.short_release
+    self.short_low = self.rng.uniform() < 0.5
+    self.lower_xy = None
     if self.miss:
       beside = self.rng.uniform() < 0.75
       above = not beside or self.rng.uniform() < 0.3
@@ -222,7 +239,12 @@ class ScriptedPickPlace:
       target = np.array([wp[0], wp[1], self._height_over(ee[:2], wp)])
       gripper = -1.0
       halfway = 0.5 * np.linalg.norm(place[:2] - self.env.layout.pick_pos)
-      if self.drop_early and np.linalg.norm(ee[:2] - place[:2]) < halfway:
+      if self.short_pending and np.linalg.norm(ee[:2] - place[:2]) < self.short_dist:
+        # short of the goal on purpose: let go here, from the carry height or after lowering
+        self.lower_xy = ee[:2].copy()
+        self.phase = "lower" if self.short_low else "release"
+        self.hold = 0
+      elif self.drop_early and np.linalg.norm(ee[:2] - place[:2]) < halfway:
         # Bad data on purpose, let go midway
         self.phase = "release"
         self.hold = 0
@@ -238,8 +260,9 @@ class ScriptedPickPlace:
           self.phase = "lower"
 
     elif self.phase == "lower":
-      # Lower to just above the table
-      target = np.array([place[0], place[1], table + self.half_h + 0.03])
+      # Lower to just above the table (at the current spot on a short release)
+      xy = place[:2] if self.lower_xy is None else self.lower_xy
+      target = np.array([xy[0], xy[1], table + self.half_h + 0.03])
       gripper = -1.0
       if abs(ee[2] - target[2]) < 0.015:
         self.phase = "release"
@@ -258,7 +281,24 @@ class ScriptedPickPlace:
       if abs(ee[2] - target[2]) < 0.03:
         self.hold += 1
         if self.hold >= self.HOLD_STEPS:
-          self.phase = "done"
+          if self.short_pending:
+            # the short release is done, now pick the cube up again and place it properly
+            self.short_pending = False
+            self.lower_xy = None
+            self.route = None
+            self.phase = "approach"
+          else:
+            self.phase = "done"
+
+    # the travel close: the fingers shut for HOLD_STEPS on the way to the object (approach and hover, so a
+    # close triggered 4 cm out still lasts), never into the descent
+    if not self.travel_close_done:
+      if self.phase in ("approach", "hover") and (self.travel_closed_steps > 0 or np.linalg.norm(ee[:2] - obj[:2]) < self.travel_close_dist):
+        gripper = -1.0
+        self.travel_closed_steps += 1
+        self.travel_close_done = self.travel_closed_steps >= self.HOLD_STEPS
+      elif self.phase not in ("approach", "hover", "wander"):
+        self.travel_close_done = True
 
     # If the arm is not getting anywhere (blocked by an obstacle, target out of reach) stop wasting steps
     self.ee_hist = (self.ee_hist + [ee.copy()])[-self.STUCK_STEPS:]
@@ -291,6 +331,8 @@ class ScriptedPickPlace:
             "drop_early": self.drop_early,
             "miss_beside": round(float(self.miss_beside), 3), "miss_above": round(float(self.miss_above), 3),
             "wander": self.wander, "lateral": self.lateral, "lateral_turn": self.lateral_turn,
+            "travel_close_dist": None if self.travel_close_dist is None else round(float(self.travel_close_dist), 3),
+            "short_dist": None if self.short_dist is None else round(float(self.short_dist), 3), "short_low": self.short_release and self.short_low,
             "lateral_offset": [round(float(v), 3) for v in self.lateral_offset]}
 
   # Turn the fingers square to the object while hovering / descending
@@ -398,6 +440,10 @@ def make_policy(kind, env, rng, cfg):
     return ScriptedPickPlace(env, rng, noise=noise, wander=True)
   if kind == "lateral":
     return ScriptedPickPlace(env, rng, noise=noise, lateral=True)
+  if kind == "travel_close":
+    return ScriptedPickPlace(env, rng, noise=noise, travel_close=True)
+  if kind == "short_release":
+    return ScriptedPickPlace(env, rng, noise=noise, short_release=True)
   if kind == "random":
     return RandomPolicy(env, rng)
   raise ValueError(f"unknown policy kind: {kind}")

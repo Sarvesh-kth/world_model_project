@@ -1,2 +1,6 @@
-# The frozen SAC run is the only tracked binary data; everything else in simulation/data stays local.
+# Tracked binaries: the frozen SAC run and the packaged world-model folder; everything else in simulation/data stays local.
+simulation/models/**/*.pt filter=lfs diff=lfs merge=lfs -text
+simulation/models/**/*.npz filter=lfs diff=lfs merge=lfs -text
+simulation/data/episodes_v3/** filter=lfs diff=lfs merge=lfs -text
+simulation/data/episodes_hack/** filter=lfs diff=lfs merge=lfs -text
 simulation/data/rl_baseline_v1/** filter=lfs diff=lfs merge=lfs -text

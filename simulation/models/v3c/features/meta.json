@@ -1,0 +1,38 @@
+{
+  "model": "facebook/vjepa2-vitl-fpc64-256",
+  "model_revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f",
+  "pooling": "spatial_mean_static16x32_wrist8x16",
+  "grid": 16,
+  "cameras": [
+    "static",
+    "wrist"
+  ],
+  "clip_frames": {
+    "static": 16,
+    "wrist": 16
+  },
+  "frame_stride": 1,
+  "dtype": "fp16",
+  "spatial_pool": {
+    "static": 1,
+    "wrist": 2
+  },
+  "cells": {
+    "static": 16,
+    "wrist": 8
+  },
+  "pca_dims": {
+    "static": 32,
+    "wrist": 16
+  },
+  "heightmap": true,
+  "heightmap_cells": 8,
+  "heightmap_scale": 0.25,
+  "layout": {
+    "static": 8192,
+    "wrist": 1024,
+    "heightmap": 64
+  },
+  "seconds": 5440.661022901069,
+  "note": "encoder settings of data/episodes_v3 without the per-state keys"
+}

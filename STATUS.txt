@@ -1,3 +1,208 @@
+LEARNED OBSTACLES (2026-10-13; models data/episodes_v3/attempts/v3c, runs data/control_v4*_* and control_v5*_02)
+=====================================================================================================================
+Goal: the obstacle avoidance done by learned models on a filtered depth map, no geometric clearance rule and no route
+planner; the hand AND the carried cube count as the body that must not touch anything; fewer planner rules.
+Why the first all-model variant scored 28/100: its obstacle model read the 8x8 height map block INSIDE the latent,
+which holds the arm, the hand mount and the cube; it predicted penalties from them and the planner avoided the cube
+(32 % even on empty tables). An MLP over the raw window also memorised scenes (best epoch 1), and the proximity label
+measured the arm only.
+What changed (all uncommitted):
+  environment/env.py   obstacle_map(): the static depth image rendered together with a segmentation image, every pixel
+                       of a robot geom or of the cube dropped, binned at 16x16 (4 x 5.75 cm cells), a cell needs 8
+                       depth points (one stray table-leg pixel at the table edge made a 15 cm phantom next to the cube,
+                       the smallest obstacle gives hundreds). point_cloud(drop=...), _table_map(min_points).
+  controller           TaskMemory.obstacle_map = running maximum of obstacle_map() over the episode (obstacles do not
+                       move; cells the arm hides keep what was seen). --obstacle-source model: the learned obstacle
+                       model scores the IMAGINED hand with the live map. --cost-to-go (new), --route-proposals (new,
+                       the hybrid fallback), --no-release-rule (new, for the ablation).
+  train_obstacle.py    per-cell model: one shared 64-wide MLP scores each of the 9x9 cells around the hand from
+                       (height, offset to the hand, hand height, gripper width/cmd, held) and a max over cells gives
+                       proximity and the contact logit (4,930 parameters; an MLP over the window memorised scenes).
+                       Label: proximity with the carried cube's distance to the obstacles folded in (contact already
+                       counted the cube). Training maps rendered once per stored scene (features/obstacle_maps.npz).
+                       Validation: proximity MAE 0.18 when penalised (was 0.32), 0.01 when free; contact AUC 0.97,
+                       recall 0.74 (was 0.81 / 0.15). 0.3 ms features + a sub-ms forward per imagined step.
+  train_cost_to_go.py  learned cost-to-go: a 6-layer 5x5 convolution over the 16x16 map + target blob + straight
+                       distance -> 32x32 field of path length; trained on 20k synthetic scenes from the environment's
+                       own samplers, labels = grid value iteration with cells taller than 12 cm blocking within 7 cm
+                       (a 4 cm cylinder treated as a wall sealed a corridor; the first net died at init with ReLU +
+                       softplus). Validation MAE 1.9 cm, 7.6 cm on points needing a detour. Runs on the CPU, 6 ms per
+                       target per decision. In the planner it replaces the straight line in the reach / goal pulls.
+                       Reason: with the straight-line pull the 8-step MPC parked holding the cube beside a cylinder for
+                       260 steps (no candidate gained goal distance within 16 cm of travel, all tied with standing
+                       still, the commitment margin kept the hold). It is a distilled planner, say so when quoting it.
+Results, 20 random-end scenes each, same seeds, zero obstacle contacts unless stated (decision ~1 s with 5-7 runs
+sharing the GPU; 180-270 ms alone):
+  0-2 obstacles (8 empty / 6 one / 6 two):
+    control_v5m_02   learned obstacle model                          16/20   empty 8/8, one 4/6, two 4/6
+    control_v5c_02   learned model + cost-to-go                      15/20   empty 8/8, one 3/6, two 4/6
+    control_v5g_02   geometric map + A* route (the old default)      14/20   233 contact steps in 2 scenes, two 2/6
+    control_v5cw_02  learned + cost-to-go, --no-width-gate           14/20
+    control_v5cr_02  learned + cost-to-go, --no-release-rule         12/17 (stopped at the user's request)
+  Decision: --obstacle-source model is the planner default; --cost-to-go stays optional; the packaged models
+  are simulation/models/v3c (the controllers' default --models-run, tracked through Git LFS); NEXT.md has the
+  remaining steps and the commands. Smoke test of the package: 1/1, decision 185 ms with the GPU free.
+  1-3 obstacles (stopped at the user's request, partial): learned 7/11, learned + cost-to-go 3/3, hybrid route
+    proposals 4/8, geometric 7/16, no gripper envelope 1/7 (D imagines holds for closes mid-travel), no width rules
+    6/10; empty tables with the learned model 9/10 (the miss: Q at the table edge, same seed fails in every variant).
+  Run-to-run variance: the geometric variant scored 8/10 yesterday and 5/10 today on the same seeds, same code and
+  models (the CEM amplifies float differences): 20-scene numbers move by ~10 %, treat smaller gaps as noise.
+  Common failures of every variant: never grasps beside a box or at the table edge (Q 1-2 cm off), seeds 17, 20, 23.
+Per step (one process): render + maps 36 ms, V-JEPA encode of two 16-frame clips ~250 ms, planner 180-270 ms,
+  cost-to-go 12 ms -> ~1.8 Hz. 10 Hz is out of reach with the encoder every step; cheapest cuts: 8 wrist frames,
+  2 CEM rounds, encode every second step, R as penalties only.
+Rules still in the planner and their status: gripper envelope (load-bearing: 1/7 without), release rule, width rules
+  (14/20 vs 15/20 without: noise), imagined placed at .4 radius, go-to constants. Data for the first two collected:
+  data/episodes_hack = 150 episodes (20,455 states) of configs/hack_mix.yml: travel_close (fingers shut 8 steps
+  4-20 cm from the cube on the way in), short_release (cube let go 5-14 cm short of the goal, from the carry height
+  or lowered, then picked up and placed), miss. Chain (scratch hack_chain.sh): encode with the v3 bases -> merge into
+  data/episodes_v4 -> Q, R, D tag v4 (40 epochs) -> control_v6{c,n,r,x}_02 = all rules / no envelope / no release
+  rule / none of the three. Width rules have no data fix: the second one covers Q's 12-step held lag from the
+  16-frame time-mean latent; R's empty_grasp term already penalises closes on nothing.
+
+100-SCENE RUNS (2026-10-12 night; cube and goal anywhere, 0-3 obstacles per scene = the data distribution;
+seeds 20474010 + 25k in four workers; results/control_100_* and control_100m_*)
+  geometric obstacle avoidance (--obstacle-source map, the default), scratchpad aggregate.py control_100:
+    100 scenes: placed 69 (69 %), 58 contact steps in 6 scenes, median final distance 2.5 cm, never held 8
+      0 obstacles  28 scenes  placed 27 ( 96 %)  contacts   0  mean steps of successes  96
+      1 obstacle   24 scenes  placed 19 ( 79 %)  contacts  26                           115
+      2 obstacles  27 scenes  placed 18 ( 67 %)  contacts  32                           138
+      3 obstacles  21 scenes  placed  5 ( 24 %)  contacts   0                           118
+    (three obstacles across the corridor: the hand is kept out, but the cube is often never reached or the
+     carry never finds a way with an 8-step horizon; 0 contacts there)
+  all-model obstacle avoidance (--obstacle-source model, goal given): aggregate.py control_100m:
+    100 scenes: placed 28 (28 %), 1,097 contact steps in 24 scenes, median final distance 40 cm, never held 46
+      0 obstacles  28 scenes  placed  9 ( 32 %)  contacts    0
+      1 obstacle   24 scenes  placed  9 ( 38 %)  contacts  119
+      2 obstacles  27 scenes  placed  5 ( 19 %)  contacts  693
+      3 obstacles  21 scenes  placed  5 ( 24 %)  contacts  285
+    It fails on EMPTY tables too (32 % vs 96 %): the obstacle model's window around the hand contains the
+    cube and the hand's own height readings, and it predicts proximity penalties from them, so the planner is
+    pushed away from the cube (46 scenes never held). Next step for this variant: train it with the cube's
+    cell and the arm's own readings removed from the window, the same two exclusions the geometric map makes.
+  --no-goal (R's image-read terms carry the whole task): 0/4 empty scenes before it was stopped; the planner
+    hovers at the cube, R's grasp and transport terms do not make a close or a carry score above standing still.
+  10-scene obstacle checks with the same models: map 8/10 with 6 contact steps (control_v3l_obstacles), model
+    4/10 with 211 contact steps (control_v3m_obstacles).
+
+WHAT IS LEARNED AND WHAT IS A RULE (2026-10-12 evening, the state the 100-scene run was made with)
+=======================================================================================================
+Learned: V-JEPA 2 (frozen) -> z; Q (cube position from the static grid, held from wrist + gripper); D (latent
+and robot state 8 steps ahead, robot head reads Q); R (penalties: proximity, contact, table hit, empty grasp,
+weight 1). The planner is an MPC: waypoint + gripper-switch candidates, a go-to rule, D imagines, Q and R read,
+CEM; the SCORE is hand-written (stage potential reach 0-.5 / held 1-2.5 / placed 3.5, linear pulls .1 to the
+cube and .8 to the goal, penalties).
+Rules on top of the models (each with its measured reason, controller/README.md "The planner"):
+  1 gripper envelope: an imagined hold counts only if the imagined hand was within 1.5 cm xy / 2 cm z of Q's
+    cube when the fingers closed (D imagines holds for closes mid-travel far from the cube, absent from data)
+  2 width rules: fingers under 2 cm hold nothing; fingers commanded shut at 3.5-6.5 cm hold something (Q's
+    held lags a real grasp ~12 steps, 16-frame time-mean latent); real and imagined states
+  3 release only within .5 radius of the goal while held, else go to the goal low and open there; imagined
+    placed needs .4 radius (Q reads a just-released cube 2-4 cm toward the hand)
+  4 geometry constants: grasp site >= 2.2 cm above the table, descend when aligned within 2 cm, switch within
+    2 cm, hand still on the closing step, carry 8 cm, commitment margin .05, imagined width in [-2, 12] cm
+  5 fingers never turn (fine for the cube only)
+Obstacles are NOT avoided by the models: planner.ObstacleMap (depth height map, hand disc and cube masked,
+readings >= 20 cm discarded, 3 agreeing readings) gives a clearance penalty on the imagined hand and an A*
+route whose next point is the travel proposal; R's proximity is added at weight 1 but is not what keeps the
+hand out of walls. The all-model alternatives (new, 2026-10-12 evening): --obstacle-source model = the
+obstacle model of world_model/train_obstacle.py (a 5x5 window of the height map around the hand, the hand's
+height and in-cell offset, the gripper numbers -> proximity, P(contact); on the IMAGINED latent and robot
+state) instead of the map and the route; --no-goal = the planner is not told the goal, R's terms read off the
+image (the green place marker is in the frame) carry the task, no goal proposals / pull / release rule.
+Obstacle model validation: proximity 0.32 off when penalised (the 8 cm cells cannot resolve the 6 cm proximity
+ramp, a limit of the sensor resolution, same as R), contact AUC 0.81; a convolution over the whole map
+memorised scenes (best epoch 1), the hand window did not.
+
+V3 LOCAL ROUND (2026-10-12 morning): the cluster's v3 models tested, six more root causes, v3c models
+======================================================================================================
+Data: 401 full-mix episodes on the cluster (58k states, cube and goal anywhere, 0-3 obstacles, random yaw),
+encoded with the 16x16 static grid; Q, R, D trained there (tag v3), empty random-end run on the cluster 7/17.
+Found and fixed here, in order (all uncommitted):
+  1. EVALUATION CUBE. configs/grade_e_layout.json has a TEAL cube of one size and mass; every training cube is
+     grey with a random size, mass and friction. --random-ends now draws the whole scene from the environment's
+     own sampler (control_pipeline.scene_layout -> environment.scene.sample_layout, config from info.json);
+     control_clutter recolours the recorded held-out layouts to grey. The arm start is the same in both
+     (home pose + posture noise).
+  2. Q TRUNK FOLLOWED THE HAND. v3 Q: 1.02/1.72 cm on validation, 1.8/3.0 cm with the hand far from the cube,
+     train loss 12x below validation. Measured on the same latents: a position head on the static grid alone,
+     with the relative and held heads on a DETACHED copy of its features + the wrist block, gives 0.92/0.75 cm
+     far from the cube; sharing the trunk 1.27/1.12 (the relative head teaches the key points to find the
+     hand); the wrist block in the position head 1.25/1.76. train.py GridReadout now does that
+     (static_outputs=3): Q v3b 0.63/0.73 cm over the validation states, 1.0/1.2 far from the cube, held F1 .99.
+  3. D LOST THE HAND. The robot head on the 9,280-number latent was 2.2 cm off after 8 steps, so the imagined
+     hand rarely "arrived" at the cube (closed within the horizon 68 %) and the planner hovered beside the cube
+     for 300 steps (6 of the 10 cluster failures, Q 0.1-2 cm off the whole time). SplitDynamicsQ
+     (--robot-sees-q): the robot head reads the frozen Q's ABSOLUTE cube reading + held (4 numbers; the
+     relative head is untrained off-held and with it D imagined a hold 14 cm from the cube). Hand error 1.4 cm,
+     closes within the horizon 92 %, recorded grasps imagined held 1.0, misses 0.26. No speed bias (0.98).
+  4. HOLDS IMAGINED MID-TRAVEL. Even so, a candidate that travels away and closes the fingers 14 cm from the
+     cube is imagined as a hold (width 4.2 cm, cube lifted): no such closes exist in the data (closes happen at
+     rest). It outscored the real grasp 1.9 vs 0.5. The gripper envelope (an imagined hold counts only if the
+     hand was within 1.5 cm xy / 2 cm z of Q's cube when the fingers closed) is the planner default now
+     (--no-grasp-prior): same 10 scenes 0/1 -> 8/10. The proper data fix is a kind with closes during travel.
+  5. EARLY RELEASES. Three failures ended 7.8-8.9 cm from the goal (radius 7): Q reads a just-released cube 2-4
+     cm toward the hand, so a release 8 cm out was imagined "placed" (0.6 radius), and a plan's switch step came
+     up while the real hand was still on its way. Now: placed needs 0.4 radius, and a release is executed only
+     with the real hand within 2 cm of its waypoint.
+  6. STUCK HOLDING. One episode held the cube at the pick spot for 260 steps: at a goal pull of 0.3 over 80 cm
+     a carry gains 0.06 per 8 steps, barely the 0.05 commitment margin. Pull now 0.8.
+Models: data/episodes_v3/attempts/v3c = readout (v3b), reward (v3), dynamics (SplitDynamicsQ, 40 epochs,
+task-weight 1). Runs, 10 random-end seeds each, grey cube, this machine (decision ~350 ms with other jobs on
+the GPU):
+  control_v3b1p_empty   8/10   v3b readout + v3b_tw1 dynamics + envelope (fixes 1-4)
+  control_v3c2_empty    7/10   fixes 1-5 (failures: a stuck hold 62 cm, a knocked cube 13 cm, a 1.5 cm Q miss)
+  control_v3c2_obstacles 0/9   328 contact steps: R's penalties do not keep the hand out of the obstacles
+  control_v3c3_empty    9/10   fixes 1-6, mean final distance 7.8 cm (the miss: 52 cm), 0 contacts   <- CURRENT
+  control_v3c3_obstacles 2/10  257 contact steps, mean final distance 28 cm                           <- CURRENT
+  7. OBSTACLES. R's proximity is 0.32 off when penalised and finds 19 % of the contacts (test), so the planner
+     drove into walls (257 contact steps over 10 scenes). Now planner.ObstacleMap: the depth height map of
+     every frame; masked: a 17 cm disc around the hand while it is low (8 cm when high: the hand body and
+     camera mount reach 13 cm from the grasp site) and the cube (Q's reading, 5 cm from the cell rectangle);
+     readings at the 20 cm clip discarded (the arm above the tallest obstacle; masking the whole arm segment
+     instead hid the obstacles under it for the whole episode); a cell committed after 3 agreeing readings
+     (an obstacle the arm then shadows was visible for 4 frames). clearance() = how far the hand's lowest
+     point (site - 4.5 cm) would sink into a cell's height + 3 cm within 6 cm of the hand; --clearance-weight
+     1.0 per imagined step at 5 cm intrusion. route_point(): A* around the occupied cells (data_collection/
+     route.py, 12 cm circles) gives the to_cube / carry proposals their next waypoint, so the MPC gets past a
+     barrier its 8-step horizon cannot see around. Verified on scripted obstacle episodes and the recorded
+     barrier scene: every obstacle registered at its height by step 2-10, 0 phantom cells, 0 intrusion at the
+     cube. A real robot with a depth camera has the same map; R stays for contacts and empty grasps.
+     Also: the imagined-width validity bound .09 -> .12 (D's opened fingers overshoot by up to 1 cm, which
+     made the release proposal invalid and the hand hover at the goal holding the cube).
+  9. R's penalty scale 2 -> 1: with the map doing the geometry, R's proximity (0.32 off when it matters) at
+     scale 2 pushed carries around a single box for 200 steps (two episodes ended holding the cube 2-9 cm from
+     the goal at step 300). Obstacles 5/10 -> 7/10.
+ 10. FLOW (afternoon, "pick as soon as possible, no stutter"). Measured on the 10 empty successes: 100 steps =
+     37 to the grasp, 47 carry, 16 settling (the task's own 15 settled steps). Found: (a) after the close
+     command the fingers stayed open 14 steps: the grasp site 1.5 cm below the cube centre puts the fingertips
+     into the table (the scripted policy's floor is 2.2 cm above it) -> planner.FLOOR, close-to-held now 1-2
+     steps; (b) Q's held reading lags a real grasp by ~12 steps (16-frame time-mean latent) and the planner
+     stood still that long -> fingers commanded shut at a cube's width (3.5-6.5 cm) count as held at once
+     (WorldModels.read); (c) the hand now stands still on the closing step; (d) a route point is kept until
+     reached (A* flipped sides every step in one scene, 87 direction flips). Tried and reverted: descent
+     alignment 1.5 cm instead of 2 (the imagined hand rarely "arrived", closes on sampled timings, more
+     misses). The carry itself runs at the arm's speed (2 cm per step with two axes at full command, 1.4 along
+     one axis: the IK's first-order lag, an environment property shared with the data).
+  8. The release rule of fix 5 measured against the plan's waypoint held the cube 2.8 cm from the goal for 300
+     steps, and applied to fingers closed on nothing it kept an empty gripper shut for 220 steps. Now, only
+     while Q reads held: release within half the success radius of the goal with the cube within 3 cm of the
+     table, otherwise this step goes to the goal, low, closed, and opens on arrival there.
+  control_v3h_empty      9/10  fixes 1-8, mean final distance 5.8 cm, 0 contacts
+  control_v3h_obstacles  5/10  fixes 1-8, 6 contact steps over 10 scenes (was 257), mean 17 cm: R's imagined
+                               proximity (scale 2) still pushed carries around a single box for 200 steps
+  control_v3i_obstacles  7/10  + --penalty-scale 1 (fix 9), 11 contact steps, mean 9.4 cm                  <- CURRENT
+  control_v3i_empty      10/10  + --penalty-scale 1, mean final distance 2.0 cm, 0 contacts
+  control_v3l_empty      10/10  + fix 10, mean 96 steps (was 100), to grasp 32 (was 37), 1.0 closes per grasp (was 1.1), 0 contacts  <- CURRENT
+  control_v3l_obstacles  placements 8/10; final goal distance 9.74 cm; obstacle contacts 6; decision 282 ms   <- CURRENT
+  Remaining obstacle failures: the 3-obstacle barrier scene (never grasped: Q 1-2 cm off beside a box),
+  one late arrival holding the cube 3 cm from the goal at step 300, one carry dropped at 38 cm.
+  (control_v3c3: 9/10 and 2/10 with 257 contacts before the obstacle map; control_v3g: 8/10 and 4/10 with 2
+   contacts, before the route proposals and the three-reading map)
+Still open: high carries (13-15 cm, above the data's carry height) make Q's held flicker; the travel-close kind
+for D and more collide data for R are the data fixes for the next cluster round (cluster_round.sh has the new
+dynamics option and the planner defaults).
+
 REVIEW (2026-10-12 early morning): why 1,300 episodes were not enough, and the v3 chain
 ==========================================================================================
 Question: a world model should not need 1,300 episodes for one cube; it still grasps badly and goes to the
