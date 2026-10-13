@@ -4,6 +4,7 @@
 planner.py            the latent MPC: waypoint candidates, imagination with D, scoring with Q, R, O (and C), CEM
 control_pipeline.py   the four controllers on fresh scenes; WorldModels (online perception), episode(), summaries
 control_clutter.py    the same controllers on the six held-out obstacle scenes of data/obstacles_v2
+imagined_sac.py       M3: a SAC trained only on transitions imagined by D (the actor-critic in imagination)
 ```
 
 | method | perception | action | what it tests |
@@ -12,6 +13,7 @@ control_clutter.py    the same controllers on the six held-out obstacle scenes o
 | rl_true | exact state | the frozen SAC | the actor-critic with perfect perception |
 | rl_q | cameras through `Q` | the frozen SAC on the estimate | is the perception good enough to drive a policy |
 | jepa_mpc | cameras through `Q`, `D`, `R`; the obstacle-only depth map through `O` | waypoint candidates imagined by `D`, the best one executed | does planning in the latent find the task and the way around obstacles |
+| sac_imagined | cameras through `Q` (as rl_q) | a SAC trained in imagination (`imagined_sac.py`, `--imagined-run`) | can an actor-critic learn the task from the world model instead of the simulator |
 
 ```bash
 python -m controller.control_pipeline --methods jepa_mpc --random-ends                                   # 5 scenes, live window
@@ -77,6 +79,40 @@ and cube masks, a clearance penalty, an A* route), `--route-proposals` a hybrid,
 
 The same seeds move by about 10 % between runs of the same code (fp16 encoder, the CEM amplifies small
 differences): quote 20-scene rates and treat smaller gaps as noise. The full log is `STATUS.txt`.
+
+## The actor-critic trained in imagination, `imagined_sac.py` (M3)
+
+```bash
+python -m controller.imagined_sac --out data/sac_imagined_v1      # needs data/episodes_v3 (LFS, latents.npy assembled)
+python -m controller.control_pipeline --methods sac_imagined --imagined-run data/sac_imagined_v1 --random-ends --test-episodes 20 --headless
+```
+
+A stable-baselines3 SAC with the exact-state SAC's recipe (behaviour cloning, critic warmup, a cloning term in
+every actor update, `rl/rl_baseline.py`), but every training transition is imagined: an episode starts at a
+recorded state of `data/episodes_v3` (obstacle-free scenes; each recorded episode is replayed through `Q` so the
+start carries the task memory the controller would have had), `D` imagines the next (z, p), `Q` reads the cube
+and held, and the reward is the SAC's `GoalReward` on `Q`'s readings plus `R`'s penalties. An imagined hold only
+counts if the fingers closed at `Q`'s cube (the planner's gripper envelope). The policy sees the same 41 inputs as
+rl_q, so it runs on the cameras through the rl_q code path. The checkpoint is picked by imagined placements on
+held-out starts; a 20-episode exact-state check is logged as a diagnostic only.
+
+Findings (Mac, 2026-10-13, obstacle-free random-end scenes):
+
+| policy | exact state, 20 scenes | cameras, 10 scenes |
+|---|---|---|
+| cloned actor only (240 epochs on the data's clean episodes) | 14-18/20 | 7/10 (the 256-256 actor, 18/20) |
+| + 40k imagined transitions, cloning weight 100 (the recipe) | 10/20 | 6/10 |
+| + cloning weight 10 | 4-8/20 | |
+| pure SAC (weight 0) | 0/20 | |
+| reference on the same camera scenes: jepa_mpc 10/10, rl_q (SAC trained on one fixed layout) 1/10 | | |
+
+RL in imagination never improved on its cloned start. Imagination is faithful along the data's actions (recorded
+actions replayed: cube 1.0 -> 1.5 cm over 10 steps, held right 98.8 %, 10-step return correlation 0.98 with the
+truth), but the updates move the policy off them: the failures shift to grasping, then reaching (weight 10: 7 of
+20 scenes reach the cube and never hold it), while the imagined placements stay the same, and longer imagined
+episodes (25 steps) make it worse (1/20). The critic barely fits (loss 0.7-1.0 against per-step rewards of about
+0.03; 0.5 % of steps carry the +15 placement bonus, 57 % of the reward), a longer critic warmup and TD3+BC's
+normalisation did not help. `R`'s penalties cost -0.023 per step on empty tables (phantom proximity).
 
 ## The live window
 
