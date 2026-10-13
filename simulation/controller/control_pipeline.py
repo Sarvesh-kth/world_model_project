@@ -25,13 +25,14 @@ from . import planner
 #   rl_q      the same SAC, but cube position and held come from Q on the live cameras
 #   jepa_mpc  the latent planner (planner.py): Cartesian waypoint candidates imagined by D, scored by Q's
 #             task potential and R's penalties, CEM, no policy anywhere in the loop
+#   sac_imagined  a SAC trained only on transitions imagined by D (imagined_sac.py), run like rl_q on Q's estimate
 # The world model comes from --models-run (Q, R, D, the PCA bases and encoder settings), the SAC from
 # --baseline-run (only loaded for rl_true / rl_q). Frames, gifs and per step csv land in
 # data/<out>/episodes/<method>/seed_*/, the summary in results/<out>/.
 #   python -m controller.control_pipeline --methods jepa_mpc
 #   python -m controller.control_pipeline --test-episodes 20 --headless
 
-METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc")
+METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc", "sac_imagined")
 CAMERAS = ("static", "wrist")
 
 
@@ -44,9 +45,10 @@ class WorldModels:
     import torch
     from world_model.train import load_model, model_folder
     from world_model.encode import Encoder, PINNED_REVISION
-    if not torch.cuda.is_available():
-      raise RuntimeError("live JEPA encoding needs CUDA")
-    self.torch = torch
+    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else None
+    if device is None:
+      raise RuntimeError("live JEPA encoding needs CUDA (or Apple MPS)")
+    self.torch, self.device = torch, device
     root = pathlib.Path(root)
     self.d, self.dc = load_model(root, "dynamics", tag)
     # blind = readout_p, the proprio only twin of Q, a control for what the image contributes
@@ -59,7 +61,7 @@ class WorldModels:
     # the small networks run on the GPU next to the encoder: batches of 64 candidates per imagined step
     for model in (self.d, self.q, self.r):
       if model is not None:
-        model.to("cuda")
+        model.to(device)
     self.penalty_scale = args.penalty_scale
     self.reward_source = "head" if args.no_goal else args.reward_source
     self.no_goal = args.no_goal
@@ -69,7 +71,7 @@ class WorldModels:
     if args.obstacle_source == "model":
       from world_model.train_obstacle import load_obstacle_model
       self.obstacle, self.oc = load_obstacle_model(root, tag)
-      self.obstacle.to("cuda")
+      self.obstacle.to(device)
     self.cost_to_go = CostToGoFields(root, tag) if getattr(args, "cost_to_go", False) else None
     self.width_gate = not args.no_width_gate
     self.grasp_prior = args.grasp_prior
@@ -82,7 +84,7 @@ class WorldModels:
     self.encoder = Encoder(meta["model"], meta["model_revision"] or PINNED_REVISION, "mean_all" if pooling == "mean_all_encoder_tokens" else pooling,
                            cameras=self.cameras, clip_frames=clip_frames, stride=meta.get("frame_stride", 1),
                            dtype=meta.get("dtype", "fp16"), spatial_pool=meta.get("spatial_pool"),
-                           heightmap=self.heightmap, heightmap_scale=meta.get("heightmap_scale", .25))
+                           heightmap=self.heightmap, heightmap_scale=meta.get("heightmap_scale", .25), device=device)
     if pooling != "mean_all_encoder_tokens":
       self.encoder.set_pca(np.load(root / "features/pca.npz"))
 
@@ -97,8 +99,8 @@ class WorldModels:
   def predict(self, z, p, actions):
     from world_model.train import normalized
     with self.torch.inference_mode():
-      zz, pp = self.d(normalized(z, self.dc, "z").cuda(), normalized(p, self.dc, "p").cuda(),
-                      self.torch.as_tensor(actions, dtype=self.torch.float32).cuda())
+      zz, pp = self.d(normalized(z, self.dc, "z").to(self.device), normalized(p, self.dc, "p").to(self.device),
+                      self.torch.as_tensor(actions, dtype=self.torch.float32, device=self.device))
     return (zz.cpu().numpy() * self.dc["z_std"].numpy() + self.dc["z_mean"].numpy(),
             pp.cpu().numpy() * self.dc["p_std"].numpy() + self.dc["p_mean"].numpy())
 
@@ -283,7 +285,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
   if folder.exists():
     shutil.rmtree(folder)
   folder.mkdir(parents=True)
-  visual = method in ("rl_q", "jepa_mpc")
+  visual = method in ("rl_q", "jepa_mpc", "sac_imagined")
   session = TaskSession(cfg, layout, args.position_jitter, heightmap=policy is not None and policy.heightmap)
   goal = np.array([*layout["place"], rest_z], np.float32)
   memory = GoalReward(cfg)
@@ -330,7 +332,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
         action = scripted.act()
       elif method == "rl_true":
         action = policy.act(obs)
-      elif method == "rl_q":
+      elif method in ("rl_q", "sac_imagined"):
         estimate = policy_observation(p, xyz, held, memory, goal, rest_z, 1 - step / cfg.episode.max_steps,
                                       heightmap if policy.heightmap else None)
         action = policy.act(estimate)
@@ -508,6 +510,8 @@ def main():
   p.add_argument("--tag", default="", help="attempts/<tag> inside a run folder; empty for a packaged model folder")
   p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("data/rl_baseline_v1"),
                  help="rl_baseline run with the frozen SAC in models/sac_best.zip, for rl_true / rl_q")
+  p.add_argument("--imagined-run", type=pathlib.Path, default=pathlib.Path("data/sac_imagined_v1"),
+                 help="imagined_sac run with models/sac_best.zip, for sac_imagined")
   p.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/grade_e_layout.json"))
   p.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/control"),
                  help="run folder for frames, gifs and csv; overwritten unless --resume")
@@ -541,7 +545,8 @@ def main():
   cfg, rest_z = run_settings(args.models_run, args.tag)
   layout = json.loads(args.layout.read_text())
   policy = Policy(args.baseline_run) if any(m in ("rl_true", "rl_q") for m in args.methods) else None
-  models = WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc") for m in args.methods) else None
+  imagined = Policy(args.imagined_run) if "sac_imagined" in args.methods else None
+  models = WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc", "sac_imagined") for m in args.methods) else None
   write_json(args.out / "settings.json", {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()})
 
   for method in args.methods:
@@ -550,7 +555,7 @@ def main():
       if args.resume and (args.out / "episodes" / method / f"seed_{seed}" / "result.json").exists():
         continue
       scene = scene_layout(layout, cfg, seed, args.obstacles, args.random_ends)
-      episode(args.out, method, seed, cfg, scene, rest_z, args, policy, models)
+      episode(args.out, method, seed, cfg, scene, rest_z, args, imagined if method == "sac_imagined" else policy, models)
       summarize(args.out, export_dir, args.methods)
   summarize(args.out, export_dir, args.methods)
   print(f"DONE: summary in {export_dir}, frames and gifs in {args.out / 'episodes'}", flush=True)
