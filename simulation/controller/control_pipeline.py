@@ -17,7 +17,7 @@ from environment.rewards import fill_weights
 from data_collection.scripted_policy import ScriptedPickPlace
 from world_model.common import SIMULATION, load_run, save_csv, write_json, outcome_metrics
 from rl.task_control import GoalReward, TaskSession, policy_observation, predicted_reward
-from . import planner
+from . import mpc, planner
 
 # Run the controllers on fresh scenes of one layout and compare them:
 #   scripted  the scripted policy on the exact simulator state, the upper bound
@@ -26,13 +26,15 @@ from . import planner
 #   jepa_mpc  the latent planner (planner.py): Cartesian waypoint candidates imagined by D, scored by Q's
 #             task potential and R's penalties, CEM, no policy anywhere in the loop
 #   sac_imagined  a SAC trained only on transitions imagined by D (imagined_sac.py), run like rl_q on Q's estimate
+#   mpc       the rule-free latent planner (mpc.py): CEM over raw action sequences imagined by D, scored by the
+#             task reward on Q's readings plus R's and O's penalties; its knobs in controller/mpc_config.py
 # The world model comes from --models-run (Q, R, D, the PCA bases and encoder settings), the SAC from
 # --baseline-run (only loaded for rl_true / rl_q). Frames, gifs and per step csv land in
 # data/<out>/episodes/<method>/seed_*/, the summary in results/<out>/.
 #   python -m controller.control_pipeline --methods jepa_mpc
 #   python -m controller.control_pipeline --test-episodes 20 --headless
 
-METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc", "sac_imagined")
+METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc", "sac_imagined", "mpc")
 CAMERAS = ("static", "wrist")
 
 
@@ -285,7 +287,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
   if folder.exists():
     shutil.rmtree(folder)
   folder.mkdir(parents=True)
-  visual = method in ("rl_q", "jepa_mpc", "sac_imagined")
+  visual = method in ("rl_q", "jepa_mpc", "sac_imagined", "mpc")
   session = TaskSession(cfg, layout, args.position_jitter, heightmap=policy is not None and policy.heightmap)
   goal = np.array([*layout["place"], rest_z], np.float32)
   memory = GoalReward(cfg)
@@ -293,6 +295,11 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
   histories = {camera: [] for camera in CAMERAS}
   rows, candidates = [], []
   states_p, states_xyz, states_held, states_z, executed = [], [], [], [], []
+  # the full simulator state per step (controller/replay.py redraws the episode from it) and mpc's imagined plans
+  states_qpos, plans = [], []
+  settings = mpc.load_settings(args.mpc_config) if method == "mpc" else None
+  if settings is not None:
+    mpc.save_settings(folder, settings)
   previous = None
   started = time.monotonic()
   viewer = None
@@ -313,6 +320,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
     states_p.append(session.obs["proprio"].copy())
     states_xyz.append(session.obs["state"][:3].copy())
     states_held.append(bool(session.sim._check_contacts()[0]))
+    states_qpos.append(session.sim.data.qpos.copy())
     if visual:
       z, xyz, held, heightmap = perceive(session.obs["proprio"])
       states_z.append(z.copy())
@@ -336,6 +344,11 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
         estimate = policy_observation(p, xyz, held, memory, goal, rest_z, 1 - step / cfg.episode.max_steps,
                                       heightmap if policy.heightmap else None)
         action = policy.act(estimate)
+      elif method == "mpc":
+        decision = mpc.plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings,
+                                       np.random.default_rng(seed * 1000 + step), previous, task_memory.obstacle_map)
+        action, previous = decision["action"], decision["sequence"]
+        plans.append(decision["overlay"])
       else:
         decision = planner.plan(models, z, p, xyz, held, task_memory, goal, rest_z, cfg, args,
                                 np.random.default_rng(seed * 1000 + step), previous)
@@ -350,6 +363,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       states_p.append(actual_p)
       states_xyz.append(actual_xyz)
       states_held.append(info["held_endpoint"])
+      states_qpos.append(session.sim.data.qpos.copy())
       executed.append(np.asarray(action).copy())
       save_frames(session, folder, step + 1, histories)
 
@@ -376,7 +390,11 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
         task_memory.update(next_xyz, next_held, rest_z, actual_p[14:17])
         failed = next_xyz[2] < cfg.table.height - cfg.episode.fall_margin or step + 1 >= cfg.episode.max_steps
         row["Q_estimated_reward"], _ = predicted_reward(memory, actual_p, next_xyz, next_held, action, goal, rest_z, failed)
-        if decision is not None:
+        if decision is not None and method == "mpc":
+          fields, rows_of_candidates = mpc.step_record(decision, step, actual_xyz, actual_p)
+          row.update(fields)
+          candidates.extend(rows_of_candidates)
+        elif decision is not None:
           pool, selected = decision["pool"], decision["selected"]
           row.update({"predicted_score": decision["score"], "predicted_penalty_sum": float(pool["penalties"][selected].sum()),
                       "predicted_potential": float(pool["potentials"][selected, -1]), "planner_fallback": decision["fallback"],
@@ -405,7 +423,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
         save_csv(folder / "steps.csv", rows)
         print(f"{method} seed={seed} step={step + 1}: held={info['held_endpoint']} "
               f"goal_distance={row['actual_goal_distance_cm']:.1f}cm lift={row['actual_lift_cm']:.1f}cm "
-              f"success={info['task_success']}" + (f" chose={row['chosen']}" if decision is not None else ""), flush=True)
+              f"success={info['task_success']}" + (f" chose={row['chosen']}" if "chosen" in row else ""), flush=True)
       if done or timeout:
         break
 
@@ -414,10 +432,12 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
     if candidates:
       save_csv(folder / "candidates.csv", candidates)
     arrays = {"p": np.asarray(states_p), "object_xyz": np.asarray(states_xyz), "held": np.asarray(states_held),
-              "actions": np.asarray(executed)}
+              "actions": np.asarray(executed), "qpos": np.asarray(states_qpos)}
     if visual:
       arrays["z"] = np.asarray(states_z)
     np.savez_compressed(folder / "trajectory.npz", **arrays)
+    if plans:
+      mpc.save_plans(folder, plans)
     from PIL import Image
     images = [Image.open(f).convert("RGB").resize((256, 256)) for f in sorted((folder / "frames").glob("static_*.jpg"))[::2]]
     images[0].save(folder / "actual.gif", save_all=True, append_images=images[1:], duration=200, loop=0)
@@ -501,6 +521,7 @@ def run_arguments(p):
   p.add_argument("--headless", action="store_true", help="no MuJoCo window (also the default without a display)")
   p.add_argument("--speed", type=float, default=1.0, help="playback speed of the window, times real time")
   p.add_argument("--threads", type=int, default=4)
+  p.add_argument("--mpc-config", type=pathlib.Path, default=None, help="tuning file of the mpc planner (default controller/mpc_config.py)")
 
 
 def main():
@@ -546,7 +567,7 @@ def main():
   layout = json.loads(args.layout.read_text())
   policy = Policy(args.baseline_run) if any(m in ("rl_true", "rl_q") for m in args.methods) else None
   imagined = Policy(args.imagined_run) if "sac_imagined" in args.methods else None
-  models = WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc", "sac_imagined") for m in args.methods) else None
+  models = WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc", "sac_imagined", "mpc") for m in args.methods) else None
   write_json(args.out / "settings.json", {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()})
 
   for method in args.methods:

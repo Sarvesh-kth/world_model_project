@@ -57,7 +57,7 @@ def main():
   fill_weights(cfg.rewards.weights)
   _, rest_z = cp.run_settings(args.models_run, args.tag)
   policy = cp.Policy(args.baseline_run) if any(m in ("rl_true", "rl_q") for m in args.methods) else None
-  models = cp.WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc") for m in args.methods) else None
+  models = cp.WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc", "mpc") for m in args.methods) else None
   if models is not None:
     print(f"penalty head: {'ON' if models.r is not None else 'off'}", flush=True)
 

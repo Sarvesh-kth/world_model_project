@@ -5,6 +5,10 @@ planner.py            the latent MPC: waypoint candidates, imagination with D, s
 control_pipeline.py   the four controllers on fresh scenes; WorldModels (online perception), episode(), summaries
 control_clutter.py    the same controllers on the six held-out obstacle scenes of data/obstacles_v2
 imagined_sac.py       M3: a SAC trained only on transitions imagined by D (the actor-critic in imagination)
+mpc.py                M3: the rule-free MPC, CEM over raw action sequences imagined by D; knobs in mpc_config.py
+mpc_variants/         labelled comparison configs for mpc (rule gripper, bare task reward, ...)
+compare.py            placed / failure kinds per run folder;  diagnose.py  one episode as text + diagnosis.png
+replay.py             an episode redrawn in a MuJoCo window or as gif/mp4, with mpc's imagined plans
 ```
 
 | method | perception | action | what it tests |
@@ -14,6 +18,7 @@ imagined_sac.py       M3: a SAC trained only on transitions imagined by D (the a
 | rl_q | cameras through `Q` | the frozen SAC on the estimate | is the perception good enough to drive a policy |
 | jepa_mpc | cameras through `Q`, `D`, `R`; the obstacle-only depth map through `O` | waypoint candidates imagined by `D`, the best one executed | does planning in the latent find the task and the way around obstacles |
 | sac_imagined | cameras through `Q` (as rl_q) | a SAC trained in imagination (`imagined_sac.py`, `--imagined-run`) | can an actor-critic learn the task from the world model instead of the simulator |
+| mpc | cameras through `Q`, `D`, `R`; the obstacle-only depth map through `O` | raw action sequences imagined by `D`, no rules on the motion or the gripper (`mpc.py`) | can a plain search in the latent do the task without hand-coded behaviour |
 
 ```bash
 python -m controller.control_pipeline --methods jepa_mpc --random-ends                                   # 5 scenes, live window
@@ -113,6 +118,48 @@ truth), but the updates move the policy off them: the failures shift to grasping
 episodes (25 steps) make it worse (1/20). The critic barely fits (loss 0.7-1.0 against per-step rewards of about
 0.03; 0.5 % of steps carry the +15 placement bonus, 57 % of the reward), a longer critic warmup and TD3+BC's
 normalisation did not help. `R`'s penalties cost -0.023 per step on empty tables (phantom proximity).
+
+## The rule-free MPC, `mpc.py` (M3)
+
+```bash
+python -m controller.mpc --self-check                                                     # planner logic on the CPU
+python -m controller.control_pipeline --methods mpc --random-ends --test-episodes 20 --headless --out data/mpc_eval
+python -m controller.control_pipeline --methods mpc --random-ends --obstacles 0 2 --test-episodes 20 --headless --out data/mpc_obst
+python -m controller.control_pipeline --methods mpc --mpc-config controller/mpc_variants/rule_gripper.py ...   # a comparison row
+python -m controller.compare data/mpc_eval data/mpc_obst --seeds                         # placed / failure kinds per run
+python -m controller.diagnose data/mpc_eval/episodes/mpc/seed_20494010                   # text + diagnosis.png
+python -m controller.replay data/mpc_eval/episodes/mpc/seed_20494010 --video             # replay with the imagined plans
+```
+
+The proposal's CEM/MPC in its plainest form: every candidate is a sequence of 8 raw actions (dx, dy, dz, dyaw,
+gripper), sampled around the previous plan, with no waypoints, no go-to rule and no release rule; the gripper is
+one sampled switch time per plan. `D` imagines each plan, `Q` reads every imagined state, and a plan is scored
+with the SAC's own task reward (`GoalReward` on `Q`'s readings, discounted) plus `R`'s penalties and `O`'s at the
+imagined hand on the obstacle-only map (`imagine()`). What is hand-made is only in the score and in what may be
+imagined, all of it in `mpc_config.py` with the reason and the measurement behind each knob: a pull towards the
+cube and then B that does not fade with distance (the task reward is flat beyond 30 cm), a glide slope and a
+carry height, a grasp only counts if open fingers reached the cube before closing, a placement counts after 3
+settled steps inside 3 cm in imagination. `mpc_variants/` holds labelled comparison rows (a rule gripper, the
+bare task reward, no steadiness cost, penalty scale 1). On the older models (world_model_testing) this planner
+placed 14/20 on fresh empty-table scenes and 4/20 in obstacle scenes; ported to `models/v3c` on 2026-10-14
+(the v3c `Q` reads a carried cube's height without the old 3 cm bias, so `HELD_Z_OFFSET` is 0).
+
+v3c findings (Mac, random-end empty-table scenes, 2026-10-14):
+
+| run | placed | notes |
+|---|---|---|
+| 10 comparison scenes (seeds 20494010-019), port only + `PLACED_KEEPS_POTENTIAL` | 6/10 | placed cubes 4.9-5.5 cm from B; 3 cubes pushed from the side near the -y edge, 1 let go 9.8 cm short |
+| the same 10 with `RELEASED_STAYS_PUT` + `APPROACH_SLOPE` (now development scenes) | 7/10 | placed 0.7-3.3 cm from B; 1 dropped (Q's held flickered off), 2 cubes near the -y edge never grasped |
+| **10 fresh scenes (seeds 20495010-019), never tuned on** | **10/10** | mean 1.7 cm from B, 66-121 steps, 0.24 s per decision; no fresh cube started beyond y = -0.32 |
+
+References on the 10 comparison scenes: jepa_mpc 10/10, the cloned actor 7/10, sac_imagined 6/10 (those seeds
+were later tuned on for mpc, so compare on fresh seeds). What the three v3c knobs fix, measured on recorded
+states: without `PLACED_KEEPS_POTENTIAL` the "progress" score made the release keep slipping to the last step
+that still fit in the horizon (the planner held the cube at B to the end); without `RELEASED_STAYS_PUT` a cube
+resting near B is read about 2 cm from B wherever it is, so the planner let go short; without `APPROACH_SLOPE`
+the hand came down to cube height 5-10 cm away and pushed the cube. Open: near the -y table edge `Q`'s cube
+reading slides 3-7 cm toward a nearby hand and the grasp misses; `Q`'s held reading can flicker off on a held
+cube (the gripper envelope then cancels the width rule) and the planner opens. Not yet run on obstacle scenes.
 
 ## The live window
 
