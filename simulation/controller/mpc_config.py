@@ -92,9 +92,10 @@ PLACED_KEEPS_POTENTIAL = True
 DISCOUNT = 0.99
 
 # multiplier on R's imagined collision / proximity / table / empty-grasp penalties and on the obstacle model O's
-# (v3c jepa_mpc uses 1). On the old models (R only, no O) 3 was too cautious, and 1 on 20 new obstacle scenes gave
-# 287 obstacle contact steps instead of 12 and no more grasps (2/20 placed instead of 4/20); not re-tested with O
-PENALTY_SCALE = 2.0
+# (v3c jepa_mpc uses 1 too). With O (v3c, 20 obstacle scenes, seeds 20496010-029, cluster) 1 and 2 both gave 0
+# obstacle contact steps; 1 placed 13/20, 2 placed 11/20 (stuck in front of an obstacle more often). On the old
+# models (R only, no O) 1 collided far more (287 contact steps vs 12), so the choice depends on O
+PENALTY_SCALE = 1.0
 
 # in imagination the cube counts as placed after this many settled steps (the real test needs 15, beyond the
 # 8-step horizon, and letting go first loses the carrying reward, so placing always looked like a loss)

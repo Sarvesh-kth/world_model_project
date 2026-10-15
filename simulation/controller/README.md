@@ -140,7 +140,7 @@ imagined, all of it in `mpc_config.py` with the reason and the measurement behin
 cube and then B that does not fade with distance (the task reward is flat beyond 30 cm), a glide slope and a
 carry height, a grasp only counts if open fingers reached the cube before closing, a placement counts after 3
 settled steps inside 3 cm in imagination. `mpc_variants/` holds labelled comparison rows (a rule gripper, the
-bare task reward, no steadiness cost, penalty scale 1). On the older models (world_model_testing) this planner
+bare task reward, no steadiness cost, penalty scale 2). On the older models (world_model_testing) this planner
 placed 14/20 on fresh empty-table scenes and 4/20 in obstacle scenes; ported to `models/v3c` on 2026-10-14
 (the v3c `Q` reads a carried cube's height without the old 3 cm bias, so `HELD_Z_OFFSET` is 0).
 
@@ -159,7 +159,26 @@ that still fit in the horizon (the planner held the cube at B to the end); witho
 resting near B is read about 2 cm from B wherever it is, so the planner let go short; without `APPROACH_SLOPE`
 the hand came down to cube height 5-10 cm away and pushed the cube. Open: near the -y table edge `Q`'s cube
 reading slides 3-7 cm toward a nearby hand and the grasp misses; `Q`'s held reading can flicker off on a held
-cube (the gripper envelope then cancels the width rule) and the planner opens. Not yet run on obstacle scenes.
+cube (the gripper envelope then cancels the width rule) and the planner opens.
+
+v3c obstacle scenes (cluster, 2026-10-15; 1-2 fresh corridor obstacles per scene with `--random-ends
+--obstacles 1 2`, seeds 20496010-029; and the 6 held-out `data/obstacles_v2` scenes with `control_clutter`):
+
+| run | placed | obstacle contact steps |
+|---|---|---|
+| mpc, penalty scale 2 | 11/20 | 0 |
+| mpc, penalty scale 1 (now the default) | 13/20 | 0 |
+| jepa_mpc / rl_q, same 20 scenes | 15/20 / 0/20 | 0 / 833 |
+| held-out scenes: mpc (scale 2) / jepa_mpc / rl_q | 4/6 / 3/6 / 3/6 | 0 / 0 / 288 |
+
+`O` keeps the hand off the obstacles in every episode; the 9 failures at scale 2 are not collisions. In 3 the
+hand held the cube to the end but hovered 30-39 cm from B and 8-19 cm from a 17-19 cm tall obstacle near the
+pick-to-place line (likely the short horizon: the pull and progress scores use the straight-line distance, so an
+8-step plan that detours round or over the obstacle scores worse than waiting; jepa_mpc failed 2 of these 3
+too). In 2 the cube was grasped and later lost. In 4 it was never grasped: in 2 of them `Q` read the cube within
+about 1 cm the whole time and the hand never got near it (cause not checked), in 1 the cube started near the +y
+edge and `Q`'s reading was off by 6-10 cm. Scale 1 placed 5 of the 9, but lost 3 others: per-scene outcomes flip
+with any change, about +-2 of 20 is run-to-run noise.
 
 ## The live window
 
