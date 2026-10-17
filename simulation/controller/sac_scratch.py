@@ -4,6 +4,7 @@ python -u -m controller.sac_scratch --steps 40000 --episodes 30
 """
 import argparse
 import importlib.metadata
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -77,6 +78,7 @@ def execute(args):
                "seed": args.seed, "threads": args.threads, "keep_frames": args.keep_frames,
                "position_jitter": .01, "obstacle_count": [1, 2], "empty_seed": 20495010,
                "obstacle_seed": 20496010, "python": sys.version,
+               "rendering": {name: os.environ.get(name) for name in ("MUJOCO_GL", "PYOPENGL_PLATFORM")},
                "versions": {name: importlib.metadata.version(name) for name in
                             ("torch", "torchvision", "stable-baselines3", "gymnasium", "mujoco", "transformers", "numpy")}}
     signature = common.digest({"inputs": inputs, "settings": settings, "options": options, "config": cfg, "rest_z": rest_z})

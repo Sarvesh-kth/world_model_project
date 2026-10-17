@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import importlib.metadata
+import os
 import json
 from pathlib import Path
 import shutil
@@ -320,6 +321,7 @@ def execute(args):
     options = {"episodes": args.episodes, "steps": args.steps or settings["steps"], "threads": args.threads,
                "position_jitter": .01, "obstacle_count": [1, 2], "empty_seed": 20495010, "obstacle_seed": 20496010,
                "keep_frames": args.keep_frames, "versions": versions, "python": sys.version}
+    options["rendering"] = {name: os.environ.get(name) for name in ("MUJOCO_GL", "PYOPENGL_PLATFORM")}
     signature = digest({"inputs": inputs, "options": options, "config": cfg, "rest_z": rest_z})
     path = args.out / "pipeline.json"
     state = read(path) if path.exists() else {"signature": signature, "complete": False, "settings": settings, "options": options}
