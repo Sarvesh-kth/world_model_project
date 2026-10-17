@@ -9,6 +9,7 @@ import math
 from pathlib import Path
 import random
 import statistics
+from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 POLICIES = ("train_empty", "train_mixed")
 CONDITIONS = ("empty", "obstacles")
@@ -47,9 +48,7 @@ class SACViewer:
                                  "initial_state_sha256": completion["initial_state_sha256"]})
         return state, rows
 
-    def show(self, policy, condition):
-        """Four seeded random successes, three closest failures, three OTHER random failures."""
-        from IPython.display import Image, Markdown, display
+    def _selection(self, policy, condition):
         if policy not in POLICIES or condition not in CONDITIONS:
             raise ValueError("Use train_empty/train_mixed and empty/obstacles")
         state, rows = self.snapshot()
@@ -64,12 +63,25 @@ class SACViewer:
                   ("Failures — random, excluding the closest examples", rng.sample(remaining, min(3, len(remaining))), 3)]
         selected = [r for _, group, _ in groups for r in group]
         assert len({r["folder"] for r in selected}) == len(selected), "Duplicate example selection"
+        selection = [{"category": title, "seed": row["seed"], "folder": row["folder"],
+                      "task_success": row["task_success"], "final_goal_distance_cm": row["final_goal_distance_cm"]}
+                     for title, group, _ in groups for row in group]
+        manifest = self.output / f"selected_{policy}_{condition}.json"
+        manifest.write_text(json.dumps({"random_seed": self.random_seed,
+                                       "run_signature": state["signature"], "examples": selection}, indent=2) + "\n")
+        return state, rows, groups
+
+    def show(self, policy, condition):
+        """Four seeded random successes, three closest failures, three OTHER random failures."""
+        from IPython.display import Image, Markdown, display
+        state, rows, groups = self._selection(policy, condition)
+        successes = [r for r in rows if r["task_success"]]
+        failures = [r for r in rows if not r["task_success"]]
         display(Markdown(f"## {LABELS[policy]} — {LABELS[condition]}"))
         expected = state["options"]["episodes"]
         print(f"Completed {len(rows)}/{expected}; successes={len(successes)}; failures={len(failures)}")
         if not state["complete"]:
             print("Run still in progress. Rerun this cell to refresh completed episodes.")
-        selection = []
         for title, group, requested in groups:
             display(Markdown(f"### {title}"))
             if len(group) < requested:
@@ -84,10 +96,6 @@ class SACViewer:
                     display(Image(data=gif.read_bytes(), format="gif", width=450))
                 else:
                     print(f"Recorded GIF is missing: {gif}")
-                selection.append({"category": title, "seed": row["seed"], "folder": row["folder"],
-                                  "task_success": row["task_success"], "final_goal_distance_cm": row["final_goal_distance_cm"]})
-        (self.output / f"selected_{policy}_{condition}.json").write_text(json.dumps(
-            {"random_seed": self.random_seed, "run_signature": state["signature"], "examples": selection}, indent=2) + "\n")
 
     def presentation_figures(self):
         """Use ALL completed results; require the full campaign before saving presentation figures."""
@@ -100,7 +108,7 @@ class SACViewer:
             for (p, c), group in groups.items():
                 print(f"  {LABELS[p]} / {LABELS[c]}: {len(group)}/{expected}")
             print("Rerun this final cell after the pipeline prints COMPLETE.")
-            return
+            return False
         scenes = json.loads((self.run / "scenes.json").read_text())
         for condition in CONDITIONS:
             intended = {s["seed"] for s in scenes if s["condition"] == condition}
@@ -143,6 +151,61 @@ class SACViewer:
                   f"({100 * successes / n:.1f}%); mean B={row['mean_final_distance_cm']:.2f} cm; "
                   f"contacts={row['obstacle_contact_steps']}; selected={row['selected_checkpoint']}")
         print(f"\nSaved PNG (300 dpi), SVG, metrics CSV and provenance under:\n{self.output}")
+        return True
+
+    def export_zip(self):
+        """Build a final presentation download from the same selections as the galleries."""
+        from IPython.display import FileLink, display
+        if not self.presentation_figures():
+            return None
+        files = []
+        counts = []
+        categories = ("successes", "failures_closest", "failures_random")
+        for policy in POLICIES:
+            for condition in CONDITIONS:
+                _, _, groups = self._selection(policy, condition)
+                for category, (_, group, requested) in zip(categories, groups):
+                    counts.append(f"{policy}/{condition}/{category}: {len(group)}/{requested} clips")
+                    for index, row in enumerate(group, 1):
+                        folder = self.run / row["folder"]
+                        target = f"videos/{policy}/{condition}/{category}/{index:02d}_seed_{row['seed']}"
+                        files.extend([(folder / "actual.gif", f"{target}.gif"),
+                                      (folder / "result.json", f"{target}_result.json")])
+                manifest = self.output / f"selected_{policy}_{condition}.json"
+                files.append((manifest, f"metrics/{manifest.name}"))
+        for name in ("sac_comparison.png", "sac_comparison.svg", "sac_outcome_stages.png", "sac_outcome_stages.svg"):
+            files.append((self.output / name, f"graphs/{name}"))
+        for name in ("presentation_metrics.csv", "figure_provenance.json"):
+            files.append((self.output / name, f"metrics/{name}"))
+        missing = [str(path) for path, _ in files if not path.is_file()]
+        if missing:
+            raise FileNotFoundError("ZIP not created; missing files:\n" + "\n".join(missing))
+        assert len({name for _, name in files}) == len(files), "Duplicate ZIP filenames"
+        # Save beside the notebook so its relative download URL stays within Jupyter's served tree.
+        archive = Path.cwd() / f"{self.run.name}_presentation.zip"
+        temporary = archive.with_suffix(".zip.tmp")
+        readme = ("Imagined SAC presentation package\n\n"
+                  "GIFs: up to 4 seeded-random successes, 3 closest final-distance failures and\n"
+                  "3 other seeded-random failures per policy/table condition. No duplicates.\n"
+                  "Selections match galleries rerun after pipeline completion. Fewer examples\n"
+                  "are included when a category has fewer available episodes.\n"
+                  "Graphs and CSV use ALL evaluation episodes, independent of selected clips.\n"
+                  "Placement uses the recorded task_success flag, not distance alone.\n"
+                  "One training seed per policy; contacts count timesteps, not unique collisions.\n"
+                  "Checkpoint identities and BC-only selections, if any, are recorded in metrics.\n\n"
+                  + "\n".join(counts) + "\n")
+        try:
+            with ZipFile(temporary, "w") as bundle:
+                bundle.writestr("README.txt", readme, compress_type=ZIP_DEFLATED)
+                for path, name in files:
+                    bundle.write(path, name, compress_type=ZIP_STORED if path.suffix == ".gif" else ZIP_DEFLATED)
+            temporary.replace(archive)
+        finally:
+            temporary.unlink(missing_ok=True)
+        print("\n".join(counts))
+        print(f"\nZIP saved: {archive} ({archive.stat().st_size / 1024**2:.1f} MiB)")
+        display(FileLink(archive.name, result_html_prefix="Download ZIP: "))
+        return archive
 
     def _plot_metrics(self, groups, table, selection_note):
         import matplotlib.pyplot as plt
