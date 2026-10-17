@@ -43,3 +43,42 @@ Combined outputs stay under results/calle_sac_scratch_v1/presentation/with_mpc. 
 https://gpu1.eecs.kth.se/user/kuba/files/Robots%26EmbodiedAI/project/world_model_sac_obstacles/presentation/sac_mpc_comparison_presentation.zip?download=1
 
 For a custom notebook, pass `mpc_runs={"empty": <empty-run>, "obstacles": <obstacle-run>}` to SACViewer, use `viewer.show("mpc", "empty")` / `viewer.show("mpc", "obstacles")`, then the usual presentation_figures/export_zip methods. Need IPython, NumPy and Matplotlib; if plots report missing Matplotlib, use `%pip install matplotlib` in the notebook kernel. No simulator/model imports or changes to experiment source signatures.
+
+## Replay every MPC proposal with slow playback
+
+Historical `plans.npz` contains only the chosen path plus5runner-ups from the winning CEM round. A replay cannot recover the discarded candidates. The optional **--save-all-plans** flag records all64candidates in each of3rounds during a fresh visualisation episode, including scores, validity, round/candidate IDs, chosen/runner-up indices and hand paths. Recording adds no sampling, scoring or action changes. It is off by default. Near the episode time limit paths are NaN-padded to the configured horizon; unrecorded slots carry round=-1. Invalid/nonfinite forecasts remain in the data; only finite geometry can be drawn, and captions state validity counts.
+
+Run in a terminal from simulation/ after pulling this branch:
+
+```bash
+../.venv/bin/python -u -m controller.control_pipeline \
+  --methods mpc --models-run models/v3c \
+  --mpc-config controller/mpc_config.py \
+  --random-ends --obstacles 1 2 \
+  --seed 20476039 --test-episodes 1 \
+  --position-jitter 0.01 --penalty-scale 1 \
+  --threads 4 --headless --save-all-plans --resume \
+  --out data/mpc_allpaths_seed20496039
+
+../.venv/bin/python -m controller.replay \
+  data/mpc_allpaths_seed20496039/episodes/mpc/seed_20496039 \
+  --video --all-paths --every 1 --speed 0.5 --size 512 \
+  --out ../presentation/mpc_allpaths_seed20496039
+```
+
+This reruns **one** episode with fresh live perception, not the30-scene benchmark or SAC training. Separate output keeps the original benchmark intact; numerical/rendering variation can change outcomes, so the new video must use its own result.json. These simulation source edits change the old training wrapper's source fingerprint; do not attempt to resume the finished sac_scratch campaign with changed code. The presentation readers still read its completed results.
+
+Replay colours: thickgreen chosen imagined hand; faintgreen up to5valid high-scoring runner-ups from the winning round; other finite proposals orange→red with increasing **mean Euclidean distance from the chosen path across corresponding future timesteps**. Colours do not encode reward, collision probability or distance from goal. Invalid forecasts are fainter. Purpledots chosen imagined cube, blueactual hand history. Fallbacks show an explicit hold-still notice rather than label an invalid forecast as the executed path. No full candidate cube paths or rendered future camera images are recorded. Overlapping proposals can look like one line.
+
+--every1 keeps all recorded steps; --speed0.5 gives half-speed GIF/MP4 playback (5frames/s for a10Hz recording). Speed changes display timing only. Replay always includes the final recorded state. No JEPA inference occurs during offline rendering. This renderer uses a larger geometry budget for all proposals.
+
+Jupyter display after rendering:
+
+```python
+from pathlib import Path
+from IPython.display import Image, display
+gif = Path.home() / "Robots&EmbodiedAI/project/world_model_sac_obstacles/presentation/mpc_allpaths_seed20496039.gif"
+display(Image(data=gif.read_bytes(), format="gif"))
+```
+
+Download on KTH after rendering: https://gpu1.eecs.kth.se/user/kuba/files/Robots%26EmbodiedAI/project/world_model_sac_obstacles/presentation/mpc_allpaths_seed20496039.gif?download=1

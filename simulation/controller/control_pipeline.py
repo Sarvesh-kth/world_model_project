@@ -299,6 +299,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
   states_qpos, plans = [], []
   settings = mpc.load_settings(args.mpc_config) if method == "mpc" else None
   if settings is not None:
+    settings["SAVE_ALL_PLANS"] = args.save_all_plans
     mpc.save_settings(folder, settings)
   previous = None
   started = time.monotonic()
@@ -522,6 +523,7 @@ def run_arguments(p):
   p.add_argument("--speed", type=float, default=1.0, help="playback speed of the window, times real time")
   p.add_argument("--threads", type=int, default=4)
   p.add_argument("--mpc-config", type=pathlib.Path, default=None, help="tuning file of the mpc planner (default controller/mpc_config.py)")
+  p.add_argument("--save-all-plans", action="store_true", help="mpc: record every candidate from every CEM round for replay; no change to search/scoring")
 
 
 def main():

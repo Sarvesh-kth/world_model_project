@@ -23,13 +23,14 @@ from environment.config import Config
 #   window, on a Mac:  ../.venv/bin/mjpython -m controller.replay data/<run>/episodes/mpc/seed_20494010
 #   window, on Linux:  python -m controller.replay data/<run>/episodes/mpc/seed_20494010
 #   video, anywhere:   python -m controller.replay data/<run>/episodes/mpc/seed_20494010 --video
-# Drawn: orange thick = the plan the planner chose at this step (imagined gripper path), orange faint = the
-# runner-up plans, purple = where the planner imagined the cube along its chosen plan, blue = where the
+# Drawn: green thick = the chosen imagined gripper path, faint green = up to five runner-up plans,
+# orange/red = other paths farther from the chosen path when --all-paths is used,
+# purple = where the planner imagined the cube along its chosen plan, blue = where the
 # gripper actually went. The green disc on the table is the target B. Window keys: space pause / resume,
 # right / left one step (pauses), up / down twice / half the speed, R from the start.
 
-CHOSEN = (1.0, 0.45, 0.0, 0.95)
-RUNNER_UP = (1.0, 0.7, 0.25, 0.35)
+CHOSEN = (0.05, 0.85, 0.15, 0.95)
+RUNNER_UP = (0.2, 0.85, 0.35, 0.25)
 CUBE = (0.6, 0.2, 0.9, 0.8)
 TRAIL = (0.15, 0.45, 1.0, 0.9)
 IDENTITY = np.eye(3).flatten()
@@ -82,16 +83,38 @@ def add_path(scn, points, width, rgba, dots=True):
 
 # Everything drawn for step t: the trail up to t and the plan decided at t (plan t produced action t)
 def draw(scn, ep, t):
-  for q in ep["gripper"][:t + 1:2]:
-    add_sphere(scn, q, .006, TRAIL)
   plans = ep["plans"]
   if plans is None or t >= len(plans["chosen_gripper"]):
+    for q in ep["gripper"][:t + 1:2]:
+      add_sphere(scn, q, .006, TRAIL)
     return
+  chosen = plans["chosen_gripper"][t]
+  fallback = bool(plans["fallback"][t]) if "fallback" in plans else False
+  if ep.get("show_all_paths", False):
+    paths = plans["all_gripper"][t]
+    distances = []
+    for path in paths:
+      common = np.isfinite(path).all(1) & np.isfinite(chosen).all(1)
+      distances.append(float(np.linalg.norm(path[common] - chosen[common], axis=1).mean()) if common.any() else 0.)
+    # Colour measures spatial deviation from the selected path, never reward or collision risk.
+    maximum = max(max(distances), 1e-6)
+    highlighted = set(plans["runner_indices"][t].tolist())
+    if not fallback:
+      highlighted.add(int(plans["chosen_index"][t]))
+    for index, (path, distance) in enumerate(zip(paths, distances)):
+      if index in highlighted or plans["all_round"][t, index] < 0:
+        continue
+      fraction = min(distance / maximum, 1.)
+      rgba = (1.0, .55 * (1. - fraction), 0.0, .16 if plans["all_valid"][t, index] else .08)
+      add_path(scn, path, .0015, rgba, dots=False)
   for path in plans["runner_gripper"][t]:
-    add_path(scn, path, .004, RUNNER_UP, dots=False)
-  add_path(scn, plans["chosen_gripper"][t], .007, CHOSEN)
-  for q in plans["chosen_cube"][t][1:]:
-    add_sphere(scn, q, .008, CUBE)
+    add_path(scn, path, .003, RUNNER_UP, dots=False)
+  if not fallback:
+    add_path(scn, chosen, .007, CHOSEN)
+    for q in plans["chosen_cube"][t][1:]:
+      add_sphere(scn, q, .008, CUBE)
+  for q in ep["gripper"][:t + 1:2]:
+    add_sphere(scn, q, .006, TRAIL)
 
 
 def caption(ep, t):
@@ -101,6 +124,14 @@ def caption(ep, t):
   plans = ep["plans"]
   if plans is not None and t < len(plans["score"]):
     lines.append(f"chosen plan score {plans['score'][t]:.3f}  valid candidates {int(plans['valid'][t])}")
+    if "fallback" in plans and plans["fallback"][t]:
+      lines.append("NO VALID PLAN: hold still, keep gripper command")
+    if ep.get("show_all_paths", False):
+      n = int((plans["all_round"][t] >= 0).sum())
+      valid = int(plans["all_valid"][t].sum())
+      lines.append(f"all CEM rounds: {n} proposals ({valid} valid); finite paths drawn")
+      lines.append("green: chosen + top 5; orange/red: farther from chosen")
+      lines.append("purple: imagined cube; blue: actual hand history")
   return lines
 
 
@@ -153,14 +184,16 @@ def window(ep, speed):
           state["paused"] = True
 
 
-def video(ep, size, out, camera, every):
+def video(ep, size, out, camera, every, speed=1.0):
   from PIL import Image
   data = mujoco.MjData(ep["model"])
-  renderer = mujoco.Renderer(ep["model"], size, size)
+  renderer = mujoco.Renderer(ep["model"], size, size, max_geom=30000)
   cam = overview_camera() if camera == "overview" else camera
   frames = []
   # software rendering on the notebook (OSMesa) is slow, so only every few steps are drawn
-  steps = range(0, len(ep["qpos"]), every)
+  steps = list(range(0, len(ep["qpos"]), every))
+  if steps[-1] != len(ep["qpos"]) - 1:
+    steps.append(len(ep["qpos"]) - 1)
   for k, t in enumerate(steps):
     if k % 25 == 0:
       print(f"rendering step {t} of {len(ep['qpos']) - 1}", flush=True)
@@ -177,10 +210,11 @@ def video(ep, size, out, camera, every):
     frames.append(frame)
   renderer.close()
   out = pathlib.Path(out)
-  # a gif plays inline in Jupyter; the mp4 (MPEG-4) plays in QuickTime / VLC after download; both in real time
+  out.parent.mkdir(parents=True, exist_ok=True)
+  # speed changes playback duration, not the recorded actions or planning rate.
   gif = [Image.fromarray(f) for f in frames]
-  gif[0].save(out.with_suffix(".gif"), save_all=True, append_images=gif[1:], duration=100 * every, loop=0)
-  writer = cv2.VideoWriter(str(out.with_suffix(".mp4")), cv2.VideoWriter_fourcc(*"mp4v"), 10 / every, (size, size))
+  gif[0].save(out.with_suffix(".gif"), save_all=True, append_images=gif[1:], duration=max(10, round(100 * every / speed)), loop=0)
+  writer = cv2.VideoWriter(str(out.with_suffix(".mp4")), cv2.VideoWriter_fourcc(*"mp4v"), 10 * speed / every, (size, size))
   for f in frames:
     writer.write(f[..., ::-1])
   writer.release()
@@ -196,15 +230,22 @@ def main():
   p.add_argument("--camera", default="overview", help="'overview' (free camera above the table) or 'static'")
   p.add_argument("--size", type=int, default=320, help="video frame size in pixels")
   p.add_argument("--every", type=int, default=2, help="video: draw every n-th step (1 = all, slower)")
-  p.add_argument("--speed", type=float, default=1.0, help="window playback speed, 1 = real time (10 steps per second)")
+  p.add_argument("--speed", type=float, default=1.0, help="window/video playback speed: 0.5 is half speed; does not change simulation")
+  p.add_argument("--all-paths", action="store_true", help="draw every saved candidate from every CEM round; requires --save-all-plans at collection")
   p.add_argument("--models-run", default=None, help="only if the run's settings.json is missing")
   p.add_argument("--tag", default=None)
   args = p.parse_args()
+  if not np.isfinite(args.speed) or args.speed <= 0 or args.every < 1:
+    p.error("speed must be positive and finite; every must be at least 1")
   ep = load_episode(args.episode, args.models_run, args.tag)
+  if args.all_paths and (ep["plans"] is None or "all_gripper" not in ep["plans"]):
+    p.error("This recording saved only the chosen path and runner-ups. Run a NEW episode with "
+            "controller.control_pipeline --save-all-plans in a separate --out folder first.")
+  ep["show_all_paths"] = args.all_paths
   print(f"{len(ep['qpos']) - 1} steps, placed={ep['result']['task_success']}, "
         f"{'with' if ep['plans'] is not None else 'without'} imagined plans")
   if args.video:
-    video(ep, args.size, args.out or args.episode / "replay", args.camera, max(1, args.every))
+    video(ep, args.size, args.out or args.episode / "replay", args.camera, args.every, args.speed)
   else:
     window(ep, args.speed)
 

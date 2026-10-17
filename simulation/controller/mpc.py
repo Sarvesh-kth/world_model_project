@@ -258,13 +258,19 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
   command = 1.0 if p[19] > 0 else -1.0
   xyz, held = models.read(z[None], p[None])
   xyz, held = xyz[0], float(held[0])
-  score = lambda actions: score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s, obstacle_map)
+  recorded = []
+
+  def score(actions):
+    pool = score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s, obstacle_map)
+    if s.get("SAVE_ALL_PLANS", False):
+      recorded.append((pool["p"][:, :, 14:17].copy(), pool["valid"].copy(), pool["scores"].copy()))
+    return pool
 
   if s["RETREAT_AFTER_PLACE"] and released_at_target(memory, xyz, p, goal, cfg.episode.success_radius):
     # the cube was let go at B: no search, the fingers stay open and the arm rises once they are clear of
     # the cube, so nothing knocks it while it settles (scored as a one-candidate plan for the logs)
     retreat = np.array([0, 0, .5 if p[18] > .06 else 0, 0, 1], np.float32)
-    best = {"pool": score(np.tile(retreat, (1, horizon, 1))), "selected": 0}
+    best = {"pool": score(np.tile(retreat, (1, horizon, 1))), "selected": 0, "round": 0}
   else:
     # warm start: the previous plan shifted by one step with its last action repeated; the first plan holds still
     if previous is None:
@@ -289,7 +295,7 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
       switch_mean, switch_std = (float(flips[0]) if len(flips) else horizon + 2.0), horizon / 2
 
     best = None
-    for _ in range(s["ITERATIONS"]):
+    for iteration in range(s["ITERATIONS"]):
       noise = rng.normal(size=(s["POPULATION"], horizon, 5))
       if s["NOISE_SMOOTH"] > 0:
         noise = np.sqrt(s["NOISE_SMOOTH"]) * rng.normal(size=(s["POPULATION"], 1, 5)) + np.sqrt(1 - s["NOISE_SMOOTH"]) * noise
@@ -305,7 +311,7 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
       pool = score(actions)
       selected = int(np.argmax(pool["scores"]))
       if best is None or pool["scores"][selected] > best["pool"]["scores"][best["selected"]]:
-        best = {"pool": pool, "selected": selected}
+        best = {"pool": pool, "selected": selected, "round": iteration}
       order = np.argsort(pool["scores"])[-s["ELITES"]:]
       elites = actions[order]
       mean, std = elites.mean(0), np.maximum(elites.std(0), floor)
@@ -320,8 +326,28 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
     sequence = np.tile(action, (horizon, 1))
   else:
     action, sequence = pool["actions"][selected, 0], pool["actions"][selected]
+  overlay = overlay_record(pool, selected, s["SAVE_RUNNER_UPS"], s["HORIZON"])
+  overlay["fallback"] = fallback
+  if recorded:
+    # Fixed shapes let save_plans stack all timesteps, including shorter end-of-episode horizons.
+    count = s["POPULATION"] * s["ITERATIONS"]
+    paths = np.full((count, s["HORIZON"] + 1, 3), np.nan, np.float32)
+    valid, scores = np.zeros(count, bool), np.full(count, np.nan, np.float32)
+    rounds, indices = np.full(count, -1, np.int16), np.full(count, -1, np.int16)
+    for round_index, (hand, validity, values) in enumerate(recorded):
+      n = len(hand)
+      start = round_index * s["POPULATION"]
+      paths[start:start+n, :hand.shape[1]] = hand
+      valid[start:start+n], scores[start:start+n] = validity, values
+      rounds[start:start+n], indices[start:start+n] = round_index, np.arange(n)
+    chosen_index = best["round"] * s["POPULATION"] + selected
+    runner_indices = np.full(s["SAVE_RUNNER_UPS"], -1, np.int32)
+    order = [i for i in np.argsort(pool["scores"])[::-1] if pool["valid"][i] and i != selected][:s["SAVE_RUNNER_UPS"]]
+    runner_indices[:len(order)] = best["round"] * s["POPULATION"] + np.asarray(order, np.int32)
+    overlay.update(all_gripper=paths, all_valid=valid, all_scores=scores, all_round=rounds,
+                   all_candidate=indices, chosen_index=chosen_index, runner_indices=runner_indices)
   return {"pool": pool, "selected": selected, "fallback": fallback, "best_score": float(pool["scores"][selected]),
-          "action": action, "sequence": sequence, "overlay": overlay_record(pool, selected, s["SAVE_RUNNER_UPS"], s["HORIZON"])}
+          "action": action, "sequence": sequence, "overlay": overlay}
 
 
 # What episode() logs for one planning step, once the action has been executed: the steps.csv fields (the
