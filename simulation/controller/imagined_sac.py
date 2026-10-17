@@ -298,7 +298,7 @@ def prefill(model, env, steps):
     observations = following
 
 
-def main():
+def arguments():
   p = argparse.ArgumentParser(description="SAC trained only on transitions imagined by the world model")
   p.add_argument("--run", type=pathlib.Path, default=pathlib.Path("data/episodes_v3"),
                  help="the run folder with manifest.json, scene_settings.json and features/latents.npy (the starts)")
@@ -330,6 +330,11 @@ def main():
   p.add_argument("--seed", type=int, default=20474010)
   p.add_argument("--device", default=None, help="cuda / mps / cpu; default cuda if available, else cpu")
   p.add_argument("--threads", type=int, default=4)
+  return p
+
+
+def main():
+  p = arguments()
   args = p.parse_args()
 
   import torch

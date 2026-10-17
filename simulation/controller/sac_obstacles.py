@@ -58,11 +58,12 @@ def require_file(path):
 
 
 def input_record(args):
-    paths = [args.imagined_run / "models/sac_best.zip", args.imagined_run / "pipeline.json",
-             args.imagined_run / "imagined_training.json", args.run / "manifest.json",
+    paths = [args.run / "manifest.json",
              args.run / "scene_settings.json", args.run / "features/meta.json",
              args.run / "features/latents.npy", args.models_run / "info.json",
              args.models_run / "features/meta.json", args.models_run / "features/pca.npz"]
+    if args.imagined_run is not None:
+        paths += [args.imagined_run / name for name in ("models/sac_best.zip", "pipeline.json", "imagined_training.json")]
     paths += [args.models_run / f"models/{role}.pt" for role in ("dynamics", "readout", "reward", "obstacle")]
     # Source + config + mesh hashes reject resuming across an environment/code change.
     paths += [p for directory in ("controller", "rl", "environment", "world_model", "data_collection", "configs")
@@ -108,10 +109,14 @@ def audit_data(args):
     return {"recorded_states": len(states), "latent_shape": list(latents.shape), "states_by_split": counts}
 
 
-def training_command(args, settings, output):
+def training_command(args, settings, output, *, obstacles=True):
     command = [sys.executable, "-u", "-m", "controller.imagined_sac", "--run", str(args.run),
-               "--models-run", str(args.models_run), "--initialize-run", str(args.imagined_run),
-               "--out", str(output), "--steps", str(args.steps or settings["steps"]), "--obstacles", "--device", "cuda"]
+               "--models-run", str(args.models_run),
+               "--out", str(output), "--steps", str(args.steps or settings["steps"]), "--device", "cuda"]
+    if args.imagined_run is not None:
+        command.extend(["--initialize-run", str(args.imagined_run)])
+    if obstacles:
+        command.append("--obstacles")
     for key in RECIPE:
         if key == "grasp_check":
             if not settings[key]:
@@ -121,10 +126,10 @@ def training_command(args, settings, output):
     return command
 
 
-def summaries(rows):
+def summaries(rows, labels=("before", "after")):
     import statistics
     table = []
-    for policy in ("before", "after"):
+    for policy in labels:
         for condition in ("empty", "obstacles"):
             group = [r for r in rows if r["policy"] == policy and r["condition"] == condition]
             if not group:
@@ -159,7 +164,8 @@ def export(args, state):
             destination = target / source.relative_to(args.out)
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, destination)
-    table = summaries(rows)
+    labels = getattr(args, "policy_labels", ("before", "after"))
+    table = summaries(rows, labels)
     compact = [{k: r[k] for k in ("policy", "condition", "seed", "task_success", "final_goal_distance_cm",
                                   "obstacle_contact_steps", "folder", "actor_sha256", "scene_sha256", "initial_state_sha256")} for r in rows]
     if compact:
@@ -167,16 +173,16 @@ def export(args, state):
         save_csv(target / "summary.csv", table)
     closest = {f"{policy}/{condition}": sorted([r for r in compact if r["policy"] == policy and r["condition"] == condition],
                                               key=lambda r: r["final_goal_distance_cm"])[:10]
-               for policy in ("before", "after") for condition in ("empty", "obstacles")}
+               for policy in labels for condition in ("empty", "obstacles")}
     write(target / "closest_10.json", closest)
     paired = []
-    for before in [r for r in compact if r["policy"] == "before"]:
-        after = next((r for r in compact if r["policy"] == "after" and r["condition"] == before["condition"] and r["seed"] == before["seed"]), None)
+    for before in [r for r in compact if r["policy"] == labels[0]]:
+        after = next((r for r in compact if r["policy"] == labels[1] and r["condition"] == before["condition"] and r["seed"] == before["seed"]), None)
         if after:
             if any(after[key] != before[key] for key in ("scene_sha256", "initial_state_sha256")):
-                raise ValueError("before/after scenes or initial simulator states differ")
+                raise ValueError("paired policies have different scenes or initial simulator states")
             paired.append({"condition": before["condition"], "seed": before["seed"],
-                           "before_success": before["task_success"], "after_success": after["task_success"],
+                           f"{labels[0]}_success": before["task_success"], f"{labels[1]}_success": after["task_success"],
                            "distance_improvement_cm": before["final_goal_distance_cm"] - after["final_goal_distance_cm"]})
     if paired:
         save_csv(target / "paired.csv", paired)
@@ -187,6 +193,12 @@ def export(args, state):
         record = Path(state["training"]) / "imagined_training.json"
         if record.is_file():
             shutil.copyfile(record, target / "imagined_training.json")
+    for label, run in state.get("training_runs", {}).items():
+        record = Path(run) / "imagined_training.json"
+        if record.is_file():
+            destination = target / "training" / label / "imagined_training.json"
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(record, destination)
     for log in (args.out / "logs").glob("*.txt"):
         destination = target / "logs" / log.name
         destination.parent.mkdir(parents=True, exist_ok=True)

@@ -47,5 +47,5 @@ assert torch.cuda.is_available(), "No working CUDA; check the cluster GPU alloca
 print("Runtime:", torch.__version__, torchvision.__version__, stable_baselines3.__version__, mujoco.__version__)
 print("GPU:", torch.cuda.get_device_name())
 PY
-.venv/bin/python scripts/prepare_sac_obstacles.py --existing-root "$old_repo"
+.venv/bin/python scripts/prepare_sac_obstacles.py --existing-root "$old_repo" "${@:2}"
 printf '\nSetup finished. The old checkout and its Python packages were not edited.\n'

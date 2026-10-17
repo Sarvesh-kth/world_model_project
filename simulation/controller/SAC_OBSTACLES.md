@@ -1,5 +1,41 @@
 # Calle's imagined SAC: matched empty/obstacle experiment
 
+## Current route: two new policies using Calle's existing trainer
+
+The original saved policy is unavailable. The user now requests **fresh training of both policies**. Use `controller.sac_scratch` for this route; the older checkpoint-based route below remains available but is not needed.
+
+| New policy | Original recorded train/validation filter | Final camera tests |
+|---|---|---|
+| `train_empty` | `imagined_sac.py` without `--obstacles`: empty-table starts | 30 empty + 30 obstacle scenes |
+| `train_mixed` | Same trainer with `--obstacles`: empty + obstacle starts | The same 30 empty + 30 obstacle scenes |
+
+Both fits start with a new `[128,128]` MLP SAC, then Calle's 240-epoch BC initialization, 100-step vector replay prefill, 2,000 critic updates and SAC with BC weight100. Each gets40,000 imagined transitions (the README's reported recipe; the trainer's longer CLI default is200k). Other defaults come directly from the original trainer's argument parser, including64envs, horizon10, learning rate3e-5, entropy`auto_0.005`, seed20474010 and validation/checkpoint rule. Both retain the terminal-observation copy fix. No `--initialize-run` or original SAC files are used.
+
+**Collection/preprocessing are preserved by reusing the actual original `episodes_v3` recordings' manifest, cached latents and split assignments.** The old raw image archives are unnecessary for policy training; both-camera JEPA features are already computed. There is no recollection, re-encoding, new reward, controller redesign or refitting of D/Q/R. Both policies share the same frozen v3c bundle, including its mixed-scene world-model training. We are comparing policy training pools, not two separately fitted world models. Original `--obstacles` also changes the validation pool; preserving that behavior means the comparison includes that checkpoint-selection difference. These fresh fits do not reproduce the unavailable original weights or certify their historical6/10 result.
+
+On the already prepared GPU server, pull and run:
+
+```bash
+set -e
+cd "$HOME/Robots&EmbodiedAI/project/world_model_sac_obstacles"
+GIT_LFS_SKIP_SMUDGE=1 git pull --ff-only origin codex/calle-sac-obstacles
+cd simulation
+../.venv/bin/python -m controller.sac_scratch --preflight-only
+nohup ../.venv/bin/python -u -m controller.sac_scratch \
+  --steps 40000 --episodes 30 \
+  > data/calle_sac_scratch_v1_launch.log 2>&1 < /dev/null &
+echo "PID: $!"
+tail -f data/calle_sac_scratch_v1_launch.log
+```
+
+For a machine not prepared yet, call the setup as `bash scripts/setup_sac_obstacles.sh "$old_repo" --from-scratch`. This prepares only the same data/world models and skips the unavailable SAC checkpoint intake.
+
+Execution order: train empty-only →60camera episodes → train mixed →the same60camera episodes. The original trainer's20exact-state diagnostic checks per checkpoint are additional and never select the checkpoint. Final test success never selects either policy. Same seed, runtime, budget, environment and all other training settings are recorded. One training seed per variant is a first comparison, not an estimate of variation across independent training runs.
+
+Output root is `simulation/data/calle_sac_scratch_v1`, with `training/{train_empty,train_mixed}/attempt_*/models/sac_best.zip` and `evaluation/{train_empty,train_mixed}/{empty,obstacles}/episodes/sac_imagined/seed_*/actual.gif`. Reports are under `results/calle_sac_scratch_v1`; each policy's training metadata is exported under `training/<policy>/imagined_training.json`. `closest_10.json` keys use `train_empty/empty`, `train_empty/obstacles`, `train_mixed/empty`, `train_mixed/obstacles`; positive paired distance improvement means mixed trained ended closer. Resume/locking/disk/JPEG-retention rules below apply unchanged. An interrupted fit needs explicit `--restart-training`, which preserves old files and starts a fresh attempt. A completed fit and episodes are reused automatically.
+
+The best checkpoint may be the BC-only `sac_cloned.zip` if later SAC updates do not improve the original imagined validation score. This is explicitly recorded. No training or placement results have yet been observed for the new campaign.
+
 ## Plan and scope
 
 1. Use a separate checkout based on `calle-v3c` commit `1ad414633aeceac32f057c0d653281c178684291`. Reuse existing CUDA packages and model/data files only when their Git LFS hashes match this revision.

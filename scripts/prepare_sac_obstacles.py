@@ -35,6 +35,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--existing-root", type=Path, required=True, help="existing world_model_project checkout on the server")
     p.add_argument("--source-imagined", type=Path, help="Calle's actual saved imagined-SAC run, if not at existing-root/simulation/data/sac_imagined_v1")
+    p.add_argument("--from-scratch", action="store_true", help="prepare recorded data/world models for two new SAC policies; no original SAC needed")
     args = p.parse_args()
     old = args.existing_root.resolve()
     if old == ROOT:
@@ -92,6 +93,9 @@ def main():
                 with part.open("rb") as stream:
                     shutil.copyfileobj(stream, output, 8 * 1024 * 1024)
         temporary.replace(latent)
+    if args.from_scratch:
+        print("Data/model setup complete for fresh SAC training; no original SAC checkpoint is required.")
+        return
     baseline = args.source_imagined or old / "simulation/data/sac_imagined_v1"
     baseline = baseline.resolve()
     files = ("models/sac_best.zip", "pipeline.json", "imagined_training.json")
