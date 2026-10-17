@@ -45,6 +45,7 @@ simulation/data/episodes_hack/*
 !README.md
 !**/README.md
 !NEXT.md
+!simulation/controller/SAC_OBSTACLES.md
 .agents/
 .codex/
 .claude/

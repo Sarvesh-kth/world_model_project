@@ -190,7 +190,7 @@ class ImaginedEnv(VecEnv):
       ended = self.memory[j].task_succeeded or fell or timeout
       if ended or self.t[j] >= self.horizon:
         dones[j] = True
-        infos[j].update({"TimeLimit.truncated": not ended, "terminal_observation": observations[j],
+        infos[j].update({"TimeLimit.truncated": not ended, "terminal_observation": observations[j].copy(),
                          "is_success": bool(self.memory[j].task_succeeded)})
         restart.append(j)
     for j in restart:
@@ -305,6 +305,8 @@ def main():
   p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/v3c"))
   p.add_argument("--tag", default="")
   p.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/sac_imagined_v1"))
+  p.add_argument("--initialize-run", type=pathlib.Path, default=None,
+                 help="continue the saved imagined SAC weights/optimizers, with fresh replay; skip BC reinitialization")
   p.add_argument("--steps", type=int, default=200000, help="imagined transitions for the SAC")
   p.add_argument("--envs", type=int, default=64, help="imagined episodes side by side (one batched D step)")
   p.add_argument("--horizon", type=int, default=10, help="imagined steps per training episode before the cut")
@@ -341,8 +343,7 @@ def main():
   if SIMULATION / "data" not in args.out.parents:
     p.error("keep --out under simulation/data/")
   if args.out.exists():
-    print(f"overwriting {args.out}", flush=True)
-    shutil.rmtree(args.out)
+    raise FileExistsError(f"refusing to overwrite {args.out}; use a new --out")
   (args.out / "models").mkdir(parents=True)
   started = time.monotonic()
 
@@ -350,21 +351,36 @@ def main():
   models = ImaginationModels(args.models_run, args.tag, device, args.penalty_scale)
   train = load_starts(args.run, ("train",), models, cfg, rest_z, args.obstacles)
   val = load_starts(args.run, ("val",), models, cfg, rest_z, args.obstacles)
+  if not len(train["index"]) or not len(val["index"]):
+    raise ValueError("training and validation both need recorded starts")
   print(f"starts: {len(train['index'])} training, {len(val['index'])} validation states "
         f"({'with' if args.obstacles else 'without'} obstacle scenes)", flush=True)
   env = ImaginedEnv(models, train, args.envs, args.horizon, cfg, rest_z, args.seed, grasp_check=args.grasp_check)
   fixed = np.random.default_rng(args.seed + 1).choice(len(val["index"]), min(args.validation_starts, len(val["index"])), replace=False)
   val_env = ImaginedEnv(models, val, len(fixed), args.validation_horizon, cfg, rest_z, args.seed + 2, fixed=fixed, grasp_check=args.grasp_check)
 
-  model = SAC("MlpPolicy", env, device=device, seed=args.seed, verbose=0, policy_kwargs={"net_arch": [128, 128]},
-              learning_rate=args.learning_rate, buffer_size=max(args.steps + args.prefill * args.envs, 1000), learning_starts=0,
-              batch_size=256, ent_coef=args.ent_coef, gamma=GoalReward.gamma, train_freq=1,
-              gradient_steps=max(1, round(args.updates_per_step * args.envs)))
+  options = dict(learning_rate=args.learning_rate, buffer_size=max(args.steps + args.prefill * args.envs, 1000),
+                 learning_starts=0, batch_size=256, gamma=GoalReward.gamma, train_freq=1,
+                 gradient_steps=max(1, round(args.updates_per_step * args.envs)))
+  initial_sha256 = None
+  if args.initialize_run is None:
+    model = SAC("MlpPolicy", env, device=device, seed=args.seed, verbose=0,
+                policy_kwargs={"net_arch": [128, 128]}, ent_coef=args.ent_coef, **options)
+  else:
+    import hashlib
+    source = args.initialize_run / "models/sac_best.zip"
+    record = json.loads((args.initialize_run / "pipeline.json").read_text())
+    if record.get("kind") != "imagined_sac":
+      raise ValueError("--initialize-run must be Calle's imagined SAC, not the ordinary simulator SAC")
+    initial_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
+    model = SAC.load(source, env=env, device=device, **options)
+    model.set_random_seed(args.seed)
+    model.num_timesteps = 0  # report additional transitions, including the initial checkpoint at zero
   model.set_logger(configure(str(args.out / "sac_logs"), ["csv"]))
   demo_x, demo_y = demonstrations(env, train)
   demo_x = torch.as_tensor(demo_x, device=model.device)
   demo_y = torch.as_tensor(demo_y, dtype=torch.float32, device=model.device)
-  if args.bc_epochs:
+  if args.bc_epochs and args.initialize_run is None:
     clone(model, demo_x, demo_y, args.bc_epochs, args.seed)
 
   # a cloning term added to every SAC actor update (rl_control's), so RL does not wander off the demonstrations;
@@ -405,7 +421,7 @@ def main():
         checkpoint(f"sac_{self.num_timesteps:07d}")
       return True
 
-  checkpoint("sac_cloned")
+  checkpoint("sac_cloned" if args.initialize_run is None else "sac_initial")
   prefill(model, env, args.prefill)
   if args.critic_warmup:
     # the critic first, with the actor frozen: a random critic would pull the cloned actor apart
@@ -424,7 +440,10 @@ def main():
     **history, "seconds": time.monotonic() - started, "demonstrations": int(len(demo_x)),
     "starts": {"train": int(len(train["index"])), "val": int(len(val["index"]))},
     "settings": {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()},
-    "exact_state_seeds": exact_seeds, "device": device})
+    "exact_state_seeds": exact_seeds, "device": device,
+    "initial_checkpoint_sha256": initial_sha256,
+    "bc_reinitialized": args.initialize_run is None and bool(args.bc_epochs),
+    "terminal_observation_copy_fix": True})
   print(f"DONE: best checkpoint {history['best']['file']} (by imagined placements) copied to {args.out / 'models/sac_best.zip'}", flush=True)
 
 

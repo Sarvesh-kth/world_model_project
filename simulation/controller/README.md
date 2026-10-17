@@ -1,5 +1,7 @@
 # Controller: the latent MPC and the actor-critic, side by side
 
+For the matched frozen-imagined-SAC → obstacle training → repeat evaluation experiment, see [SAC_OBSTACLES.md](SAC_OBSTACLES.md).
+
 ```
 planner.py            the latent MPC: waypoint candidates, imagination with D, scoring with Q, R, O (and C), CEM
 control_pipeline.py   the four controllers on fresh scenes; WorldModels (online perception), episode(), summaries
