@@ -51,7 +51,7 @@ cd "$experiment_repo"
 bash scripts/setup_sac_obstacles.sh "$old_repo"
 ```
 
-Pip writes only into the new environment. Existing CUDA wheels are inherited when usable; otherwise the repo's documented Torch 2.6/torchvision 0.21 CUDA 12.4 pair is installed. SB3 stays at 2.7.1. Installed versions are recorded and cannot change during a resumed run. The old checkout/environment is not edited.
+Pip writes only into the new environment. Only the old virtualenv's own packages are exposed for CUDA reuse; base Conda site-packages are excluded. Re-running setup repairs environments made by the earlier script, whose base TensorFlow produced NumPy ABI errors on the cluster. Existing CUDA wheels are inherited when usable; otherwise the repo's documented Torch 2.6/torchvision 0.21 CUDA 12.4 pair is installed. SB3 stays at 2.7.1. Installed versions are recorded and cannot change during a resumed run. The old checkout/environment is not edited.
 
 Setup retrieves frozen v3c D/Q/R/O/PCA and `episodes_v3` manifest/settings/meta/latent parts. Raw image archives, historical weights and videos are excluded. Matching existing assets are symlinked after byte checks; they must remain available and immutable. Latents are about 3 GB, plus an assembled copy if no matching existing file is available. The runner's 5 GiB free-space guard cannot detect a private user quota.
 
