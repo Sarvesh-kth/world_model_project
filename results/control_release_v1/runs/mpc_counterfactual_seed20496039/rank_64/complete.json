@@ -1,0 +1,19 @@
+{
+  "signature": "0a2b3813c1652cf6907fb5ae62c39a7bbdd83a634658f1ae0558880e68d46efa",
+  "metrics": {
+    "variant": "rank_64",
+    "task_success": true,
+    "steps": 171,
+    "final_goal_distance_cm": 6.37736177444458,
+    "obstacle_contact_steps": 0,
+    "fallback_steps": 1,
+    "source_first_60_matches_within_1e-6": null,
+    "source_prefix_max_differences": {},
+    "initial_state_matches": true
+  },
+  "episode_hashes": {
+    "result.json": "392d188cc86d09fc1cbc6c0fcd1b02008dcbace0f74ceb0b459b6633789cd929",
+    "trajectory.npz": "cc557a692c6ab7b1a167ad997900ea8f06574954cea5315ae74e086f43f7be8a",
+    "plans.npz": "fa37ad047a51ed97e6668a96f316d69793538451c5d90954d71ab272e38c2e42"
+  }
+}

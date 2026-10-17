@@ -1,0 +1,110 @@
+{
+  "method": "sac_imagined",
+  "seed": 20496011,
+  "task_success": true,
+  "steps": 124,
+  "true_original_return": 101.94521173416926,
+  "control_return": -4.07794147613763,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 10.696744918823242,
+  "minimum_goal_distance_cm": 0.5100374575704336,
+  "final_goal_distance_cm": 0.9074689745903015,
+  "final_held": false,
+  "obstacle_contact_steps": 15,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 0.9866628805070015,
+    "mass": 0.09089792496876159,
+    "friction": 1.3571905909474147,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      0.06684251243392497,
+      -0.3901852454340704
+    ],
+    "place": [
+      -0.011984688779847721,
+      0.027455622399218726
+    ],
+    "obstacles": [
+      {
+        "kind": "wall",
+        "pos": [
+          0.19224295141667008,
+          -0.2066598155580868
+        ],
+        "yaw": 3.068620635040355,
+        "size": [
+          0.05568120639135764,
+          0.01,
+          0.09244452478776528
+        ]
+      },
+      {
+        "kind": "cylinder",
+        "pos": [
+          -0.10664847257552376,
+          -0.29050757389047904
+        ],
+        "yaw": 0.0,
+        "size": [
+          0.02303001477221622,
+          0.08798449366518471
+        ]
+      }
+    ]
+  },
+  "seconds": 32.97379660792649,
+  "obstacle_cells": [
+    [
+      -0.13,
+      -0.288,
+      0.176
+    ],
+    [
+      -0.05,
+      -0.288,
+      0.176
+    ],
+    [
+      0.11,
+      -0.173,
+      0.185
+    ],
+    [
+      0.19,
+      -0.173,
+      0.185
+    ],
+    [
+      0.27,
+      -0.173,
+      0.185
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.0006912142045856003,
+  "Q_on_actual_observations": {
+    "n": 124,
+    "xyz_mae_cm": [
+      0.7566591758551376,
+      0.552604227672301,
+      0.34199145532423453
+    ],
+    "height_mae_cm": 0.34199145532423453,
+    "grasp_accuracy": 1.0,
+    "grasp_precision": 1.0,
+    "grasp_recall": 1.0,
+    "grasp_f1": 1.0,
+    "positive_labels": 63,
+    "negative_labels": 61
+  }
+}

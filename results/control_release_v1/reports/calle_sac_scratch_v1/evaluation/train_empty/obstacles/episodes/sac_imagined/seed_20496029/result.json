@@ -1,0 +1,98 @@
+{
+  "method": "sac_imagined",
+  "seed": 20496029,
+  "task_success": false,
+  "steps": 300,
+  "true_original_return": -74.04144541057475,
+  "control_return": -180.70151150431107,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 11.254364252090454,
+  "minimum_goal_distance_cm": 32.89909064769745,
+  "final_goal_distance_cm": 34.857845306396484,
+  "final_held": false,
+  "obstacle_contact_steps": 199,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0363454275248554,
+    "mass": 0.11335110542895217,
+    "friction": 1.095425105195171,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      0.16513642115268898,
+      -0.2650797004652648
+    ],
+    "place": [
+      0.010631665354955966,
+      0.384150913314776
+    ],
+    "obstacles": [
+      {
+        "kind": "wall",
+        "pos": [
+          0.021543450095858868,
+          0.09846125615174534
+        ],
+        "yaw": 3.481725582171741,
+        "size": [
+          0.054394384017865886,
+          0.01,
+          0.08459975397434735
+        ]
+      }
+    ]
+  },
+  "seconds": 78.9964789468795,
+  "obstacle_cells": [
+    [
+      -0.05,
+      0.058,
+      0.169
+    ],
+    [
+      0.03,
+      0.058,
+      0.169
+    ],
+    [
+      0.03,
+      0.173,
+      0.169
+    ],
+    [
+      0.11,
+      0.058,
+      0.169
+    ],
+    [
+      0.11,
+      0.173,
+      0.168
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.0007066078701366981,
+  "Q_on_actual_observations": {
+    "n": 300,
+    "xyz_mae_cm": [
+      0.860819343070034,
+      0.3311737218464259,
+      0.17829078435897827
+    ],
+    "height_mae_cm": 0.17829078435897827,
+    "grasp_accuracy": 0.9933333333333333,
+    "grasp_precision": 0.9444444444444444,
+    "grasp_recall": 1.0,
+    "grasp_f1": 0.9714285714285714,
+    "positive_labels": 34,
+    "negative_labels": 266
+  }
+}

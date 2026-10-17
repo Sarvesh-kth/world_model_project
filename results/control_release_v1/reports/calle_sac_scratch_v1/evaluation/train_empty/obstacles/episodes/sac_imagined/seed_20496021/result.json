@@ -1,0 +1,102 @@
+{
+  "method": "sac_imagined",
+  "seed": 20496021,
+  "task_success": false,
+  "steps": 300,
+  "true_original_return": 52.65663745524001,
+  "control_return": -36.81807334982251,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 10.95234751701355,
+  "minimum_goal_distance_cm": 20.25916576385498,
+  "final_goal_distance_cm": 21.705230712890625,
+  "final_held": false,
+  "obstacle_contact_steps": 15,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 0.9585261518064564,
+    "mass": 0.17266793193082167,
+    "friction": 1.3300388911112537,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      -0.06222484784461536,
+      0.3635935127420371
+    ],
+    "place": [
+      0.050010654950455036,
+      -0.07929360339965924
+    ],
+    "obstacles": [
+      {
+        "kind": "cylinder",
+        "pos": [
+          0.15652496106636854,
+          0.11685925683008516
+        ],
+        "yaw": 0.0,
+        "size": [
+          0.019917073598626798,
+          0.08373117432752268
+        ]
+      }
+    ]
+  },
+  "seconds": 77.60094462009147,
+  "obstacle_cells": [
+    [
+      0.03,
+      0.058,
+      0.038
+    ],
+    [
+      0.03,
+      0.173,
+      0.043
+    ],
+    [
+      0.11,
+      0.058,
+      0.167
+    ],
+    [
+      0.11,
+      0.173,
+      0.167
+    ],
+    [
+      0.19,
+      0.058,
+      0.167
+    ],
+    [
+      0.19,
+      0.173,
+      0.167
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.0007080949687709411,
+  "Q_on_actual_observations": {
+    "n": 300,
+    "xyz_mae_cm": [
+      8.276109775916362,
+      6.5614866862694425,
+      0.11865878105163574
+    ],
+    "height_mae_cm": 0.11865878105163574,
+    "grasp_accuracy": 0.9866666666666667,
+    "grasp_precision": 0.8857142857142857,
+    "grasp_recall": 1.0,
+    "grasp_f1": 0.9393939393939393,
+    "positive_labels": 31,
+    "negative_labels": 269
+  }
+}

@@ -1,0 +1,1 @@
+mpc: placements 1/1; final goal distance 4.36 cm; obstacle contacts 0; decision 231 ms

@@ -1,0 +1,2 @@
+episodes,mean_decision_seconds,mean_final_goal_distance_cm,median_final_goal_distance_cm,method,obstacle_contact_steps,planner_fallback_steps,successes
+30,0.21131577334427387,9.586139036218325,2.4284238815307617,mpc,0,0,24

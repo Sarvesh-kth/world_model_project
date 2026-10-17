@@ -1,0 +1,76 @@
+{
+  "random_seed": 20261017,
+  "run_signature": "f0e956708fe9512dbc1a55777ec2000d51b5b9086202dfc71da4c43773fbf8af",
+  "examples": [
+    {
+      "category": "Successes \u2014 reproducible random sample",
+      "seed": 20496010,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496010",
+      "task_success": true,
+      "final_goal_distance_cm": 3.0200095176696777
+    },
+    {
+      "category": "Successes \u2014 reproducible random sample",
+      "seed": 20496024,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496024",
+      "task_success": true,
+      "final_goal_distance_cm": 4.598982334136963
+    },
+    {
+      "category": "Successes \u2014 reproducible random sample",
+      "seed": 20496027,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496027",
+      "task_success": true,
+      "final_goal_distance_cm": 6.323517322540283
+    },
+    {
+      "category": "Successes \u2014 reproducible random sample",
+      "seed": 20496011,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496011",
+      "task_success": true,
+      "final_goal_distance_cm": 0.9074689745903015
+    },
+    {
+      "category": "Failures \u2014 closest final distances",
+      "seed": 20496038,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496038",
+      "task_success": false,
+      "final_goal_distance_cm": 7.7095232009887695
+    },
+    {
+      "category": "Failures \u2014 closest final distances",
+      "seed": 20496016,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496016",
+      "task_success": false,
+      "final_goal_distance_cm": 12.719247817993164
+    },
+    {
+      "category": "Failures \u2014 closest final distances",
+      "seed": 20496014,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496014",
+      "task_success": false,
+      "final_goal_distance_cm": 13.683862686157227
+    },
+    {
+      "category": "Failures \u2014 random, excluding the closest examples",
+      "seed": 20496013,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496013",
+      "task_success": false,
+      "final_goal_distance_cm": 40.89841842651367
+    },
+    {
+      "category": "Failures \u2014 random, excluding the closest examples",
+      "seed": 20496034,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496034",
+      "task_success": false,
+      "final_goal_distance_cm": 44.060455322265625
+    },
+    {
+      "category": "Failures \u2014 random, excluding the closest examples",
+      "seed": 20496019,
+      "folder": "evaluation/train_mixed/obstacles/episodes/sac_imagined/seed_20496019",
+      "task_success": false,
+      "final_goal_distance_cm": 50.05200958251953
+    }
+  ]
+}

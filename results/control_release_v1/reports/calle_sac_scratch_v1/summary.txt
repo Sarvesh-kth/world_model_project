@@ -1,0 +1,6 @@
+Calle imagined SAC; complete=True; 120/120 camera episodes
+train_empty/empty: placements 12/30; mean B=23.73cm; contact steps=0
+train_empty/obstacles: placements 11/30; mean B=24.18cm; contact steps=746
+train_mixed/empty: placements 9/30; mean B=26.54cm; contact steps=0
+train_mixed/obstacles: placements 8/30; mean B=25.01cm; contact steps=1126
+The actor still has 41 inputs and no explicit obstacle map. No success is implied by completion.

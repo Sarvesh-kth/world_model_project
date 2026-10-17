@@ -1,0 +1,467 @@
+{
+  "complete": true,
+  "summary": [
+    {
+      "policy": "train_empty",
+      "condition": "empty",
+      "episodes": 30,
+      "successes": 12,
+      "failures": 18,
+      "mean_final_goal_distance_cm": 23.727615479628245,
+      "failure_mean_goal_distance_cm": 37.90788780318366,
+      "obstacle_contact_steps": 0
+    },
+    {
+      "policy": "train_empty",
+      "condition": "obstacles",
+      "episodes": 30,
+      "successes": 11,
+      "failures": 19,
+      "mean_final_goal_distance_cm": 24.177107657988866,
+      "failure_mean_goal_distance_cm": 36.381134133589896,
+      "obstacle_contact_steps": 746
+    },
+    {
+      "policy": "train_mixed",
+      "condition": "empty",
+      "episodes": 30,
+      "successes": 9,
+      "failures": 21,
+      "mean_final_goal_distance_cm": 26.540787470340728,
+      "failure_mean_goal_distance_cm": 36.53179695492699,
+      "obstacle_contact_steps": 0
+    },
+    {
+      "policy": "train_mixed",
+      "condition": "obstacles",
+      "episodes": 30,
+      "successes": 8,
+      "failures": 22,
+      "mean_final_goal_distance_cm": 25.011322492857776,
+      "failure_mean_goal_distance_cm": 32.764375079761855,
+      "obstacle_contact_steps": 1126
+    }
+  ],
+  "paired": [
+    {
+      "condition": "empty",
+      "seed": 20495010,
+      "train_empty_success": true,
+      "train_mixed_success": true,
+      "distance_improvement_cm": -1.3446683883666992
+    },
+    {
+      "condition": "empty",
+      "seed": 20495011,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 32.465938091278076
+    },
+    {
+      "condition": "empty",
+      "seed": 20495012,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 16.294809341430664
+    },
+    {
+      "condition": "empty",
+      "seed": 20495013,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -38.09577560424805
+    },
+    {
+      "condition": "empty",
+      "seed": 20495014,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 60.72049522399902
+    },
+    {
+      "condition": "empty",
+      "seed": 20495015,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -33.32310247421265
+    },
+    {
+      "condition": "empty",
+      "seed": 20495016,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 0.35831451416015625
+    },
+    {
+      "condition": "empty",
+      "seed": 20495017,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -64.17080569267273
+    },
+    {
+      "condition": "empty",
+      "seed": 20495018,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 58.394264221191406
+    },
+    {
+      "condition": "empty",
+      "seed": 20495019,
+      "train_empty_success": true,
+      "train_mixed_success": true,
+      "distance_improvement_cm": -1.8526087999343872
+    },
+    {
+      "condition": "empty",
+      "seed": 20495020,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -27.379255294799805
+    },
+    {
+      "condition": "empty",
+      "seed": 20495021,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 58.96374762058258
+    },
+    {
+      "condition": "empty",
+      "seed": 20495022,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 42.370131492614746
+    },
+    {
+      "condition": "empty",
+      "seed": 20495023,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -6.783748269081116
+    },
+    {
+      "condition": "empty",
+      "seed": 20495024,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -4.855988025665283
+    },
+    {
+      "condition": "empty",
+      "seed": 20495025,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 19.65487289428711
+    },
+    {
+      "condition": "empty",
+      "seed": 20495026,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -20.445514678955078
+    },
+    {
+      "condition": "empty",
+      "seed": 20495027,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -4.485372066497803
+    },
+    {
+      "condition": "empty",
+      "seed": 20495028,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 41.34643030166626
+    },
+    {
+      "condition": "empty",
+      "seed": 20495029,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -71.45662593841553
+    },
+    {
+      "condition": "empty",
+      "seed": 20495030,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -13.639302253723145
+    },
+    {
+      "condition": "empty",
+      "seed": 20495031,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -42.22866439819336
+    },
+    {
+      "condition": "empty",
+      "seed": 20495032,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 21.503376483917236
+    },
+    {
+      "condition": "empty",
+      "seed": 20495033,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -61.847890973091125
+    },
+    {
+      "condition": "empty",
+      "seed": 20495034,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -45.11043357849121
+    },
+    {
+      "condition": "empty",
+      "seed": 20495035,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 8.906372785568237
+    },
+    {
+      "condition": "empty",
+      "seed": 20495036,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 21.226420402526855
+    },
+    {
+      "condition": "empty",
+      "seed": 20495037,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 32.82700729370117
+    },
+    {
+      "condition": "empty",
+      "seed": 20495038,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -64.19759225845337
+    },
+    {
+      "condition": "empty",
+      "seed": 20495039,
+      "train_empty_success": true,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 1.790008306503296
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496010,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 59.15703058242798
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496011,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 7.313262760639191
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496012,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -49.55996489524841
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496013,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -37.833221435546875
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496014,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 9.642911911010742
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496015,
+      "train_empty_success": true,
+      "train_mixed_success": true,
+      "distance_improvement_cm": -0.32555341720581055
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496016,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 36.478567123413086
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496017,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 3.7671966552734375
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496018,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -34.6191731095314
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496019,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -47.51351237297058
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496020,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 45.39951133728027
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496021,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -24.575172424316406
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496022,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -5.756282806396484
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496023,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 24.425418481230736
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496024,
+      "train_empty_success": true,
+      "train_mixed_success": true,
+      "distance_improvement_cm": -2.338202476501465
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496025,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -0.9086990356445312
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496026,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -37.84077453613281
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496027,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 26.848113536834717
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496028,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -15.637590408325195
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496029,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -2.7899513244628906
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496030,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 37.4325156211853
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496031,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 37.383323669433594
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496032,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 7.689754486083984
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496033,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -11.996586084365845
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496034,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -41.35566306114197
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496035,
+      "train_empty_success": true,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -26.03275728225708
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496036,
+      "train_empty_success": false,
+      "train_mixed_success": true,
+      "distance_improvement_cm": 30.37985324859619
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496037,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -6.533445358276367
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496038,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": 21.53926944732666
+    },
+    {
+      "condition": "obstacles",
+      "seed": 20496039,
+      "train_empty_success": false,
+      "train_mixed_success": false,
+      "distance_improvement_cm": -26.866623878479004
+    }
+  ]
+}

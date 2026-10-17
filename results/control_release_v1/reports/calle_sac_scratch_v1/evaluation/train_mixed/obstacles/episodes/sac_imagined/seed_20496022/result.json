@@ -1,0 +1,120 @@
+{
+  "method": "sac_imagined",
+  "seed": 20496022,
+  "task_success": false,
+  "steps": 300,
+  "true_original_return": -27.18033955038111,
+  "control_return": -19.767061872550702,
+  "ever_held": true,
+  "ever_lifted_4cm": false,
+  "maximum_lift_cm": 1.1624634265899658,
+  "minimum_goal_distance_cm": 41.764941811561584,
+  "final_goal_distance_cm": 46.70435333251953,
+  "final_held": false,
+  "obstacle_contact_steps": 1,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 0.9862494644190785,
+    "mass": 0.104674022556799,
+    "friction": 1.4234765655236385,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      0.11254539675980338,
+      0.10358936357769699
+    ],
+    "place": [
+      0.012858626664910042,
+      -0.3051382100615605
+    ],
+    "obstacles": [
+      {
+        "kind": "box",
+        "pos": [
+          0.13532827469209777,
+          -0.14409169874055666
+        ],
+        "yaw": -1.280931266600427,
+        "size": [
+          0.02358861395286406,
+          0.02614623916477446,
+          0.08486147191264572
+        ]
+      },
+      {
+        "kind": "cylinder",
+        "pos": [
+          -0.09316594508219543,
+          -0.10131868991456376
+        ],
+        "yaw": 0.0,
+        "size": [
+          0.021308954129398466,
+          0.04227901580074177
+        ]
+      }
+    ]
+  },
+  "seconds": 79.9680598359555,
+  "obstacle_cells": [
+    [
+      -0.13,
+      -0.173,
+      0.085
+    ],
+    [
+      -0.13,
+      -0.058,
+      0.085
+    ],
+    [
+      -0.05,
+      -0.173,
+      0.085
+    ],
+    [
+      -0.05,
+      -0.058,
+      0.085
+    ],
+    [
+      0.11,
+      -0.173,
+      0.17
+    ],
+    [
+      0.19,
+      -0.173,
+      0.17
+    ],
+    [
+      0.19,
+      -0.058,
+      0.152
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.0006990753052135308,
+  "Q_on_actual_observations": {
+    "n": 300,
+    "xyz_mae_cm": [
+      3.282985402892033,
+      2.139641421536605,
+      0.37712782621383667
+    ],
+    "height_mae_cm": 0.37712782621383667,
+    "grasp_accuracy": 0.8166666666666667,
+    "grasp_precision": 0.03636363636363636,
+    "grasp_recall": 0.5,
+    "grasp_f1": 0.06779661016949153,
+    "positive_labels": 4,
+    "negative_labels": 296
+  }
+}

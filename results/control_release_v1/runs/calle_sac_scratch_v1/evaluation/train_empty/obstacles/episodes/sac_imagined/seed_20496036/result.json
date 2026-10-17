@@ -1,0 +1,110 @@
+{
+  "method": "sac_imagined",
+  "seed": 20496036,
+  "task_success": false,
+  "steps": 300,
+  "true_original_return": 81.10834243225763,
+  "control_return": -14.822954623855857,
+  "ever_held": false,
+  "ever_lifted_4cm": false,
+  "maximum_lift_cm": 0.790250301361084,
+  "minimum_goal_distance_cm": 35.52410006523132,
+  "final_goal_distance_cm": 35.56011199951172,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0188823352780196,
+    "mass": 0.15720083335967205,
+    "friction": 1.4981921748614822,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      0.02616485122348347,
+      0.3167423547518847
+    ],
+    "place": [
+      0.22666543087708976,
+      0.02627947525149016
+    ],
+    "obstacles": [
+      {
+        "kind": "cylinder",
+        "pos": [
+          0.2549343401314982,
+          0.2543126806906175
+        ],
+        "yaw": 0.0,
+        "size": [
+          0.018009663269121855,
+          0.08687995943828303
+        ]
+      },
+      {
+        "kind": "box",
+        "pos": [
+          -0.010986896197903828,
+          0.11327063227300861
+        ],
+        "yaw": 0.019906059592570635,
+        "size": [
+          0.01811483935154289,
+          0.019622690442554963,
+          0.07453499421925867
+        ]
+      }
+    ]
+  },
+  "seconds": 77.35636773705482,
+  "obstacle_cells": [
+    [
+      -0.05,
+      0.058,
+      0.149
+    ],
+    [
+      -0.05,
+      0.173,
+      0.149
+    ],
+    [
+      0.03,
+      0.058,
+      0.149
+    ],
+    [
+      0.03,
+      0.173,
+      0.149
+    ],
+    [
+      0.27,
+      0.288,
+      0.174
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.0007025487767532468,
+  "Q_on_actual_observations": {
+    "n": 300,
+    "xyz_mae_cm": [
+      1.5478755288446944,
+      1.2850818634033203,
+      0.0822678804397583
+    ],
+    "height_mae_cm": 0.0822678804397583,
+    "grasp_accuracy": 1.0,
+    "grasp_precision": 0.0,
+    "grasp_recall": 0.0,
+    "grasp_f1": 0.0,
+    "positive_labels": 0,
+    "negative_labels": 300
+  }
+}

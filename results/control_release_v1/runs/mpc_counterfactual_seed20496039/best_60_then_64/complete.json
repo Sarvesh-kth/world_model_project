@@ -1,0 +1,25 @@
+{
+  "signature": "0a2b3813c1652cf6907fb5ae62c39a7bbdd83a634658f1ae0558880e68d46efa",
+  "metrics": {
+    "variant": "best_60_then_64",
+    "task_success": false,
+    "steps": 300,
+    "final_goal_distance_cm": 13.183821678161621,
+    "obstacle_contact_steps": 0,
+    "fallback_steps": 0,
+    "source_first_60_matches_within_1e-6": true,
+    "source_prefix_max_differences": {
+      "qpos": 0.0,
+      "p": 0.0,
+      "object_xyz": 0.0,
+      "held": 0.0,
+      "actions": 0.0
+    },
+    "initial_state_matches": true
+  },
+  "episode_hashes": {
+    "result.json": "fc848c144f172980b4633ddc958e6822bd021a85e3ff28e588ff85ac3245a1f5",
+    "trajectory.npz": "162fe289e892ad5bc9577c7ca953f9f23d42e524eb22043a006a2a726c07611d",
+    "plans.npz": "5e4648b3227d45e482ccc980cbcb205e16461dddd5a801ae69510699acd29b30"
+  }
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "method": "mpc",
+    "episodes": 30,
+    "successes": 24,
+    "mean_final_goal_distance_cm": 9.586139036218325,
+    "median_final_goal_distance_cm": 2.4284238815307617,
+    "obstacle_contact_steps": 0,
+    "planner_fallback_steps": 0,
+    "mean_decision_seconds": 0.21131577334427387
+  }
+]

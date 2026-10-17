@@ -1,0 +1,76 @@
+{
+  "random_seed": 20261017,
+  "run_signature": "f0e956708fe9512dbc1a55777ec2000d51b5b9086202dfc71da4c43773fbf8af",
+  "examples": [
+    {
+      "category": "Successes \u2014 reproducible random sample",
+      "seed": 20496021,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496021",
+      "task_success": true,
+      "final_goal_distance_cm": 3.226341962814331
+    },
+    {
+      "category": "Successes \u2014 reproducible random sample",
+      "seed": 20496016,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496016",
+      "task_success": true,
+      "final_goal_distance_cm": 1.6562434434890747
+    },
+    {
+      "category": "Successes \u2014 reproducible random sample",
+      "seed": 20496028,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496028",
+      "task_success": true,
+      "final_goal_distance_cm": 0.33107373118400574
+    },
+    {
+      "category": "Successes \u2014 reproducible random sample",
+      "seed": 20496019,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496019",
+      "task_success": true,
+      "final_goal_distance_cm": 2.312446117401123
+    },
+    {
+      "category": "Failures \u2014 closest final distances",
+      "seed": 20496018,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496018",
+      "task_success": false,
+      "final_goal_distance_cm": 9.04820442199707
+    },
+    {
+      "category": "Failures \u2014 closest final distances",
+      "seed": 20496024,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496024",
+      "task_success": false,
+      "final_goal_distance_cm": 32.53361129760742
+    },
+    {
+      "category": "Failures \u2014 closest final distances",
+      "seed": 20496029,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496029",
+      "task_success": false,
+      "final_goal_distance_cm": 36.8702392578125
+    },
+    {
+      "category": "Failures \u2014 random, excluding the closest examples",
+      "seed": 20496020,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496020",
+      "task_success": false,
+      "final_goal_distance_cm": 48.07761764526367
+    },
+    {
+      "category": "Failures \u2014 random, excluding the closest examples",
+      "seed": 20496014,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496014",
+      "task_success": false,
+      "final_goal_distance_cm": 66.66976928710938
+    },
+    {
+      "category": "Failures \u2014 random, excluding the closest examples",
+      "seed": 20496025,
+      "folder": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496025",
+      "task_success": false,
+      "final_goal_distance_cm": 40.69379425048828
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "method": "mpc",
+  "seed": 20496027,
+  "task_success": true,
+  "steps": 86,
+  "true_original_return": 82.71897408473379,
+  "control_return": 12.866908580696505,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 14.252859354019165,
+  "minimum_goal_distance_cm": 2.2736134007573128,
+  "final_goal_distance_cm": 2.2747509479522705,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 0.9892321197222627,
+    "mass": 0.19499844102637454,
+    "friction": 0.9272046357878978,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      -0.02517467482426569,
+      0.18016604450332252
+    ],
+    "place": [
+      0.05703935038605165,
+      -0.33802074337248833
+    ],
+    "obstacles": [
+      {
+        "kind": "box",
+        "pos": [
+          -0.09789869763214595,
+          -0.19319554360079566
+        ],
+        "yaw": -1.0359043380024486,
+        "size": [
+          0.019423026425599905,
+          0.028794705075804714,
+          0.09389764587977505
+        ]
+      },
+      {
+        "kind": "cylinder",
+        "pos": [
+          0.005422285224960405,
+          -0.02587377423168686
+        ],
+        "yaw": 0.0,
+        "size": [
+          0.02510556312953368,
+          0.041607388348782214
+        ]
+      }
+    ]
+  },
+  "seconds": 41.02589577063918,
+  "obstacle_cells": [
+    [
+      -0.13,
+      -0.173,
+      0.188
+    ],
+    [
+      -0.05,
+      -0.173,
+      0.188
+    ],
+    [
+      -0.05,
+      -0.058,
+      0.083
+    ],
+    [
+      0.03,
+      -0.058,
+      0.083
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.20960249561210012,
+  "Q_on_actual_observations": {
+    "n": 86,
+    "xyz_mae_cm": [
+      0.32996297705658645,
+      0.5827337644214547,
+      0.6051937508028608
+    ],
+    "height_mae_cm": 0.6051937508028608,
+    "grasp_accuracy": 0.9767441860465116,
+    "grasp_precision": 0.9565217391304348,
+    "grasp_recall": 1.0,
+    "grasp_f1": 0.9777777777777777,
+    "positive_labels": 44,
+    "negative_labels": 42
+  }
+}

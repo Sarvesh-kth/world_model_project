@@ -1,0 +1,5 @@
+condition,episodes,failure_mean_goal_distance_cm,failures,mean_final_goal_distance_cm,obstacle_contact_steps,policy,successes
+empty,30,37.90788780318366,18,23.727615479628245,0,train_empty,12
+obstacles,30,36.381134133589896,19,24.177107657988866,746,train_empty,11
+empty,30,36.53179695492699,21,26.540787470340728,0,train_mixed,9
+obstacles,30,32.764375079761855,22,25.011322492857776,1126,train_mixed,8

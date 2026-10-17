@@ -1,0 +1,82 @@
+{
+  "method": "sac_imagined",
+  "seed": 20496024,
+  "task_success": true,
+  "steps": 100,
+  "true_original_return": 92.22213485178744,
+  "control_return": 11.440353333539823,
+  "ever_held": true,
+  "ever_lifted_4cm": true,
+  "maximum_lift_cm": 15.251857042312622,
+  "minimum_goal_distance_cm": 2.209574356675148,
+  "final_goal_distance_cm": 2.260779857635498,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 1.0620317980442135,
+    "mass": 0.19872326974621618,
+    "friction": 1.1126687702728053,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      0.04993974703653026,
+      0.31003442326694886
+    ],
+    "place": [
+      -0.06274179599639955,
+      -0.11464019713535073
+    ],
+    "obstacles": [
+      {
+        "kind": "cylinder",
+        "pos": [
+          0.07607531031679285,
+          0.08212597057504761
+        ],
+        "yaw": 0.0,
+        "size": [
+          0.02359727698740977,
+          0.09424835194121295
+        ]
+      }
+    ]
+  },
+  "seconds": 26.810657712630928,
+  "obstacle_cells": [
+    [
+      0.03,
+      0.058,
+      0.188
+    ],
+    [
+      0.11,
+      0.058,
+      0.188
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.0007064575469121337,
+  "Q_on_actual_observations": {
+    "n": 100,
+    "xyz_mae_cm": [
+      0.3387026039417833,
+      0.4822253603488207,
+      0.3129889965057373
+    ],
+    "height_mae_cm": 0.3129889965057373,
+    "grasp_accuracy": 0.98,
+    "grasp_precision": 0.9607843137254902,
+    "grasp_recall": 1.0,
+    "grasp_f1": 0.98,
+    "positive_labels": 49,
+    "negative_labels": 51
+  }
+}

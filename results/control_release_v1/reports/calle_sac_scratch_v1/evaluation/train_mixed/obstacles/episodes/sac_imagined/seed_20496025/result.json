@@ -1,0 +1,106 @@
+{
+  "method": "sac_imagined",
+  "seed": 20496025,
+  "task_success": false,
+  "steps": 300,
+  "true_original_return": 73.712555764499,
+  "control_return": -17.769300814778,
+  "ever_held": true,
+  "ever_lifted_4cm": false,
+  "maximum_lift_cm": 0.7565557956695557,
+  "minimum_goal_distance_cm": 38.0990207195282,
+  "final_goal_distance_cm": 38.47981262207031,
+  "final_held": false,
+  "obstacle_contact_steps": 0,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 0.9485847428924473,
+    "mass": 0.16572191579201667,
+    "friction": 1.4280753072320445,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      -0.08892934821378844,
+      0.16198013852499848
+    ],
+    "place": [
+      0.201953471397222,
+      -0.08948570574011372
+    ],
+    "obstacles": [
+      {
+        "kind": "box",
+        "pos": [
+          -0.06293219851764581,
+          -0.05661135358541289
+        ],
+        "yaw": 0.30849789637504754,
+        "size": [
+          0.020606994231468365,
+          0.01626011684021229,
+          0.09413330656490915
+        ]
+      },
+      {
+        "kind": "wall",
+        "pos": [
+          0.1196663012691026,
+          0.135175635379506
+        ],
+        "yaw": 0.7714171282978476,
+        "size": [
+          0.047422314340087125,
+          0.01,
+          0.06581460352739164
+        ]
+      }
+    ]
+  },
+  "seconds": 77.65513610700145,
+  "obstacle_cells": [
+    [
+      -0.05,
+      -0.058,
+      0.188
+    ],
+    [
+      0.11,
+      0.058,
+      0.132
+    ],
+    [
+      0.11,
+      0.173,
+      0.132
+    ],
+    [
+      0.19,
+      0.173,
+      0.132
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.0007032355231543382,
+  "Q_on_actual_observations": {
+    "n": 300,
+    "xyz_mae_cm": [
+      1.5341530789931617,
+      3.9754190842310586,
+      0.1197630763053894
+    ],
+    "height_mae_cm": 0.1197630763053894,
+    "grasp_accuracy": 0.9466666666666667,
+    "grasp_precision": 0.0,
+    "grasp_recall": 0.0,
+    "grasp_f1": 0.0,
+    "positive_labels": 0,
+    "negative_labels": 300
+  }
+}

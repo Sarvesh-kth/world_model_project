@@ -1,0 +1,111 @@
+{
+  "method": "sac_imagined",
+  "seed": 20496012,
+  "task_success": false,
+  "steps": 300,
+  "true_original_return": -124.65492165568396,
+  "control_return": -169.30068148651551,
+  "ever_held": false,
+  "ever_lifted_4cm": false,
+  "maximum_lift_cm": 0.0,
+  "minimum_goal_distance_cm": 52.501124143600464,
+  "final_goal_distance_cm": 52.50112533569336,
+  "final_held": false,
+  "obstacle_contact_steps": 180,
+  "table_contact_steps": 0,
+  "layout": {
+    "object": "cube",
+    "scale": 0.9091849813147228,
+    "mass": 0.11236701793976323,
+    "friction": 1.316709847487298,
+    "color": [
+      0.5,
+      0.5,
+      0.5,
+      1.0
+    ],
+    "pick_end": "anywhere",
+    "place_end": "anywhere",
+    "pick": [
+      -0.08335941651470566,
+      0.3560523290970493
+    ],
+    "place": [
+      0.23164275089540845,
+      -0.05867768881376023
+    ],
+    "obstacles": [
+      {
+        "kind": "box",
+        "pos": [
+          -0.1051800121921604,
+          0.12200852467621706
+        ],
+        "yaw": 0.41263298496617784,
+        "size": [
+          0.016304611210450185,
+          0.01974547920723923,
+          0.08285520683329893
+        ]
+      },
+      {
+        "kind": "box",
+        "pos": [
+          0.11405594295201145,
+          0.3028140794376305
+        ],
+        "yaw": -2.670234931833693,
+        "size": [
+          0.01830722907871247,
+          0.02665363314705701,
+          0.0648970458407407
+        ]
+      }
+    ]
+  },
+  "seconds": 79.92934386525303,
+  "obstacle_cells": [
+    [
+      -0.13,
+      0.058,
+      0.166
+    ],
+    [
+      -0.13,
+      0.173,
+      0.166
+    ],
+    [
+      -0.05,
+      0.058,
+      0.166
+    ],
+    [
+      -0.05,
+      0.173,
+      0.166
+    ],
+    [
+      0.11,
+      0.288,
+      0.13
+    ]
+  ],
+  "planner_fallback_steps": 0,
+  "mean_decision_seconds": 0.0007044040566931168,
+  "Q_on_actual_observations": {
+    "n": 300,
+    "xyz_mae_cm": [
+      14.611647869149843,
+      2.9934944609800973,
+      0.14238295952479046
+    ],
+    "height_mae_cm": 0.14238295952479046,
+    "grasp_accuracy": 1.0,
+    "grasp_precision": 0.0,
+    "grasp_recall": 0.0,
+    "grasp_f1": 0.0,
+    "positive_labels": 0,
+    "negative_labels": 300
+  }
+}
