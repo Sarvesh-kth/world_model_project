@@ -82,3 +82,7 @@ display(Image(data=gif.read_bytes(), format="gif"))
 ```
 
 Download on KTH after rendering: https://gpu1.eecs.kth.se/user/kuba/files/Robots%26EmbodiedAI/project/world_model_sac_obstacles/presentation/mpc_allpaths_seed20496039.gif?download=1
+
+### Replay framebuffer repair
+
+If512pxexportfailswith `Image height 512 > framebuffer height 480`, onlytheofflineexportfailed;thenewepisodesavedallpaths. Replay now enlarges model.vis.global_.offheight/offwidth before Renderer construction. Pull and rerun **only controller.replay**,usingthealreadyrecordedepisode. Withoutpulling, --size480alsofitsdefaultframebuffer. Open presentation/mpc_allpaths_seed20496039.gif aftersuccessfulrendering; episode/actual.gifalwaysshowstheplaincameraandhasnoimaginedoverlays. Successfulcaptureobservedfromuserlog: seed20496039placedat4.36cm,125steps,0contactsteps,231msdecision. Thisisaseparatevisualisationrun,notanew30-scenebenchmark.

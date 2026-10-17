@@ -186,6 +186,9 @@ def window(ep, speed):
 
 def video(ep, size, out, camera, every, speed=1.0):
   from PIL import Image
+  # MuJoCo allocates its framebuffer when Renderer is constructed; the saved model may default to 480 px.
+  ep["model"].vis.global_.offheight = max(ep["model"].vis.global_.offheight, size)
+  ep["model"].vis.global_.offwidth = max(ep["model"].vis.global_.offwidth, size)
   data = mujoco.MjData(ep["model"])
   renderer = mujoco.Renderer(ep["model"], size, size, max_geom=30000)
   cam = overview_camera() if camera == "overview" else camera
