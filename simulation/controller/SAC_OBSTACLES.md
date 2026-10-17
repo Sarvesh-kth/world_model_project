@@ -13,19 +13,25 @@ Both fits start with a new `[128,128]` MLP SAC, then Calle's 240-epoch BC initia
 
 **Collection/preprocessing are preserved by reusing the actual original `episodes_v3` recordings' manifest, cached latents and split assignments.** The old raw image archives are unnecessary for policy training; both-camera JEPA features are already computed. There is no recollection, re-encoding, new reward, controller redesign or refitting of D/Q/R. Both policies share the same frozen v3c bundle, including its mixed-scene world-model training. We are comparing policy training pools, not two separately fitted world models. Original `--obstacles` also changes the validation pool; preserving that behavior means the comparison includes that checkpoint-selection difference. These fresh fits do not reproduce the unavailable original weights or certify their historical6/10 result.
 
-On the already prepared GPU server, pull and run:
+On the already prepared GPU server, pull and run. The subshell prevents `set -e` closing the interactive terminal, and failed preflight output is preserved:
 
 ```bash
+set +e
+(
 set -e
 cd "$HOME/Robots&EmbodiedAI/project/world_model_sac_obstacles"
 GIT_LFS_SKIP_SMUDGE=1 git pull --ff-only origin codex/calle-sac-obstacles
 cd simulation
-../.venv/bin/python -m controller.sac_scratch --preflight-only
+if ! ../.venv/bin/python -u -m controller.sac_scratch --preflight-only > data/calle_sac_scratch_v1_preflight.log 2>&1; then
+  tail -n 100 data/calle_sac_scratch_v1_preflight.log
+  exit 1
+fi
 nohup ../.venv/bin/python -u -m controller.sac_scratch \
   --steps 40000 --episodes 30 \
   > data/calle_sac_scratch_v1_launch.log 2>&1 < /dev/null &
 echo "PID: $!"
 tail -f data/calle_sac_scratch_v1_launch.log
+)
 ```
 
 For a machine not prepared yet, call the setup as `bash scripts/setup_sac_obstacles.sh "$old_repo" --from-scratch`. This prepares only the same data/world models and skips the unavailable SAC checkpoint intake.
@@ -53,7 +59,7 @@ The user explicitly excluded the earlier proposal-alignment redesign. No larger 
 - The best saved checkpoint can remain `sac_initial.zip` if extra updates do not beat its imagined validation score. This is reported, not called an improvement.
 - Original exact-state diagnostic checks remain diagnostic only; final results use live cameras. No forced drops are inserted.
 
-## Required original checkpoint
+## Required original checkpoint (older continuation route only)
 
 The reviewed branches **do not contain Calle's imagined SAC run**. The committed `data/rl_baseline_v1` is a different ordinary SAC and is rejected. Obtain these three files from Calle's saved run:
 
@@ -76,6 +82,8 @@ The metadata must identify `kind: imagined_sac` and include the actual recipe. M
 ## Block 1 — retrieve code, environment and matching data
 
 ```bash
+set +e
+(
 set -e
 old_repo="$HOME/Robots&EmbodiedAI/project/world_model_project"
 experiment_repo="$HOME/Robots&EmbodiedAI/project/world_model_sac_obstacles"
@@ -85,6 +93,7 @@ if [ ! -d "$experiment_repo/.git" ]; then
 fi
 cd "$experiment_repo"
 bash scripts/setup_sac_obstacles.sh "$old_repo"
+)
 ```
 
 Pip writes only into the new environment. Only the old virtualenv's own packages are exposed for CUDA reuse; base Conda site-packages are excluded. Re-running setup repairs environments made by the earlier script, whose base TensorFlow produced NumPy ABI errors on the cluster. Existing CUDA wheels are inherited when usable; otherwise the repo's documented Torch 2.6/torchvision 0.21 CUDA 12.4 pair is installed. SB3 stays at 2.7.1. Installed versions are recorded and cannot change during a resumed run. The old checkout/environment is not edited.
@@ -94,15 +103,21 @@ Setup retrieves frozen v3c D/Q/R/O/PCA and `episodes_v3` manifest/settings/meta/
 ## Block 2 — pull code and run before → train → after
 
 ```bash
+set +e
+(
 set -e
 cd "$HOME/Robots&EmbodiedAI/project/world_model_sac_obstacles"
 GIT_LFS_SKIP_SMUDGE=1 git pull --ff-only origin codex/calle-sac-obstacles
 cd simulation
-../.venv/bin/python -m controller.sac_obstacles --preflight-only
+if ! ../.venv/bin/python -u -m controller.sac_obstacles --preflight-only > data/calle_sac_obstacles_v1_preflight.log 2>&1; then
+  tail -n 100 data/calle_sac_obstacles_v1_preflight.log
+  exit 1
+fi
 nohup ../.venv/bin/python -u -m controller.sac_obstacles \
   > data/calle_sac_obstacles_v1_launch.log 2>&1 < /dev/null &
 echo "PID: $!"
 tail -f data/calle_sac_obstacles_v1_launch.log
+)
 ```
 
 Default: **120 camera episodes**, 30 per policy/condition. Empty seeds `20495010–20495039`, obstacle seeds `20496010–20496039`, one or two sampled obstacles. The first 10/20 respectively match Calle's documented benchmark ranges/sampler; this does not certify undocumented historical settings. Every full scene is saved once and reused; initial simulator states, jitter and checkpoint identities are checked. Success keeps the existing configured radius (normally 7 cm), held/lifted ≥4 cm, released/resting within 2 cm height error and 15 settled steps, with 300-step limit. Distance alone is not success.
