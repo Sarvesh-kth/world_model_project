@@ -300,6 +300,11 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
   settings = mpc.load_settings(args.mpc_config) if method == "mpc" else None
   if settings is not None:
     settings["SAVE_ALL_PLANS"] = args.save_all_plans
+    settings["SELECT_RANK"] = getattr(args, "mpc_rank", 1)
+    settings["RANK_AFTER_STEP"] = getattr(args, "mpc_rank_after", None)
+    settings["RANK_AFTER"] = getattr(args, "mpc_rank_then", 1)
+    if not 1 <= settings["SELECT_RANK"] <= settings["POPULATION"] or not 1 <= settings["RANK_AFTER"] <= settings["POPULATION"]:
+      raise ValueError("MPC selection ranks must be within the candidate population")
     mpc.save_settings(folder, settings)
   previous = None
   started = time.monotonic()
@@ -524,6 +529,9 @@ def run_arguments(p):
   p.add_argument("--threads", type=int, default=4)
   p.add_argument("--mpc-config", type=pathlib.Path, default=None, help="tuning file of the mpc planner (default controller/mpc_config.py)")
   p.add_argument("--save-all-plans", action="store_true", help="mpc: record every candidate from every CEM round for replay; no change to search/scoring")
+  p.add_argument("--mpc-rank", type=int, default=1, help="counterfactual: execute this rank within the winning CEM round (1=best)")
+  p.add_argument("--mpc-rank-after", type=int, default=None, help="switch rank after this many executed actions")
+  p.add_argument("--mpc-rank-then", type=int, default=1, help="rank used after --mpc-rank-after")
 
 
 def main():
@@ -549,6 +557,8 @@ def main():
   p.add_argument("--resume", action="store_true", help="keep finished episodes in --out and run the missing ones")
   run_arguments(p)
   args = p.parse_args()
+  if min(args.mpc_rank, args.mpc_rank_then) < 1 or (args.mpc_rank_after is not None and args.mpc_rank_after < 0):
+    p.error("MPC ranks must be positive and rank-after must be nonnegative")
   if not 2 <= args.elites < args.population or args.population <= len(planner.PROPOSALS) or min(args.horizon, args.iterations, args.test_episodes) < 1:
     p.error("invalid planner settings")
   args.out = args.out.resolve()

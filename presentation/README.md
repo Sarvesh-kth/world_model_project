@@ -86,3 +86,41 @@ Download on KTH after rendering: https://gpu1.eecs.kth.se/user/kuba/files/Robots
 ### Replay framebuffer repair
 
 If512pxexportfailswith `Image height 512 > framebuffer height 480`, onlytheofflineexportfailed;thenewepisodesavedallpaths. Replay now enlarges model.vis.global_.offheight/offwidth before Renderer construction. Pull and rerun **only controller.replay**,usingthealreadyrecordedepisode. Withoutpulling, --size480alsofitsdefaultframebuffer. Open presentation/mpc_allpaths_seed20496039.gif aftersuccessfulrendering; episode/actual.gifalwaysshowstheplaincameraandhasnoimaginedoverlays. Successfulcaptureobservedfromuserlog: seed20496039placedat4.36cm,125steps,0contactsteps,231msdecision. Thisisaseparatevisualisationrun,notanew30-scenebenchmark.
+
+## Four rank-selection counterfactual GIFs
+
+From simulation/: `python -u -m controller.mpc_counterfactual`. Defaults to the successful data/mpc_allpaths_seed20496039/episodes/mpc/seed_20496039 reference. This runs four **actual closed-loop MuJoCo episodes**, with unchanged frozen world models and copied source layout/goal/reset seed/jitter/configuration. It does not just draw a discarded prediction as if it happened. No training or model changes.
+
+| Case | Choice at each robot decision, after all CEM rounds |
+|---|---|
+| rank_05 | fifth highest score |
+| rank_25 | 25th highest score |
+| rank_64 | 64th highest score |
+| best_60_then_64 | normal best for actions1–60;64th from action61 |
+
+Ranks are **within the64-candidate round that contains the normal overall CEM winner**, not candidate IDs or ranks across192proposals. CEM's three sampling/refinement rounds still optimise normally; only the final chosen sequence changes. Descending score, ties retain candidate order. Invalid candidates rank at their original penalised scores; a selected invalid candidate invokes the original hold-still fallback and is logged, not silently replaced by another rank. The default no-retreat64-candidate source configuration is required. Current observations are re-encoded after every actual action; each variant's next proposals therefore diverge naturally. A candidate with lower model score need not perform worse in the simulator—that is what this experiment examines. One scene cannot establish general ranking quality or JEPA's advantage.
+
+Original recording stays read-only. New runs preserve their own full proposals, executed commands, predicted scores, rank/round/validity/fallback fields, outcome and real trajectory. The script checks each initial qpos/p/cube/held against reference exactly. For the switch variant, summary.json reports whether first60actions and recorded states match the source within1e-6, plus per-array maximum differences. It does not assume a mathematically exact prefix under fresh rendering/inference. The original source ended after125steps; variants use the normal environment success/timeout rules (up to300steps), so their GIF lengths can differ.
+
+Four half-speed5fps all-path overlay GIFs (and renderer MP4/PNG outputs) appear under simulation/data/mpc_counterfactual_seed20496039/gifs. summary.json contains actual outcomes, contact/fallback counts and prefix comparison. counterfactual.json records source/settings/model/code hashes and runtime versions. Each variant has a completion marker and episode hashes; interrupted episodes may be rerun, completed matching episodes are reused before re-rendering. A file lock prevents duplicate launches; changed inputs/render settings require a new --out. Source MPC settings are frozen as literal constants in source_mpc_config.py, without changing the shared configuration.
+
+Cluster command:
+
+```bash
+nohup ../.venv/bin/python -u -m controller.mpc_counterfactual \
+  > data/mpc_counterfactual_seed20496039_launch.log 2>&1 < /dev/null &
+echo "PID: $!"
+tail -f data/mpc_counterfactual_seed20496039_launch.log
+```
+
+After COMPLETE, Jupyter cell:
+
+```python
+from pathlib import Path
+from IPython.display import Image, display
+root = Path.home() / "Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/mpc_counterfactual_seed20496039"
+for name in ("rank_05", "rank_25", "rank_64", "best_60_then_64"):
+    print(name)
+    display(Image(data=(root / "gifs" / f"{name}.gif").read_bytes(), format="gif"))
+print((root / "summary.json").read_text())
+```

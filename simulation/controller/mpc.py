@@ -319,15 +319,24 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
         switch_mean, switch_std = float(switch[order].mean()), max(float(switch[order].std()), .5)
 
   pool, selected = best["pool"], best["selected"]
+  rank = s.get("SELECT_RANK", 1)
+  if s.get("RANK_AFTER_STEP") is not None and step >= s["RANK_AFTER_STEP"]:
+    rank = s.get("RANK_AFTER", 1)
+  if not 1 <= rank <= len(pool["scores"]):
+    raise ValueError(f"requested rank {rank} exceeds this pool of {len(pool['scores'])} candidates")
+  # Preserve normal CEM fitting and the default winner; change only which scored plan is executed.
+  if rank != 1:
+    selected = int(np.argsort(-pool["scores"], kind="stable")[rank - 1])
   fallback = not bool(pool["valid"][selected])
   if fallback:
-    # every candidate left the physical range in imagination: hold still and keep the gripper as it is
+    # An invalid requested rank retains the original hold-still guard (rank 1: every candidate is invalid).
     action = np.array([0, 0, 0, 0, command], np.float32)
     sequence = np.tile(action, (horizon, 1))
   else:
     action, sequence = pool["actions"][selected, 0], pool["actions"][selected]
   overlay = overlay_record(pool, selected, s["SAVE_RUNNER_UPS"], s["HORIZON"])
   overlay["fallback"] = fallback
+  overlay["requested_rank"] = rank
   if recorded:
     # Fixed shapes let save_plans stack all timesteps, including shorter end-of-episode horizons.
     count = s["POPULATION"] * s["ITERATIONS"]
@@ -347,6 +356,7 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
     overlay.update(all_gripper=paths, all_valid=valid, all_scores=scores, all_round=rounds,
                    all_candidate=indices, chosen_index=chosen_index, runner_indices=runner_indices)
   return {"pool": pool, "selected": selected, "fallback": fallback, "best_score": float(pool["scores"][selected]),
+          "requested_rank": rank, "selected_round": best["round"],
           "action": action, "sequence": sequence, "overlay": overlay}
 
 
@@ -356,7 +366,9 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
 def step_record(decision, step, actual_xyz, actual_p):
   pool, selected = decision["pool"], decision["selected"]
   row = {"predicted_score": decision["best_score"], "predicted_penalty_sum": float(pool["penalties"][selected].sum()),
-         "planner_fallback": decision["fallback"], "valid_candidates": int(pool["valid"].sum())}
+         "planner_fallback": decision["fallback"], "valid_candidates": int(pool["valid"].sum()),
+         "requested_rank": decision["requested_rank"], "selected_candidate": selected,
+         "selected_round": decision["selected_round"], "requested_candidate_valid": bool(pool["valid"][selected])}
   row.update({f"score_{k}": float(v[selected]) for k, v in pool["parts"].items()})
   if not decision["fallback"]:
     row.update({"D_Q_one_step_xyz_mae_cm": float(100 * np.abs(pool["xyz"][selected, 1] - actual_xyz).mean()),

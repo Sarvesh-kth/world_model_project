@@ -121,11 +121,15 @@ def caption(ep, t):
   r, last = ep["result"], len(ep["qpos"]) - 1
   lines = [f"{ep['folder'].parent.name} {ep['folder'].name}  step {t}/{last}",
            f"placed={r['task_success']}  final distance to B {r['final_goal_distance_cm']:.1f} cm"]
+  if ep.get("label"):
+    lines[0] = f"{ep['label']}  step {t}/{last}"
   plans = ep["plans"]
   if plans is not None and t < len(plans["score"]):
     lines.append(f"chosen plan score {plans['score'][t]:.3f}  valid candidates {int(plans['valid'][t])}")
+    if "requested_rank" in plans:
+      lines.append(f"requested rank {int(plans['requested_rank'][t])} within winning CEM round")
     if "fallback" in plans and plans["fallback"][t]:
-      lines.append("NO VALID PLAN: hold still, keep gripper command")
+      lines.append("REQUESTED PLAN INVALID: hold still, keep gripper command")
     if ep.get("show_all_paths", False):
       n = int((plans["all_round"][t] >= 0).sum())
       valid = int(plans["all_valid"][t].sum())
