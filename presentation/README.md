@@ -1,6 +1,16 @@
 # Fresh SAC inspection and presentation figures
 
-Open `SAC_Inspection.ipynb` in Jupyter after pulling this branch. It has seven separate code cells: setup, one per policy/table combination, a figure export, and a ZIP download. The viewer is outside `simulation/`, so this update does not change the running campaign's source signature. It imports no Torch/MuJoCo/JEPA and performs no new rollouts or training.
+Start with **[CONTROL_RESULTS.md](../CONTROL_RESULTS.md)** for the current results,
+selected weights, complete GIF catalogue, shared plots and replay commands.
+For slide choices and the rank-5/25/64 interventions, read the latest section of
+**[MPC_PRESENTATION.md](mpc/MPC_PRESENTATION.md)**.
+
+Open `SAC_MPC_Inspection.ipynb` in Jupyter on the cluster for the four SAC and two
+MPC galleries, figures and ZIP download. The original standalone
+`SAC_Inspection.ipynb` was removed in the results commit; the combined notebook
+is the current entry point. The viewer is outside `simulation/`, imports no
+Torch/MuJoCo/JEPA and performs no new rollouts or training. It expects original
+cluster run folders and GIFs, not the compact Git release as a replacement run.
 
 Each gallery refreshes completed episodes and displays:
 
@@ -10,18 +20,28 @@ Each gallery refreshes completed episodes and displays:
 
 If too few outcomes exist, it displays only what exists and says how many are missing. No duplicate clips are added. Selections and paths are saved separately per group. A near-goal failed episode remains a failure; the recorded placement flag includes lifting/release/settling requirements. Selection is reproducible for an unchanged set of completed episodes.
 
-The figure cell waits for pipeline completion and all planned seeds. It validates run/scene/initial-state pairing and creates two presentation figures using **all episodes**, independently of gallery selections:
+The figure cell waits for pipeline completion and all planned seeds. It validates run/scene/initial-state pairing and creates two presentation figures using **all episodes**, independently of gallery selections. The SAC-only figure names are:
 
 1. `sac_comparison`: success counts/rates, every final distance with mean, and contact timesteps per episode. Contact totals are annotated; contact timesteps are not separate collision events.
 2. `sac_outcome_stages`: observed outcome categories from actual evaluation labels: placed; never held; held but never lifted4cm; lifted and still held at end; lifted and unheld at end without placement. These are observable endpoint/stage categories, not inferred causes such as "bad perception" or "premature commanded release".
 
-Both figures are saved as300dpi PNG and editable SVG under `results/calle_sac_scratch_v1/presentation`, alongside CSV metrics, checkpoint-selection metadata, exact video selections and figure provenance. The selected checkpoint can be BC-only if SAC updates failed to improve validation; the exported CSV and printed output identify it. Only one training seed per variant is currently used. The figures describe these observed test sets; they do not establish a general SAC/JEPA advantage or identify a causal failure mechanism.
+Both SAC-only figures are saved as 300 dpi PNG and editable SVG under `results/calle_sac_scratch_v1/presentation`, alongside CSV metrics, checkpoint-selection metadata, exact video selections and figure provenance. The selected checkpoint can be BC-only if SAC updates failed to improve validation; the exported CSV and printed output identify it. In this completed run the actual selections were 20,032 SAC transitions for `train_empty` and 40,000 for `train_mixed`. Only one training seed per variant is currently used. The figures describe these observed test sets; they do not establish a general SAC/JEPA advantage or identify a causal failure mechanism. The combined notebook writes the SAC+MPC figures in the `with_mpc/` subfolder.
 
-The notebook is committed with no outputs; GIFs and generated figures stay in ignored run/results folders. No new dependencies are added: galleries need IPython; figures need the already-used Matplotlib.
+The notebook is committed with no outputs; working GIFs/figures stay in ignored
+run folders. Curated copies of the figures/metrics are now published in
+`results/control_release_v1`. No new dependencies are added: galleries need
+IPython; figures need the already-used Matplotlib.
 
 ## Download package
 
-Rerun the setup cell after pulling updated code, then run `viewer.export_zip()` in the last cell. It regenerates the final figures, applies the same reproducible gallery selection, and creates `calle_sac_scratch_v1_presentation.zip` under the project presentation/ directory with a direct KTH Jupyter download link. It waits for the complete campaign and reports missing selected GIFs instead of silently excluding them. Selections can change while a run is in progress; rerun galleries after completion to match the final archive.
+In the combined notebook, `viewer.export_zip()` creates the SAC+MPC archive
+described below. For the original SAC-only package, run
+`module.SACViewer(viewer.run).export_zip()` after its setup cell. That creates
+`calle_sac_scratch_v1_presentation.zip` under `presentation/` with a direct KTH
+download link. Both routes regenerate final figures, apply reproducible gallery
+selections, require a complete campaign and report missing selected GIFs.
+Selections can change during a run; rerun galleries after completion to match
+the final archive.
 
 Archive folders:
 
@@ -41,6 +61,13 @@ The reader checks planned seed sets, actual layouts and initial-state hashes aga
 Combined outputs stay under results/calle_sac_scratch_v1/presentation/with_mpc. ZIP: presentation/sac_mpc_comparison_presentation.zip; videos split train_empty/train_mixed/mpc then empty/obstacles and outcome category. Actual recorded GIFs are copied, not regenerated. Direct download (after export on the cluster):
 
 https://gpu1.eecs.kth.se/user/kuba/files/Robots%26EmbodiedAI/project/world_model_sac_obstacles/presentation/sac_mpc_comparison_presentation.zip?download=1
+
+The completed selection manifests contain **54 clips**, rather than the 60 maximum:
+40 SAC examples, 4 empty MPC successes and 10 obstacle MPC examples. Empty MPC placed 30/30,
+so there are no empty MPC failures to include. The PNG/SVG figures and selection
+manifests were generated on the cluster and are now shared under
+`results/control_release_v1/reports/calle_sac_scratch_v1/presentation/with_mpc/`.
+The ZIP and GIF binaries themselves remain on the cluster.
 
 For a custom notebook, pass `mpc_runs={"empty": <empty-run>, "obstacles": <obstacle-run>}` to SACViewer, use `viewer.show("mpc", "empty")` / `viewer.show("mpc", "obstacles")`, then the usual presentation_figures/export_zip methods. Need IPython, NumPy and Matplotlib; if plots report missing Matplotlib, use `%pip install matplotlib` in the notebook kernel. No simulator/model imports or changes to experiment source signatures.
 

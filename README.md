@@ -1,5 +1,18 @@
 # JEPA world model for pick and place
 
+## Latest matched SAC/MPC results and presentation assets
+
+On branch `codex/calle-sac-obstacles`, start with **[CONTROL_RESULTS.md](CONTROL_RESULTS.md)**
+for the two fresh imagined SACs, the matched 180-episode comparison, selected
+weights, every GIF set and saved-state video regeneration. The
+[presentation notes](presentation/mpc/MPC_PRESENTATION.md) also cover the four
+rank-selection interventions (5th, 25th, 64th, and best until action 60 then 64th).
+Archived results/plots/replay data are in `results/control_release_v1`; original
+camera and overlay GIF files remain on the cluster. Earlier descriptions and
+benchmarks below are historical context for the base world-model project.
+
+## Base system
+
 A Franka Panda in MuJoCo picks a cube anywhere on a table, carries it past obstacles and places it on a
 marker, driven by a latent MPC on frozen V-JEPA 2 features: a readout `Q`, a reward model `R`, a dynamics
 model `D`, an obstacle model `O` on the depth image with the robot and the cube removed, and an optional

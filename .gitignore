@@ -51,3 +51,6 @@ simulation/data/episodes_hack/*
 .claude/
 AGENTS.md
 CLAUDE.md
+# Shared experiment handoff requested for this branch.
+!/AGENTS.md
+!/CONTROL_RESULTS.md

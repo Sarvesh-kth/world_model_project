@@ -1,5 +1,10 @@
 # MPC presentation: which examples to show, and what to say
 
+**Latest update:** the 17 October matched SAC/MPC comparison and rank-intervention
+clips are documented at the end of this file. Start with
+[CONTROL_RESULTS.md](../../CONTROL_RESULTS.md) for the complete asset/weight map.
+The original nine-clip notes and historical benchmark settings below are retained.
+
 For whoever (person or AI) builds the presentation slides for **controller 1, the CEM/MPC planner** (M3, Calle) of
 the DD2600 project "JEPA World Model for Vision-Based Pick and Place". Every clip below was checked against
 its episode's recorded data. Don't swap in other clips without checking their `result.json`, and don't claim
@@ -106,3 +111,88 @@ other examples, run `python -m controller.compare data/v3c_obs_p1 --seeds` and c
   result.
 - The comparison with controller 2 (the actor-critic trained in imagination) belongs on the same seeds (see
   Headline numbers), not on these clips.
+
+## 17 October update: matched comparison and every new GIF set
+
+Branch `codex/calle-sac-obstacles`, results commit `5bbbbdb0`. The new benchmark
+contains 180 camera episodes: two fresh imagined SAC policies × two conditions × 30,
+plus Calle's standalone MPC on the same 30 empty and 30 obstacle scenes. Both actors
+share the frozen v3c world models. These are new fits using Calle's recipe;
+they are not the missing original actor behind his historical 6/10 result.
+
+| Controller | Empty placements / mean final B | Obstacle placements / mean final B | Obstacle contact steps |
+|---|---|---|---:|
+| Empty-trained imagined SAC | 12/30; 23.73 cm | 11/30; 24.18 cm | 746 |
+| Mixed-trained imagined SAC | 9/30; 26.54 cm | 8/30; 25.01 cm | 1,126 |
+| Calle MPC | 30/30; 2.22 cm | 24/30; 9.59 cm | 0 |
+
+Use all 180 episodes for the result plots, not the selected GIFs. The exported
+PNG/SVG graphs, CSV and provenance are in
+`results/control_release_v1/reports/calle_sac_scratch_v1/presentation/with_mpc/`.
+Source: its `presentation_metrics.csv`. One policy-training seed per variant;
+MPC has additional obstacle inputs/scoring, so this compares complete systems.
+Contact steps are not independent collision events.
+
+### GIFs to remember when building the slides
+
+| GIF set | Why it was made | Location on the cluster (repo-relative) |
+|---|---|---|
+| All 120 SAC camera episodes | Show what empty/mixed policy training changed in empty/obstacle scenes; preserve successes and failures. | `simulation/data/calle_sac_scratch_v1/evaluation/<policy>/<condition>/episodes/sac_imagined/seed_*/actual.gif` |
+| All 60 matched MPC camera episodes | Compare the final planner with both SACs on the same test scenes. | `simulation/data/calle_mpc_matched_{empty30,obstacles30}/episodes/mpc/seed_*/actual.gif` |
+| Selected camera GIF galleries | Four successes + three closest failures + three other random failures per group; reproducible qualitative examples, not new experiments. | `presentation/sac_mpc_comparison_presentation.zip`: 54 clips in the saved selection; SAC-only ZIP has 40. Empty MPC has no failure clips. |
+| Standard imagined-path replays | Explain one chosen forecast and five saved alternatives; compare the imagined cube/hand with actual movement. | `<episode>/replay.gif` where rendered; standard benchmark files store only those paths. |
+| Full-proposal seed 20496039 | Make **all 64 × 3 CEM proposals** visible at every decision; show that only one action is executed before observing again. | Plain camera: `simulation/data/mpc_allpaths_seed20496039/episodes/mpc/seed_20496039/actual.gif`; overlay output: `presentation/mpc_allpaths_seed20496039.gif`. |
+| Four rank-counterfactual camera/overlay pairs | Ask what actually happens when a lower-scoring candidate is executed, instead of assuming that a discarded prediction would happen. | `simulation/data/mpc_counterfactual_seed20496039/<variant>/episodes/mpc/seed_20496039/actual.gif`, plus `gifs/<variant>.gif` under that run. |
+| Nine earlier Calle examples | Development story: success, approach/release fixes, edge and held-flicker failures. | Historical `media/` and separately shared GIF archive, listed earlier in this file. |
+
+The new GIF binaries/ZIPs are deliberately not uploaded to Git. Their results
+and saved-state replay arrays are archived under `results/control_release_v1`.
+Use the commands in `CONTROL_RESULTS.md` to create new renderings without
+training or new controller decisions. These notes identify media by its saved
+records; the new GIF pixels were not re-watched during this documentation pass.
+
+### Dedicated slide: "What if we choose the 5th, 25th or 64th plan?"
+
+**Keep these clips for the presentation.** Same initial scene/reset and frozen
+models as successful MPC seed 20496039. Each intervention was an actual live,
+closed-loop MuJoCo rollout: execute one action, obtain new camera images, run
+JEPA again and replan. All candidates are forecast through the same D/Q/R/O
+pipeline. CEM refinement still optimises normally; only the final selection rank
+changes. The selected sequence also supplies the next decision's warm start.
+
+| Overlay GIF under `simulation/data/mpc_counterfactual_seed20496039/gifs/` | Selection rule | Placed | Steps | Final B | Fallback steps |
+|---|---|---|---:|---:|---:|
+| Source: `presentation/mpc_allpaths_seed20496039.gif` | Normal best | Yes | 125 | 4.36 cm | 0 |
+| `rank_05.gif` | 5th highest score at each decision | Yes | 93 | 2.39 cm | 0 |
+| `rank_25.gif` | 25th highest score at each decision | Yes | 153 | 1.36 cm | 0 |
+| `rank_64.gif` | 64th highest score at each decision | Yes | 171 | 6.38 cm | 1 |
+| `best_60_then_64.gif` | Best for actions 1–60; 64th from action 61 | No | 300 | 13.18 cm | 0 |
+
+All five outcomes have zero obstacle contact steps. Source:
+`results/control_release_v1/runs/mpc_counterfactual_seed20496039/summary.json`.
+The switch variant's recorded first 60 actions **and states matched the source
+exactly** (reported max differences 0); its later failure follows the selection
+intervention in that matched-prefix episode. Do not infer an unobserved
+mechanical failure cause from the endpoint alone.
+
+Ranks are 1-based by descending score **inside the 64-candidate CEM round that
+contains the normal overall winner**; they are not candidate IDs or global
+ranks across all 192 proposals. Invalid requested candidates trigger the existing
+hold-still/keep-gripper fallback; rank 64 had one such fallback. Each run's later
+observations and proposals diverge, and a lower model score does not guarantee
+a worse final physical outcome. These four cases demonstrate that fact on
+**one scene**, not that choosing rank 25 generally beats rank 1 or that imagination
+is unnecessary. All four variants still use learned imagination.
+
+Suggested presentation order: normal full-path clip to explain the loop →
+rank 5/25/64 side-by-side with labels → best60then64 beside the source to show
+the matching prefix and later divergence. Put this diagnostic after the main
+matched performance slide; use a short excerpt or backup slide to stay within
+the 15-minute limit.
+
+Current overlay legend: thick green chosen imagined hand; faint green up to 5 valid
+runner-ups; orange→red increasing spatial deviation from the chosen plan;
+purple imagined cube; blue actual hand history. Orange/red does not encode
+reward or risk. Historical clips above use orange for the chosen path.
+Playback is half speed (5 fps for the 10 Hz recording). Do not label plain
+`actual.gif` as an imagination overlay or a saved-state replay as a fresh test.
