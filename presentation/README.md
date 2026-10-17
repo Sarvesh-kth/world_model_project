@@ -124,3 +124,11 @@ for name in ("rank_05", "rank_25", "rank_64", "best_60_then_64"):
     display(Image(data=(root / "gifs" / f"{name}.gif").read_bytes(), format="gif"))
 print((root / "summary.json").read_text())
 ```
+
+## Publish code, selected policies and replayable results (no new datasets/media)
+
+From the repository root: `.venv/bin/python scripts/share_control_results.py --stage`. This prepares results/control_release_v1 with compact reports/plots and evaluation replays from the SAC, twoMPC, all-path and optionalcounterfactualruns, plus policies/train_empty and policies/train_mixed (selectedsac_best.zip,pipeline.json,imagined_training.json). SourceactorhashesarecheckedagainstthecompletedSACcampaign. D/Q/R/O/PCAremainatthealreadytrackedmodels/v3cpath. inventory.jsonlistscopiedfilehashes,sourcepaths,completionswhereavailableandepisodecounts;partialrunsarelabelledbyrecordedstatus,notcalledcomplete.
+
+Onlyevaluationtrajectoryqpos,p,cube/held/actionsarecopied;cachedzisdroppedandoriginalarraysremainunchanged. Allrecordedplansareincludedforoverlayregeneration. NoPNGframes,rawcameraimages,GIFs/MP4s,downloadZIPs,trainingdatasets/replaybuffers/latentcacheorvirtualenvsareadded. ExistingtrainingdatainGit/historyisnotdeleted. TheexporterconfiguresGitLFSfortherelease'smodelZIPs/replayNPZsandstagesonlyenumeratedfiles,thenstageschangesinsourcefolders. Notebooksarestagedwithoutputsclearedwhilelocaloutputsremainuntouched. Pre-existingstagedfilesstoptheoperationtoavoidmixingunrevieweddata. Itdoesnotcommit/push.
+
+Use Gitfetch/rebase--autostashthencommit/pushontheexistingcodex/calle-sac-obstaclesbranch. --autostashpreserveslocaltrackedmodelsymlinks/notebookoutputs;onlyselectedstagedfilesentertherelease. Nomodelretraining/newrolloutisinvokedbythisexporter. ItrequiresNumPyfromtheexistingprojectvirtualenv.
