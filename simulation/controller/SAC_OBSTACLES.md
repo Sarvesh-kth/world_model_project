@@ -44,7 +44,7 @@ set -e
 old_repo="$HOME/Robots&EmbodiedAI/project/world_model_project"
 experiment_repo="$HOME/Robots&EmbodiedAI/project/world_model_sac_obstacles"
 if [ ! -d "$experiment_repo/.git" ]; then
-  GIT_LFS_SKIP_SMUDGE=1 git clone --single-branch --branch codex/calle-sac-obstacles \
+  GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none --single-branch --branch codex/calle-sac-obstacles \
     https://github.com/Sarvesh-kth/world_model_project.git "$experiment_repo"
 fi
 cd "$experiment_repo"

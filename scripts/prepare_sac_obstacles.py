@@ -95,6 +95,19 @@ def main():
     baseline = args.source_imagined or old / "simulation/data/sac_imagined_v1"
     baseline = baseline.resolve()
     files = ("models/sac_best.zip", "pipeline.json", "imagined_training.json")
+    if args.source_imagined is None and not all((baseline / name).is_file() for name in files):
+        candidates = []
+        for record in (old / "simulation/data").glob("*/imagined_training.json"):
+            folder = record.parent
+            if all((folder / name).is_file() for name in files):
+                settings = json.loads(record.read_text()).get("settings", {})
+                if not settings.get("obstacles") and json.loads((folder / "pipeline.json").read_text()).get("kind") == "imagined_sac":
+                    candidates.append(folder)
+        if len(candidates) == 1:
+            baseline = candidates[0].resolve()
+        elif candidates:
+            print("Several imagined-SAC runs exist; choose Calle's exact original using --source-imagined:")
+            print("\n".join(str(folder) for folder in candidates))
     destination = ROOT / "simulation/data/sac_imagined_v1"
     if all((baseline / name).is_file() for name in files):
         if json.loads((baseline / "pipeline.json").read_text()).get("kind") != "imagined_sac":
