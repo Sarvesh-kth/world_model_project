@@ -1,7 +1,8 @@
 # Fresh SAC inspection and presentation figures
 
-Start with **[CONTROL_RESULTS.md](../CONTROL_RESULTS.md)** for the current results,
-selected weights, complete GIF catalogue, shared plots and replay commands.
+Start with **[results/README.md](../results/README.md)** for the current results and
+**[results/control_release_v1/README.md](../results/control_release_v1/README.md)** for the
+selected weights, the shared plots and the replay commands.
 For slide choices and the rank-5/25/64 interventions, read the latest section of
 **[MPC_PRESENTATION.md](mpc/MPC_PRESENTATION.md)**.
 
@@ -112,7 +113,7 @@ Download on KTH after rendering: https://gpu1.eecs.kth.se/user/kuba/files/Robots
 
 ### Replay framebuffer repair
 
-If512pxexportfailswith `Image height 512 > framebuffer height 480`, onlytheofflineexportfailed;thenewepisodesavedallpaths. Replay now enlarges model.vis.global_.offheight/offwidth before Renderer construction. Pull and rerun **only controller.replay**,usingthealreadyrecordedepisode. Withoutpulling, --size480alsofitsdefaultframebuffer. Open presentation/mpc_allpaths_seed20496039.gif aftersuccessfulrendering; episode/actual.gifalwaysshowstheplaincameraandhasnoimaginedoverlays. Successfulcaptureobservedfromuserlog: seed20496039placedat4.36cm,125steps,0contactsteps,231msdecision. Thisisaseparatevisualisationrun,notanew30-scenebenchmark.
+If a 512 px export fails with `Image height 512 > framebuffer height 480`, only the offline export failed; the new episode saved all paths. Replay now enlarges model.vis.global_.offheight/offwidth before the Renderer is constructed. Pull and rerun **only controller.replay** on the already recorded episode; without pulling, --size 480 also fits the default framebuffer. Open presentation/mpc_allpaths_seed20496039.gif after a successful rendering; the episode's actual.gif always shows the plain camera and has no imagined overlays. The capture itself worked: seed 20496039 placed at 4.36 cm, 125 steps, 0 contact steps, 231 ms per decision. This is a separate visualisation run, not a new 30-scene benchmark.
 
 ## Four rank-selection counterfactual GIFs
 
@@ -152,10 +153,8 @@ for name in ("rank_05", "rank_25", "rank_64", "best_60_then_64"):
 print((root / "summary.json").read_text())
 ```
 
-## Publish code, selected policies and replayable results (no new datasets/media)
+## The shared results
 
-From the repository root: `.venv/bin/python scripts/share_control_results.py --stage`. This prepares results/control_release_v1 with compact reports/plots and evaluation replays from the SAC, twoMPC, all-path and optionalcounterfactualruns, plus policies/train_empty and policies/train_mixed (selectedsac_best.zip,pipeline.json,imagined_training.json). SourceactorhashesarecheckedagainstthecompletedSACcampaign. D/Q/R/O/PCAremainatthealreadytrackedmodels/v3cpath. inventory.jsonlistscopiedfilehashes,sourcepaths,completionswhereavailableandepisodecounts;partialrunsarelabelledbyrecordedstatus,notcalledcomplete.
-
-Onlyevaluationtrajectoryqpos,p,cube/held/actionsarecopied;cachedzisdroppedandoriginalarraysremainunchanged. Allrecordedplansareincludedforoverlayregeneration. NoPNGframes,rawcameraimages,GIFs/MP4s,downloadZIPs,trainingdatasets/replaybuffers/latentcacheorvirtualenvsareadded. ExistingtrainingdatainGit/historyisnotdeleted. TheexporterconfiguresGitLFSfortherelease'smodelZIPs/replayNPZsandstagesonlyenumeratedfiles,thenstageschangesinsourcefolders. Notebooksarestagedwithoutputsclearedwhilelocaloutputsremainuntouched. Pre-existingstagedfilesstoptheoperationtoavoidmixingunrevieweddata. Itdoesnotcommit/push.
-
-Use Gitfetch/rebase--autostashthencommit/pushontheexistingcodex/calle-sac-obstaclesbranch. --autostashpreserveslocaltrackedmodelsymlinks/notebookoutputs;onlyselectedstagedfilesentertherelease. Nomodelretraining/newrolloutisinvokedbythisexporter. ItrequiresNumPyfromtheexistingprojectvirtualenv.
+The compact export of these runs (reports, plots, replay arrays, the two selected policies) is in
+`results/control_release_v1`; its README has the replay commands. Frames, gifs, zips and training data were
+not uploaded.

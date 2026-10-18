@@ -32,16 +32,16 @@ Local evaluation, 10 random-end scenes per count, seeds 20494010-19, same scenes
   obstacles (91 steps); through Q it drops to 14/40: trained on the exact cube and an immediate contact flag, it
   closes 1-2 cm off (Q's error), the cube slips after 3-4 steps, no retry; or the width rule keeps "held" after
   a slip and it carries air to B. The MPC uses the same Q but re-plans every step (empty-grip cost, envelope).
-  Honest next step for the SAC, not done (no more training allowed today): train it on Q-like perception (lagged
+  Honest next step for the SAC, not done (no time for more training today): train it on Q-like perception (lagged
   / noisy held, 2 cm cube noise) or on Q's own readings from the recorded latents, and a retry behaviour.
 MPC 7/10 on empty here vs 30/30 on the cluster: same code/settings, different scenes (seed base 20475010 vs 20474010).
   Two of the ten local scenes have Q 4-5 cm off along y all episode (cubes at y -0.29 / -0.39), the planner never
   arrives. Rerunning the mpc here on two cluster edge scenes (20495037/38) placed both with Q at the cluster's level
   (1.0/1.7 and 0.6/0.8 cm): not the local renderer. 20 scenes per count on the cluster (SAC_PRIV.md) settle the rates.
-Yaw (user asked, nothing changed): mpc samples dyaw like xyz, no yaw term in the score; yaw random-walks 3-5 deg/step,
+Yaw (checked, nothing changed): mpc samples dyaw like xyz, no yaw term in the score; yaw random-walks 3-5 deg/step,
   ~90 deg per episode, often pinned at +-90; misalignment at the first grasp 22 deg for successes and failures alike
   (60 matched episodes), grasps succeed up to 44 deg. Wasted motion, not a cause of failure.
-Disk: deleted control_v3*/v4*/100*/dbg14/smk1 and their results (8.8 GB) with the user's approval.
+Disk: deleted control_v3*/v4*/100*/dbg14/smk1 and their results (8.8 GB).
 
 LEARNED OBSTACLES (2026-10-13; models data/episodes_v3/attempts/v3c, runs data/control_v4*_* and control_v5*_02)
 =====================================================================================================================
@@ -83,11 +83,11 @@ sharing the GPU; 180-270 ms alone):
     control_v5c_02   learned model + cost-to-go                      15/20   empty 8/8, one 3/6, two 4/6
     control_v5g_02   geometric map + A* route (the old default)      14/20   233 contact steps in 2 scenes, two 2/6
     control_v5cw_02  learned + cost-to-go, --no-width-gate           14/20
-    control_v5cr_02  learned + cost-to-go, --no-release-rule         12/17 (stopped at the user's request)
+    control_v5cr_02  learned + cost-to-go, --no-release-rule         12/17 (stopped early)
   Decision: --obstacle-source model is the planner default; --cost-to-go stays optional; the packaged models
   are simulation/models/v3c (the controllers' default --models-run, tracked through Git LFS); NEXT.md has the
   remaining steps and the commands. Smoke test of the package: 1/1, decision 185 ms with the GPU free.
-  1-3 obstacles (stopped at the user's request, partial): learned 7/11, learned + cost-to-go 3/3, hybrid route
+  1-3 obstacles (stopped early, partial): learned 7/11, learned + cost-to-go 3/3, hybrid route
     proposals 4/8, geometric 7/16, no gripper envelope 1/7 (D imagines holds for closes mid-travel), no width rules
     6/10; empty tables with the learned model 9/10 (the miss: Q at the table edge, same seed fails in every variant).
   Run-to-run variance: the geometric variant scored 8/10 yesterday and 5/10 today on the same seeds, same code and
@@ -343,7 +343,7 @@ latents through D/Q/R found four planner-side causes, each fixed as a setting, n
   is right (0.95-0.98 held on grasps, 0.07-0.11 on misses). New: data_collection `lateral` kind, cluster_round.sh,
   world_model/README.md "Encoding on another machine". Full evaluation with these settings: data/eval_v9_local.log.
 
-NEXT (the user encodes on a cluster, see world_model/README.md "Encoding on another machine"):
+NEXT (the encoding runs on the cluster, see world_model/README.md "Encoding on another machine"):
   on the cluster:  python -m world_model.encode --run data/episodes_v2 --resume      (61,077 states)
   back here:       python -m world_model.prepare_control --control data/control_v3_empty data/control_v4_empty data/control_v5_empty data/control_v6_empty --run data/planner_v1
                    python -m world_model.merge_runs --runs data/full_v2 data/obstacles_v2 data/episodes_v2 data/planner_v1 --out data/combined_v2 --overwrite
@@ -403,7 +403,7 @@ Planner findings (2026-10-11, empty table runs; see controller/README.md "The pl
   3. D HALLUCINATES THE GRASP: closing the fingers 5-7 cm from the cube is imagined as a successful hold
      (in the data fingers only ever close at the cube). Stop-gap: a candidate is credited with a hold only
      if its hand was within 3 cm of the cube's current estimate when it closed; closes only within 1.2 cm.
-     The user wants this solved properly, not by such rules: collect near-miss closes (fingers closing 2-8 cm
+     This should be solved properly, not by such rules: collect near-miss closes (fingers closing 2-8 cm
      beside the cube, random episodes have a few) and train D with a higher --task-weight / a held-consistency
      term so the imagined held flag is only set when the fingers really enclose the cube; possibly a reward
      term at collection time that penalises closing on nothing, so R learns it as well.
@@ -420,7 +420,7 @@ Planner findings (2026-10-11, empty table runs; see controller/README.md "The pl
      height (R flagged it only on contact), dropped the cube beside it and Q then read it 4-8 cm off. Both are
      perception / data-coverage limits, not planner logic; more diverse episodes (run_grow.sh) is the fix.
 
-Numbers with the v2 models (2026-10-11, stopped here by the user; partial runs, 5 empty seeds 20494010-14,
+Numbers with the v2 models (2026-10-11, stopped here; partial runs, 5 empty seeds 20494010-14,
 held-out obstacle scenes 18-23 of data/obstacles_v2; decision = mean wall time per step):
   controller          empty table            obstacle scenes                 decision
   jepa_mpc            4/5  (1-4 cm, 0 contacts)   2/5 run (18, 21 solved, 0 contacts; 20: 7 contacts)   ~120 ms

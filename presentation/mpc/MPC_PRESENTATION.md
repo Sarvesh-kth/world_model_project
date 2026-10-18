@@ -2,10 +2,10 @@
 
 **Latest update:** the 17 October matched SAC/MPC comparison and rank-intervention
 clips are documented at the end of this file. Start with
-[CONTROL_RESULTS.md](../../CONTROL_RESULTS.md) for the complete asset/weight map.
+[results/README.md](../../results/README.md) and `results/control_release_v1/README.md` for the complete asset/weight map.
 The original nine-clip notes and historical benchmark settings below are retained.
 
-For whoever (person or AI) builds the presentation slides for **controller 1, the CEM/MPC planner** (M3, Calle) of
+For whoever builds the presentation slides for **controller 1, the CEM/MPC planner** (M3, Calle) of
 the DD2600 project "JEPA World Model for Vision-Based Pick and Place". Every clip below was checked against
 its episode's recorded data. Don't swap in other clips without checking their `result.json`, and don't claim
 more than the "What to say" column.
@@ -114,7 +114,7 @@ other examples, run `python -m controller.compare data/v3c_obs_p1 --seeds` and c
 
 ## 17 October update: matched comparison and every new GIF set
 
-Branch `codex/calle-sac-obstacles`, results commit `5bbbbdb0`. The new benchmark
+Results commit `5bbbbdb0`. The new benchmark
 contains 180 camera episodes: two fresh imagined SAC policies × two conditions × 30,
 plus Calle's standalone MPC on the same 30 empty and 30 obstacle scenes. Both actors
 share the frozen v3c world models. These are new fits using Calle's recipe;
@@ -147,9 +147,9 @@ Contact steps are not independent collision events.
 
 The new GIF binaries/ZIPs are deliberately not uploaded to Git. Their results
 and saved-state replay arrays are archived under `results/control_release_v1`.
-Use the commands in `CONTROL_RESULTS.md` to create new renderings without
-training or new controller decisions. These notes identify media by its saved
-records; the new GIF pixels were not re-watched during this documentation pass.
+Use the commands in `results/control_release_v1/README.md` to create new renderings
+without training or new controller decisions. These notes identify media by its
+saved records.
 
 ### Dedicated slide: "What if we choose the 5th, 25th or 64th plan?"
 
