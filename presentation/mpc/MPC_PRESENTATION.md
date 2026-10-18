@@ -196,3 +196,19 @@ purple imagined cube; blue actual hand history. Orange/red does not encode
 reward or risk. Historical clips above use orange for the chosen path.
 Playback is half speed (5 fps for the 10 Hz recording). Do not label plain
 `actual.gif` as an imagination overlay or a saved-state replay as a fresh test.
+
+## 18 October HTML deck: three development chapters
+
+The revised supplied HTML deck preserves the KTH style and existing final-system
+videos. Main story: pooled V1, Sarvesh spatial V2, then current Calle v3c MPC
+versus the two freshly fitted imagined SACs. A protocol-labelled results table
+follows all three. Historical Sarvesh V3 stays in backup; chapter numbers are
+not new run/version names. Earlier high-performing actors learned in the
+simulator and must not be described as the final imagined SACs.
+
+The HTML has named placeholders for V1/V2 success/failure clips and the four
+rank GIFs plus the full-proposal source overlay. V1 slots retain genuine supplied
+stills while GIFs are missing. Available MP4s remain embedded/packaged.
+[HTML_DECK_MEDIA.md](../HTML_DECK_MEDIA.md) gives exact cluster commands to
+collect/push only those selected GIFs through LFS and their provenance manifest.
+It never runs controllers or adds datasets/weights/raw frames/new MP4s.

@@ -5,6 +5,11 @@ selected weights, complete GIF catalogue, shared plots and replay commands.
 For slide choices and the rank-5/25/64 interventions, read the latest section of
 **[MPC_PRESENTATION.md](mpc/MPC_PRESENTATION.md)**.
 
+The 18 October HTML deck adds the three-stage development story and a final
+history table. [HTML_DECK_MEDIA.md](HTML_DECK_MEDIA.md) gives the selective
+cluster GIF collection/publishing command for its missing historical and
+rank-intervention clips. It does not start any evaluation or training.
+
 Open `SAC_MPC_Inspection.ipynb` in Jupyter on the cluster for the four SAC and two
 MPC galleries, figures and ZIP download. The original standalone
 `SAC_Inspection.ipynb` was removed in the results commit; the combined notebook
