@@ -1,0 +1,99 @@
+{
+  "purpose": "Presentation clips only; no new evaluation or training",
+  "clips": [
+    {
+      "id": "v1_success",
+      "description": "Pooled V1; JEPA perception + simulator-trained SAC; placed 3.10 cm from B",
+      "requested_run_path": "q_clutter_v1/control/scene_0019_empty_normal/mixed/episodes/rl_q/seed_20464024/actual.gif",
+      "status": "copied",
+      "source": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1/control/scene_0019_empty_normal/mixed/episodes/rl_q/seed_20464024/actual.gif",
+      "destination": "presentation/history_media/v1_success.gif",
+      "sha256": "8de81c4ea388a5355c1ea487238729abea74b5d27d63ac410e423af4f62a944c",
+      "bytes": 1830348
+    },
+    {
+      "id": "v1_failure",
+      "description": "Pooled V1; forced late drop; failed placement, 7.84 cm",
+      "requested_run_path": "q_clutter_v1/control/scene_0016_clutter_drop_late/mixed/episodes/rl_q/seed_20464021/actual.gif",
+      "status": "copied",
+      "source": "/home/jovyan/Robots&EmbodiedAI/project/world_model_project/simulation/data/q_clutter_v1/control/scene_0016_clutter_drop_late/mixed/episodes/rl_q/seed_20464021/actual.gif",
+      "destination": "presentation/history_media/v1_failure.gif",
+      "sha256": "c1106abb9da6406fb662600412e3f54f4353c6fc2665419e584507fea04b94d8",
+      "bytes": 3014621
+    },
+    {
+      "id": "v2_success",
+      "description": "Spatial Sarvesh V2; SAC-guided MPC; placed 0.45 cm",
+      "requested_run_path": "control_final_full20/episodes/jepa_mpc/seed_20494012/actual.gif",
+      "status": "missing"
+    },
+    {
+      "id": "v2_failure",
+      "description": "Spatial Sarvesh V2; SAC-guided MPC; failed placement, 7.49 cm",
+      "requested_run_path": "control_final_full20/episodes/jepa_mpc/seed_20494022/actual.gif",
+      "status": "missing"
+    },
+    {
+      "id": "v3_success",
+      "description": "Historical Sarvesh V3 combined-data bundle; placed 0.70 cm",
+      "requested_run_path": "control_final_20/episodes/jepa_mpc/seed_20494022/actual.gif",
+      "status": "missing"
+    },
+    {
+      "id": "v3_failure",
+      "description": "Historical Sarvesh V3 combined-data bundle; failed placement, 53.34 cm",
+      "requested_run_path": "control_final_20/episodes/jepa_mpc/seed_20494011/actual.gif",
+      "status": "missing"
+    },
+    {
+      "id": "rank_05",
+      "description": "Calle MPC rank-5 intervention; placed 2.39 cm in 93 steps",
+      "requested_run_path": "mpc_counterfactual_seed20496039/gifs/rank_05.gif",
+      "status": "copied",
+      "source": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/mpc_counterfactual_seed20496039/gifs/rank_05.gif",
+      "destination": "presentation/history_media/rank_05.gif",
+      "sha256": "bbcc4a424892b483109b9f35af504618fbbf6288cc958585a6e2c53a7ce27283",
+      "bytes": 8721456
+    },
+    {
+      "id": "rank_25",
+      "description": "Calle MPC rank-25 intervention; placed 1.36 cm in 153 steps",
+      "requested_run_path": "mpc_counterfactual_seed20496039/gifs/rank_25.gif",
+      "status": "copied",
+      "source": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/mpc_counterfactual_seed20496039/gifs/rank_25.gif",
+      "destination": "presentation/history_media/rank_25.gif",
+      "sha256": "f206c0182d65eb84ca5e825671160d2cad1e12967d2ed77fb93a225b62ae1a3d",
+      "bytes": 15134607
+    },
+    {
+      "id": "rank_64",
+      "description": "Calle MPC rank-64 intervention; placed 6.38 cm in 171 steps, one fallback",
+      "requested_run_path": "mpc_counterfactual_seed20496039/gifs/rank_64.gif",
+      "status": "copied",
+      "source": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/mpc_counterfactual_seed20496039/gifs/rank_64.gif",
+      "destination": "presentation/history_media/rank_64.gif",
+      "sha256": "6aa39a04944c33fa0b554392145026bef3298c3434c03be3a73fbd942f675557",
+      "bytes": 17219713
+    },
+    {
+      "id": "best_60_then_64",
+      "description": "Calle MPC best first 60 actions then rank 64; failed, 13.18 cm at 300 steps",
+      "requested_run_path": "mpc_counterfactual_seed20496039/gifs/best_60_then_64.gif",
+      "status": "copied",
+      "source": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/simulation/data/mpc_counterfactual_seed20496039/gifs/best_60_then_64.gif",
+      "destination": "presentation/history_media/best_60_then_64.gif",
+      "sha256": "a117728311388b3d9bb6b29f196aa630e0b90f709d894fdbb14ab0b933e64271",
+      "bytes": 29110202
+    },
+    {
+      "id": "mpc_allpaths",
+      "description": "Full-proposal overlay of the normal best-plan source; placed 4.36 cm in 125 steps",
+      "requested_run_path": "mpc_allpaths_seed20496039/episodes/mpc/seed_20496039/replay.gif",
+      "status": "copied",
+      "source": "/home/jovyan/Robots&EmbodiedAI/project/world_model_sac_obstacles/presentation/mpc_allpaths_seed20496039.gif",
+      "destination": "presentation/history_media/mpc_allpaths.gif",
+      "sha256": "b56d2a73f8902ac91108f49a503f80b2152a13beb4f09d8e07afe6925879e4fd",
+      "bytes": 12132561
+    }
+  ]
+}
