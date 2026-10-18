@@ -4,8 +4,9 @@ __pycache__/
 .mujoco-osmesa/
 MUJOCO_LOG.TXT
 
-# runs (datasets, latents, models, controller episodes) and the summaries the controllers write stay local;
-# the only tracked data are the frozen SAC the rl_true / rl_q controllers load and the held-out obstacle layouts
+# everything the chain and the controllers write stays local (datasets, latents, frames, controller episodes).
+# Tracked through Git LFS: the packaged models the controllers run with (simulation/models), the frozen
+# exact-state SAC, the held-out obstacle layouts and the v3 training data, so a clone can run and retrain.
 simulation/data/*
 !simulation/data/README.md
 !simulation/data/rl_baseline_v1/
@@ -20,11 +21,9 @@ simulation/data/rl_baseline_v1/*
 simulation/data/obstacles_v2/*
 !simulation/data/obstacles_v2/collection.json
 !simulation/data/obstacles_v2/scene_settings.json
-results/
-# the packaged models the controllers run with (Q, R, D, obstacle, cost-to-go, PCA bases, encoder settings): tracked, Git LFS
 !simulation/models/
-# the training data, through Git LFS too (about 3.3 GB; a clone gets pointer files until `git lfs pull`):
-# the v3 run folder (manifest, latents split in 1.5 GB parts, bases, maps) and the hack episodes as one tar
+# the training data: the v3 run folder (manifest, latents split in 1.5 GB parts, bases, maps) and the hack
+# episodes as one tar, about 3.3 GB; a clone gets pointer files until `git lfs pull`
 !simulation/data/episodes_v3/
 simulation/data/episodes_v3/*
 !simulation/data/episodes_v3/manifest.json
@@ -40,17 +39,13 @@ simulation/data/episodes_v3/features/*
 simulation/data/episodes_hack/*
 !simulation/data/episodes_hack/episodes_raw.tar
 
-# notes stay local; the READMEs and NEXT.md are the project docs (STATUS.txt is the log)
+# the summaries the controllers write stay local; the results README and the shared result folders are tracked
+results/*
+!results/README.md
+!results/control_release_v1/
+
+# personal notes stay local; the READMEs and NEXT.md are the project docs, STATUS.txt is the log
 *.md
 !README.md
 !**/README.md
 !NEXT.md
-!simulation/controller/SAC_OBSTACLES.md
-.agents/
-.codex/
-.claude/
-AGENTS.md
-CLAUDE.md
-# Shared experiment handoff requested for this branch.
-!/AGENTS.md
-!/CONTROL_RESULTS.md

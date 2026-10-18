@@ -546,8 +546,8 @@ def main():
   p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/v3c"),
                  help="a packaged model folder (models/, info.json, features/) or a run folder with attempts/<tag>/ (then give --tag)")
   p.add_argument("--tag", default="", help="attempts/<tag> inside a run folder; empty for a packaged model folder")
-  p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("data/rl_baseline_v1"),
-                 help="rl_baseline run with the frozen SAC in models/sac_best.zip, for rl_true / rl_q")
+  p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("models/sac_priv_v1"),
+                 help="rl_baseline run with the SAC in models/sac_best.zip, for rl_true / rl_q (data/rl_baseline_v1 is the old fixed-layout one)")
   p.add_argument("--imagined-run", type=pathlib.Path, default=pathlib.Path("data/sac_imagined_v1"),
                  help="imagined_sac run with models/sac_best.zip, for sac_imagined")
   p.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/grade_e_layout.json"))

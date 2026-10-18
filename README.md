@@ -1,44 +1,38 @@
 # JEPA world model for pick and place
 
-## Latest matched SAC/MPC results and presentation assets
-
-On branch `codex/calle-sac-obstacles`, start with **[CONTROL_RESULTS.md](CONTROL_RESULTS.md)**
-for the two fresh imagined SACs, the matched 180-episode comparison, selected
-weights, every GIF set and saved-state video regeneration. The
-[presentation notes](presentation/mpc/MPC_PRESENTATION.md) also cover the four
-rank-selection interventions (5th, 25th, 64th, and best until action 60 then 64th).
-Archived results/plots/replay data are in `results/control_release_v1`; original
-camera and overlay GIF files remain on the cluster. Earlier descriptions and
-benchmarks below are historical context for the base world-model project.
-
-## Base system
-
-A Franka Panda in MuJoCo picks a cube anywhere on a table, carries it past obstacles and places it on a
-marker, driven by a latent MPC on frozen V-JEPA 2 features: a readout `Q`, a reward model `R`, a dynamics
-model `D`, an obstacle model `O` on the depth image with the robot and the cube removed, and an optional
-learned cost-to-go `C`. No policy in the loop, no geometric avoidance rule, no route planner. A frozen SAC
-on the exact state is the actor-critic baseline.
+A Franka Panda in MuJoCo picks a cube from anywhere on a table, carries it past 0-3 obstacles and puts it
+down on a green marker. The controller is a model predictive controller (MPC) that plans in the latent space
+of a frozen V-JEPA 2 encoder: a readout `Q` says where the cube is and whether it is held, a dynamics model
+`D` imagines the latent after an action, a reward model `R` predicts the penalties, an obstacle model `O`
+reads an obstacle-only depth map, and an optional cost-to-go `C` knows the way around the obstacles. No
+policy is in the loop and no geometric avoidance rule. Two SAC policies are the comparison: one trained in
+the simulator on the exact state (run on the exact state as `rl_true`, or on the cameras through `Q` as
+`rl_q`) and one trained only in the world model's imagination (`sac_imagined`).
 
 ![architecture](diagrams/architecture.png)
 
 ![pipeline](diagrams/pipeline.png)
 
+## What is where
+
+Every folder has a README that says what it is for and how to run it.
+
 ```
-simulation/
-  environment/        the simulator: scene, obstacles, arm controller, rewards, cameras, obstacle map   -> environment/README.md
-  data_collection/    scripted and random policies, the collector, the episode format                   -> data_collection/README.md
-  world_model/        run folder, V-JEPA encoding, Q R D O C training, evaluation, the model package   -> world_model/README.md
-  rl/                 the exact-state SAC baseline                                                      -> rl/README.md
-  controller/         the four controllers and the latent MPC (planner.py)                             -> controller/README.md
-  configs/            default.yml (every knob), full_mix.yml / hack_mix.yml (collection mixes), grade_e.yml (the SAC's scene)
-  models/v3c/         the packaged models the controllers run with (Git LFS)
-  data/               datasets, latents, controller episodes (data/README.md; the training data is in Git LFS, the rest local)
-  cluster_round.sh    the whole chain in one command
-  play.py, plot_rewards.py, offscreen.py, window.py    viewer, reward plot, EGL / GLX setup helpers
-diagrams/             the two figures above and the script that draws them
-results/              summaries the controllers write (local)
-STATUS.txt            the day-by-day log of what was measured and why each change was made
-NEXT.md               what could be done next, with the commands
+simulation/                 the code; every command runs from here with the venv active   -> simulation/README.md
+  environment/              the MuJoCo simulator: scene, obstacles, arm control, rewards, cameras  -> environment/README.md
+  data_collection/          scripted and random policies that record episodes                   -> data_collection/README.md
+  world_model/              run folder, V-JEPA encoding, training and checks of Q R D O C          -> world_model/README.md
+  rl/                       the SAC policies and the simulator wrapper every controller runs in   -> rl/README.md
+  controller/               the controllers and the two latent planners, side by side              -> controller/README.md
+  configs/                  default.yml (every knob) and the override files                       -> configs/README.md
+  models/                   the packaged models the controllers load (Git LFS)                    -> models/README.md
+  data/                     run folders, controller episodes (local except the training data)     -> data/README.md
+results/                    the controllers' summaries, and the status of the comparison           -> results/README.md
+diagrams/                   the two figures above and the script that draws them
+presentation/               the slides' notes, the inspection notebook and the clip catalogue
+STATUS.txt                  the day-by-day log: what was measured and why each change was made
+NEXT.md                     what could be done next, with the commands
+setup_mujoco_headless.sh    OSMesa rendering for a machine without EGL (the course cluster's notebooks)
 ```
 
 ## Install
@@ -50,47 +44,69 @@ cd world_model_project
 python3 -m venv .venv && source .venv/bin/activate
 pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124   # Linux + NVIDIA GPU
 pip install -r requirements.txt
-git lfs pull --include="simulation/models/**,simulation/data/rl_baseline_v1/**" --exclude=""      # 50 MB: run the controllers
+git lfs pull --include="simulation/models/**,simulation/data/rl_baseline_v1/**" --exclude=""      # 55 MB: run the controllers
 git lfs pull --include="simulation/data/episodes_v3/**,simulation/data/episodes_hack/**" --exclude=""   # 3.3 GB: only to retrain
 cd simulation
 ```
 
-Every command below runs from `simulation/` with the venv active. The encoder and the camera controllers
-need Linux with an NVIDIA GPU (8 GB is enough); the V-JEPA weights (1.2 GB) download from Hugging Face on
-the first run. The LFS data comes as `latents.npy.part00/01` and `episodes_raw.tar`; `cluster_round.sh`
-assembles them, or by hand:
+The encoder and the camera controllers need Linux with an NVIDIA GPU (8 GB is enough); the V-JEPA weights
+(1.2 GB) download from Hugging Face on the first run. The training data comes as `latents.npy.part00/01`
+and `episodes_raw.tar`; `cluster_round.sh` assembles them, or by hand:
 
 ```bash
 cat data/episodes_v3/features/latents.npy.part* > data/episodes_v3/features/latents.npy
 tar xf data/episodes_hack/episodes_raw.tar -C data/episodes_hack
 ```
 
-Rendering: the collectors, the encoder and the controllers render offscreen through EGL (`offscreen.py`
-sets `MUJOCO_GL=egl` and drops a pinned EGL vendor from the shell; on a machine without EGL export
-`MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa`). The viewer (`play.py`, the controllers' live window) needs
-a display and GLX; `window.py` finds a vendor that works. Do not export `MUJOCO_GL=egl` in a shell you
-start the viewer from.
+Rendering: collectors, encoder and controllers render offscreen through EGL (`offscreen.py` sets it up). On
+a machine without EGL export `MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa`. The viewer (`play.py`, the
+controllers' live window) needs a display and GLX; do not export `MUJOCO_GL=egl` in a shell you start it from.
 
 ## Run
 
+One command runs any controller; `--methods` picks which, everything else is the same:
+
 ```bash
-python play.py success --seed 34                                                                     # watch the scripted policy
-python -m controller.control_pipeline --methods jepa_mpc --random-ends                               # the planner, 5 scenes, live window
-python -m controller.control_pipeline --methods jepa_mpc --random-ends --obstacles 0 2 --test-episodes 20 --headless   # the obstacle table
-python -m controller.control_pipeline --test-episodes 20 --random-ends --headless                    # all four controllers
+python play.py success --seed 34                                                    # watch the scripted policy in a window
+python -m controller.control_pipeline --methods mpc --random-ends --test-episodes 5 --headless --out data/try_mpc
+python -m controller.control_pipeline --methods rl_q --random-ends --obstacles 0 3 --test-episodes 5 --headless --out data/try_sac
+python -m controller.control_pipeline --methods scripted rl_true rl_q jepa_mpc mpc --random-ends --obstacles 0 2 --test-episodes 20 --headless --out data/compare
 ```
 
-Always `--random-ends` (cube and goal anywhere on the table). Summaries land in `results/<out>/summary.txt`,
-frames and per-step csv in `data/<out>/episodes/`. Current numbers (20 scenes, 0-2 obstacles): the learned
-obstacle model 16/20 with zero contacts, the old geometric map 14/20 with 233 contact steps; the full
-table is in `controller/README.md`, the history in `STATUS.txt`.
+| method | perception | action |
+|---|---|---|
+| `scripted` | exact state | the scripted policy, the simulator's upper bound |
+| `rl_true` | exact state | the simulator-trained SAC (`models/sac_priv_v1`) |
+| `rl_q` | cameras through `Q` | the same SAC on the estimate |
+| `mpc` | cameras through `Q`, `D`, `R`, `O` | CEM over raw action sequences imagined by `D` (`controller/mpc.py`) |
+| `jepa_mpc` | cameras through `Q`, `D`, `R`, `O` (and `C`) | CEM over waypoints, a go-to rule makes the actions (`controller/planner.py`) |
+| `sac_imagined` | cameras through `Q` | a SAC trained in imagination (`--imagined-run`) |
+
+Always `--random-ends` (cube and goal anywhere on the table, the distribution the models were trained on);
+`--obstacles LOW HIGH` draws that many obstacles per scene. Summaries land in `results/<out>/summary.txt`,
+frames, gifs and a per-step csv in `data/<out>/episodes/<method>/seed_*/`. The comparison of the three
+controllers on 0 / 1 / 2 / 3 obstacles is one script per controller, same seeds for all:
+
+```bash
+bash sac_priv_eval.sh mpc 10
+bash sac_priv_eval.sh rl_q 10
+bash sac_priv_eval.sh rl_true 10
+python sac_priv_table.py
+```
 
 ## Train
 
 ```bash
-bash cluster_round.sh v3 400          # collect 400 episodes -> run folder -> encode -> Q R D O C -> models/v3 -> checks -> 3 closed-loop runs
-python -m rl.rl_baseline --out data/rl_baseline_v1       # the SAC baseline, about 1 h
+bash cluster_round.sh v3 400                             # collect 400 episodes -> encode -> Q R D O C -> models/v3 -> checks -> closed-loop runs
+python -m rl.rl_baseline --out data/sac_priv_v2 --random-ends --obstacles 0 3 --obstacle-map both \
+  --recorded-run data/episodes_v3 --cube-noise 0.01 --net 256 256 --demos 500 --rl-steps 300000 \
+  --eval-every 20000 --validation-episodes 30 --validation-empty 10      # the simulator SAC, CPU, about 1.5 h
 ```
 
-Step by step, and how to add data to the existing run, in `world_model/README.md`; the next things to do in
-`NEXT.md`.
+Step by step in `world_model/README.md` and `rl/README.md`.
+
+## Results
+
+On the same fresh scenes with 0-3 obstacles the MPC places 26/40 with zero obstacle contacts; the SAC places
+27/40 on the exact state (91 contact steps) and 14/40 through the cameras. Why, and the earlier tables, in
+[results/README.md](results/README.md).

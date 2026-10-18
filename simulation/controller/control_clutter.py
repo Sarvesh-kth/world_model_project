@@ -26,7 +26,7 @@ def main():
   p = argparse.ArgumentParser()
   p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/v3c"))
   p.add_argument("--tag", default="", help="attempts/<tag> inside a run folder; empty for a packaged model folder")
-  p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("data/rl_baseline_v1"))
+  p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("models/sac_priv_v1"))
   p.add_argument("--scenes-run", type=pathlib.Path, default=pathlib.Path("data/obstacles_v2"),
                  help="run whose recorded test scene layouts are replayed")
   p.add_argument("--layout-suffix", default="_replay_obstacles", help="which rollout's layout to take per scene")
