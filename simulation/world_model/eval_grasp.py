@@ -1,5 +1,4 @@
 import argparse
-import json
 import pathlib
 
 import numpy as np
@@ -9,15 +8,10 @@ from .common import load_run, load_features, state_arrays, write_json
 from .train import load_model, readout, reward_terms, normalized
 from controller import planner
 
-# Does the world model know a grasp from a miss? From recorded states of a split where the open hand hovers
-# near the cube, D imagines the planner's go-to-and-close rule aimed at the cube and at points 2 / 4 / 6 cm
-# beside it and 3 / 5 cm above it over the planner's horizon; Q then reads held on the imagined end state,
-# D's finger width is checked and R gives its grasp term and empty-grasp probability. A model that has only
-# seen clean grasps calls every close a hold (held ~0.9 at every offset, width stuck at the cube's 4.5 cm).
-# The second part replays the RECORDED closes of the split through D (the window starts 3 steps before the
-# fingers close, the recorded actions follow) and compares Q's held on the imagined states with the recorded
-# label, separately for closes that held and closes that missed: hallucination on real action sequences.
-#   python -m world_model.eval_grasp --run data/combined_v2 --tag combined --split test
+# Does the world model know a grasp from a miss? From hover states near the cube, D imagines a close aimed
+# at the cube and at points beside and above it, and Q reads held on the result. Then the recorded closes of
+# the split are replayed through D and Q's held is compared with the truth.
+#   python -m world_model.eval_grasp --run data/episodes --tag current --split test
 
 OFFSETS = (("at the cube", 0, 0), ("2 cm beside", .02, 0), ("4 cm beside", .04, 0), ("6 cm beside", .06, 0),
            ("3 cm above", 0, .03), ("5 cm above", 0, .05))

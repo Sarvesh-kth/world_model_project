@@ -1,7 +1,6 @@
 # control_release_v1
 
-The export of the imagined-SAC experiment of 17 October 2026 (a cluster run), kept in Git so the table in
-`../README.md` can be checked without the cluster:
+The export of the imagined-SAC experiment, kept in Git so the results can be checked without rerunning it:
 
 ```
 policies/train_empty/, policies/train_mixed/   the two imagined SACs: models/sac_best.zip (LFS), pipeline.json, imagined_training.json
@@ -18,8 +17,8 @@ The gifs were not exported; a replay is rendered from the saved simulator states
 `simulation/` (first `git lfs pull --include="results/control_release_v1/**/*.npz" --exclude=""`):
 
 ```bash
-python -m controller.replay ../results/control_release_v1/runs/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496039 --video --models-run models/v3c --tag '' --speed 0.5
-python -m controller.replay ../results/control_release_v1/runs/mpc_allpaths_seed20496039/episodes/mpc/seed_20496039 --video --all-paths --models-run models/v3c --tag ''
+python -m controller.replay ../results/control_release_v1/runs/calle_mpc_matched_obstacles30/episodes/mpc/seed_20496039 --video --models-run models/world_model --tag '' --speed 0.5
+python -m controller.replay ../results/control_release_v1/runs/mpc_allpaths_seed20496039/episodes/mpc/seed_20496039 --video --all-paths --models-run models/world_model --tag ''
 ```
 
 To run one of the two policies again: `python -m controller.control_pipeline --methods sac_imagined

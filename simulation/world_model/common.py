@@ -65,7 +65,7 @@ def state_arrays(manifest):
   return p, xyz, held
 
 
-# Sanity checks on a manifest before encoding or training on it, returns a list of problems (empty = fine)
+# Checks on a manifest before encoding or training on it, returns a list of problems (empty = fine)
 def check_manifest(manifest):
   problems = []
   states, rollouts = manifest["states"], manifest["rollouts"]

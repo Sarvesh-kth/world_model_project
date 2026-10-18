@@ -14,13 +14,8 @@ CAMERAS = ("static", "wrist")
 POSE_AXES = ("x", "y", "z", "qw", "qx", "qy", "qz")
 
 
-# Buffers one episode and writes it out as one folder
-# episode_XXXXXX/
-#   data.csv     one row per recorded step, keyed by serial
-#   meta.json    layout (replayable), policy variant, seed, goal, config
-#   images/      static_<serial>.jpg, wrist_<serial>.jpg
-#   heightmaps.npy  (steps, cells, cells) table height map from the static depth image, one per row
-#   pcl/         static_<serial>.npy, wrist_<serial>.npy when point clouds are on
+# Buffers one episode and writes it out as one folder episode_XXXXXX/ with data.csv (one row per step),
+# meta.json (layout, kind, seed, config), images/<camera>_<serial>.jpg, heightmaps.npy and pcl/ when on
 class EpisodeWriter:
 
   def __init__(self, out_dir, cfg, write_index=True):
@@ -154,28 +149,3 @@ def next_episode_id(out_dir):
     return 0
   return max(int(p.name.split("_")[1]) for p in folders) + 1
 
-
-# Read one episode folder back, rows as dicts of floats, images and point clouds as sorted paths
-def read_episode(ep_dir):
-  ep_dir = pathlib.Path(ep_dir)
-  with open(ep_dir / "data.csv") as f:
-    rows = []
-    for raw in csv.DictReader(f):
-      rows.append({k: v if k == "stage" else float(v) for k, v in raw.items()})
-  with open(ep_dir / "meta.json") as f:
-    meta = json.load(f)
-  out = {"rows": rows, "meta": meta, "images": {}, "pointclouds": {}}
-  by_serial = lambda p: int(p.stem.split("_")[1])
-  for cam in CAMERAS:
-    out["images"][cam] = sorted((ep_dir / "images").glob(f"{cam}_*.jpg"), key=by_serial)
-    if (ep_dir / "pcl").exists():
-      out["pointclouds"][cam] = sorted((ep_dir / "pcl").glob(f"{cam}_*.npy"), key=by_serial)
-  return out
-
-
-def load_image(path):
-  return cv2.imread(str(path))[..., ::-1]
-
-
-def load_pointcloud(path):
-  return np.load(path).astype(np.float32)

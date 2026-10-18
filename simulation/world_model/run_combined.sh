@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Train Q, R, D, the obstacle model and the cost-to-go on an encoded run, then score R on imagined latents and
-# check that D / Q / R tell a grasp from a miss. Stages whose model exists are skipped unless the 4th argument is "retrain" (after more data).
-#   usage: bash world_model/run_combined.sh data/episodes_v3 v3 60 [retrain]
+# Train Q, R, D, the obstacle model and the cost-to-go on an encoded run, then run the two checks.
+# Stages whose model exists are skipped unless the 4th argument is "retrain".
+#   usage: bash world_model/run_combined.sh data/episodes world_model 60 [retrain]
 set -euo pipefail
 RUN=${1:-data/combined_v2}
 TAG=${2:-combined}

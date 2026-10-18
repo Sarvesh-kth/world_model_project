@@ -9,19 +9,11 @@ from .common import load_run, write_json
 from .train import fit, model_folder
 from .train_obstacle import obstacle_distance
 
-# The learned cost-to-go: C(obstacle map, target) -> a GRID x GRID field over the table of the path length
-# (metres) from every point to the target around the obstacles. The planner (--cost-to-go) uses it in place
-# of the straight-line distance in its reach and goal pulls, so a candidate that goes round an obstacle is
-# credited for the progress the 8-step horizon cannot see (without it the hand parked holding the cube next
-# to a cylinder for 260 steps: every detour tied with standing still). No route is planned at runtime: one
-# forward pass of a small convolution per target per decision, then a bilinear lookup for every imagined
-# hand position. It is trained on synthetic scenes drawn with the environment's own samplers (pick, place
-# and 0-3 corridor obstacles, as in the data), the map rasterised the way env.obstacle_map() bins the depth
-# image (16 x 16 cells, height per cell), the labels a value iteration on a 32 x 32 grid where every point
-# within RADIUS of a cell taller than BLOCKING_HEIGHT costs BLOCKED times more to cross (passable, so a hand that is already
-# next to a wall still gets a finite value and a way out).
-#   python -m world_model.train_cost_to_go --run data/episodes_v3 --tag v3c --scenes 20000
-# Writes attempts/<tag>/models/cost_to_go.pt and reports/cost_to_go_validation.json.
+# The learned cost-to-go C(obstacle map, target) -> a GRID x GRID field of path length around the obstacles,
+# used by the waypoint planner in place of the straight line (--cost-to-go) so a detour pays within the
+# horizon. Trained on synthetic scenes, the labels come from a value iteration where blocked points are
+# expensive but passable.
+#   python -m world_model.train_cost_to_go --run data/episodes --tag current --scenes 20000
 
 GRID = 32
 RADIUS = .07
@@ -63,9 +55,7 @@ def cost_fields(maps, targets, centre, half):
   n = len(maps)
   pts = grid_points(centre, half)
   step = 2 * np.asarray(half) / GRID
-  # blocked: within RADIUS of a cell taller than BLOCKING_HEIGHT (the hand can carry the cube over the rest at
-  # the top of its workspace, and the obstacle model prices the height; a 4 cm cylinder treated as a wall
-  # sealed the corridor beside a box and the hand parked in the basin)
+  # blocked: within RADIUS of a cell taller than BLOCKING_HEIGHT, the hand can carry the cube over the rest
   cells = maps.shape[1]
   mx = centre[0] - half[0] + (np.arange(cells) + .5) * 2 * half[0] / cells
   my = centre[1] - half[1] + (np.arange(cells) + .5) * 2 * half[1] / cells
@@ -116,8 +106,7 @@ class CostToGo(nn.Module):
     self.net = nn.Sequential(*net)
 
   # x = (map upsampled to the grid, straight distance, target blob); the net predicts the detour on top of
-  # the straight line (a plain ReLU net with a softplus output died at initialisation: constant loss from
-  # epoch 1, the straight line as its answer)
+  # the straight line
   def forward(self, x):
     return x[:, 1] + self.net(x)[:, 0].clamp(min=0)
 

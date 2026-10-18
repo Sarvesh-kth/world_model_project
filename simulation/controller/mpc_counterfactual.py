@@ -10,15 +10,10 @@ from world_model.common import SIMULATION, write_json
 from . import control_pipeline as cp
 from . import replay
 
-# What happens when the MPC executes a worse plan than its best. The scene of a recorded mpc episode
-# (layout, seed, settings, jitter) is run four more times: picking the 5th, the 25th and the 64th best
-# candidate of the winning CEM round at every step, and once the best for 60 steps and the 64th after that.
-# Every run is a real closed-loop episode with fresh camera images, not a replay; the search itself is not
-# changed, only which of its scored plans is executed (control_pipeline --mpc-rank). All candidates of every
-# round are recorded (--save-all-plans) so the replay can draw them, and a gif is rendered per variant.
+# What happens when the MPC executes a worse plan than its best: the scene of a recorded mpc episode is run
+# again executing the 5th, 25th and 64th best candidate at every step, and once the best for a while then the
+# 64th. Real closed-loop episodes, only the chosen rank changes. A gif per variant lands in data/<out>/gifs/.
 #   python -u -m controller.mpc_counterfactual --source-episode data/<run>/episodes/mpc/seed_<seed>
-# Output: data/<out>/<variant>/episodes/mpc/seed_<seed>/ (a normal episode folder), data/<out>/gifs/<variant>.gif
-# and data/<out>/summary.json.
 
 CASES = (("rank_05", 5, None, 5), ("rank_25", 25, None, 25), ("rank_64", 64, None, 64), ("best_60_then_64", 1, 60, 64))
 
@@ -37,8 +32,7 @@ def main():
   if result["method"] != "mpc":
     p.error("the source has to be an mpc episode")
 
-  # the flags the run was made with (data/<run>/settings.json) and the mpc knobs the episode saved, frozen
-  # into a config file of their own so a later edit of mpc_config.py cannot change these runs
+  # the flags and mpc knobs the episode saved, frozen into a config file of their own
   settings = json.loads((source.parents[2] / "settings.json").read_text())
   knobs = json.loads((source / "mpc_settings.json").read_text())
   args.out.mkdir(parents=True, exist_ok=True)

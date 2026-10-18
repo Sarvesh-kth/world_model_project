@@ -7,14 +7,13 @@ import json
 import pathlib
 import shutil
 
-import numpy as np
 
 from environment.config import Config
 from environment.rewards import fill_weights
 from world_model.common import SIMULATION, write_json
 from . import control_pipeline as cp
 
-# Run the controllers on the held-out obstacle scenes (data/obstacles_v2 layouts): the same episode() as
+# Run the controllers on the held-out obstacle scenes (data/clutter_scenes layouts): the same episode() as
 # control_pipeline, but the layout (with its obstacles) comes from the run's scene_settings instead of the
 # empty layout file. The planner sees obstacles through the latent (penalty head and height map); the SAC
 # only if it was trained with --obstacles (then it reads the height map too).
@@ -24,10 +23,10 @@ from . import control_pipeline as cp
 
 def main():
   p = argparse.ArgumentParser()
-  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/v3c"))
+  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/world_model"))
   p.add_argument("--tag", default="", help="attempts/<tag> inside a run folder; empty for a packaged model folder")
-  p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("models/sac_priv_v1"))
-  p.add_argument("--scenes-run", type=pathlib.Path, default=pathlib.Path("data/obstacles_v2"),
+  p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("models/sac"))
+  p.add_argument("--scenes-run", type=pathlib.Path, default=pathlib.Path("data/clutter_scenes"),
                  help="run whose recorded test scene layouts are replayed")
   p.add_argument("--layout-suffix", default="_replay_obstacles", help="which rollout's layout to take per scene")
   p.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/control_clutter"))

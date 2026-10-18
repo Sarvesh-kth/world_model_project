@@ -11,35 +11,21 @@ from environment.rewards import fill_weights
 from world_model.common import SIMULATION, write_json
 from .rl_control import train, validate
 
-# Train the exact-state SAC baseline and evaluate it on fresh seeds. Two ways to use it:
-#   one fixed layout (the old baseline): --layout, cube start jittered, optionally --obstacles low high
-#     fresh obstacles per episode with the 8x8 height map in the observation
-#   the world model's scene distribution (--random-ends): cube and goal anywhere on the reachable table,
-#     --obstacles low high obstacles in between, the config and resting height of the models' own run
-#     (--models-run), the 16x16 obstacle-only map in the observation (--obstacle-map), the recorded
-#     episodes in the replay buffer (--recorded-run). The policy is run on Q's cube estimate afterwards
-#     (controller rl_q), so --cube-noise jitters the cube it sees in training.
-# The run folder is what the controllers and the collectors load afterwards:
-#   models/sac_best.zip     the frozen policy
-#   models/bc_initial.zip   the behaviour cloned actor before RL, for comparison
-#   models/rl_training.json validation history and settings
-#   pipeline.json           config, layout and options the policy was trained with
-#   evaluations.json        bc_true and rl_true on --test-episodes fresh seeds
-#   summary.json            the headline numbers
-#   python -m rl.rl_baseline --out data/rl_baseline_v1
-#   python -m rl.rl_baseline --out data/sac_priv_v1 --random-ends --obstacles 0 3 --obstacle-map window --recorded-run data/episodes_v3
+# Train the SAC in the simulator and test it on fresh seeds. Without --random-ends one fixed layout, with it
+# the world model's scene distribution (cube and goal anywhere, --obstacles low high, the obstacle map in the
+# observation). The run folder holds models/sac_best.zip, pipeline.json, evaluations.json and summary.json.
 
 
 def main():
   p = argparse.ArgumentParser()
-  p.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/rl_baseline_v1"))
-  p.add_argument("--config", type=pathlib.Path, default=pathlib.Path("configs/grade_e.yml"))
-  p.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/grade_e_layout.json"))
-  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/v3c"),
+  p.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/sac_run"))
+  p.add_argument("--config", type=pathlib.Path, default=pathlib.Path("configs/fixed_scene.yml"))
+  p.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/fixed_scene_layout.json"))
+  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/world_model"),
                  help="with --random-ends: the packaged model folder whose info.json config the scenes are sampled with")
   p.add_argument("--random-ends", action="store_true", help="a whole new scene per episode from the environment's own sampler")
   p.add_argument("--obstacle-map", choices=("full", "window", "both"), default=None,
-                 help="the 16x16 obstacle-only depth map in the observation instead of the 8x8 height map: the whole map (256 numbers), the 9x9 window around the hand (83) or the window plus the map pooled to 8x8 (147)")
+                 help="the obstacle-only map in the observation instead of the height map: the whole map, the window around the hand, or both")
   p.add_argument("--recorded-run", type=pathlib.Path, default=None, help="a run folder (manifest.json) whose episodes fill the replay buffer")
   p.add_argument("--cube-noise", type=float, default=0.0, help="std of the noise on the cube position the policy sees in training, metres")
   p.add_argument("--pull", type=float, default=0.0, help="the planner's linear distance pull as a potential term of the training reward, per metre")
@@ -73,7 +59,7 @@ def main():
 
   # the session ends episodes itself, so the env must not stop early on its own success event
   if args.random_ends:
-    # the models' own config (full_mix: grey cube, random size and mass), the way the controller benchmark samples scenes
+    # the models' own config, the way the controller benchmark samples scenes
     info = json.loads((args.models_run / "info.json").read_text())
     base = Config.nested(info["config"])
     fill_weights(base.rewards.weights)

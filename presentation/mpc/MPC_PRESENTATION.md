@@ -2,7 +2,7 @@
 
 **Latest update:** the 17 October matched SAC/MPC comparison and rank-intervention
 clips are documented at the end of this file. Start with
-[results/README.md](../../results/README.md) and `results/control_release_v1/README.md` for the complete asset/weight map.
+[RESULTS.md](../../RESULTS.md) and `results/control_release_v1/README.md` for the complete asset/weight map.
 The original nine-clip notes and historical benchmark settings below are retained.
 
 For whoever builds the presentation slides for **controller 1, the CEM/MPC planner** (M3, Calle) of
@@ -24,7 +24,7 @@ and `mpc_config.py` (frozen at commit `39d7a77c`). Full findings: `simulation/co
 3. Each imagined plan is scored with the task reward on Q's readings, plus the learned penalty model R and the
    learned obstacle model O (collisions, table, empty grasps, obstacles). The first action of the best plan is
    executed, and the whole thing repeats (model predictive control).
-4. Honest caveat: the score also has hand-made parts (a pull toward the cube and then B, a glide slope and
+4. A caveat: the score also has hand-made parts (a pull toward the cube and then B, a glide slope and
    a carry height, a few checks on what counts as a grasp or a placement in imagination). There are no waypoints,
    no "go to" rule and no release rule; the planner decides when to close and open the gripper. The ablation
    `mpc_variants/plain_scoring.py` (only the learned reward and penalties) shows what the hand-made parts add.

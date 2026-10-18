@@ -9,25 +9,20 @@ from environment.rewards import Rewards
 from environment.scene import sample_layout
 
 # What the SAC policy sees and is rewarded with, and the simulator wrapper every controller runs in.
-# The observation is the same 41 numbers whether they come from the exact simulator state (rl_true) or
-# from the JEPA readout Q (rl_q), so one policy serves both; a policy trained with obstacles also gets a map
-# of the table: the 8x8 height map (64 more numbers, the old obstacle-aware SAC) or the 16x16 obstacle-only
-# depth map (256 more, what the MPC's obstacle model reads, controller --obstacle-source model). The reward
-# is a potential shaping of the environment's staged reward, with a one time bonus for a finished placement.
+# The observation is the same 41 numbers whether they come from the exact state (rl_true) or from the
+# readout Q (rl_q), so one policy serves both; a policy trained with obstacles also gets a map of the table.
+# The reward is a potential shaping of the environment's staged reward plus a bonus for a finished placement.
 
-# the obstacle map is refreshed every this many steps during training (the segmentation render costs 3 ms);
-# the controllers refresh it every step, the running maximum makes both the same map a few steps apart
+# the obstacle map is refreshed every this many steps during training, the segmentation render is not free
 MAP_EVERY = 5
-# cells of the obstacle map around the hand's cell the policy sees in "window" mode (the obstacle model's own
-# window, world_model/train_obstacle.py): a net over the whole map had to memorise scenes, the same window
-# seen from the hand wherever it is makes the geometry learnable
+# cells of the obstacle map around the hand's cell the policy sees in "window" mode, the same window the
+# obstacle model uses (a net over the whole map had to memorise scenes)
 WINDOW = 9
 
 
-# The WINDOW x WINDOW cell heights of the obstacle map around the hand's cell (0 outside the table) and the
-# hand's offset inside its cell (0-1 along x and y): 83 numbers, in metres like the map itself. With
-# coarse=True the whole map max-pooled to 8x8 follows (64 more), so the policy also sees the layout beyond
-# the window when choosing which way round to carry
+# The WINDOW x WINDOW cell heights of the obstacle map around the hand's cell and the hand's offset inside
+# its cell. With coarse=True the whole map max-pooled to 8x8 follows, so the policy also sees the layout
+# beyond the window
 def hand_window(obstacle_map, p, cfg, coarse=False):
   cells = obstacle_map.shape[0]
   centre, half = np.asarray(cfg.table.center), np.asarray(cfg.table.half_size)
@@ -43,14 +38,9 @@ def hand_window(obstacle_map, p, cfg, coarse=False):
   return np.concatenate(parts).astype(np.float32)
 
 
-# Reward for the A-to-B task, built on the environment's Rewards
-# progress = gamma * potential(next) - potential(now), so holding still earns nothing and the sum over an
-# episode telescopes to the potential gained. The 15 point goal bonus is paid once, when the cube has sat
-# on the target for settle_steps steps after being lifted and released.
-# pull adds the planner's linear distance pull to the potential (the way still to go: hand to cube and cube
-# to B before the grasp, cube to B while carried, in metres times pull): the shaped terms saturate beyond
-# ~25 cm, this keeps a gradient from anywhere. A potential term, so it changes nothing about what is
-# optimal; the controllers leave it 0.
+# The reward of the task, built on the environment's Rewards: progress = gamma * potential(next) - potential(now),
+# so standing still earns nothing, plus a bonus once the cube has settled on the target after a lift. pull adds
+# a linear distance term to the potential, the controllers leave it 0.
 class GoalReward(Rewards):
   gamma = .99
 
@@ -102,12 +92,9 @@ class GoalReward(Rewards):
     return sum(components.values()), components, self.task_succeeded
 
 
-# The 41 numbers the policy sees: scaled robot state (20), cube position relative to the table (3), cube
-# relative to the hand (3), goal relative to the table (3) and to the cube (3), held (1), the reward's
-# memory (6: was grasped, held last step, ever lifted, settle fraction, succeeded, potential), rest height
-# and the fraction of the episode left (2). Fixed scales turn centimetres into numbers near 1. With a
-# map (metres, cells x cells) its cells follow, scaled by 4 so a 19 cm wall reads 0.76: the 8x8 height map
-# (64 numbers), the 16x16 obstacle-only map (256) or the hand_window of it (83).
+# The 41 numbers the policy sees: scaled robot state, cube relative to the table and to the hand, goal
+# relative to the table and to the cube, held, the reward's memory, rest height and the fraction of the
+# episode left. With a map its cells follow: the height map, the obstacle-only map or the hand_window of it.
 def policy_observation(p, xyz, held, memory, goal, rest_z, remaining, heightmap=None, obstacle_map=None):
   p, xyz, goal = (np.asarray(x, np.float32) for x in (p, xyz, goal))
   history = [float(memory.was_grasped), float(memory.prev_grasped), float(memory.ever_lifted),
@@ -140,15 +127,9 @@ def predicted_reward(memory, p, xyz, held, action, goal, rest_z, failed=False):
   return float(total), components
 
 
-# One layout run many times, or with random_ends a whole new scene every episode from the environment's
-# own sampler (cube and goal anywhere on the reachable table, the obstacles in between: the distribution
-# the world model's data and the controller's --random-ends benchmark use). Wraps PickPlaceEnv, computes
-# the GoalReward and the policy observation from the exact state, and keeps the episode statistics.
-# obstacles=(low, high) draws that many fresh obstacles every episode; heightmap / obstacle_map ("full" or
-# "window") choose what map the observation carries. cube_noise (metres) jitters the cube position the policy is shown, so a
-# policy trained on the exact cube is not thrown by Q's centimetre of error at run time. The controllers
-# never read the exact state from here except through observation() (rl_true) and the evaluation labels
-# in step()'s info.
+# The simulator wrapper every controller runs in: one layout, or with random_ends a new scene per episode;
+# obstacles=(low, high) draws fresh obstacles, heightmap / obstacle_map choose the map in the observation,
+# cube_noise jitters the cube the policy is shown. Keeps the episode statistics for result().
 class TaskSession:
 
   def __init__(self, cfg, layout, jitter=0.0, obstacles=None, heightmap=False, obstacle_map=False,
@@ -188,8 +169,7 @@ class TaskSession:
     self.goal = np.array([*layout["place"], self.rest_z], np.float32)
     self.reward = GoalReward(self.cfg, self.pull)
     self.noise = np.random.default_rng(seed + 7)
-    # the obstacles as the depth camera sees them, a running maximum over the episode (they do not move,
-    # cells the arm hides later keep what was seen)
+    # the obstacles as the depth camera sees them, a running maximum over the episode since they do not move
     self.obstacle_map_now = self.sim.obstacle_map() if self.obstacle_map else None
 
     # episode statistics

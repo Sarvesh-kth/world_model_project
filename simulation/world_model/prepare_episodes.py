@@ -8,18 +8,13 @@ import numpy as np
 from environment.rewards import COMPONENTS
 from .common import P_COLUMNS, A_COLUMNS, new_manifest, write_json
 
-# Turn a data_collection.collect dataset (success / scripted / drop / collide / random episodes with their
-# reward components) into a run folder with a manifest, so encode / train can use the full data mix.
-# Every episode becomes one rollout, with both cameras and the height map. The split is by episode index
-# modulo 7 (5 -> val, 6 -> test, about 14 % each), so collecting more episodes into the same folder and
-# running this again keeps every earlier episode in its split and only appends states (encode --resume
-# then encodes just the new ones).
-#   python -m data_collection.collect --config configs/full_mix.yml --episodes 120 --out data/episodes_test1/episodes_raw
-#   python -m world_model.prepare_episodes --episodes data/episodes_test1/episodes_raw --run data/episodes_test1
+# Turn a collected dataset into a run folder with a manifest for encode / train. Every episode is one rollout
+# with both cameras and the height map. The split is by episode index modulo 7 (5 val, 6 test), so collecting
+# more into the same folder and running this again keeps the old splits and only appends (encode --resume).
+#   python -m world_model.prepare_episodes --episodes data/episodes/episodes_raw --run data/episodes
 
 
-# Episodes recorded before the empty_grasp penalty existed get it from the row: fingers commanded shut and
-# under 3 cm apart (the environment's definition); any other missing component is 0
+# Episodes recorded before the empty_grasp penalty existed get it from the row, any other missing component is 0
 def empty_grasp(row, k):
   if k != "empty_grasp":
     return 0.0

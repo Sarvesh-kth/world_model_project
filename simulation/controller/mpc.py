@@ -8,16 +8,11 @@ import numpy as np
 
 from rl.task_control import predicted_reward
 
-# The standalone MPC planner, method "mpc" of controller/control_pipeline.py: the proposal's CEM/MPC
-# controller, searching action sequences directly in the world model's imagination, no policy and no
-# hand-coded motion anywhere. Every candidate is a sequence of raw actions; D imagines it, Q reads every
-# imagined state, and it is scored with the team's task reward (GoalReward) on those readings plus R's
-# penalties and the obstacle model O's at the imagined hand (imagine()), plus the hand-made parts of the
-# config. jepa_mpc (planner.py) is the rule-based counterpart: it plans over waypoints that a go-to rule turns
-# into actions. All tuning knobs live in controller/mpc_config.py.
+# The latent MPC, method "mpc" of control_pipeline: CEM over raw action sequences, no policy and no hand-coded
+# motion. D imagines every candidate, Q reads every imagined state, the score is the task reward on those
+# readings plus R's and O's penalties and the pull. All knobs are in mpc_config.py.
 #   python -m controller.control_pipeline --methods mpc --random-ends --test-episodes 1 --headless --out data/mpc_smoke
-#   python -m controller.control_pipeline --methods mpc --mpc-config controller/my_copy.py
-#   python -m controller.mpc --self-check          (on CPU, no camera: checks the planner logic)
+#   python -m controller.mpc --self-check          (CPU, no camera: checks the planner logic)
 
 DEFAULT_CONFIG = pathlib.Path(__file__).with_name("mpc_config.py")
 REQUIRED = ("HORIZON", "POPULATION", "ELITES", "ITERATIONS", "NOISE_STD", "NOISE_MIN", "NOISE_SMOOTH", "GRIPPER",
@@ -63,20 +58,14 @@ def gripper_rule(xyz, held, p, goal, s):
   return -1.0 if np.linalg.norm(p[14:17] - xyz) < s["RULE_CLOSE_DISTANCE"] else 1.0
 
 
-# Whether a lifted cube has just been let go at the target, from Q's reading and the reward memory: the
-# gripper is commanded open, the cube was held and lifted before, and Q puts it within the success radius of B
+# Whether a lifted cube has just been let go at the target, from Q's reading and the reward memory
 def released_at_target(memory, xyz, p, goal, radius):
   return bool(p[19] > 0 and memory.was_grasped and memory.ever_lifted and np.linalg.norm(xyz[:2] - goal[:2]) < radius)
 
 
-# Q's reading inside the imagination, with the physical checks of the config: the cube only counts as held
-# while the fingers are closed around something (HELD_NEEDS_CLOSED) and, unless it is really held now, only
-# after the imagined gripper has come within CONTACT_RADIUS of where Q sees it now with the fingers still open
-# (GRASP_NEEDS_CONTACT): a grasp needs open fingers arriving at the cube and closing there. D and Q never saw
-# failed grasps, so without this a plan that closes the fingers anywhere imagines a grasp. With
-# RELEASED_STAYS_PUT a cube let go in imagination stays (in x and y) where the fingers last held it, Q's held
-# reading, instead of where Q reads it on the imagined latent. One wrapper per imagine() call, which reads the
-# candidates in the same order at every step, so `touched` and `let_go` follow each candidate through its plan.
+# Q's reading inside the imagination with the config's checks: held needs closed fingers, a grasp needs open
+# fingers arriving at the cube first, a released cube stays where it was let go. One wrapper per imagine()
+# call, so touched and let_go follow each candidate through its plan.
 def imagined_read(read, s, xyz_now, really_held):
   touched = let_go = None
 
@@ -108,13 +97,8 @@ def gripper_from_switch(switch, command, horizon):
   return np.where(np.arange(horizon)[None] < np.asarray(switch)[:, None], command, -command).astype(np.float32)
 
 
-# Imagine candidate plans (n, horizon, 5) from the current (z, p) and score them with the task reward: D
-# imagines every step, `read` (Q with the config's checks) reads every imagined state, and each step pays the
-# team's GoalReward on those readings plus R's penalties and, given the obstacle-only map, the obstacle model
-# O's at the imagined hand. The score is the discounted sum, with no terminal value. The potentials (for the
-# "progress" score) are the reward's own, except that after an imagined placement they stay at placed_potential
-# (the reward sets them to 0 once the episode is over). (On world_model_testing this was
-# control_pipeline.forecasts, shared with jepa_mpc; the v3c jepa_mpc scores waypoints its own way.)
+# Imagine candidate plans (n, horizon, 5) from the current (z, p) and score them: D imagines every step, read
+# reads it, each step pays the GoalReward on the reading plus R's and O's penalties, discounted.
 def imagine(models, read, z, p, actions, memory, goal, rest_z, step, cfg, discount, obstacle_map=None, placed_potential=0.0):
   n, horizon, _ = actions.shape
   weights = cfg.rewards.weights
@@ -134,8 +118,7 @@ def imagine(models, read, z, p, actions, memory, goal, rest_z, step, cfg, discou
     finite = np.isfinite(z_next).all(1) & np.isfinite(p_next).all(1)
     z_next[~finite], p_next[~finite] = zz[~finite], pp[~finite]
     xyz, held = read(z_next, p_next)
-    # the bounds of the v3c planner: the open gripper measures up to .083 and the v3 D overshoots it by up to a
-    # centimetre, so only clearly impossible widths are rejected
+    # D overshoots the finger width a little, so only clearly impossible states are rejected
     valid &= (finite & np.isfinite(xyz).all(1) & np.isfinite(held) & (p_next[:, 18] >= -.02) & (p_next[:, 18] <= .12)
               & (np.abs(p_next[:, 14:17]) < 5).all(1) & (np.abs(xyz) < 5).all(1) & (np.abs(p_next) < 100).all(1)
               & (np.abs(z_next) < 1e4).all(1))
@@ -164,9 +147,8 @@ def imagine(models, read, z, p, actions, memory, goal, rest_z, step, cfg, discou
           "discounted_reward": discounted}
 
 
-# Score candidate plans (n, horizon, 5) as the planner does: imagine() with Q's reading under the physical
-# checks, plus the hand-made parts of the config. Returns imagine()'s pool with the final "scores" and their
-# "parts" (task reward incl. R's and O's penalties, progress, pull, empty grip, steadiness).
+# Score candidate plans (n, horizon, 5) as the planner does: imagine() under the physical checks, plus the
+# hand-made parts of the config. Returns the pool with the final "scores" and their "parts".
 def score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s, obstacle_map=None):
   xyz, held = models.read(z[None], p[None])
   xyz, held = xyz[0], float(held[0])
@@ -174,16 +156,14 @@ def score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s, obsta
   really_held = bool(held > .5 and p[19] <= 0 and .02 < p[18] < .06)
   placed = released_at_target(memory, xyz, p, goal, cfg.episode.success_radius)
 
-  # in imagination the cube counts as placed after PLACED_AFTER settled steps instead of the task's 15, so
-  # letting go at B can pay off inside the horizon; the real success test is unchanged
+  # in imagination the cube counts as placed after PLACED_AFTER settled steps, so letting go can pay off
+  # inside the horizon; the real success test is unchanged
   imagined = copy.deepcopy(memory)
   imagined.settle_required = min(memory.settle_required, s["PLACED_AFTER"])
-  # and only within PLACED_RADIUS of B instead of the task's 7 cm, a margin for Q's few cm of error (letting go
-  # beyond twice the radius then also counts as a drop in the task reward)
+  # and only within PLACED_RADIUS of the goal, a margin for Q's error
   imagined.success_radius = min(memory.success_radius, s["PLACED_RADIUS"])
 
-  # R's and O's penalties are scaled by models.penalty_scale (shared with jepa_mpc's --penalty-scale): set to
-  # the config's for the call and restored after
+  # the penalty scale is shared with jepa_mpc's flag, set to the config's for this call and restored after
   saved_scale, models.penalty_scale = models.penalty_scale, s["PENALTY_SCALE"]
   # a placed cube keeps the full potential (every shaped term fulfilled) with PLACED_KEEPS_POTENTIAL
   full = sum(cfg.rewards.weights[k] for k in ("reach", "grasp", "lift", "transport")) if s["PLACED_KEEPS_POTENTIAL"] else 0.0
@@ -200,46 +180,44 @@ def score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s, obsta
   if s["REACH_PULL"]:
     gripper, cube, carried = pool["p"][:, 1:, 14:17], pool["xyz"][:, 1:], pool["held"][:, 1:] > .5
     across = np.linalg.norm(cube[..., :2] - goal[:2], axis=-1)
-    # Q reads a carried cube HELD_Z_OFFSET too high (measured: about 3 cm), the heights below correct for it
+    # Q reads a carried cube HELD_Z_OFFSET too high, the heights below correct for it
     height = cube[..., 2] - s["HELD_Z_OFFSET"]
-    # a carried cube may be at most PLACE_SLOPE x its distance to B (+1 cm) above its resting height, so it
-    # comes down as it arrives instead of hovering over B; with a slope under 1 getting closer always pays
+    # a carried cube may be at most PLACE_SLOPE x its distance to the goal above its resting height, so it
+    # comes down as it arrives instead of hovering
     above = np.maximum(0, height - (goal[2] + .01 + s["PLACE_SLOPE"] * across))
-    # and while the glide slope allows it, at least CARRY_HEIGHT up: a placement only counts if the cube was
-    # lifted 4 cm, and a strong pull alone drags it along low
+    # and while the slope allows it, at least CARRY_HEIGHT up, a strong pull alone drags the cube along low
     lifted_zone = across > (s["CARRY_HEIGHT"] - .01) / s["PLACE_SLOPE"]
     below = np.where(lifted_zone, np.maximum(0, goal[2] + s["CARRY_HEIGHT"] - height), 0)
-    # an unheld cube does not move: with CUBE_STAYS_PUT the reach part measures to Q's reading of the current
-    # frame instead of the imagined cube, which off the expert route drifts along with the arm
+    # an unheld cube does not move: with CUBE_STAYS_PUT the reach part measures to Q's current reading
+    # instead of the imagined cube, which drifts along with the arm
     target = np.broadcast_to(xyz, cube.shape) if s["CUBE_STAYS_PUT"] else cube
     reach = np.linalg.norm(gripper - target, axis=-1)
     if s["APPROACH_SLOPE"]:
-      # the hand comes down onto the cube from above: under a cone over the cube (APPROACH_SLOPE x the
-      # horizontal distance beyond 2 cm) every centimetre costs CARRY_WEIGHT centimetres of distance
+      # the hand comes down onto the cube from above: below the cone over the cube every centimetre costs
+      # CARRY_WEIGHT centimetres of distance
       lateral = np.linalg.norm(gripper[..., :2] - target[..., :2], axis=-1)
       cone = target[..., 2] + s["APPROACH_SLOPE"] * np.maximum(0, lateral - .02)
       reach = reach + s["CARRY_WEIGHT"] * np.maximum(0, cone - gripper[..., 2])
     if s["PULL_WHOLE_WAY"] and not placed:
-      # the whole way still to go, so finishing a stage never costs: before the grasp also the cube's way from
-      # where it rests now to B and the lift it still needs (otherwise grasping made the pull jump from the cm
-      # to the cube to the half metre to B, and the planner never closed the fingers)
+      # the whole way still to go, so finishing a stage never costs: before the grasp also the cube's way to
+      # the goal and the lift it still needs
       rest_across = float(np.linalg.norm(xyz[:2] - goal[:2]))
       rest_below = (max(0.0, float(goal[2] + s["CARRY_HEIGHT"] - xyz[2]))
                     if rest_across > (s["CARRY_HEIGHT"] - .01) / s["PLACE_SLOPE"] else 0.0)
       reach = reach + rest_across + s["CARRY_WEIGHT"] * rest_below
     if placed and s["PLACED_CLEARANCE"]:
-      # the cube was let go at B: now the gripper should keep PLACED_CLEARANCE away from it, not reach for it
+      # the cube was let go at the goal: now the gripper should keep PLACED_CLEARANCE away from it
       reach = np.maximum(0, s["PLACED_CLEARANCE"] - np.linalg.norm(gripper - xyz, axis=-1))
     far = np.where(carried, across + above + s["CARRY_WEIGHT"] * below, reach)
     parts["pull"] = -s["REACH_PULL"] * far.mean(1)
   if s["EMPTY_GRIP_COST"]:
-    # fingers commanded closed while nothing is held cost a little: the hand stays open on the way to the
-    # cube, and after a missed grasp opening again pays, so the planner can retry on its own
+    # fingers commanded closed while nothing is held cost a little, so the hand stays open on the way in and
+    # opens again after a miss
     empty = (actions[:, :, -1] < 0) & (pool["held"][:, 1:] <= .5)
     parts["empty_grip"] = -s["EMPTY_GRIP_COST"] * empty.mean(1)
   if s["CARRY_STEADY"] and actions.shape[1] > 1:
-    # (Sarvesh's idea) a carried cube should not keep changing height: the change of the imagined gripper's
-    # vertical speed costs while carrying, so steady lifting and lowering are free but up-down wobble is not
+    # (Sarvesh's idea) a carried cube should not keep changing height: the change of the imagined vertical
+    # speed costs while carrying, steady lifting and lowering are free
     z = pool["p"][:, :, 16]
     wobble = np.abs(z[:, 2:] - 2 * z[:, 1:-1] + z[:, :-2]) * (pool["held"][:, 1:-1] > .5)
     parts["steady"] = -s["CARRY_STEADY"] * wobble.mean(1)
@@ -249,9 +227,8 @@ def score_plans(models, z, p, actions, memory, goal, rest_z, step, cfg, s, obsta
   return pool
 
 
-# One planning step. Returns the action, the whole chosen plan (the next step's warm start) and the
-# bookkeeping step_record() logs. obstacle_map = the obstacle-only depth map the controller keeps for O
-# (None: R's penalties only).
+# One planning step. Returns the action, the chosen plan (the next step's warm start) and the bookkeeping
+# step_record() logs. obstacle_map is the obstacle-only depth map for O, None means R's penalties only.
 def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng, previous=None, obstacle_map=None):
   s = settings
   horizon = min(s["HORIZON"], cfg.episode.max_steps - step)
@@ -267,8 +244,7 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
     return pool
 
   if s["RETREAT_AFTER_PLACE"] and released_at_target(memory, xyz, p, goal, cfg.episode.success_radius):
-    # the cube was let go at B: no search, the fingers stay open and the arm rises once they are clear of
-    # the cube, so nothing knocks it while it settles (scored as a one-candidate plan for the logs)
+    # the cube was let go at the goal: no search, the fingers stay open and the arm rises once clear of the cube
     retreat = np.array([0, 0, .5 if p[18] > .06 else 0, 0, 1], np.float32)
     best = {"pool": score(np.tile(retreat, (1, horizon, 1))), "selected": 0, "round": 0}
   else:
@@ -289,7 +265,7 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
       mean[:, -1], std[:, -1], floor[-1] = rule, 0, 0
 
     # the "switch" gripper: one switch time per plan, sampled and refitted like the motions; the warm start
-    # keeps the previous plan's switch (one step earlier now), the first plan does not switch
+    # keeps the previous plan's switch one step earlier
     if s["GRIPPER"] == "switch":
       flips = np.nonzero(mean[:, -1] != command)[0]
       switch_mean, switch_std = (float(flips[0]) if len(flips) else horizon + 2.0), horizon / 2
@@ -324,12 +300,12 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
     rank = s.get("RANK_AFTER", 1)
   if not 1 <= rank <= len(pool["scores"]):
     raise ValueError(f"requested rank {rank} exceeds this pool of {len(pool['scores'])} candidates")
-  # Preserve normal CEM fitting and the default winner; change only which scored plan is executed.
+  # keep the normal CEM fitting and winner, only change which scored plan gets executed
   if rank != 1:
     selected = int(np.argsort(-pool["scores"], kind="stable")[rank - 1])
   fallback = not bool(pool["valid"][selected])
   if fallback:
-    # An invalid requested rank retains the original hold-still guard (rank 1: every candidate is invalid).
+    # an invalid requested rank keeps the hold-still fallback
     action = np.array([0, 0, 0, 0, command], np.float32)
     sequence = np.tile(action, (horizon, 1))
   else:
@@ -338,7 +314,7 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
   overlay["fallback"] = fallback
   overlay["requested_rank"] = rank
   if recorded:
-    # Fixed shapes let save_plans stack all timesteps, including shorter end-of-episode horizons.
+    # fixed shapes so save_plans can stack every step, including the shorter horizons at the end of an episode
     count = s["POPULATION"] * s["ITERATIONS"]
     paths = np.full((count, s["HORIZON"] + 1, 3), np.nan, np.float32)
     valid, scores = np.zeros(count, bool), np.full(count, np.nan, np.float32)
@@ -360,8 +336,7 @@ def plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings, rng
           "action": action, "sequence": sequence, "overlay": overlay}
 
 
-# What episode() logs for one planning step, once the action has been executed: the steps.csv fields (the
-# chosen plan's score and its parts, and how far its first imagined step was from what happened) and one
+# What episode() logs for one planning step once the action has been executed: the steps.csv fields and one
 # candidates.csv row per candidate
 def step_record(decision, step, actual_xyz, actual_p):
   pool, selected = decision["pool"], decision["selected"]
@@ -380,7 +355,7 @@ def step_record(decision, step, actual_xyz, actual_p):
 
 
 # What the replay viewer draws for one step: the chosen plan's imagined gripper and cube paths and the
-# runner-ups' gripper paths, padded with NaN to a fixed horizon (the horizon shrinks at the end of an episode)
+# runner-ups' gripper paths, padded with NaN to a fixed horizon
 def overlay_record(pool, selected, runner_ups, horizon):
   def padded(path):
     out = np.full((horizon + 1, 3), np.nan, np.float32)
@@ -407,9 +382,8 @@ def save_settings(folder, settings):
   (pathlib.Path(folder) / "mpc_settings.json").write_text(json.dumps(settings, indent=2) + "\n")
 
 
-# The planner's world model on the CPU without the live encoder: D, Q, R and O, with WorldModels' defaults
-# (width gate, gripper envelope). For offline checks; the controllers use WorldModels with the encoder.
-def offline_models(models_run="models/v3c", tag="", penalty_scale=2.0):
+# The planner's world model on the CPU without the live encoder, for offline checks
+def offline_models(models_run="models/world_model", tag="", penalty_scale=2.0):
   import torch
   from world_model.train import load_model
   from world_model.train_obstacle import load_obstacle_model
@@ -426,14 +400,13 @@ def offline_models(models_run="models/v3c", tag="", penalty_scale=2.0):
   return models
 
 
-# Planner logic check on the CPU: real D / Q / R and a real robot state from the simulator, but a stand-in
-# latent (D's mean latent) because the live encoder needs CUDA. Checks shapes, the gripper modes, the warm
-# start, the scoring options, the fallback, that the penalty scale is restored, and the time per step.
+# Planner logic check on the CPU: real D / Q / R and a real robot state, but a stand-in latent because the
+# live encoder needs CUDA. Checks shapes, the gripper modes, the warm start, the scoring, the fallback.
 def self_check():
   from rl.task_control import GoalReward, TaskSession
   from .control_pipeline import run_settings
-  cfg, rest_z = run_settings("models/v3c", "")
-  layout = json.loads(pathlib.Path("configs/grade_e_layout.json").read_text())
+  cfg, rest_z = run_settings("models/world_model", "")
+  layout = json.loads(pathlib.Path("configs/fixed_scene_layout.json").read_text())
   session = TaskSession(cfg, layout, .01)
   session.reset(20494010)
   p = session.obs["proprio"].copy()
@@ -494,8 +467,7 @@ def self_check():
   assert f["fallback"] and np.array_equal(f["action"][:4], np.zeros(4)) and f["action"][4] == (1.0 if p[19] > 0 else -1.0)
   print("same seed same plan, short horizon at the episode end, fallback: ok")
 
-  # the log record, and O: the same plans scored on a table full of 15 cm obstacles cost more than on an
-  # empty one, and with no obstacle map O is not asked at all
+  # the log record, and O: the same plans cost more on a table full of obstacles than on an empty one
   row, rows = step_record(a, 0, np.zeros(3), p)
   assert len(rows) == base["POPULATION"] and sum(r["selected"] for r in rows) == 1 and "score_pull" in row
   actions = a["pool"]["actions"]
@@ -532,8 +504,7 @@ def self_check():
   assert np.allclose(xy[2], [.1, .2, .8]) and np.allclose(xy[3], [.1, .2, .8]), xy
   print("switch gripper, held needs contact and closed fingers, a released cube stays put: ok")
 
-  # after letting go at B: one candidate, fingers open, the arm rises only once the fingers are clear; the
-  # real reward memory is not changed by the shorter imagined settle count
+  # after letting go at the goal: one candidate, fingers open, the arm rises only once the fingers are clear
   released = GoalReward(cfg)
   released.was_grasped = released.ever_lifted = True
   open_p = p.copy()

@@ -1,7 +1,5 @@
-# Comparison row: the bare task reward (GoalReward on Q's readings plus R's and O's penalties), what the
-# standalone planner started from (on the old models it never touched the cube). The planner decides
-# everything; no pull, no checks on what may be imagined. Everything not set here comes from
-# controller/mpc_config.py.
+# Comparison row: the bare task reward on Q's readings plus R's and O's penalties, no pull and no checks on
+# what may be imagined. Everything not set here comes from controller/mpc_config.py.
 #   python -m controller.control_pipeline --methods mpc --mpc-config controller/mpc_variants/plain_scoring.py
 from controller.mpc_config import *  # noqa: F401,F403
 

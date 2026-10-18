@@ -1,4 +1,4 @@
-# Draws the two architecture figures of the README as PNGs: python make_diagrams.py (matplotlib only).
+# Draws the two figures of the README: python make_diagrams.py
 #   architecture.png   what runs at every control step: cameras -> latent and maps -> Q R D O C -> the planner -> the arm
 #   pipeline.png       how the models are made: collect -> run folder -> encode -> train -> package -> evaluate
 import matplotlib
@@ -57,19 +57,19 @@ def architecture():
 def pipeline():
   fig, ax = plt.subplots(figsize=(13, 3.2))
   ax.set_xlim(0, 13); ax.set_ylim(0, 3.2); ax.axis("off")
-  steps = [("collect\ndata_collection.collect\nfull_mix.yml, hack_mix.yml", SENSOR),
+  steps = [("collect\ndata_collection.collect\nfull_mix.yml, rules_mix.yml", SENSOR),
            ("run folder\nprepare_episodes\nmanifest, splits", FILL),
-           ("encode\nV-JEPA + PCA\n0.26 s / state", MODEL),
+           ("encode\nV-JEPA + PCA", MODEL),
            ("train\nQ, R, D on the latents\nO on the maps, C on\nsynthetic scenes", MODEL),
            ("package\nmodels/<tag>\n(Git LFS)", FILL),
-           ("evaluate\ncontrol_pipeline\n20 random scenes", PLAN)]
+           ("evaluate\nevaluate.sh\n10 scenes per obstacle count", PLAN)]
   w, gap = 1.85, 0.32
   for i, (text, fill) in enumerate(steps):
     x = 0.2 + i * (w + gap)
     box(ax, x, 1.1, w, 1.6, text, fill, 8)
     if i:
       arrow(ax, (x - gap, 1.9), (x, 1.9))
-  ax.text(6.5, 0.45, "bash cluster_round.sh <tag> 400 runs the whole row; every step restarts where it stopped", ha="center", fontsize=8, color=INK)
+  ax.text(6.5, 0.45, "bash train.sh runs the whole row; every step restarts where it stopped", ha="center", fontsize=8, color=INK)
   fig.savefig("pipeline.png", dpi=160, bbox_inches="tight"); plt.close(fig)
 
 

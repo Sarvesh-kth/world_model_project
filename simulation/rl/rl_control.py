@@ -1,5 +1,4 @@
 import copy
-import json
 import shutil
 import time
 
@@ -11,11 +10,9 @@ from environment.config import Config
 from world_model.common import load_run, write_json
 from .task_control import GoalReward, policy_observation, hand_window, session_for, make_rl_env
 
-# Training the exact-state SAC policy: scripted demonstrations -> behaviour cloning warm start ->
-# SAC with the demonstrations in the replay buffer and a BC term on the actor. Validation every
-# eval_every steps picks the checkpoint that is saved as sac_best.zip. With --recorded-run the recorded
-# episodes of the world model's data (the manifest with every state, action and reward term) go into the
-# replay buffer too, so the policy learns from the same episodes D, Q and R were trained on.
+# Training the exact-state SAC policy: scripted demonstrations -> behaviour cloning warm start -> SAC with
+# the demonstrations in the replay buffer and a BC term on the actor. Validation every eval_every steps picks
+# sac_best.zip. With --recorded-run the world model's recorded episodes go into the replay buffer too.
 
 
 # Run the policy on fresh seeds and count placements. With --validation-empty the first that many seeds
@@ -86,11 +83,9 @@ def demonstrations(path, cfg, layout, args):
   return data
 
 
-# The recorded episodes of a world-model run as transitions: the policy observation from the recorded
-# robot state, cube position and held flag, the GoalReward replayed over the episode from the recorded
-# contacts and proximity, the obstacle map rendered once per scene from its layout. "clean" marks the
-# noise-free scripted placements, the ones the actor is cloned from; everything else (misses, drops,
-# collisions, random motion) only fills the replay buffer. Saved to recorded.npz.
+# The recorded episodes of a world-model run as transitions, the GoalReward replayed over each episode and
+# the obstacle map rendered once per scene. "clean" marks the noise-free scripted placements the actor is
+# cloned from, everything else only fills the replay buffer. Saved to recorded.npz.
 def recorded_transitions(path, cfg, args):
   if path.exists():
     with np.load(path) as data:
@@ -236,8 +231,7 @@ def train(root, cfg, layout, args):
 
     model.actor.optimizer.register_step_pre_hook(demonstration_gradient)
 
-    # 4. fit the critic on the demonstrations first with the actor frozen, a random critic would pull
-    # the cloned actor apart in the first updates
+    # 4. fit the critic on the demonstrations first with the actor frozen, a random critic would pull the cloned actor apart
     if args.critic_warmup:
       for parameter in model.actor.parameters():
         parameter.requires_grad_(False)

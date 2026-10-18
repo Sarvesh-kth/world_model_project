@@ -13,30 +13,29 @@ train_obstacle.py     the obstacle model O on the obstacle-only depth map
 train_cost_to_go.py   the cost-to-go C on synthetic scenes
 eval_reward.py        R on real latents and on latents imagined by D over 1 / 4 / 8 steps
 eval_grasp.py         does the world model tell a grasp from a miss in imagination
-run_combined.sh       train everything on one run, then the two checks:  bash world_model/run_combined.sh data/episodes_v3 v3c 60 [retrain]
+run_combined.sh       train everything on one run, then the two checks:  bash world_model/run_combined.sh data/episodes world_model 60 [retrain]
 common.py             the run folder format, json / csv helpers, the metrics Q is judged by
 ```
 
 ## The chain
 
 ```bash
-python -m data_collection.collect --config configs/full_mix.yml --episodes 400 --out data/episodes_v3/episodes_raw --workers 4 --seed 1000
-python -m world_model.prepare_episodes --episodes data/episodes_v3/episodes_raw --run data/episodes_v3
-python -m world_model.encode --run data/episodes_v3                                            # the slow step; --resume to continue
-python -m world_model.train readout  --run data/episodes_v3 --tag v3c --epochs 60
-python -m world_model.train reward   --run data/episodes_v3 --tag v3c --epochs 60
-python -m world_model.train dynamics --run data/episodes_v3 --tag v3c --epochs 60 --rollout-steps 8 --task-weight 1.0 --robot-sees-q
-python -m world_model.train_obstacle   --run data/episodes_v3 --tag v3c --epochs 30            # 3 min, renders each scene's map once
-python -m world_model.train_cost_to_go --run data/episodes_v3 --tag v3c                        # 15 min, synthetic data cached
-python -m world_model.eval_reward --run data/episodes_v3 --tag v3c --split test
-python -m world_model.eval_grasp  --run data/episodes_v3 --tag v3c --split test
+python -m data_collection.collect --config configs/full_mix.yml --episodes 400 --out data/episodes/episodes_raw --workers 4 --seed 1000
+python -m world_model.prepare_episodes --episodes data/episodes/episodes_raw --run data/episodes
+python -m world_model.encode --run data/episodes                                            # the slow step; --resume to continue
+python -m world_model.train readout  --run data/episodes --tag world_model --epochs 60
+python -m world_model.train reward   --run data/episodes --tag world_model --epochs 60
+python -m world_model.train dynamics --run data/episodes --tag world_model --epochs 60 --rollout-steps 8 --task-weight 1.0 --robot-sees-q
+python -m world_model.train_obstacle   --run data/episodes --tag world_model --epochs 30            # renders each scene's map once
+python -m world_model.train_cost_to_go --run data/episodes --tag world_model                        # synthetic data, cached
+python -m world_model.eval_reward --run data/episodes --tag world_model --split test
+python -m world_model.eval_grasp  --run data/episodes --tag world_model --split test
 ```
 
-`readout` before `dynamics` (D needs Q). `bash cluster_round.sh <tag> 400` from `simulation/` runs the
-whole chain including the collection, the package and three closed-loop runs; every step restarts where it
-stopped. To add episodes: collect into another folder, `prepare_episodes`, `encode --pca
-data/episodes_v3/features/pca.npz`, `merge_runs --runs data/episodes_v3 data/<new> --out data/<merged>`,
-train with a new tag (`../../NEXT.md`, step 2).
+`readout` before `dynamics` (D needs Q). `bash train.sh` from the repository root runs the whole chain
+including the collection, the SAC, the checks and the package; every step restarts where it stopped. To add episodes: collect into another folder, `prepare_episodes`, `encode --pca
+data/episodes/features/pca.npz`, `merge_runs --runs data/episodes data/<new> --out data/<merged>`,
+train with a new tag.
 
 ## A run folder
 
@@ -58,8 +57,7 @@ Scenes are the unit of the split, so every state of an episode is in one split.
 averages the tokens over time, keeps the spatial grid (static 16x16 cells, wrist 8x8) and projects each cell
 with a PCA (32 / 16 numbers per cell, fitted label-free on 300 training clips and reused online by the
 controller). `z = [static 8192 | height map 64 | wrist 1024]`. The grid is what makes the cube readable: on
-a mean-pooled or 8x8 latent no readout placed the 15 px cube better than 3-4 cm. 0.26 s per state on an RTX
-4060, 0.09 s on the cluster, the same online.
+a mean-pooled or 8x8 latent no readout placed the 15 px cube better than 3-4 cm.
 
 ## The models
 
@@ -78,5 +76,5 @@ memorised the scenes by epoch 3).
 ## The package the controllers run with
 
 `models/<tag>/` = `attempts/<tag>/models/*.pt` + `info.json` (config, rest height) + `features/{pca.npz,
-meta.json}` (meta without its `keys` list), about 45 MB, tracked through Git LFS. `train.model_folder(root,
-tag)` resolves both forms: `--models-run models/v3c` (no tag) or `--models-run data/episodes_v3 --tag v3c`.
+meta.json}` (meta without its `keys` list), tracked through Git LFS. `train.model_folder(root,
+tag)` resolves both forms: `--models-run models/world_model` (no tag) or `--models-run data/episodes --tag world_model`.

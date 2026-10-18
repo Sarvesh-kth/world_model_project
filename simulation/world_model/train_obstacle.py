@@ -11,22 +11,11 @@ from torch import nn
 from .common import load_run, state_arrays, write_json
 from .train import fit, normalizer, mlp, model_folder
 
-# The all-model obstacle signal: O(window of the obstacle map around the hand, hand height, gripper, held) ->
-# proximity (the environment's own term, 0 at 6 cm from any arm link down to -1 at contact, here with the
-# carried cube counted as part of the arm) and P(contact). The map is env.obstacle_map(): the static depth
-# image binned over the table at 16 x 16 cells with every pixel of the robot and of the cube dropped through
-# the segmentation image, so nothing but the obstacles is in it. The first version of this model read the
-# 8 x 8 height map block of the latent, which holds the arm and the cube too: it predicted penalties from
-# them, the planner was pushed away from the cube and failed on empty tables (28/100, 32 % on empty tables).
-# The map is presented as a WINDOW x WINDOW window centred on the hand's cell (zero outside the table) with
-# the hand's height and its offset inside the cell: the same thing seen from the hand wherever it is, which
-# is what makes the geometry learnable from 400 episodes (a convolution over the whole map memorised
-# scenes). Contacts are 2 % of the states, so their loss is weighted. In the planner (--obstacle-source
-# model) it reads the live map and the IMAGINED hand, gripper and held reading that D and Q produce, so the
-# avoidance comes from a learned model: no clearance formula, no route planner.
-#   python -m world_model.train_obstacle --run data/episodes_v3 --tag v3c --epochs 30
-# Renders each scene's map once (features/obstacle_maps.npz, from the stored layouts) and writes
-# attempts/<tag>/models/obstacle.pt and reports/obstacle_validation.json.
+# The obstacle model O(window of the obstacle map around the hand, hand height, gripper, held) -> proximity
+# and P(contact). The map is env.obstacle_map(), the depth image with the robot and cube pixels dropped. A
+# window around the hand's cell is the same geometry wherever the hand is, which is what makes it learnable
+# from a few hundred episodes. The planners score the imagined hand with it.
+#   python -m world_model.train_obstacle --run data/episodes --tag current --epochs 30
 
 
 WINDOW = 9
@@ -64,10 +53,8 @@ def raw_inputs(hm, p, held, table, centre, half, cells):
   return cell_features(hm, p, held, table, centre, half, cells).reshape(len(hm), -1)
 
 
-# One small network scores every cell from its own features (shared weights), the nearest or tallest
-# obstacle dominates through a max over the cells: proximity = -max over cells, contact logit = max over
-# cells. The same function wherever the hand is and whatever the scene, which is what keeps it from
-# memorising scenes (an MLP over the whole window reached its best validation loss after one epoch)
+# One small network scores every cell from its own features (shared weights) and a max over the cells lets
+# the nearest or tallest obstacle dominate, which keeps it from memorising scenes
 class ObstacleModel(nn.Module):
 
   def __init__(self, inputs):

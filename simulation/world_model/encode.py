@@ -16,33 +16,19 @@ from transformers import AutoModel, AutoVideoProcessor
 
 from .common import load_run, check_manifest, write_json
 
-# Turn every recorded state into one latent vector z with the frozen V-JEPA 2 encoder (CUDA). z is the
-# concatenation of one block per camera plus the table height map:
-#   static     the last --clip-frames static frames up to the state's own frame, 16x16 patch grid averaged
-#              over time, kept at 16x16 cells (--static-pool 1), each cell reduced by PCA to --static-pca
-#              numbers -> 16 * 16 * 32 = 8192
-#   wrist      the same from the wrist camera (--wrist-clip-frames), 2x2 pooled to 8x8 cells (--wrist-pool 2),
-#              PCA to --wrist-pca numbers per cell -> 8 * 8 * 16 = 1024
-#   heightmap  the 8x8 table height map from the static depth image, scaled to [0, 1] -> 64 (--no-heightmap drops it)
-# The grid keeps WHERE things are, which the cube (about 15 px, one patch) needs: on the 8x8 / 16-per-cell grid
-# the cube could not be placed better than 3-4 cm when the hand was away from it (the moment the planner picks
-# its direction), on the full 16x16 grid with 32 per cell a spatial-softmax readout gets 0.7 cm from the same
-# frames (train.py GridReadout). mean_all (the original, the mean over all tokens) loses the position entirely.
-# One PCA basis per camera is fitted on --pca-clips training clips and saved to features/pca.npz; --pca reuses
-# another run's basis so runs can be merged (merge_runs.py). control_pipeline builds the same Encoder online
-# from features/meta.json. --recamera wrist redoes just that camera's block of a finished encoding (after a
-# change of its clip length), refitting its basis unless --pca gives one.
-#   python -m world_model.encode --run data/full_v2
-#   python -m world_model.encode --run data/obstacles_v2 --pca data/full_v2/features/pca.npz
-#   python -m world_model.encode --run data/full_v2 --recamera wrist
+# One latent z per recorded state from the frozen V-JEPA 2 encoder: the last frames of each camera, tokens
+# averaged over time, the patch grid kept and each cell reduced by a PCA, plus the height map. The grid is
+# what keeps the cube's position readable. One PCA basis per camera, fitted on training clips and saved to
+# features/pca.npz; --pca reuses another run's so runs can be merged.
+#   python -m world_model.encode --run data/episodes                 # --resume continues or extends
+#   python -m world_model.encode --run data/episodes_rules --pca data/episodes/features/pca.npz
 
 MODEL = "facebook/vjepa2-vitl-fpc64-256"
 # the weights revision the whole project was run with
 PINNED_REVISION = "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
 GRID = 16
 FRAME_KEYS = {"static": "frames", "wrist": "wrist_frames"}
-# cells averaged before the PCA, per camera: the static view keeps every patch, the wrist view (close-up,
-# the hand fills it) is pooled 2x2; and the PCA numbers kept per cell
+# cells averaged before the PCA per camera (the wrist view is pooled, the hand fills it), and the PCA numbers kept per cell
 SPATIAL_POOL = {"static": 1, "wrist": 2}
 PCA_DIMS = {"static": 32, "wrist": 16}
 
@@ -211,11 +197,9 @@ def fit_pca(encoder, root, manifest, clips, dims, seed, cameras=None):
   return out
 
 
-# Redo one camera's block of a finished encoding: the other blocks and the other camera's basis stay, so a
-# changed clip length costs one forward per state instead of two. Writes into a copy of latents.npy with
-# progress.json {"recamera": camera, "encoded": n}, so an interrupted pass continues with --resume. When
-# the manifest has grown since the encoding, only the encoded states are redone; the new ones are then
-# encoded in full by a later --resume, with the basis this pass leaves behind.
+# Redo one camera's block of a finished encoding, the other blocks and bases stay. Writes into a copy of
+# latents.npy with a progress.json, so an interrupted pass continues with --resume. States added to the
+# manifest since are left for a later --resume.
 def recamera(args, manifest, cells, max_height):
   out = args.run / "features"
   camera = args.recamera
@@ -372,8 +356,7 @@ def main():
         np.savez(basis, **fit_pca(encoder, args.run, manifest, args.pca_clips, dims, args.seed))
     encoder.set_pca(np.load(basis))
 
-  # one vector per state, written into a memmap so an interrupted run can continue; the bar shows the rate
-  # and the time left (about 0.27 s per state on an RTX 4060, 0.09 s on the cluster's GPU, GPU bound)
+  # one vector per state, written into a memmap so an interrupted run can continue
   start = time.monotonic()
   bar = tqdm(total=len(keys), initial=done, desc="encode", unit="state")
   for i, state in enumerate(manifest["states"], 1):

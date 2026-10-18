@@ -5,14 +5,9 @@ import pathlib
 
 import numpy as np
 
-# What happened in one recorded controller episode (any method), from the files the episode already wrote:
-# a short text diagnosis and one picture, diagnosis.png, with six camera frames and six plots. Needs no GPU,
-# no models and no rendering, so it takes a second.
+# What happened in one recorded episode (any method), from the files it wrote: a short text diagnosis and
+# diagnosis.png with six camera frames and six plots. No GPU, no models, a second.
 #   python -m controller.diagnose data/<run>/episodes/mpc/seed_20494010
-# To look at it in JupyterLab: double-click diagnosis.png (or actual.gif, the camera view) in the file
-# browser, or in a notebook cell (any kernel):
-#   from IPython.display import Image, display
-#   display(Image("data/<run>/episodes/mpc/seed_20494010/diagnosis.png"))
 
 
 def read_steps(path):

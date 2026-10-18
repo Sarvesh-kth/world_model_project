@@ -4,48 +4,22 @@ __pycache__/
 .mujoco-osmesa/
 MUJOCO_LOG.TXT
 
-# everything the chain and the controllers write stays local (datasets, latents, frames, controller episodes).
-# Tracked through Git LFS: the packaged models the controllers run with (simulation/models), the frozen
-# exact-state SAC, the held-out obstacle layouts and the v3 training data, so a clone can run and retrain.
+# everything the chain and the controllers write stays local (datasets, latents, frames, controller episodes);
+# tracked are the packaged models the controllers run with (simulation/models, Git LFS) and the held-out scenes
 simulation/data/*
 !simulation/data/README.md
-!simulation/data/rl_baseline_v1/
-simulation/data/rl_baseline_v1/*
-!simulation/data/rl_baseline_v1/models/
-!simulation/data/rl_baseline_v1/pipeline.json
-!simulation/data/rl_baseline_v1/demos.json
-!simulation/data/rl_baseline_v1/demos.npz
-!simulation/data/rl_baseline_v1/evaluations.json
-!simulation/data/rl_baseline_v1/summary.json
-!simulation/data/obstacles_v2/
-simulation/data/obstacles_v2/*
-!simulation/data/obstacles_v2/collection.json
-!simulation/data/obstacles_v2/scene_settings.json
+!simulation/data/clutter_scenes/
+simulation/data/clutter_scenes/*
+!simulation/data/clutter_scenes/collection.json
+!simulation/data/clutter_scenes/scene_settings.json
 !simulation/models/
-# the training data: the v3 run folder (manifest, latents split in 1.5 GB parts, bases, maps) and the hack
-# episodes as one tar, about 3.3 GB; a clone gets pointer files until `git lfs pull`
-!simulation/data/episodes_v3/
-simulation/data/episodes_v3/*
-!simulation/data/episodes_v3/manifest.json
-!simulation/data/episodes_v3/scene_settings.json
-!simulation/data/episodes_v3/features/
-simulation/data/episodes_v3/features/*
-!simulation/data/episodes_v3/features/latents.npy.part*
-!simulation/data/episodes_v3/features/pca.npz
-!simulation/data/episodes_v3/features/meta.json
-!simulation/data/episodes_v3/features/obstacle_maps.npz
-!simulation/data/episodes_v3/features/cost_to_go_20000_r7_h12.npz
-!simulation/data/episodes_hack/
-simulation/data/episodes_hack/*
-!simulation/data/episodes_hack/episodes_raw.tar
 
-# the summaries the controllers write stay local; the results README and the shared result folders are tracked
+# the summaries the controllers write stay local; the shared export of the imagined-SAC runs is tracked
 results/*
-!results/README.md
 !results/control_release_v1/
 
-# personal notes stay local; the READMEs and NEXT.md are the project docs, STATUS.txt is the log
+# personal notes stay local
 *.md
 !README.md
 !**/README.md
-!NEXT.md
+!RESULTS.md

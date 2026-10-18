@@ -3,13 +3,12 @@ import json
 import pathlib
 
 import numpy as np
-import torch
 
 from .common import load_run, load_features, state_arrays, write_json
 from .train import load_model, imagine, reward_terms
 
-# Can the reward model R see obstacles and the task? Scored on the held-out split twice: on the REAL latents,
-# and on latents IMAGINED by D over 1 / 4 / 8 steps from the recorded actions, which is what the planner sees.
+# Can the reward model R see obstacles and the task? Scored on the held-out split twice: on the real latents,
+# and on latents imagined by D over 1 / 4 / 8 steps from the recorded actions, which is what the planner sees.
 #   python -m world_model.eval_reward --run data/combined_v2 --tag combined --split test
 
 
@@ -46,8 +45,8 @@ def main():
   manifest = load_run(args.run)
   z, _ = load_features(args.run, manifest)
   robot, _, _ = state_arrays(manifest)
-  truth = np.asarray([[s["reward_components"].get(k, 0.0) for k in ("proximity", "collision", "table_hit", "reach", "grasp", "lift", "transport", "empty_grasp")]
-                      for s in manifest["states"]], np.float32)
+  names = ("proximity", "collision", "table_hit", "reach", "grasp", "lift", "transport", "empty_grasp")
+  truth = np.asarray([[s["reward_components"].get(k, 0.0) for k in names] for s in manifest["states"]], np.float32)
   # runs recorded before the empty_grasp penalty existed get it from p, as train.py does
   missing = np.asarray(["empty_grasp" not in s["reward_components"] for s in manifest["states"]])
   truth[missing, 7] = -((robot[missing, 19] < 0) & (robot[missing, 18] < .03)).astype(np.float32)

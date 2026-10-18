@@ -11,7 +11,7 @@ COLORS = {
   "reach": "#1f77b4", "grasp": "#2ca02c", "lift": "#17becf", "transport": "#9467bd",
   "place": "#e377c2", "success": "#bcbd22",
   "fail": "#d62728", "collision": "#ff7f0e", "proximity": "#ffbb78", "table_hit": "#8c564b",
-  "drop": "#7f7f7f", "action": "#c49c94",
+  "drop": "#7f7f7f", "empty_grasp": "#e7969c", "action": "#c49c94",
 }
 
 # Reward plots, three panels: reward per step with the running return, the bonus terms, the penalties

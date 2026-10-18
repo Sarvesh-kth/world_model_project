@@ -1,7 +1,7 @@
 import sys
 
 # offscreen rendering (EGL on Linux) only for --video; a window needs GLFW instead, so this is decided
-# before mujoco is imported. On the KTH notebook export MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa first.
+# before mujoco is imported. Without EGL export MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa first.
 if "--video" in sys.argv:
   import offscreen  # noqa: F401
 
@@ -17,17 +17,12 @@ import numpy as np
 from environment import EpisodeLayout, scene
 from environment.config import Config
 
-# Replay a recorded controller episode (any method) from its folder, with what the planner imagined drawn on
-# top for mpc episodes. Needs no GPU and no world model: it rebuilds the scene from the episode's layout and
-# sets the saved simulator state of every step (trajectory.npz "qpos", recorded since mpc was added).
-#   window, on a Mac:  ../.venv/bin/mjpython -m controller.replay data/<run>/episodes/mpc/seed_20494010
-#   window, on Linux:  python -m controller.replay data/<run>/episodes/mpc/seed_20494010
-#   video, anywhere:   python -m controller.replay data/<run>/episodes/mpc/seed_20494010 --video
-# Drawn: green thick = the chosen imagined gripper path, faint green = up to five runner-up plans,
-# orange/red = other paths farther from the chosen path when --all-paths is used,
-# purple = where the planner imagined the cube along its chosen plan, blue = where the
-# gripper actually went. The green disc on the table is the target B. Window keys: space pause / resume,
-# right / left one step (pauses), up / down twice / half the speed, R from the start.
+# Replay a recorded episode from its saved simulator states with the mpc's imagined plans drawn on top, no
+# GPU and no world model. Green = the chosen imagined hand path (faint for runner-ups), orange to red = the
+# other candidates with --all-paths, purple = the imagined cube, blue = the real hand trail.
+#   python -m controller.replay data/<run>/episodes/mpc/seed_20494010            # window (mjpython on a Mac)
+#   python -m controller.replay data/<run>/episodes/mpc/seed_20494010 --video    # gif + mp4
+# Window keys: space pause, left / right one step, up / down speed, R restart.
 
 CHOSEN = (0.05, 0.85, 0.15, 0.95)
 RUNNER_UP = (0.2, 0.85, 0.35, 0.25)
@@ -49,8 +44,8 @@ def load_episode(folder, models_run=None, tag=None):
   if settings.exists() and (models_run is None or tag is None):
     run = json.loads(settings.read_text())
     models_run, tag = models_run or run["models_run"], run["tag"] if tag is None else tag
-  # a packaged model folder (models/v3c, no tag) or a run folder with attempts/<tag>/
-  models_run, tag = pathlib.Path(models_run or "models/v3c"), tag or ""
+  # a packaged model folder (models/world_model, no tag) or a run folder with attempts/<tag>/
+  models_run, tag = pathlib.Path(models_run or "models/world_model"), tag or ""
   info = models_run / "attempts" / tag / "info.json" if tag else models_run / "info.json"
   cfg = Config.nested(json.loads(info.read_text())["config"])
   model = scene.build_scene(cfg, EpisodeLayout.from_dict(result["layout"]))
@@ -96,7 +91,7 @@ def draw(scn, ep, t):
     for path in paths:
       common = np.isfinite(path).all(1) & np.isfinite(chosen).all(1)
       distances.append(float(np.linalg.norm(path[common] - chosen[common], axis=1).mean()) if common.any() else 0.)
-    # Colour measures spatial deviation from the selected path, never reward or collision risk.
+    # colour is how far a path strays from the chosen one, nothing to do with reward
     maximum = max(max(distances), 1e-6)
     highlighted = set(plans["runner_indices"][t].tolist())
     if not fallback:
@@ -190,14 +185,14 @@ def window(ep, speed):
 
 def video(ep, size, out, camera, every, speed=1.0):
   from PIL import Image
-  # MuJoCo allocates its framebuffer when Renderer is constructed; the saved model may default to 480 px.
+  # the saved model may default to a small framebuffer
   ep["model"].vis.global_.offheight = max(ep["model"].vis.global_.offheight, size)
   ep["model"].vis.global_.offwidth = max(ep["model"].vis.global_.offwidth, size)
   data = mujoco.MjData(ep["model"])
   renderer = mujoco.Renderer(ep["model"], size, size, max_geom=30000)
   cam = overview_camera() if camera == "overview" else camera
   frames = []
-  # software rendering on the notebook (OSMesa) is slow, so only every few steps are drawn
+  # software rendering (OSMesa) is slow, so only every few steps are drawn
   steps = list(range(0, len(ep["qpos"]), every))
   if steps[-1] != len(ep["qpos"]) - 1:
     steps.append(len(ep["qpos"]) - 1)
@@ -218,7 +213,7 @@ def video(ep, size, out, camera, every, speed=1.0):
   renderer.close()
   out = pathlib.Path(out)
   out.parent.mkdir(parents=True, exist_ok=True)
-  # speed changes playback duration, not the recorded actions or planning rate.
+  # speed only changes the playback, not the recorded actions
   gif = [Image.fromarray(f) for f in frames]
   gif[0].save(out.with_suffix(".gif"), save_all=True, append_images=gif[1:], duration=max(10, round(100 * every / speed)), loop=0)
   writer = cv2.VideoWriter(str(out.with_suffix(".mp4")), cv2.VideoWriter_fourcc(*"mp4v"), 10 * speed / every, (size, size))

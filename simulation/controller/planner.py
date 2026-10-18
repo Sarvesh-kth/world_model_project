@@ -1,32 +1,18 @@
-import copy
-
 import numpy as np
 
 from data_collection.route import plan_route, segment_ok
 
-# The latent MPC, nothing here touches the simulator or a learned policy. Every control step it
-#   1. proposes candidates in Cartesian space: a waypoint for the grasp site, when the gripper command
-#      switches (at a step, or on arrival at the waypoint) and the command after the switch (open or closed);
-#      the actions along the horizon come from a go-to rule: travel at a safe height, descend only once
-#      aligned within 2 cm, rise first when holding something, full speed and slowing inside one step, yaw untouched
-#   2. imagines every candidate with D from the current (z, p), reading each imagined state with Q (cube
-#      position, held) and the reward model R (the shaped task terms reach / grasp / lift / transport,
-#      placed, and the proximity / collision / table-hit / empty-grasp penalties)
-#   3. scores them: the task potential at the end of the horizon (from R's terms, from Q's readings through
-#      the same formula, or both, --reward-source) plus the imagined penalties along the way, minus a small
-#      action cost, and runs CEM on the waypoints for a few iterations
-#   4. executes the first action of the best candidate and keeps it as the warm start for the next step
-# A fixed set of proposals (go to the cube, grasp, carry, lower, release, hold, the previous plan) is always
-# in the population; they are scored like every sampled candidate, nothing is executed unscored.
+# The waypoint planner, method "jepa_mpc". Each control step: propose candidates (a hand waypoint plus when
+# the gripper switches), turn them into actions with a go-to rule, imagine them with D, read them with Q and R,
+# score by the task potential at the end of the horizon plus the penalties on the way, refit with CEM a few
+# rounds and execute the first action of the best. Eight fixed proposals are always in the pool.
 
 PROPOSALS = ("hold", "previous", "to_cube", "grasp", "above_cube", "carry", "lower", "release")
 
 
-# What the planner remembers about the task between steps, from Q's readings only (never the true state):
-# whether the cube has been held and lifted, so "released at the goal" can be told from "never picked up".
-# With --cube-anchor it also keeps the last clear sighting of the cube and aims at that while the hand is
-# within 8 cm and nothing is held (a stop-gap from when Q drifted 1-3 cm under the hand; off by default,
-# the readout trained on hover data is meant to handle it).
+# What the planner remembers between steps, from Q's readings only (never the true state): whether the cube
+# has been held and lifted, so "released at the goal" can be told from "never picked up". With --cube-anchor
+# it also keeps the last clear sighting of the cube and aims at that while the hand is close (an old stop-gap).
 class TaskMemory:
   NEAR = .08
 
@@ -35,14 +21,13 @@ class TaskMemory:
     self.ever_lifted = False
     self.anchor = None
     self.use_anchor = use_anchor
-    # the ObstacleMap, set by the controller (None = no geometric check), and the route point being followed
-    # (kept until reached, so A* flipping between two ways round does not flip the hand with it)
+    # the ObstacleMap set by the controller (None = no geometric check), and the route point being followed,
+    # kept until reached so A* flipping between two ways round does not flip the hand with it
     self.obstacles = None
     self.route = {}
-    # the obstacle-only depth map (env.obstacle_map, robot and cube pixels dropped) kept as a running maximum
-    # over the episode by the controller, for the learned obstacle model (--obstacle-source model)
+    # the obstacle-only depth map kept as a running maximum by the controller, for the learned obstacle model
     self.obstacle_map = None
-    # the learned cost-to-go fields of the current decision (--cost-to-go), None without
+    # the cost-to-go fields of the current decision (--cost-to-go)
     self.fields = None
 
   def update(self, xyz, held, rest_z, hand=None):
@@ -61,22 +46,11 @@ class TaskMemory:
     return self.anchor
 
 
-# The obstacles as the depth camera measures them: the table height map (cells x cells, highest point per cell
-# above the table top), updated every step in the cells the hand and the cube are not in: the hand = a disc
-# of HAND_MASK around the grasp site while the hand is low (its body and the wrist camera mount reach 13 cm
-# from the site and 10-20 cm up), a small disc when it is high; the cube = within CUBE_RADIUS of Q's reading.
-# The rest of the arm is above every obstacle (the tallest is 19 cm) and is discarded by the CLIP rule: a
-# reading at or above CLIP is never an obstacle. Masking the whole arm segment instead hid the obstacles
-# under it for the whole episode. Obstacles do not move and the arm does, so a cell counts as an obstacle
-# only after STABLE consecutive readings that agree within 2 cm; masked cells keep their committed value.
-# The learned penalty model R stays
-# for what it predicts well (contacts, fingers closed
-# on nothing); this adds a geometric check that does not depend on D imagining the obstacle geometry 8 steps
-# ahead. A real robot with a depth camera does the same. clearance() gives, for a batch of imagined grasp-site
-# positions, how far the hand's lowest point (the fingertips, or the bottom of a carried cube: HANG below the
-# site) would sink below the top of any cell within HAND_RADIUS plus CLEARANCE_MARGIN.
+# The old geometric obstacle map (--obstacle-source map): the table height map, updated every step except
+# under the hand and the cube, a cell committed once STABLE readings agree. clearance() says how far the
+# hand's lowest point (HANG below the grasp site) would sink into any cell within HAND_RADIUS.
 class ObstacleMap:
-  # distances are from a point to the cell's rectangle, not to its centre (a cell is 8 x 11.5 cm)
+  # distances are from a point to the cell's rectangle, not to its centre
   HAND_RADIUS = .06
   HANG = .045
   CLEARANCE_MARGIN = .03
@@ -121,11 +95,9 @@ class ObstacleMap:
     self.heights[stable] = self.recent[:, stable].mean(0)
     self.occupied = np.flatnonzero(self.heights > .01)
 
-  # The next point of a route around the occupied cells from start to target (both xy), or the target itself
-  # when the straight line is clear: A* on the table (data_collection/route.py, the same planner the scripted
-  # policy uses on the true obstacles), each occupied cell a circle of ROUTE_RADIUS; the first route point
-  # more than 6 cm away is returned, so the MPC gets a travel proposal that leads around the obstacle while
-  # its 8-step horizon cannot see past it
+  # Next point of an A* route around the occupied cells (each a circle of ROUTE_RADIUS), or the target itself
+  # when the straight line is clear. Gives the planner a travel proposal that leads around an obstacle its
+  # short horizon cannot see past
   ROUTE_RADIUS = .12
 
   def route_point(self, start_xy, target_xy, cfg, memory=None, key=None):
@@ -142,10 +114,9 @@ class ObstacleMap:
     return np.clip(intrusion.max(1), 0, None).astype(np.float32)
 
 
-# The next point of an A* route from start to target (both xy) around the given obstacle centres (circles of
-# radius), or the target itself when the straight line is clear; the first route point more than 6 cm away.
-# A point already being followed (memory.route[key]) stays while it is more than 6 cm away, the straight line
-# to it is clear and the target has not moved much (the cube's reading jitters, the goal does not)
+# Next point of an A* route from start to target around the obstacle circles, or the target itself when the
+# straight line is clear. A point already being followed (memory.route[key]) is kept while it is still some
+# way off, the line to it is clear and the target has not moved much
 def route_point(centres, radius, start_xy, target_xy, cfg, memory=None, key=None):
   start_xy, target_xy = np.asarray(start_xy, np.float32), np.asarray(target_xy, np.float32)
   if not len(centres):
@@ -176,7 +147,6 @@ def occupied_centres(obstacle_map, cfg):
   return centre - half + (idx + .5) * 2 * half / cells
 
 
-
 # Stage potential of a batch of readings, monotone over the stages so the planner is never indifferent:
 #   reaching   0.5 * (1 - tanh(5 |hand - cube|))                           0 .. 0.5
 #   held       1 + 0.5 * lift/4cm + (1 - tanh(3 |cube - goal|))            1 .. 2.5
@@ -186,9 +156,8 @@ def potential(p, xyz, held, lifted, goal, rest_z, radius):
   lift = np.clip((xyz[:, 2] - rest_z) / .04, 0, 1)
   to_goal = np.linalg.norm(xyz[:, :2] - goal[:2], axis=1)
   carry = 1 + .5 * lift + (1 - np.tanh(3 * to_goal))
-  # imagined "placed" needs the cube well inside the success radius: Q reads a just-released cube under the
-  # hand 2-4 cm off (toward the hand) and D drifts, so at 0.6 of the radius releases 8-9 cm out still looked
-  # placed (three of the v3 failures ended 7.8-8.9 cm from the goal, radius 7)
+  # imagined "placed" needs the cube well inside the success radius, Q reads a just-released cube toward the
+  # hand and D drifts
   placed = lifted & (held < .5) & (to_goal < .4 * radius) & (np.abs(xyz[:, 2] - rest_z) < .02)
   return np.where(placed, 3.5, np.where(held >= .5, carry, reach)).astype(np.float32)
 
@@ -202,17 +171,9 @@ def learned_potential(terms):
   return ((1 - terms["placed"]) * phi + 3.5 * terms["placed"]).astype(np.float32)
 
 
-# The potential the planner scores with: Q's readings (default), R's terms, or the mean of both
-# (--reward-source). The task's reach and transport terms saturate beyond 30 cm, so a linear pull is added:
-# 0.1 over 60 cm toward the cube while it is not held, 0.8 over 80 cm toward the goal while it is. Without
-# it, 8 steps of carry 50 cm from the goal gain 0.05 of potential and the planner retreats from any imagined
-# penalty instead of going around; at 0.3 the gain of a carry (0.06 per 8 steps, 16 cm) barely cleared the
-# 0.05 commitment margin and one v3 episode held the cube at the pick spot for 260 steps (potential 1.62,
-# nothing beat "previous"). R's terms are off by default because its
-# "placed" flag fires on imagined states with the hand high and the gripper opening (the post-placement
-# retreat in the data), which pulled the planner toward the ceiling.
-# With --cost-to-go (fields = the learned cost-to-go fields for the cube and the goal, planner.plan computes
-# them once per decision) both pulls use the path length around the obstacles instead of the straight line.
+# The potential the planner scores with: from Q's readings (default), R's terms, or both (--reward-source),
+# plus a linear pull toward the cube and toward the goal while held, because the task terms saturate far
+# away. With --cost-to-go the pulls use the path length around the obstacles.
 def task_potential(models, terms, p, xyz, held, lifted, goal, rest_z, radius, fields=None):
   if fields is None:
     distance = np.linalg.norm(p[:, 14:17] - xyz, axis=1)
@@ -220,8 +181,7 @@ def task_potential(models, terms, p, xyz, held, lifted, goal, rest_z, radius, fi
     distance = np.hypot(models.cost_to_go.lookup(fields["cube"], p[:, 14:16]), p[:, 16] - xyz[:, 2])
   pull = .1 * (held < .5) * (1 - np.clip(distance, 0, .6) / .6)
   if models.no_goal:
-    # --no-goal: the task's stages come from R's terms read off the image (the place marker is in the frame);
-    # nothing here knows where the goal is, only the pull toward Q's cube (a model output) stays
+    # --no-goal: the stages come from R's terms off the image, nothing here knows where the goal is
     return learned_potential(terms) + pull
   from_q = potential(p, xyz, held, lifted, goal, rest_z, radius)
   if models.reward_source == "readout" or terms is None:
@@ -233,27 +193,21 @@ def task_potential(models, terms, p, xyz, held, lifted, goal, rest_z, radius, fi
   return phi + pull + .8 * (held >= .5) * (1 - np.clip(to_goal, 0, .8) / .8)
 
 
-# Aligned enough to start descending, and close enough to the waypoint to count as arrived and switch the
-# gripper. Measured on the planner's own closes: within 1.5 cm of the cube 92-100 % hold, 1.5-2.5 cm about
-# half, beyond that none; at 1.2 cm the imagined hand (Q 1 cm off, D drifting) often never "arrived" and
-# the grasp proposal never got its close
-# aligned within ARRIVE before the descent starts. 1.5 cm was tried against descents that land a finger on
-# the cube (the open fingers are 8 cm apart, the cube 4.5): the imagined hand then rarely "arrived", the planner
-# closed on sampled switch steps instead and missed more (2.6 closes per grasp vs 1.5), so 2 cm stays
+# aligned enough to start descending (ARRIVE), close enough to count as arrived and switch the gripper (CLOSE)
 ARRIVE = .02
 CLOSE = .02
-# the grasp site never goes below this height above the table top: lower and the fingertips press into the
-# table and cannot close (the planner's grasps 1.5 cm below the cube centre sat for 14 steps with the fingers
-# pinned open at 8.5 cm, until the hand drifted up). The scripted policy keeps the same floor.
+
+# the grasp site never goes below this height above the table top, lower and the fingertips press into the
+# table and cannot close (the scripted policy keeps the same floor)
 FLOOR = .022
-# A switch value of -1 means "switch on arrival"
+
+# a switch value of -1 means "switch on arrival"
 ON_ARRIVAL = -1
 
 
 # The actions of one imagined step for a batch of candidates: toward the waypoint, gripper per the switch.
-# Lateral travel happens at travel_z or higher and the hand descends only when aligned within ARRIVE, so a low
-# waypoint is approached from above and the hand never ploughs into the cube or the table; a hand that is
-# below the travel height rises before it moves sideways (lifting a held cube clear of the table first).
+# Lateral travel happens at travel_z or higher and the hand only descends once aligned, so a low waypoint is
+# approached from above and a held cube is lifted clear of the table before moving sideways.
 def goto_actions(waypoints, switch, grip_after, grip_now, ee, t, max_delta, travel_z):
   n = len(waypoints)
   lateral = np.linalg.norm(waypoints[:, :2] - ee[:, :2], axis=1)
@@ -268,7 +222,6 @@ def goto_actions(waypoints, switch, grip_after, grip_now, ee, t, max_delta, trav
   actions[low, :2] = 0
   arrived = (lateral <= CLOSE) & (np.abs(waypoints[:, 2] - ee[:, 2]) <= CLOSE)
   switched = np.where(switch == ON_ARRIVAL, arrived, t >= switch)
-  actions[:, 4] = np.where(switched, grip_after, grip_now)
   # the hand stands still while the fingers close on something (closing on the move slides the cube)
   actions[switched & (grip_after < 0) & (grip_now > 0)] = 0
   actions[:, 4] = np.where(switched, grip_after, grip_now)
@@ -282,10 +235,8 @@ def forecasts(models, z, p, waypoints, switch, grip_after, memory, goal, rest_z,
   zs, ps = np.repeat(z[None], n, 0), np.repeat(p[None], n, 0)
   grip_now = np.full(n, 1.0 if p[19] > 0 else -1.0, np.float32)
   lifted = np.full(n, memory.ever_lifted)
-  # the gripper envelope (on by default, --no-grasp-prior): credit a hold only if the hand was at the cube when
-  # the fingers closed. D learned the recorded closes (held 1.0 on grasps, 0.26 on near misses) but it still
-  # imagines a hold for a close made mid-travel far from the cube, a case the data does not contain, and such
-  # candidates outscored the real grasp (1.9 vs 0.5) so the hand hovered beside the cube for 300 steps
+  # the gripper envelope (--no-grasp-prior turns it off): credit a hold only if the hand was at the cube when
+  # the fingers closed, D still imagines a hold for a close made mid-travel
   xyz_now, held_read = models.read(z[None], p[None])
   xyz0 = memory.cube(xyz_now[0], float(held_read[0]), p[14:17])[None]
   grasp_ok = np.full(n, float(held_read[0]) >= .5)
@@ -312,31 +263,25 @@ def forecasts(models, z, p, waypoints, switch, grip_after, memory, goal, rest_z,
     xyz, held = models.read(zz, pp)
     if models.grasp_prior:
       held = held * grasp_ok
-    # the open gripper measures up to .083 and the closed one reads 0; D overshoots both (the v3 D by up to a
-    # centimetre on opening, which at a .09 bound made the release proposal invalid and the hand hover at the
-    # goal holding the cube), so only clearly impossible widths are rejected
+    # D overshoots the finger width a little on opening and closing, so only clearly impossible widths are rejected
     valid &= (finite & np.isfinite(xyz).all(1) & np.isfinite(held) & (pp[:, 18] >= -.02) & (pp[:, 18] <= .12)
               & (np.abs(pp[:, 14:17]) < 5).all(1) & (np.abs(xyz) < 5).all(1) & (np.abs(pp) < 100).all(1) & (np.abs(zz) < 1e4).all(1))
     lifted = lifted | ((held >= .5) & (xyz[:, 2] - rest_z >= .04))
     terms = models.reward(zz, pp)
     penalties[:, t] = models.penalty(terms, weights)
-    # the geometric check: an imagined hand sinking into a measured obstacle costs up to --clearance-weight
-    # per step (the full weight at 5 cm of intrusion)
+    # the geometric check: an imagined hand sinking into a measured obstacle costs up to --clearance-weight per step
     if args.obstacle_source == "map" and memory.obstacles is not None and args.clearance_weight > 0:
       clearance[:, t] = memory.obstacles.clearance(pp[:, 14:17])
       penalties[:, t] -= args.clearance_weight * np.clip(clearance[:, t] / .05, 0, 1)
     elif args.obstacle_source == "model" and memory.obstacle_map is not None:
-      # the all-model alternative: the obstacle model reads a window of the obstacle-only depth map around the
-      # IMAGINED hand, with the imagined gripper and held reading (world_model/train_obstacle.py); no
-      # clearance formula, no route
+      # the learned alternative: the obstacle model reads a window of the obstacle map around the imagined hand
       penalties[:, t] += models.obstacle_penalty(memory.obstacle_map, pp, held, weights)
     potentials[:, t] = task_potential(models, terms, pp, xyz, held, lifted, goal, rest_z, cfg.episode.success_radius, memory.fields)
     zs, ps = zz, pp
     xyz_path.append(xyz)
     held_path.append(held)
 
-  # terminal potential, the way there (lightly), the penalties (R's, including fingers imagined shut on
-  # nothing) and a little cost on moving
+  # terminal potential, the way there (lightly), the penalties and a little cost on moving
   scores = (potentials[:, -1] + .1 * potentials.mean(1) + penalties.sum(1)
             - args.action_cost * np.square(actions[:, :, :3]).sum((1, 2)))
   valid &= np.isfinite(scores)
@@ -346,8 +291,7 @@ def forecasts(models, z, p, waypoints, switch, grip_after, memory, goal, rest_z,
 
 
 # The fixed proposals for the current reading, each a (waypoint, switch step, gripper after the switch).
-# With an obstacle map, the travel proposals (to the cube while it is not held, the carry while it is) aim at
-# the next point of a route around the measured obstacles instead of straight at the target
+# With an obstacle map the travel proposals aim at the next point of a route around the obstacles
 def proposals(p, xyz, held, goal, rest_z, cfg, args, previous, memory=None):
   ee = p[14:17]
   grip = 1.0 if p[19] > 0 else -1.0
@@ -355,19 +299,23 @@ def proposals(p, xyz, held, goal, rest_z, cfg, args, previous, memory=None):
   floor_z = cfg.table.height + FLOOR
   grasp_point = np.array([xyz[0], xyz[1], max(xyz[2] - .015, floor_z)])
   carry_z = rest_z + args.carry_height
-  travel = lambda target, key: np.asarray(target[:2])
-  if memory is not None and args.obstacle_source == "map" and memory.obstacles is not None:
-    travel = lambda target, key: memory.obstacles.route_point(ee[:2], target, cfg, memory, key)
-  elif memory is not None and args.obstacle_source == "model" and args.route_proposals and memory.obstacle_map is not None:
-    # --route-proposals: the route only suggests where the travel proposals aim; the scoring stays with the
-    # learned obstacle model and R (an 8-step horizon cannot see that a detour pays off)
-    centres = occupied_centres(memory.obstacle_map, cfg)
-    travel = lambda target, key: route_point(centres, .10, ee[:2], target, cfg, memory, key)
+  # where a travel proposal aims: straight at the target, or the next point of a route around the obstacles
+  # (with --route-proposals the route only says where to aim, the scoring stays learned)
+  def travel(target, key):
+    if memory is None:
+      return np.asarray(target[:2])
+    if args.obstacle_source == "map" and memory.obstacles is not None:
+      return memory.obstacles.route_point(ee[:2], target, cfg, memory, key)
+    if args.obstacle_source == "model" and args.route_proposals and memory.obstacle_map is not None:
+      centres = occupied_centres(memory.obstacle_map, cfg)
+      return route_point(centres, .10, ee[:2], target, cfg, memory, key)
+    return np.asarray(target[:2])
+
   to_cube = travel(xyz[:2], "cube")
   via_cube = not np.allclose(to_cube, xyz[:2])
-  # --no-goal: the goal-based proposals become "lift and hold here" / "lower here" / "open here"; the search
-  # for the goal is left to the sampled waypoints and R's transport and placed terms
-  goal = np.array([ee[0], ee[1], rest_z], np.float32) if getattr(args, "no_goal", False) else goal
+  # --no-goal: the goal proposals become "lift and hold here" / "lower here" / "open here"
+  if args.no_goal:
+    goal = np.array([ee[0], ee[1], rest_z], np.float32)
   to_goal = travel(goal[:2], "goal")
   out = {"hold": (ee, horizon, grip),
          "previous": previous if previous is not None else (ee, horizon, grip),
@@ -393,9 +341,8 @@ def plan(models, z, p, xyz, held, memory, goal, rest_z, cfg, args, rng, previous
   fixed = proposals(p, xyz, held, goal, rest_z, cfg, args, previous, memory)
   k = len(fixed)
   mean = np.asarray(previous[0] if previous is not None else p[14:17], np.float32)
-  # the spread scales with how far the hand is from what it has to reach (the cube, or the goal once it is
-  # held): wide for the search, about a centimetre for the final approach, where 3 cm of scatter is the
-  # difference between a grasp and a miss
+  # the spread scales with how far the hand is from what it has to reach, wide for the search and tight for
+  # the final approach
   focus = (goal if not args.no_goal else p[14:17]) if held >= .5 else xyz
   reach = float(np.clip(.5 * np.linalg.norm(p[14:17] - focus), args.waypoint_std_min, 1))
   std = np.minimum(np.array([args.waypoint_std, args.waypoint_std, args.waypoint_std_z], np.float32), reach)
@@ -412,8 +359,8 @@ def plan(models, z, p, xyz, held, memory, goal, rest_z, cfg, args, rng, previous
     for i, (w, s, g) in enumerate(fixed):
       waypoints[i], switch[i], grip_after[i] = np.clip(w, low, high), s, g
     pool = forecasts(models, z, p, waypoints, switch, grip_after, memory, goal, rest_z, cfg, args)
-    # commitment: the previous plan (proposal 1) keeps being followed unless a candidate beats it by a
-    # margin, otherwise near ties between fresh samples make the hand flip direction every step
+    # the previous plan (proposal 1) keeps being followed unless a candidate beats it by a margin, otherwise
+    # near ties make the hand flip direction every step
     scores = pool["scores"].copy()
     if previous is not None and pool["valid"][1]:
       scores[np.arange(n) != 1] -= args.plan_margin
@@ -438,15 +385,10 @@ def plan(models, z, p, xyz, held, memory, goal, rest_z, cfg, args, rng, previous
   else:
     best["action"] = pool["actions"][i, 0].copy()
     s = int(best["switch"][i])
-    # a held cube is released only with the real hand within half the success radius of the goal: a plan whose
-    # switch step came up while the hand was still on its way opened 4-5 cm short of the goal (the imagined
-    # hand had "arrived"), and candidates 5 cm from the goal all score "placed" so the hand dithered there.
-    # Otherwise this step goes to the goal, low, fingers closed, and the plan becomes "open on arrival there".
-    # Only while Q reads the cube as held: fingers closed on nothing must open again to retry (one episode
-    # kept an empty gripper shut for 220 steps). The height is left to the planner (a cube dropped from the
-    # carry height lands fine; requiring it low made the hand hover at the goal while fresh candidates kept
-    # winning at carry height).
-    if not args.no_goal and not args.no_release_rule and held >= .5 and grip_now < 0 and best["action"][4] > 0 and np.linalg.norm(goal[:2] - p[14:16]) > .5 * cfg.episode.success_radius:
+    # the release rule: a held cube is let go only with the real hand well inside the success radius, otherwise
+    # this step goes to the goal closed and the plan becomes "open on arrival"
+    far_from_goal = np.linalg.norm(goal[:2] - p[14:16]) > .5 * cfg.episode.success_radius
+    if not args.no_goal and not args.no_release_rule and held >= .5 and grip_now < 0 and best["action"][4] > 0 and far_from_goal:
       waypoint = np.array([goal[0], goal[1], max(rest_z - .015, cfg.table.height + FLOOR)], np.float32)
       best["action"] = goto_actions(waypoint[None], np.array([ON_ARRIVAL]), np.array([1.0], np.float32), np.array([-1.0], np.float32),
                                     p[None, 14:17], 0, cfg.control.max_delta, rest_z + args.carry_height)[0]
@@ -460,33 +402,30 @@ def plan(models, z, p, xyz, held, memory, goal, rest_z, cfg, args, rng, previous
 
 # The planner flags, shared by control_pipeline and control_clutter
 def arguments(p):
-  p.add_argument("--horizon", type=int, default=8, help="steps D imagines ahead; D trains on 8-step windows and beyond them it imagined a carried cube slipping away")
-  p.add_argument("--population", type=int, default=64, help="candidates per CEM iteration, the first 8 are the fixed proposals")
+  p.add_argument("--horizon", type=int, default=8, help="steps D imagines ahead (it trains on 8-step windows)")
+  p.add_argument("--population", type=int, default=64, help="candidates per CEM round, the first 8 are the fixed proposals")
   p.add_argument("--elites", type=int, default=8)
   p.add_argument("--iterations", type=int, default=3)
   p.add_argument("--waypoint-std", type=float, default=.15, help="initial CEM spread of the waypoint in x and y, metres")
   p.add_argument("--waypoint-std-z", type=float, default=.06, help="initial CEM spread of the waypoint height, metres")
-  p.add_argument("--plan-margin", type=float, default=.05, help="a new candidate replaces the previous plan only if it scores this much higher (commitment, keeps the motion smooth)")
-  p.add_argument("--waypoint-std-min", type=float, default=.03, help="the spread shrinks with the distance to the cube (or the goal when holding it) down to this, metres (1 cm traps the hand at a wrong cube estimate while Q still produces those)")
+  p.add_argument("--plan-margin", type=float, default=.05, help="a new candidate replaces the previous plan only if it scores this much higher")
+  p.add_argument("--waypoint-std-min", type=float, default=.03, help="the spread shrinks with the distance to the target, down to this (metres)")
   p.add_argument("--carry-height", type=float, default=.08, help="carry proposal height above the cube's rest height")
-  p.add_argument("--action-cost", type=float, default=.0002, help="cost per unit squared action over the horizon (a full-speed horizon costs 0.005)")
-  p.add_argument("--penalty-scale", type=float, default=1.0, help="multiplier on R's imagined penalties (proximity, collision, table hit, empty grasp). 2 when R was the only obstacle signal; with the obstacle map's clearance check doing the geometry, R's proximity (0.32 off when it matters) at 2 pushed carries around for 200 steps near a single box")
-  p.add_argument("--no-goal", action="store_true",
-                 help="the goal position is NOT given to the planner: the task potential is R's terms read off the image (the green place marker is in the frame, --reward-source head is implied), the goal-based proposals, the goal pull and the release-at-the-goal rule are off")
+  p.add_argument("--action-cost", type=float, default=.0002, help="cost per unit squared action over the horizon")
+  p.add_argument("--penalty-scale", type=float, default=1.0, help="multiplier on R's and O's imagined penalties")
+  p.add_argument("--no-goal", action="store_true", help="hide the goal from the planner: the task comes from R's terms off the image (implies --reward-source head)")
   p.add_argument("--obstacle-source", choices=("map", "model", "none"), default="model",
-                 help="where the obstacle signal comes from: map = the depth height map accumulated over the episode (clearance penalty on the imagined hand + A* route proposals); model = the learned obstacle model (train_obstacle.py) on a window of the obstacle-only depth map (robot and cube pixels dropped) around the IMAGINED hand, no clearance formula and no route; none = R's penalties only")
-  p.add_argument("--cost-to-go", action="store_true",
-                 help="with --obstacle-source model: the learned cost-to-go of world_model/train_cost_to_go.py (a convolution over the obstacle-only map that outputs the path length to a target from everywhere on the table) replaces the straight-line distance in the reach and goal pulls, so a detour round an obstacle is credited within the 8-step horizon; no route is planned")
-  p.add_argument("--route-proposals", action="store_true",
-                 help="with --obstacle-source model: aim the to_cube / carry proposals at the next point of an A* route around the occupied cells of the obstacle-only map; the route proposes, the learned models still score (the 8-step MPC alone parks next to an obstacle when no candidate gains goal distance within the horizon)")
-  p.add_argument("--clearance-weight", type=float, default=1.0, help="geometric check: cost per imagined step of the hand sinking 5 cm into an obstacle of the depth height map (0 turns it off); R's learned penalties alone let the hand into walls (257 contact steps over 10 v3 scenes)")
+                 help="model = the learned obstacle model (default); map = the old geometric height map with a clearance penalty and A* route; none = R only")
+  p.add_argument("--cost-to-go", action="store_true", help="with model: the learned cost-to-go replaces the straight-line distance in the pulls")
+  p.add_argument("--route-proposals", action="store_true", help="with model: aim the travel proposals at the next point of an A* route around the occupied cells")
+  p.add_argument("--clearance-weight", type=float, default=1.0, help="map only: cost per imagined step of the hand sinking 5 cm into an obstacle (0 = off)")
   p.add_argument("--reward-source", choices=("both", "head", "readout"), default="readout",
-                 help="task potential from R's predicted terms, from Q's readings through the formula, or their mean")
-  p.add_argument("--no-penalties", action="store_true", help="ignore the reward model R entirely (potential from Q only)")
-  p.add_argument("--no-width-gate", action="store_true", help="do not zero Q's held reading when the fingers are closed on nothing")
+                 help="task potential from Q's readings (readout), from R's terms (head) or their mean")
+  p.add_argument("--no-penalties", action="store_true", help="ignore the reward model R entirely")
+  p.add_argument("--no-width-gate", action="store_true", help="drop the finger-width rules on Q's held reading")
   p.add_argument("--no-grasp-prior", dest="grasp_prior", action="store_false",
-                 help="drop the gripper envelope: by default an imagined hold is credited only if the hand was within 1.5 cm (xy) / 2 cm (z) of Q's cube when the fingers closed; D imagines a hold for fingers closing mid-travel 14 cm from the cube (no such closes in the data), which otherwise outscores the real grasp")
+                 help="drop the gripper envelope (an imagined hold counts only if the fingers closed at Q's cube)")
   p.add_argument("--no-release-rule", action="store_true",
-                 help="drop the release rule: by default a held cube is released only with the real hand within half the success radius of the goal, otherwise the step goes to the goal closed and opens on arrival (plans whose switch step came up early opened 4-9 cm short; Q reads a just-released cube toward the hand)")
+                 help="drop the release rule (a held cube is let go only with the real hand within half the success radius of the goal)")
   p.add_argument("--cube-anchor", action="store_true", help="old stop-gap: aim at the last clear sighting of the cube while the hand is within 8 cm of it")
   p.add_argument("--blind", action="store_true", help="use the proprio-only readout_p instead of Q(z, p)")

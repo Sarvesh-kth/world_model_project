@@ -6,7 +6,7 @@ from .control import ArmController
 from .rewards import Rewards
 from . import scene
 
-# resolution of obstacle_map(): 16 cells over the 64 x 92 cm table = 4 x 5.75 cm cells
+# cells per side of obstacle_map()
 OBSTACLE_CELLS = 16
 
 
@@ -206,17 +206,14 @@ class PickPlaceEnv:
   def point_clouds(self, frame="base"):
     return {name: self.point_cloud(name, frame=frame) for name in ("static", "wrist")}
 
-  # Top down height map of the table from the static depth image: the highest point above the table top in
-  # each of cells x cells patches of the table, clipped to max_height. The arm, the cube and the obstacles
-  # all show up in it, which is what the world model and the policy need to know where things stand.
+  # Top down height map of the table from the static depth image, the highest point above the table top in
+  # each of cells x cells patches, clipped to max_height. The arm, the cube and the obstacles all show up in it.
   def height_map(self, camera="static"):
     hm = self.cfg.cameras.heightmap
     return self._table_map(self.point_cloud(camera, frame="world", stride=1), hm.cells, hm.max_height)
 
   # The obstacles alone, the way a depth camera with a segmentation mask sees them: the same top down map at
-  # OBSTACLE_CELLS x OBSTACLE_CELLS, with every pixel of the robot and of the object dropped before the points
-  # are binned, so nothing but the obstacles is in it (and 0 where the arm hides them from the camera). The
-  # learned obstacle model reads a window of this map around the hand, nothing geometric is done with it.
+  # OBSTACLE_CELLS x OBSTACLE_CELLS with the robot and object pixels dropped first (0 where the arm hides them)
   def obstacle_map(self, camera="static"):
     r = self._get_renderer()
     r.enable_segmentation_rendering()
@@ -226,9 +223,7 @@ class PickPlaceEnv:
     finally:
       r.disable_segmentation_rendering()
     drop = np.isin(geom_ids, list(self.robot_geom_ids | self.object_geom_ids))
-    # a cell needs a few points (the smallest obstacle gives hundreds): one or two stray pixels at the table's
-    # edge (a table leg or the pedestal seen past it) made a
-    # 15 cm phantom next to the cube once, and the controller's running maximum kept it for the episode
+    # a cell needs a few points, one or two stray pixels at the table's edge once made a phantom obstacle
     return self._table_map(self.point_cloud(camera, frame="world", stride=1, drop=drop), OBSTACLE_CELLS,
                            self.cfg.cameras.heightmap.max_height, min_points=8)
 

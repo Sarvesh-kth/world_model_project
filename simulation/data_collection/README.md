@@ -7,14 +7,14 @@ mix of policy kinds per dataset, both cameras and the height map at every step.
 collect.py           collect a dataset: --config (the mix), --episodes, --out, --workers, --seed
 scripted_policy.py   ScriptedPickPlace (a waypoint state machine on the exact state), RandomPolicy, make_policy
 route.py             A* on a 2 cm grid around the obstacle footprints, line-of-sight smoothing (the scripted policy's route)
-writer.py            EpisodeWriter: data.csv, meta.json, images/ per episode; read_episode
+writer.py            EpisodeWriter: data.csv, meta.json, images/ per episode
 ```
 
 ```bash
-python -m data_collection.collect --config configs/full_mix.yml --episodes 400 --out data/episodes_v3/episodes_raw --workers 4 --seed 1000
-python -m data_collection.collect --config configs/hack_mix.yml --episodes 150 --out data/episodes_hack/episodes_raw --workers 4 --seed 5000
+python -m data_collection.collect --config configs/full_mix.yml --episodes 400 --out data/episodes/episodes_raw --workers 4 --seed 1000
+python -m data_collection.collect --config configs/rules_mix.yml --episodes 150 --out data/episodes_rules/episodes_raw --workers 4 --seed 5000
 python play.py success --seed 34          # watch one kind in the viewer with the live reward plot
-python plot_rewards.py data/episodes_v3/episodes_raw/episode_000003   # the rewards of a recorded episode
+python plot_rewards.py data/episodes/episodes_raw/episode_000003   # the rewards of a recorded episode
 ```
 
 The collector appends: run it again with the number still missing and another `--seed`. With `--workers N`
@@ -39,8 +39,8 @@ twice. Each kind changes one thing so the data holds the situations the planners
 | random | random actions with momentum | coverage |
 
 `configs/full_mix.yml` (success .2, scripted .1, miss .15, lateral .15, wander .25, drop .05, collide .05,
-random .05; 0-3 obstacles) made the training data. `configs/hack_mix.yml` (travel_close .4, short_release .4,
-miss .2; 0-2 obstacles) is the data meant to retire the two planner rules (`../../NEXT.md`).
+random .05; 0-3 obstacles) made the training data. `configs/rules_mix.yml` (travel_close .4, short_release .4,
+miss .2; 0-2 obstacles) is the data meant to retire the two planner rules.
 
 ## A recorded episode
 

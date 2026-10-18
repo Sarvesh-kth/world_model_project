@@ -1,9 +1,5 @@
-# Tracked binaries: the frozen SAC run and the packaged world-model folder; everything else in simulation/data stays local.
 simulation/models/**/*.pt filter=lfs diff=lfs merge=lfs -text
 simulation/models/**/*.npz filter=lfs diff=lfs merge=lfs -text
-simulation/data/episodes_v3/** filter=lfs diff=lfs merge=lfs -text
-simulation/data/episodes_hack/** filter=lfs diff=lfs merge=lfs -text
-simulation/data/rl_baseline_v1/** filter=lfs diff=lfs merge=lfs -text
+simulation/models/**/*.zip filter=lfs diff=lfs merge=lfs -text
 results/control_release_v1/**/*.zip filter=lfs diff=lfs merge=lfs -text
 results/control_release_v1/**/*.npz filter=lfs diff=lfs merge=lfs -text
-simulation/models/**/*.zip filter=lfs diff=lfs merge=lfs -text

@@ -1,6 +1,5 @@
-# Comparison row: a hand-coded gripper (close at the cube, open over B, rise after placing) around the planner,
-# which then only decides the motion (9/20 development seeds on a Mac, 2026-10-10). Not the pure version: label it
-# as "MPC with a rule-based gripper". Everything not set here comes from controller/mpc_config.py.
+# Comparison row: a hand-coded gripper (close at the cube, open over the goal, rise after placing) around the
+# planner, which then only decides the motion. Everything not set here comes from controller/mpc_config.py.
 #   python -m controller.control_pipeline --methods mpc --mpc-config controller/mpc_variants/rule_gripper.py
 from controller.mpc_config import *  # noqa: F401,F403
 

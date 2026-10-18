@@ -12,23 +12,23 @@ rl_baseline.py    the command: train, test on fresh seeds, write the run folder 
 
 Two policies exist:
 
-- `models/sac_priv_v1`, the simulator-trained SAC for the MPC's scenes (cube and goal anywhere, 0-3
-  obstacles). The comparison row of `../../results/README.md`; the controllers' default `--baseline-run`.
-- `data/rl_baseline_v1`, the older SAC on one fixed layout (`configs/grade_e_layout.json`), 41 inputs, no
-  obstacles. It places 20/20 on its layout and knows nothing else.
+- `models/sac`, the simulator-trained SAC for the MPC's scenes (cube and goal anywhere, 0-3
+  obstacles); the controllers' default `--baseline-run`.
+- a SAC on one fixed layout (`configs/fixed_scene_layout.json`), 41 inputs, no obstacles, which
+  `rl_baseline` trains without `--random-ends`.
 
 ```bash
-# the simulator SAC on the MPC's scenes: CPU only, about 1.5 h, 300k steps planned (the packaged one is the 20k checkpoint)
-python -u -m rl.rl_baseline --out data/sac_priv_v2 --random-ends --obstacles 0 3 --obstacle-map both \
-  --recorded-run data/episodes_v3 --cube-noise 0.01 --net 256 256 --demos 500 --rl-steps 300000 \
+# the simulator SAC on the MPC's scenes: CPU only, 300k steps planned (the packaged one is the 20k checkpoint)
+python -u -m rl.rl_baseline --out data/sac_new --random-ends --obstacles 0 3 --obstacle-map both \
+  --recorded-run data/episodes --cube-noise 0.01 --net 256 256 --demos 500 --rl-steps 300000 \
   --eval-every 20000 --validation-episodes 30 --validation-empty 10 --validation-obstacles 1 3 --test-episodes 30
-# the old fixed-layout SAC, about 1 h
+# the fixed-layout SAC
 python -m rl.rl_baseline --out data/rl_baseline_v2
 # then on the cameras, same scenes as the MPC
-bash sac_priv_eval.sh rl_q 10 data/sac_priv_v2
+SAC=data/sac_new bash ../evaluate.sh rl_q 10
 ```
 
-`data/episodes_v3/manifest.json` is enough for `--recorded-run` (no frames or latents needed). A run folder
+`data/episodes/manifest.json` is enough for `--recorded-run` (no frames or latents needed). A run folder
 has `models/sac_best.zip` (the policy), `models/bc_initial.zip` (the cloned actor before RL),
 `models/validation_history.json`, `pipeline.json` (config, layout and options; the controller reads
 `obstacle_map` from it), `evaluations.json` and `summary.json` (the cloned actor and the policy on fresh seeds).
@@ -51,7 +51,7 @@ failed episode, -0.01 per step. The planners score imagined states with the same
 (`predicted_reward`).
 
 `TaskSession` wraps the environment for every controller: with `random_ends` a whole new scene per episode
-from the environment's sampler and the models' own config (`models/v3c/info.json`), `obstacles=(low, high)`
+from the environment's sampler and the models' own config (`models/world_model/info.json`), `obstacles=(low, high)`
 fresh obstacles, the obstacle map kept as a running maximum over the episode, `cube_noise` on the cube the
 policy is shown, the episode end (success, a fallen cube, 300 steps) and `result()` with everything the
 summaries report.
@@ -71,14 +71,15 @@ What was tried for the MPC's scenes (validation placements of 30):
 |---|---:|---:|---:|
 | the whole 16x16 map | 200 | 13 | 15 at 60k, 1,000-1,900 contact steps, worse with time |
 | 9x9 window around the hand | 200 | 11 | 17 at 20k |
-| window + the map pooled 8x8 | 500 | 18 | 20 at 20k (9 empty, 11 obstacles) = `models/sac_priv_v1` |
+| window + the map pooled 8x8 | 500 | 18 | 20 at 20k (9 empty, 11 obstacles) = `models/sac` |
 | window + pooled map | 1200 | 20 | 18 at 20k, the fewest contacts |
 
 A net over the whole map has to memorise layouts; the window is the same geometry seen from the hand
-wherever it is. Demonstrations are the lever; RL adds a placement or two in the first 20-40k steps and then
+wherever it is. The policy needs far more data than the world model: 401 recorded episodes trained the
+whole world model, while the policy needed 500 demonstrations on top of those episodes, and 1,200 to get
+there from cloning alone. Demonstrations are the lever; RL adds a placement or two in the first 20-40k steps and then
 drifts. The next step would be training on `Q`-like perception (a lagged, noisy "held", 2 cm of cube noise)
-and a retry after a slip, which is where the policy loses half of its placements on the cameras
-(`../../results/README.md`).
+and a retry after a slip, which is where the policy loses half of its placements on the cameras.
 
 Seeds never overlap: demonstrations `seed + attempt`, training `seed + 1000` upward, validation
 `seed + 10000 + i`, test `seed + 990000 + i`, the controllers `seed + 20000 + i`.

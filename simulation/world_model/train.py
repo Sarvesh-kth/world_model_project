@@ -9,37 +9,13 @@ from tqdm import tqdm
 
 from .common import load_run, load_features, state_arrays, check_manifest, write_json, outcome_metrics
 
-# Train the three small networks on a run's latents, one stage per call, same --tag for all three:
-#   readout   Q(z, gripper) -> cube xyz and held logit (and readout_p, the same from the robot state alone, a
-#             control for what the image contributes). Q is a GridReadout: the camera blocks of z put back
-#             into their grids (static 16x16, wrist 8x8), two convolutions each, and a spatial softmax over
-#             the static grid whose expected coordinates say WHERE the cube is, so the position is read off
-#             the image instead of being fitted by an MLP over thousands of numbers. The MLP memorised the
-#             training scenes within 3 epochs and could not place the cube better than 3-4 cm whenever the
-#             hand was away from it (it had learned "cube = near the hand", which is why it went to the wrong
-#             side); the grid readout gets under 1 cm there from 3,000 frames. Q sees no arm pose, only the
-#             finger width and gripper command (P_GRIPPER), so it cannot guess the cube from the arm.
-#             Two position heads: ABSOLUTE for a cube that is not held, RELATIVE to the grasp site for a held
-#             one (the clip is a time mean, a carried cube is smeared in it; relative to the hand it is a
-#             constant); readout() picks by the held reading. --mlp-readout restores the old MLP on (z, p).
-#   reward    R(z, p) -> the reward model the planner scores candidates with: the four shaped task terms
-#             (reach, grasp, lift, transport), placed, and the penalties proximity, collision, table hit
-#             and empty grasp (fingers shut on nothing). The same grid network, with the whole robot state
-#             (the penalties depend on where the arm is).
-#   dynamics  D(z, p, a) -> next z, next p, trained on windows of --rollout-steps steps. --task-weight adds
-#             a task-consistency term: the frozen Q (trained first, same tag) must still read the recorded
-#             cube xyz and held label from the imagined (z, p), otherwise plain latent MSE lets D drop the
-#             cube because it is a few cells of the grid while the arm dominates the latent. --robot-sees-z
-#             lets the robot head read z too, so the predicted finger width can depend on whether a cube is
-#             between the fingers.
-# All three train with AdamW (weight decay 0.05), a cosine learning rate, dropout in the heads and Gaussian
-# noise on the latent (--z-noise): without these the validation loss stopped improving after 2-3 epochs while
-# the training loss kept falling (scene memorisation; consecutive states of a scene are near duplicates, so
-# 150k states are only ~1,000 independent scenes). The best validation epoch is kept.
-# Models land in <run>/attempts/<tag>/models/<stage>.pt with their normalisation statistics.
-#   python -m world_model.train readout  --run data/episodes_v3 --tag v3 --epochs 60
-#   python -m world_model.train reward   --run data/episodes_v3 --tag v3 --epochs 60
-#   python -m world_model.train dynamics --run data/episodes_v3 --tag v3 --epochs 60 --rollout-steps 8 --task-weight 1.0 --robot-sees-z
+# Train the three networks on a run's latents, one stage per call, same --tag for all:
+#   readout   Q(z, gripper) -> cube xyz and held, convolutions on the camera grids with a spatial softmax so
+#             the position is read off the image. readout_p is the blind twin on the robot state alone.
+#   reward    R(z, p) -> reach, grasp, lift, transport, placed and the penalties
+#   dynamics  D(z, p, a) -> next z, next p on windows of --rollout-steps steps; --task-weight makes the frozen
+#             Q still read the recorded cube from the imagined latent, otherwise D drops the cube
+# The best validation epoch is kept in <run>/attempts/<tag>/models/<stage>.pt. Commands in world_model/README.md.
 
 
 # What R predicts, in output order: regressions for the shaped terms and proximity, logits for the flags
@@ -56,19 +32,11 @@ def mlp(inputs, outputs, width=128, dropout=0.1):
                        nn.Linear(width, width), nn.GELU(), nn.Dropout(dropout), nn.Linear(width, outputs))
 
 
-# Q and R over the latent's grids: blocks is the latent layout from features/meta.json (block name -> size, in
-# order, e.g. static 8192 = 16x16 cells x 32, wrist 1024 = 8x8 x 16, heightmap 64), cells the side of each
-# camera's grid, p_dim the robot numbers that follow the latent in the input. Each camera grid goes through a
-# 1x1 and two 3x3 convolutions (the height map, resized to the static grid, rides along as one more channel of
-# it); the static features also feed a spatial softmax whose expected grid coordinates say where each of its
-# heads looks, which is how a position comes out of an image without learning every cell separately. Pooled
-# features, key points and p go into an MLP head. For Q the first `static_outputs` outputs (the absolute cube
-# position) come from a head on the static grid only, and the main head (relative position, held) gets the
-# static features DETACHED next to the wrist features and p. Measured on the v3 validation scenes, cube not
-# held, hand more than 20 cm away: one head on everything 1.25/1.76 cm; static-only position head 0.99/1.04;
-# with the relative and held heads sharing the trunk 1.27/1.12; detached 0.92/0.75. The relative head on a
-# shared trunk teaches the key points to follow the HAND (the cube is in it when held), which then pulls the
-# position toward the hand when it is not.
+# Q and R over the latent's grids: blocks is the latent layout (block -> size), cells the side of each camera
+# grid, p_dim the robot numbers after the latent. Each camera grid gets a 1x1 and two 3x3 convolutions, a
+# spatial softmax on the static features gives key points. For Q the absolute position has its own head on
+# the static grid and the main head (relative position, held) sees those features detached, otherwise the
+# key points learned to follow the hand.
 class GridReadout(nn.Module):
 
   def __init__(self, blocks, cells, p_dim, outputs, width=64, keys=8, static_outputs=0):
@@ -150,13 +118,8 @@ class SplitDynamicsZ(SplitDynamics):
     return next_z, next_p
 
 
-# Same two heads, but the robot head reads the frozen Q's reading of the current (z, p) (the cube's absolute
-# position and the held probability: 4 numbers; p is an input too, so the head can take the difference)
-# instead of the whole latent. With the 16x16 latent the robot head on z (9,000 noisy numbers -> 128) lost
-# the hand: 2 cm off after 8 steps, so the imagined hand rarely "arrived" at the cube and the planner never
-# closed. Q is a submodule (frozen, saved with the checkpoint). Q's RELATIVE head must not be used here: it
-# is trained on held states only and says nothing when the cube is not held, and with it D imagined fingers
-# closing 14 cm from the cube as a hold.
+# Same two heads, but the robot head reads the frozen Q's reading (absolute cube position and held) instead
+# of the whole latent, which made it lose the hand. Q is a frozen submodule saved with the checkpoint.
 class SplitDynamicsQ(SplitDynamics):
 
   def __init__(self, z_dim, q, q_ck, p_dim=20, a_dim=5, width=512, p_width=128):
@@ -196,7 +159,8 @@ def build_model(ck):
       model = SplitDynamicsZ(ck["z_dim"])
     elif ck.get("architecture") == "SplitDynamicsQ":
       q_ck = ck["readout_ck"]
-      model = SplitDynamicsQ(ck["z_dim"], GridReadout(q_ck["blocks"], q_ck["cells"], q_ck["p_dim"], q_ck["outputs"], static_outputs=q_ck.get("static_outputs", 0)), q_ck)
+      q = GridReadout(q_ck["blocks"], q_ck["cells"], q_ck["p_dim"], q_ck["outputs"], static_outputs=q_ck.get("static_outputs", 0))
+      model = SplitDynamicsQ(ck["z_dim"], q, q_ck)
     else:
       model = SplitDynamics(ck["z_dim"])
   elif ck.get("architecture") == "GridReadout":
@@ -208,7 +172,7 @@ def build_model(ck):
 
 
 # Where a tag's models, info.json and reports live: <run>/attempts/<tag>/, or the folder itself without a tag
-# (a packaged model folder such as models/v3c, which holds models/, info.json and features/ side by side)
+# (a packaged model folder such as models/world_model, which holds models/, info.json and features/ side by side)
 def model_folder(root, tag=""):
   root = pathlib.Path(root)
   return root / "attempts" / tag if tag else root
@@ -223,8 +187,7 @@ def load_model(root, role, tag=""):
   return build_model(ck), ck
 
 
-# The device a model sits on; the planner keeps Q, R and D on the GPU (the grid readout is 5x faster there
-# on its batches of candidates), training and the offline evaluations use them wherever they were loaded
+# The device a model sits on
 def device_of(model):
   return next(model.parameters()).device
 
@@ -278,13 +241,20 @@ def reward_terms(model, ck, z, p):
 @torch.inference_mode()
 def imagine(model, ck, z, p, actions):
   z, p = normalized(z, ck, "z"), normalized(p, ck, "p")
+  # the model works on batches, a single state gets a batch dimension of one
+  single = z.ndim == 1
+  if single:
+    z, p = z[None], p[None]
   zs, ps = [z], [p]
   for action in actions:
-    z, p = model(z, p, torch.as_tensor(action, dtype=torch.float32))
+    a = torch.as_tensor(action, dtype=torch.float32)
+    z, p = model(z, p, a[None] if single else a)
     zs.append(z)
     ps.append(p)
-  return (torch.stack(zs).numpy() * ck["z_std"].numpy() + ck["z_mean"].numpy(),
-          torch.stack(ps).numpy() * ck["p_std"].numpy() + ck["p_mean"].numpy())
+  zs, ps = torch.stack(zs), torch.stack(ps)
+  if single:
+    zs, ps = zs[:, 0], ps[:, 0]
+  return zs.numpy() * ck["z_std"].numpy() + ck["z_mean"].numpy(), ps.numpy() * ck["p_std"].numpy() + ck["p_mean"].numpy()
 
 
 # Train one network, keep the checkpoint with the lowest validation loss
@@ -397,8 +367,8 @@ def main():
   for name, array, rows in (("z", z, ids["train"]), ("p", robot, ids["train"]), ("xyz", xyz, ids["train"]),
                             ("rel", relative, ids["train"][held[ids["train"]] >= .5])):
     stats[name + "_mean"], stats[name + "_std"] = normalizer(array[rows] if len(rows) else array[ids["train"]])
-  # the height map cells are in [0, 1]; a cell nothing ever stood on in training has std ~0 and would turn a
-  # test-time obstacle into a value in the hundreds, so those cells get a floor of 0.1 (a 2.5 cm step)
+  # a height map cell nothing ever stood on in training has std ~0 and would blow up a test-time obstacle,
+  # so those cells get a floor
   blocks = feature_meta.get("layout", {})
   if "heightmap" in blocks:
     n = blocks["heightmap"]
@@ -453,9 +423,8 @@ def main():
     write_json(folder / "reports/readout_validation.json", reports)
 
   elif args.stage == "reward":
-    # targets are the recorded unweighted reward components: the shaped task terms reach, grasp, lift and
-    # transport (in [0, 1]), placed (the environment's stage is done), proximity (continuous) and the
-    # collision and table-hit flags (0/1); regression for the continuous ones, BCE for the flags
+    # targets are the recorded unweighted reward components, regression for the continuous ones and BCE
+    # for the flags
     comps = {k: np.asarray([s["reward_components"].get(k, 0.0) for s in manifest["states"]], np.float32) for k in REWARD_OUTPUTS if k != "placed"}
     comps["placed"] = np.asarray([s["reward_stage"] == "done" for s in manifest["states"]], np.float32)
     # runs recorded before the empty_grasp penalty existed get it from p, the environment's own definition

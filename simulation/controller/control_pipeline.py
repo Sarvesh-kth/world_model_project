@@ -19,28 +19,17 @@ from world_model.common import SIMULATION, load_run, save_csv, write_json, outco
 from rl.task_control import GoalReward, TaskSession, policy_observation, predicted_reward, hand_window
 from . import mpc, planner
 
-# Run the controllers on fresh scenes of one layout and compare them:
-#   scripted  the scripted policy on the exact simulator state, the upper bound
-#   rl_true   the frozen SAC on the exact state (the actor-critic controller, one forward pass per step)
-#   rl_q      the same SAC, but cube position and held come from Q on the live cameras
-#   jepa_mpc  the latent planner (planner.py): Cartesian waypoint candidates imagined by D, scored by Q's
-#             task potential and R's penalties, CEM, no policy anywhere in the loop
-#   sac_imagined  a SAC trained only on transitions imagined by D (imagined_sac.py), run like rl_q on Q's estimate
-#   mpc       the rule-free latent planner (mpc.py): CEM over raw action sequences imagined by D, scored by the
-#             task reward on Q's readings plus R's and O's penalties; its knobs in controller/mpc_config.py
-# The world model comes from --models-run (Q, R, D, the PCA bases and encoder settings), the SAC from
-# --baseline-run (only loaded for rl_true / rl_q). Frames, gifs and per step csv land in
-# data/<out>/episodes/<method>/seed_*/, the summary in results/<out>/.
-#   python -m controller.control_pipeline --methods jepa_mpc
-#   python -m controller.control_pipeline --test-episodes 20 --headless
+# Run the controllers on fresh scenes and compare them: scripted, rl_true (the SAC on the exact state), rl_q
+# (the same SAC on Q's estimate), mpc and jepa_mpc. The world model comes from --models-run,
+# the SAC from --baseline-run. Episodes land in data/<out>/episodes/<method>/seed_*/, the summary in results/<out>/.
+#   python -m controller.control_pipeline --methods mpc --random-ends --test-episodes 20 --headless
 
-METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc", "sac_imagined", "mpc")
+METHODS = ("scripted", "rl_true", "rl_q", "jepa_mpc", "mpc")
 CAMERAS = ("static", "wrist")
 
 
-# The world model at run time: the online V-JEPA encoder (same weights, pooling, cameras and PCA bases as
-# the cached features, plus the live height map), Q, D and the optional penalty head R, all from one run
-# folder and tag
+# The world model at run time: the online V-JEPA encoder (same settings as the cached features), Q, D and
+# the optional penalty head R, all from one run folder and tag
 class WorldModels:
 
   def __init__(self, root, tag, args):
@@ -110,14 +99,11 @@ class WorldModels:
   def read(self, z, p):
     from world_model.train import readout
     xyz, held = readout(self.q, self.qc, z, p)
-    # fingers closed to under 2 cm hold nothing (the cube is 4.5 cm); without this Q kept saying held after a
-    # missed grasp and the controller carried air to B in every failed episode
+    # fingers closed on nothing hold nothing, and fingers commanded shut that stopped at a cube's width hold
+    # one (Q's held reading lags a real grasp because the latent is a time mean)
     if self.width_gate:
       p = np.asarray(p)
       held = held * (p[:, 18] > .02)
-      # and fingers commanded shut that stopped at a cube's width (3.5-6.5 cm; the cubes are 4-5 cm, the grip
-      # reads 4.2-5.4) hold one: Q's held reading lags a real grasp by ~12 steps because the latent is a
-      # 16-frame time mean, and the planner stood still that long after every grasp
       held = np.where((p[:, 19] < 0) & (p[:, 18] > .035) & (p[:, 18] < .065), np.maximum(held, .99), held)
     # the old stop-gap on top: nothing is held unless the cube estimate sits between the fingers
     if self.grasp_prior:
@@ -132,19 +118,18 @@ class WorldModels:
       return None
     return reward_terms(self.r, self.rc, z, p)
 
-  # The weighted imagined penalty per candidate from R's terms, <= 0, zero without a reward model
   # The learned obstacle model's penalty, scaled like R's: proximity and contact from a window of the
-  # obstacle-only depth map around the imagined hand (--obstacle-source model)
+  # obstacle map around the imagined hand
   def obstacle_penalty(self, obstacle_map, p, held, weights):
     from world_model.train_obstacle import obstacle_terms
     proximity, contact = obstacle_terms(self.obstacle, self.oc, obstacle_map, p, held)
     return (self.penalty_scale * (weights["proximity"] * proximity - weights["collision"] * contact)).astype(np.float32)
 
+  # The weighted imagined penalty per candidate from R's terms, <= 0
   def penalty(self, terms, weights):
     if terms is None:
       return 0.0
-    # scaled above 1 the planner turns away earlier, before the forecast reaches the wall; a reward model
-    # from before the empty-grasp penalty has no such term
+    # a reward model from before the empty-grasp penalty has no such term
     return (self.penalty_scale * (weights["proximity"] * terms["proximity"] - weights["collision"] * terms["collision"]
                                   - weights["table_hit"] * terms["table_hit"]
                                   - weights.get("empty_grasp", 0) * terms.get("empty_grasp", 0))).astype(np.float32)
@@ -155,7 +140,7 @@ class CostToGoFields:
 
   def __init__(self, root, tag):
     from world_model.train_cost_to_go import load_cost_to_go
-    # stays on the CPU: 6 ms per field there, while a tiny convolution queued behind D on a busy GPU took 500 ms
+    # stays on the CPU: a tiny convolution queued behind D on a busy GPU was slower there
     self.model, self.ck = load_cost_to_go(root, tag)
 
   def field(self, obstacle_map, target):
@@ -197,8 +182,8 @@ def save_frames(session, folder, serial, histories):
     del histories[camera][:-64]
 
 
-# Separate process that owns the MuJoCo window. The episode process renders its camera through EGL and a
-# window cannot share that context, so this one builds the same scene and mirrors the joint positions it is sent.
+# Separate process that owns the MuJoCo window: the episode process renders through EGL and a window cannot
+# share that context, so this one builds the same scene and mirrors the joint positions it is sent
 def viewer_process(cfg, layout, queue):
   import mujoco
   import mujoco.viewer
@@ -291,7 +276,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
   if folder.exists():
     shutil.rmtree(folder)
   folder.mkdir(parents=True)
-  visual = method in ("rl_q", "jepa_mpc", "sac_imagined", "mpc")
+  visual = method in ("rl_q", "jepa_mpc", "mpc")
   session = TaskSession(cfg, layout, args.position_jitter, heightmap=policy is not None and policy.heightmap,
                         obstacle_map=policy.obstacle_map if policy is not None else None)
   goal = np.array([*layout["place"], rest_z], np.float32)
@@ -339,8 +324,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
       # the obstacles as the depth camera measures them, for the planner's geometric clearance check
       task_memory.obstacles = planner.ObstacleMap(heightmap, cfg, session.obs["proprio"][14:17], xyz[:2])
       if models.obstacle is not None:
-        # the obstacle-only map for the learned obstacle model; obstacles do not move, so the running maximum
-        # keeps every cell the arm hides later
+        # the obstacle-only map for the obstacle model, a running maximum since obstacles do not move
         task_memory.obstacle_map = session.sim.obstacle_map()
 
     for step in range(cfg.episode.max_steps):
@@ -351,7 +335,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
         action = scripted.act()
       elif method == "rl_true":
         action = policy.act(obs)
-      elif method in ("rl_q", "sac_imagined"):
+      elif method == "rl_q":
         estimate = policy_observation(p, xyz, held, memory, goal, rest_z, 1 - step / cfg.episode.max_steps,
                                       heightmap if policy.heightmap else None,
                                       hand_window(session.obstacle_map_now, p, cfg, policy.coarse) if policy.window
@@ -398,8 +382,7 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
         states_z.append(next_z.copy())
         row.update({"Q_held_probability": next_held, "Q_xyz_mae_cm": float(100 * np.abs(next_xyz - actual_xyz).mean())})
         row.update({f"Q_{k}": float(v) for k, v in zip("xyz", next_xyz)})
-        # the task memory (was held, ever lifted, the SAC's reward memory) is advanced from Q's estimates,
-        # never from the true state
+        # the task memory is advanced from Q's estimates, never from the true state
         task_memory.update(next_xyz, next_held, rest_z, actual_p[14:17])
         failed = next_xyz[2] < cfg.table.height - cfg.episode.fall_margin or step + 1 >= cfg.episode.max_steps
         row["Q_estimated_reward"], _ = predicted_reward(memory, actual_p, next_xyz, next_held, action, goal, rest_z, failed)
@@ -473,9 +456,8 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
     session.close()
 
 
-# The environment config the models were trained on and the resting cube height (the policy's and the planner's
-# reference height). train.py writes both to attempts/<tag>/info.json, so a packaged model folder (models/v3c:
-# models/, info.json, features/) can run without the manifest; without that file they come from the full manifest.
+# The environment config the models were trained on and the resting cube height, from info.json when the
+# folder has one (a packaged model folder), else from the full manifest
 def run_settings(models_run, tag):
   from world_model.train import model_folder
   info = model_folder(models_run, tag) / "info.json"
@@ -543,14 +525,12 @@ def run_arguments(p):
 
 def main():
   p = argparse.ArgumentParser()
-  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/v3c"),
+  p.add_argument("--models-run", type=pathlib.Path, default=pathlib.Path("models/world_model"),
                  help="a packaged model folder (models/, info.json, features/) or a run folder with attempts/<tag>/ (then give --tag)")
   p.add_argument("--tag", default="", help="attempts/<tag> inside a run folder; empty for a packaged model folder")
-  p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("models/sac_priv_v1"),
-                 help="rl_baseline run with the SAC in models/sac_best.zip, for rl_true / rl_q (data/rl_baseline_v1 is the old fixed-layout one)")
-  p.add_argument("--imagined-run", type=pathlib.Path, default=pathlib.Path("data/sac_imagined_v1"),
-                 help="imagined_sac run with models/sac_best.zip, for sac_imagined")
-  p.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/grade_e_layout.json"))
+  p.add_argument("--baseline-run", type=pathlib.Path, default=pathlib.Path("models/sac"),
+                 help="rl_baseline run with the SAC in models/sac_best.zip, for rl_true / rl_q")
+  p.add_argument("--layout", type=pathlib.Path, default=pathlib.Path("configs/fixed_scene_layout.json"))
   p.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/control"),
                  help="run folder for frames, gifs and csv; overwritten unless --resume")
   p.add_argument("--methods", nargs="+", default=list(METHODS), choices=METHODS)
@@ -560,7 +540,7 @@ def main():
   p.add_argument("--obstacles", type=int, nargs=2, default=None, metavar=("LOW", "HIGH"),
                  help="draw this many fresh corridor obstacles per scene (control_clutter replays recorded ones)")
   p.add_argument("--random-ends", action="store_true",
-                 help="cube and goal anywhere on the reachable table per scene (the environment's own sampler) instead of the layout file's, for the planner only")
+                 help="cube and goal anywhere on the reachable table per scene instead of the layout file's")
   p.add_argument("--resume", action="store_true", help="keep finished episodes in --out and run the missing ones")
   run_arguments(p)
   args = p.parse_args()
@@ -585,8 +565,7 @@ def main():
   cfg, rest_z = run_settings(args.models_run, args.tag)
   layout = json.loads(args.layout.read_text())
   policy = Policy(args.baseline_run) if any(m in ("rl_true", "rl_q") for m in args.methods) else None
-  imagined = Policy(args.imagined_run) if "sac_imagined" in args.methods else None
-  models = WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc", "sac_imagined", "mpc") for m in args.methods) else None
+  models = WorldModels(args.models_run, args.tag, args) if any(m in ("rl_q", "jepa_mpc", "mpc") for m in args.methods) else None
   write_json(args.out / "settings.json", {k: str(v) if isinstance(v, pathlib.Path) else v for k, v in vars(args).items()})
 
   for method in args.methods:
@@ -595,17 +574,15 @@ def main():
       if args.resume and (args.out / "episodes" / method / f"seed_{seed}" / "result.json").exists():
         continue
       scene = scene_layout(layout, cfg, seed, args.obstacles, args.random_ends)
-      episode(args.out, method, seed, cfg, scene, rest_z, args, imagined if method == "sac_imagined" else policy, models)
+      episode(args.out, method, seed, cfg, scene, rest_z, args, policy, models)
       summarize(args.out, export_dir, args.methods)
   summarize(args.out, export_dir, args.methods)
   print(f"DONE: summary in {export_dir}, frames and gifs in {args.out / 'episodes'}", flush=True)
 
 
-# The layout of one scene. With --random-ends the WHOLE scene comes from the environment's own sampler, the
-# way the training episodes were made: cube and goal anywhere on the reachable table, the cube's size, mass,
-# friction and colour drawn the same way (the layout file's cube is teal and of one size, the data's cubes are
-# grey and vary), obstacles per --obstacles (none by default). Without it the file's layout is used, with
-# fresh corridor obstacles when --obstacles is given.
+# The layout of one scene. With --random-ends the whole scene comes from the environment's own sampler, the
+# way the training episodes were made. Without it the file's layout is used, with fresh obstacles when
+# --obstacles is given.
 def scene_layout(layout, cfg, seed, obstacles, random_ends=False):
   if obstacles is None and not random_ends:
     return layout

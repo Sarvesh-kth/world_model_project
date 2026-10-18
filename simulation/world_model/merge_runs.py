@@ -10,7 +10,7 @@ from .common import load_run, load_features, write_json
 # encoded with the same PCA basis (encode.py --pca) and clip settings. State and scene keys are prefixed
 # with the run name, the frame folders are linked, the latents are concatenated.
 # --overwrite redoes the merge in place (after a run grew) and keeps the trained attempts/ of the folder.
-#   python -m world_model.merge_runs --runs data/full_v2 data/obstacles_v2 data/episodes_v2 --out data/combined_v2
+#   python -m world_model.merge_runs --runs data/full_v2 data/clutter_scenes data/episodes_v2 --out data/combined_v2
 
 
 def main():

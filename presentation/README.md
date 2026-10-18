@@ -1,6 +1,6 @@
 # Fresh SAC inspection and presentation figures
 
-Start with **[results/README.md](../results/README.md)** for the current results and
+Start with **[RESULTS.md](../RESULTS.md)** for the current results and
 **[results/control_release_v1/README.md](../results/control_release_v1/README.md)** for the
 selected weights, the shared plots and the replay commands.
 For slide choices and the rank-5/25/64 interventions, read the latest section of

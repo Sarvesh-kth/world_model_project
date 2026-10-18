@@ -76,8 +76,7 @@ class Rewards:
     c["collision"] = -float(state["obstacle_contacts"])
     c["proximity"] = -float(np.clip(1.0 - state["obstacle_distance"] / self.safe_distance, 0.0, 1.0))
     c["table_hit"] = -float(state["table_contacts"])
-    # Per step penalty while the fingers are shut on nothing: closed command and under 3 cm apart, the cube
-    # is 4.5 cm wide so nothing can be between them (a close beside or above the cube ends up here)
+    # Per step penalty while the fingers are shut on nothing, closed command and too narrow to hold the cube
     c["empty_grasp"] = -float(state["gripper_closed"] and state["gripper_width"] < 0.03)
     c["action"] = -float(np.mean(np.square(action[:-1])))
 

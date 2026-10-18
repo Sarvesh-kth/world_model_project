@@ -2,12 +2,9 @@ import os
 import subprocess
 import sys
 
-# A MuJoCo window needs an OpenGL context through GLX, not the EGL the camera renders with. On a hybrid
-# laptop the NVIDIA GLX stops working whenever the driver and its libraries disagree (a driver update
-# without a reboot), while Mesa still opens a window on the other GPU. glx_environment() tries the
-# default vendor and then Mesa in a throwaway process and returns the environment that worked, without
-# EGL or the NVIDIA PRIME offload variables (they leave the window blank), or None when no window can
-# be created at all.
+# A MuJoCo window needs GLX, not the EGL the camera renders with, and on this machine the NVIDIA GLX breaks
+# whenever the driver and its libraries disagree. glx_environment() tries the default vendor and then Mesa
+# in a throwaway process and returns the environment that worked, or None when no window can be opened.
 
 PROBE = "import glfw, sys; sys.exit(0 if glfw.init() and glfw.create_window(8, 8, 'probe', None, None) else 1)"
 DROP = ("MUJOCO_GL", "PYOPENGL_PLATFORM", "__NV_PRIME_RENDER_OFFLOAD", "__GLX_VENDOR_LIBRARY_NAME",

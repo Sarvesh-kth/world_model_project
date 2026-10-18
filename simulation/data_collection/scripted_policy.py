@@ -7,20 +7,10 @@ def wrap_angle(a):
   return (a + np.pi) % (2 * np.pi) - np.pi
 
 
-# Waypoint state machine for pick / carry / place demos
+# Waypoint state machine for the pick / carry / place demos:
 # approach -> hover -> descend -> grasp -> lift -> transport -> lower -> release -> retreat -> done
-# the carry always goes around the obstacles using the route planner, unless carry_low is set,
-# then it goes straight through them at low height (deliberate collision episodes)
-# drop_early lets go of the object halfway through the carry
-# miss closes the fingers beside or above the object on the first try, then picks it up properly
-# wander visits a few random points anywhere on the table (2-15 cm up, fingers open or shut, each leg routed
-# around the tall obstacles) before the pick, half the time after first going to the object and leaving it
-# again, and half the time makes one detour while carrying; so the hand is seen everywhere while the object
-# sits wherever it is, and carries go in every direction
-# lateral grasps the way the planner does: arrives at the object low and from the side, closes with up to
-# 2.5 cm of offset (where a grasp still holds, or just slips); half of these episodes turn the fingers to the
-# object's faces like every other kind, half keep the yaw they arrived with (the planner does not turn yet)
-# The object itself spawns at a random yaw every episode (env._settle), so the turn differs every time.
+# The carry goes around the obstacles with the route planner. The flags make the episode kinds listed in
+# data_collection/README (misses, drops, wandering, closing on the way in, releasing short of the goal).
 class ScriptedPickPlace:
   # Hover this far above the object before descending
   HOVER_HEIGHT = 0.12
@@ -93,10 +83,8 @@ class ScriptedPickPlace:
     self.noise_state = np.zeros(3)
     self.ee_hist = []
     self.carry_z = table + (0.05 if self.carry_low else sc.carry_height + self.half_h)
-    # a deliberately bad first grasp: the descent aims 2.5-7 cm beside the object (across the finger axis,
-    # along it a finger lands on the object), 2.5-7 cm above it, or both, so the data has fingers closing on
-    # nothing or on an edge right next to the object; the retry after it is clean. 2 cm off still catches
-    # the cube, 2.5-4 cm is where the dynamics model has to learn the boundary.
+    # a deliberately bad first grasp: the descent aims beside the object (across the finger axis), above it,
+    # or both, so the data has fingers closing on nothing right next to the object; the retry is clean
     self.miss_beside = self.miss_above = 0.0
     self.miss_offset = np.zeros(3)
     # the lateral grasp: a low hover height, a small offset on the first try, no finger turning
@@ -108,16 +96,13 @@ class ScriptedPickPlace:
       angle = self.rng.uniform(0, 2 * np.pi)
       radius = self.rng.uniform(0.0, 0.025) if self.rng.uniform() < 0.6 else 0.0
       self.lateral_offset = np.array([radius * np.cos(angle), radius * np.sin(angle), self.rng.uniform(-0.005, 0.02)])
-    # travel_close: the fingers shut for HOLD_STEPS while the hand is still on its way to the object, 4-20 cm
-    # from it (in the air, or on the last low leg), then open and the pick goes on. The planner's dynamics
-    # model imagined a hold for exactly such closes because the data had none; the gripper envelope rule
-    # stood in for this data.
+    # travel_close: the fingers shut for HOLD_STEPS while the hand is still on its way to the object, then
+    # open and the pick goes on (the dynamics model imagined holds for such closes because the data had none)
     self.travel_close_dist = self.rng.uniform(0.04, 0.20) if self.travel_close else None
     self.travel_closed_steps = 0
     self.travel_close_done = not self.travel_close
-    # short_release: the cube is let go 5-14 cm short of the place spot (the success radius is 7 cm, so most count as failures), half the time from the carry height,
-    # half after lowering, then picked up again and placed properly. Q read a just-released cube toward the
-    # hand and R called releases 8 cm out "placed"; the release rule stood in for this data.
+    # short_release: the cube is let go short of the place spot, half the time from the carry height and
+    # half after lowering, then picked up again and placed properly
     self.short_dist = self.rng.uniform(0.05, 0.14) if self.short_release else None
     self.short_pending = self.short_release
     self.short_low = self.rng.uniform() < 0.5
@@ -290,8 +275,7 @@ class ScriptedPickPlace:
           else:
             self.phase = "done"
 
-    # the travel close: the fingers shut for HOLD_STEPS on the way to the object (approach and hover, so a
-    # close triggered 4 cm out still lasts), never into the descent
+    # the travel close: the fingers shut for HOLD_STEPS on the way to the object, never into the descent
     if not self.travel_close_done:
       if self.phase in ("approach", "hover") and (self.travel_closed_steps > 0 or np.linalg.norm(ee[:2] - obj[:2]) < self.travel_close_dist):
         gripper = -1.0
