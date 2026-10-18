@@ -1,3 +1,48 @@
+SIMULATOR-TRAINED SAC vs MPC (2026-10-18; branch sac_priv_testing; runs data/sac_priv_*, results/sac_priv_eval_<n>)
+=====================================================================================================================
+Goal: the comparison row the 17 Oct table lacked: a SAC trained with the SIMULATOR's reward and penalties (no R, no
+D, no imagination), obstacles through the obstacle-only depth map, Q's cube estimate at test time (rl_q), against the
+unchanged mpc on 0/1/2/3 obstacles. The branch's imagined SACs (train_empty / train_mixed) had 41 inputs, no image,
+no obstacle input: that is why they scored 8-12/30 with 746-1126 contact steps.
+What was built (rl/, one hook in controller/control_pipeline.py, mpc untouched):
+  task_control.py   TaskSession(random_ends=True): a whole scene per episode from the environment's sampler with the
+                    models' config (models/v3c/info.json); obstacle_map "full" (256 cells) / "window" (9x9 around the
+                    hand + in-cell offset, 83) / "both" (+ the map pooled to 8x8, 147); cube_noise; GoalReward(pull=)
+                    optional linear pull potential (unused in the reported runs, controllers keep 0)
+  rl_control.py     recorded_transitions: the episodes_v3 manifest (58k states, 401 episodes) -> replay transitions,
+                    GoalReward replayed from the recorded contacts/proximity (310/318 placed episodes reproduce the
+                    +15 bonus), only case=success episodes join the BC set; validation split 10 empty + 20 obstacle
+  rl_baseline.py    --random-ends --obstacle-map --recorded-run --cube-noise --pull --net --validation-empty/-obstacles
+  control_pipeline  Policy reads obstacle_map from pipeline.json, rl_q / rl_true get the window from the session's map
+  sac_priv_eval.sh  mpc then rl_q on the same seeds, 0..3 obstacles; sac_priv_table.py the markdown table; SAC_PRIV.md
+Training (validation every 20k steps on 10 empty + 20 obstacle scenes, 300k steps planned, stopped at a deadline):
+  sac_priv_v1   full map, 200 demos           BC 13/30 (940 contacts)  best 15/30 at 60k, ~1,000-1,900 contact steps, worse with time
+  sac_priv_w1   window, 200 demos             BC 11/30                 best 17/30 at 20k (945 -> 503 contacts at 40k)
+  sac_priv_wg1  window + coarse, 500 demos    BC 18/30 (612)           best 20/30 at 20k (9 empty, 11 obst, 423)  <- packaged models/sac_priv_v1
+  sac_priv_wg2  window + coarse, 1200 demos   BC 20/30 (7/13, 540)     18/30 at 20k (6/12, 264 contacts), stopped at the deadline
+  Demonstrations are the lever (200 -> 500 -> 1200: 11 -> 18 -> 20 of 30 from cloning); RL adds 1-2 placements in the
+  first 20-40k steps and drifts after. Scripted demos on 0-3 obstacles: 500/506 and 1200/1224 succeed, 6-7 % with a contact.
+Local evaluation, 10 random-end scenes per count, seeds 20494010-19, same scenes for every controller:
+                          0 obst   1 obst   2 obst   3 obst   all     contact steps   median final B of placements
+  mpc (unchanged)          7/10     7/10     7/10     5/10    26/40        0           2.4-3.5 cm (21 cm at 3)
+  SAC on Q (rl_q)          5/10     4/10     4/10     1/10    14/40      262 (5)       6.6-7.4 cm
+  SAC exact state (rl_true) 8/10    6/10     7/10     6/10    27/40       91 (3)       3.7-6.3 cm
+  Scenes: mpc only 15, SAC only 3, both 11, neither 11. Decision: mpc 340-540 ms (GPU shared), SAC 1 ms.
+  The policy equals the MPC on the exact state (27 vs 26) and beats it on 3 obstacles (6/10 vs 5/10) but touches
+  obstacles (91 steps); through Q it drops to 14/40: trained on the exact cube and an immediate contact flag, it
+  closes 1-2 cm off (Q's error), the cube slips after 3-4 steps, no retry; or the width rule keeps "held" after
+  a slip and it carries air to B. The MPC uses the same Q but re-plans every step (empty-grip cost, envelope).
+  Honest next step for the SAC, not done (no more training allowed today): train it on Q-like perception (lagged
+  / noisy held, 2 cm cube noise) or on Q's own readings from the recorded latents, and a retry behaviour.
+MPC 7/10 on empty here vs 30/30 on the cluster: same code/settings, different scenes (seed base 20475010 vs 20474010).
+  Two of the ten local scenes have Q 4-5 cm off along y all episode (cubes at y -0.29 / -0.39), the planner never
+  arrives. Rerunning the mpc here on two cluster edge scenes (20495037/38) placed both with Q at the cluster's level
+  (1.0/1.7 and 0.6/0.8 cm): not the local renderer. 20 scenes per count on the cluster (SAC_PRIV.md) settle the rates.
+Yaw (user asked, nothing changed): mpc samples dyaw like xyz, no yaw term in the score; yaw random-walks 3-5 deg/step,
+  ~90 deg per episode, often pinned at +-90; misalignment at the first grasp 22 deg for successes and failures alike
+  (60 matched episodes), grasps succeed up to 44 deg. Wasted motion, not a cause of failure.
+Disk: deleted control_v3*/v4*/100*/dbg14/smk1 and their results (8.8 GB) with the user's approval.
+
 LEARNED OBSTACLES (2026-10-13; models data/episodes_v3/attempts/v3c, runs data/control_v4*_* and control_v5*_02)
 =====================================================================================================================
 Goal: the obstacle avoidance done by learned models on a filtered depth map, no geometric clearance rule and no route

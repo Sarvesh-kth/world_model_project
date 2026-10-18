@@ -16,7 +16,7 @@ from environment.config import Config
 from environment.rewards import fill_weights
 from data_collection.scripted_policy import ScriptedPickPlace
 from world_model.common import SIMULATION, load_run, save_csv, write_json, outcome_metrics
-from rl.task_control import GoalReward, TaskSession, policy_observation, predicted_reward
+from rl.task_control import GoalReward, TaskSession, policy_observation, predicted_reward, hand_window
 from . import mpc, planner
 
 # Run the controllers on fresh scenes of one layout and compare them:
@@ -175,7 +175,11 @@ class Policy:
     baseline_run = pathlib.Path(baseline_run)
     self.sac = SAC.load(baseline_run / "models/sac_best.zip", device="cpu")
     options = json.loads((baseline_run / "pipeline.json").read_text())["inputs"]["options"]
-    self.heightmap = options.get("obstacles") is not None
+    # a policy trained with --obstacle-map reads the 16x16 obstacle-only map, one with --obstacles alone the 8x8 height map
+    self.obstacle_map = options.get("obstacle_map") or None
+    self.window = self.obstacle_map in ("window", "both")
+    self.coarse = self.obstacle_map == "both"
+    self.heightmap = options.get("obstacles") is not None and not self.obstacle_map
 
   def act(self, observation):
     return self.sac.predict(observation, deterministic=True)[0]
@@ -288,7 +292,8 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
     shutil.rmtree(folder)
   folder.mkdir(parents=True)
   visual = method in ("rl_q", "jepa_mpc", "sac_imagined", "mpc")
-  session = TaskSession(cfg, layout, args.position_jitter, heightmap=policy is not None and policy.heightmap)
+  session = TaskSession(cfg, layout, args.position_jitter, heightmap=policy is not None and policy.heightmap,
+                        obstacle_map=policy.obstacle_map if policy is not None else None)
   goal = np.array([*layout["place"], rest_z], np.float32)
   memory = GoalReward(cfg)
   task_memory = planner.TaskMemory(args.cube_anchor)
@@ -348,7 +353,9 @@ def episode(root, method, seed, cfg, layout, rest_z, args, policy=None, models=N
         action = policy.act(obs)
       elif method in ("rl_q", "sac_imagined"):
         estimate = policy_observation(p, xyz, held, memory, goal, rest_z, 1 - step / cfg.episode.max_steps,
-                                      heightmap if policy.heightmap else None)
+                                      heightmap if policy.heightmap else None,
+                                      hand_window(session.obstacle_map_now, p, cfg, policy.coarse) if policy.window
+                                      else session.obstacle_map_now if policy.obstacle_map else None)
         action = policy.act(estimate)
       elif method == "mpc":
         decision = mpc.plan_standalone(models, z, p, memory, goal, rest_z, step, cfg, settings,

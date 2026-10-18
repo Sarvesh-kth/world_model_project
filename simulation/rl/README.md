@@ -14,7 +14,32 @@ rl_baseline.py    the command: train, evaluate on fresh seeds, write the run fol
 ```bash
 python -m rl.rl_baseline --out data/rl_baseline_v1                      # about 1 h; the frozen policy in models/sac_best.zip
 python -m rl.rl_baseline --out data/rl_obstacles_v2 --obstacles 1 3     # obstacle-aware: fresh obstacles per episode, the 8x8 height map in the observation
+python -m rl.rl_baseline --out data/sac_priv_v1 --random-ends --obstacles 0 3 --obstacle-map window \
+  --recorded-run data/episodes_v3 --cube-noise 0.01 --net 256 256 --demos 200 --rl-steps 300000 \
+  --eval-every 20000 --validation-episodes 40                           # the MPC's scene distribution, see below
+bash sac_priv_eval.sh data/sac_priv_v1 10                               # mpc against rl_q on 10 scenes x 0/1/2/3 obstacles
 ```
+
+## The simulator-trained SAC on the MPC's scenes (`--random-ends`, 2026-10-18)
+
+The comparison row for the MPC: a SAC that learns from the simulator's own reward and penalties (not from
+R or D) and runs on Q's cube estimate at test time (`rl_q`). `--random-ends` samples a whole new scene per
+episode with the environment's sampler and the models' own config (`models/v3c/info.json`: cube and goal
+anywhere on the reachable table, grey cube of random size and mass, `--obstacles 0 3` obstacles in between),
+the distribution `episodes_v3` was collected on and `control_pipeline --random-ends` tests on.
+`--obstacle-map full` puts the 16x16 obstacle-only depth map (`env.obstacle_map()`, the map the MPC's obstacle
+model reads, 256 numbers scaled by 4) in the observation instead of the 8x8 height map, refreshed as a
+running maximum every 5 steps in training and every step in the controller; `--obstacle-map window` the 9x9
+window of it around the hand's cell plus the hand's offset in its cell (83 numbers, `hand_window`), the
+obstacle model's own view: the whole map plateaued at 12-14/30 validation placements with ~1,000 contact
+steps (the net has to memorise layouts), the window is the same geometry seen from the hand wherever it is. `--recorded-run` turns the
+recorded episodes of a run (every state, action and reward term in its manifest) into transitions for the
+replay buffer: the policy observation from the recorded robot state, cube and held flag, the GoalReward
+replayed from the recorded contacts and proximity, the obstacle map rendered once per scene from its layout
+(`recorded.npz`). Only the noise-free scripted placements (`case: success`) join the fresh `--demos` in the
+BC set; misses, drops, collisions and random motion are replay only. `--cube-noise 0.01` jitters the cube
+position the policy sees by a centimetre so Q's error at run time is nothing new. Validation and the test
+use the same sampler (seeds as before).
 
 ## The task as the policy sees it
 

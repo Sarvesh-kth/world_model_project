@@ -8,6 +8,59 @@ relative to the repository root unless stated otherwise. On Kuba's cluster:
 $HOME/Robots&EmbodiedAI/project/world_model_sac_obstacles
 ```
 
+## 18 October: the simulator-trained SAC against the MPC, 0-3 obstacles (branch `sac_priv_testing`)
+
+The imagined SACs above had no obstacle input and learned from imagined rewards, so the table above says
+little about SAC versus MPC. This branch adds the row that was missing: a SAC trained in the simulator
+with the simulator's own reward and penalties (placement +15, collision, proximity, table hit, drop, fail),
+the obstacles seen through the same obstacle-only depth map the MPC's obstacle model reads (a 9x9 window
+around the hand plus the map pooled to 8x8), and Q's cube estimate through the cameras at test time
+(`rl_q`). The MPC code and settings were not touched. [simulation/SAC_PRIV.md](simulation/SAC_PRIV.md)
+has the method, the cluster commands and the retraining command; the policy is `simulation/models/sac_priv_v1`.
+
+Local run on this laptop (RTX 4060), 10 fresh random-end scenes per obstacle count, seeds `20494010-19`,
+both controllers on the same scenes (`results/sac_priv_eval_<n>/`):
+
+| Controller | 0 obstacles | 1 | 2 | 3 | All | Obstacle contact steps |
+|---|---:|---:|---:|---:|---:|---:|
+| Calle MPC (unchanged) | 7/10 | 7/10 | 7/10 | 5/10 | 26/40 | 0 |
+| SAC on Q, `rl_q` | 5/10 | 4/10 | 4/10 | 1/10 | 14/40 | 262 (5 scenes) |
+| SAC on the exact state, `rl_true` (diagnostic) | 8/10 | 6/10 | 7/10 | 6/10 | 27/40 | 91 (3 scenes) |
+
+Median final B distance of the MPC's placements 2.4-3.5 cm (21 cm on 3 obstacles, where half fail), of the
+SAC's 6.6-7.4 cm. Scenes solved by the MPC only: 15; by the SAC only: 3; by both: 11; by neither: 11.
+Decision time 340-540 ms for the MPC with the GPU shared, 1 ms for the SAC.
+
+What the numbers say:
+
+- The SAC itself is as good as the MPC: on the exact state it places 27/40 against the MPC's 26/40, and
+  it is the only one of the two that gets 6/10 on three obstacles. But it touches obstacles (91 contact
+  steps in 3 scenes); the MPC never does, on any count.
+- Through Q it loses half of that (14/40). Every one of its failures on 0-1 obstacles is "held but never
+  lifted" or a carry that never arrives: the policy was trained on the exact cube and an immediate contact
+  flag, and at test time Q reads the cube 1-2 cm off at the grasp (fingers close on the edge, the cube
+  slips after 3-4 steps, no retry) or the width rule keeps saying held after a slip, so it carries air to
+  B. The MPC runs on the same Q but re-plans every step and has the empty-grip cost and the gripper
+  envelope, so a missed grasp costs it a few steps instead of the episode.
+- Training (validation = 10 empty + 20 one-to-three obstacle scenes, every 20k steps): the whole 256-cell
+  map plateaued at 12-15/30 with ~1,000 contact steps (the policy has to memorise layouts); the hand-centred
+  window went to 17/30; window + coarse map with 500 demonstrations 18/30 from cloning and 20/30 after 20k
+  SAC steps (the packaged policy); 1,200 demonstrations with a short cloning 20/30 from cloning alone
+  (13/20 on obstacles) and 18/30 after 20k steps with the fewest contacts (264). Demonstrations are the
+  lever; RL adds a few placements in the first 20-40k steps and then drifts (-2 to -3 by 100k).
+
+Why the MPC scores 7/10 on empty tables here and 30/30 above: same code and settings, different scenes
+(seed base 20475010 there, the pipeline default 20474010 here). In two of the ten local scenes Q reads the
+cube 4-5 cm off along y for the whole episode and the planner never gets there; re-running the MPC here
+on two of the cluster's own edge scenes (20495037, 20495038) placed both with Q's error at the cluster's
+level, so the local renderer is not the cause. Twenty scenes per count on the cluster will settle the rates.
+
+Gripper yaw (checked on request, nothing changed): the MPC samples `dyaw` like the three translations and
+no score term mentions yaw, so the yaw random-walks 3-5 degrees per step and sweeps about 90 degrees per
+episode, often pinned at the +-90 limit. It does not decide outcomes: the finger misalignment to the cube
+face at the first grasp averages 22 degrees for successes and failures alike in the 60 matched episodes,
+and grasps succeeded at up to 44 degrees.
+
 ## What was evaluated
 
 Two fresh imagined-SAC policies use Calle's original trainer, recorded
